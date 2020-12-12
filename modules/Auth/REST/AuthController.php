@@ -2,11 +2,14 @@
 
 namespace YouSaidItCards\Modules\Auth\REST;
 
+use Stackonet\WP\Framework\Supports\Validate;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
+use WP_User;
 use YouSaidItCards\Modules\Auth\Auth;
+use YouSaidItCards\Modules\Auth\Models\SocialAuthProvider;
 use YouSaidItCards\Modules\Auth\Models\User;
 use YouSaidItCards\REST\ApiController;
 
@@ -67,13 +70,29 @@ class AuthController extends ApiController {
 
 		$username = $request->get_param( 'username' );
 		$password = $request->get_param( 'password' );
-		$remember = (bool) $request->get_param( 'remember' );
+		$remember = Validate::checked( $request->get_param( 'remember' ) );
 
-		$user = wp_authenticate( $username, $password );
+		$provider = $request->get_param( 'provider' );
+		$provider = in_array( $provider, SocialAuthProvider::get_providers() ) ? $provider : 'default';
+
+		if ( 'default' == $provider ) {
+			if ( ! ( username_exists( $username ) || email_exists( $username ) ) ) {
+				return $this->respondNotFound( 'username_not_found', 'No user found with this email address.' );
+			}
+			/** @var WP_User|WP_Error $user */
+			$user = wp_authenticate( $username, $password );
+		} else {
+			$provider_id = $request->get_param( 'provider_id' );
+			/** @var WP_User|WP_Error $user */
+			$user = SocialAuthProvider::authenticate( $provider, $provider_id );
+		}
 
 		if ( is_wp_error( $user ) ) {
-			return $this->respondUnprocessableEntity( 'authentication_failed',
-				'Invalid username, email address or incorrect password.' );
+			if ( $user->get_error_code() == 'incorrect_password' ) {
+				return $this->respondUnprocessableEntity( $user->get_error_code(), 'The password you entered is incorrect.' );
+			}
+
+			return $this->respondWithError( $user );
 		}
 
 		$token = Auth::get_token_for_user( $user, $remember ? 52 : 4 );

@@ -29,4 +29,8 @@ class AuthManager {
 
 		return self::$instance;
 	}
+
+	public static function activation() {
+		Migration::create_table();
+	}
 }
