@@ -5,6 +5,7 @@ namespace YouSaidItCards\Modules\Auth\REST;
 use WP_REST_Server;
 use YouSaidItCards\Modules\Auth\CopyAvatarFromSocialProvider;
 use YouSaidItCards\Modules\Auth\Models\SocialAuthProvider;
+use YouSaidItCards\Modules\Auth\Models\User;
 use YouSaidItCards\Modules\Auth\RegistrationConfirmEmail;
 use YouSaidItCards\REST\ApiController;
 
@@ -50,7 +51,9 @@ class UserRegistrationController extends ApiController {
 				'callback' => [ $this, 'generate_token' ],
 				'args'     => [
 					'email' => [
-						'type' => 'string',
+						'description' => __( 'User email address.' ),
+						'type'        => 'string',
+						'required'    => true,
 					]
 				],
 			],
@@ -60,8 +63,15 @@ class UserRegistrationController extends ApiController {
 				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => [ $this, 'verify_token' ],
 				'args'     => [
+					'email' => [
+						'description' => __( 'User email address.' ),
+						'type'        => 'string',
+						'required'    => true,
+					],
 					'token' => [
-						'type' => 'string',
+						'description' => __( 'Token' ),
+						'type'        => 'string',
+						'required'    => true,
 					]
 				],
 			],
@@ -101,6 +111,7 @@ class UserRegistrationController extends ApiController {
 
 		$provider    = $request->get_param( 'provider' );
 		$provider_id = $request->get_param( 'provider_id' );
+
 		if ( $provider && $provider_id ) {
 			$password = $confirm_password = wp_generate_password();
 		}
@@ -117,6 +128,8 @@ class UserRegistrationController extends ApiController {
 		if ( is_wp_error( $user_id ) ) {
 			return $this->respondUnprocessableEntity( 'undefined_error', 'Something went wrong. Please try again.' );
 		}
+
+		$user = get_user_by( 'id', $user_id );
 
 		if ( in_array( $provider, SocialAuthProvider::get_providers() ) && ! empty( $provider_id ) ) {
 			$name_parts = explode( " ", $name );
@@ -136,28 +149,81 @@ class UserRegistrationController extends ApiController {
 			SocialAuthProvider::create_or_update( $data );
 
 			$avatar_url = $request->get_param( 'avatar_url' );
-			new CopyAvatarFromSocialProvider( $user_id, $avatar_url );
+			if ( ! empty( $avatar_url ) ) {
+				new CopyAvatarFromSocialProvider( $user_id, $avatar_url );
+			}
+			update_user_meta( $user_id, '_is_registration_verified', 'yes' );
+		} else {
+			update_user_meta( $user_id, '_is_registration_verified', 'no' );
+			// Send email to user
+			( new RegistrationConfirmEmail( $user ) )->send();
 		}
 
-		$user = get_user_by( 'id', $user_id );
-		// Send email to user
-		( new RegistrationConfirmEmail( $user ) )->send();
-
-		return $this->respondCreated( [ 'user' => $user ] );
+		return $this->respondCreated( [ 'user' => new User( $user ) ] );
 	}
 
 	/**
 	 * @param \WP_REST_Request $request
 	 */
 	public function generate_token( \WP_REST_Request $request ) {
-		$token = '';
+		$email = strtolower( $request->get_param( 'email' ) );
+		if ( ! is_email( $email ) ) {
+			return $this->respondUnprocessableEntity( 'rest_required_field_missing', 'Email is required.' );
+		}
+
+		// Check if user already registered
+		if ( ! ( username_exists( $email ) || email_exists( $email ) || SocialAuthProvider::email_exists( $email ) ) ) {
+			return $this->respondNotFound();
+		}
+
+		$user = get_user_by( 'email', $email );
+		if ( ! $user instanceof \WP_User ) {
+			return $this->respondNotFound();
+		}
+
+		( new RegistrationConfirmEmail( $user ) )->send();
+
+		return $this->respondOK( 'A new token has been sent to your email address.' );
 	}
 
 	/**
 	 * @param \WP_REST_Request $request
 	 */
 	public function verify_token( \WP_REST_Request $request ) {
-		$token = '';
+		$token = strtolower( $request->get_param( 'token' ) );
+		$email = strtolower( $request->get_param( 'email' ) );
+		if ( ! is_email( $email ) || empty( $token ) ) {
+			return $this->respondUnprocessableEntity( 'rest_required_field_missing', 'Email and token are required.' );
+		}
+
+		// Check if user already registered
+		if ( ! ( username_exists( $email ) || email_exists( $email ) || SocialAuthProvider::email_exists( $email ) ) ) {
+			return $this->respondNotFound();
+		}
+
+		$user = get_user_by( 'email', $email );
+		if ( ! $user instanceof \WP_User ) {
+			return $this->respondNotFound();
+		}
+
+		$token_info = (array) get_user_meta( $user->ID, '_registration_verification_code', true );
+		if ( ! isset( $token_info['code'], $token_info['not_before'], $token_info['not_after'] ) ) {
+			return $this->respondUnprocessableEntity( null, 'Token has been expired.' );
+		}
+
+		$now        = time();
+		$not_before = strtotime( $token_info['not_before'] );
+		$not_after  = strtotime( $token_info['not_after'] );
+
+		if ( $token_info['code'] != $token || $now < $not_before || $now > $not_after ) {
+			return $this->respondUnprocessableEntity( null, 'Token has been expired.' );
+		}
+
+		delete_user_meta( $user->ID, '_registration_verification_code' );
+		update_user_meta( $user->ID, '_is_registration_verified', 'yes' );
+
+		return $this->respondOK( 'Account has been verified successfully.' );
+
 	}
 
 	/**
@@ -250,48 +316,65 @@ class UserRegistrationController extends ApiController {
 	 */
 	public function create_item_params(): array {
 		return [
-			'email'            => array(
+			'email'            => [
 				'description'       => __( 'User email address. Must be unique.' ),
 				'type'              => 'string',
+				'required'          => true,
 				'sanitize_callback' => 'sanitize_email',
 				'validate_callback' => 'rest_validate_request_arg',
-			),
-			'username'         => array(
+			],
+			'username'         => [
 				'description'       => __( 'User username. Must be unique.' ),
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
 				'validate_callback' => 'rest_validate_request_arg',
-			),
-			'name'             => array(
+			],
+			'name'             => [
 				'description'       => __( 'User name.' ),
 				'type'              => 'string',
+				'required'          => true,
 				'sanitize_callback' => 'sanitize_text_field',
 				'validate_callback' => 'rest_validate_request_arg',
-			),
-			'password'         => array(
+			],
+			'password'         => [
 				'description'       => __( 'User password.' ),
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
 				'validate_callback' => 'rest_validate_request_arg',
-			),
-			'confirm_password' => array(
+			],
+			'confirm_password' => [
 				'description'       => __( 'User confirm password.' ),
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
 				'validate_callback' => 'rest_validate_request_arg',
-			),
-			'phone_number'     => array(
+			],
+			'phone_number'     => [
 				'description'       => __( 'User phone number.' ),
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
 				'validate_callback' => 'rest_validate_request_arg',
-			),
-			'avatar_url'       => array(
+			],
+			'provider'         => [
+				'description'       => __( 'Social Auth provider' ),
+				'type'              => 'string',
+				'default'           => '',
+				'sanitize_callback' => 'sanitize_text_field',
+				'validate_callback' => 'rest_validate_request_arg',
+				'enum'              => SocialAuthProvider::get_providers(),
+			],
+			'provider_id'      => [
+				'description'       => __( 'Social Auth provider unique id' ),
+				'type'              => 'string',
+				'default'           => '',
+				'sanitize_callback' => 'sanitize_text_field',
+				'validate_callback' => 'rest_validate_request_arg',
+			],
+			'avatar_url'       => [
 				'description'       => __( 'User avatar url from social provider' ),
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_email',
 				'validate_callback' => 'rest_validate_request_arg',
-			),
+			],
 		];
 	}
 }

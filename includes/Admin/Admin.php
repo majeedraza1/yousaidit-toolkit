@@ -23,7 +23,7 @@ class Admin {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self();
 
-			add_action( 'admin_menu', [ self::$instance, 'add_menu' ] );
+			// add_action( 'admin_menu', [ self::$instance, 'add_menu' ] );
 		}
 
 		return self::$instance;

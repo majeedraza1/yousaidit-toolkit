@@ -23,8 +23,8 @@ class Frontend {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self();
 
-			add_shortcode( 'stackonet_frontend_sample', [ self::$instance, 'frontend_sample' ] );
-			add_action( 'wp_enqueue_scripts', [ self::$instance, 'frontend_scripts' ] );
+			// add_shortcode( 'stackonet_frontend_sample', [ self::$instance, 'frontend_sample' ] );
+			// add_action( 'wp_enqueue_scripts', [ self::$instance, 'frontend_scripts' ] );
 		}
 
 		return self::$instance;

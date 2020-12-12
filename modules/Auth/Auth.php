@@ -6,6 +6,7 @@ use Exception;
 use Firebase\JWT\JWT;
 use WP_Error;
 use WP_User;
+use YouSaidItCards\Modules\Auth\Models\SocialAuthProvider;
 
 // If this file is called directly, abort.
 defined( 'ABSPATH' ) || die;
@@ -336,26 +337,41 @@ class Auth {
 	 *
 	 * @return array
 	 */
-	public static function generate_token_rest_params() {
+	public static function generate_token_rest_params(): array {
 		return [
-			'username' => [
+			'username'    => [
 				'description'       => __( 'WordPress username.', 'stackonet-jwt-auth' ),
 				'type'              => 'string',
-				'required'          => true,
+				'required'          => false,
 				'sanitize_callback' => 'sanitize_text_field',
 				'validate_callback' => 'rest_validate_request_arg',
 			],
-			'password' => [
+			'password'    => [
 				'description'       => __( 'User login password.', 'stackonet-jwt-auth' ),
 				'type'              => 'string',
-				'required'          => true,
+				'required'          => false,
 				'sanitize_callback' => 'sanitize_text_field',
 				'validate_callback' => 'rest_validate_request_arg',
 			],
-			'remember' => [
+			'remember'    => [
 				'description'       => __( 'Remember user for long time.' ),
 				'type'              => 'boolean',
 				'default'           => false,
+				'sanitize_callback' => 'sanitize_text_field',
+				'validate_callback' => 'rest_validate_request_arg',
+			],
+			'provider'    => [
+				'description'       => __( 'Social Auth provider' ),
+				'type'              => 'string',
+				'default'           => '',
+				'sanitize_callback' => 'sanitize_text_field',
+				'validate_callback' => 'rest_validate_request_arg',
+				'enum'              => SocialAuthProvider::get_providers(),
+			],
+			'provider_id' => [
+				'description'       => __( 'Social Auth provider unique id' ),
+				'type'              => 'string',
+				'default'           => '',
 				'sanitize_callback' => 'sanitize_text_field',
 				'validate_callback' => 'rest_validate_request_arg',
 			],

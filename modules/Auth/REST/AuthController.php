@@ -95,6 +95,11 @@ class AuthController extends ApiController {
 			return $this->respondWithError( $user );
 		}
 
+		$auth_user = new User( $user );
+		if ( ! $auth_user->is_registration_verified() ) {
+			return $this->respondUnauthorized( null, 'Please verify you email first.' );
+		}
+
 		$token = Auth::get_token_for_user( $user, $remember ? 52 : 4 );
 		if ( is_wp_error( $token ) ) {
 			return $this->respondWithError( $token );

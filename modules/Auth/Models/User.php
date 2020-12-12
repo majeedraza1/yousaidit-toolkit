@@ -27,6 +27,7 @@ class User implements \JsonSerializable {
 			'email'        => $user->user_email,
 			'display_name' => $user->display_name,
 			'avatar_url'   => get_avatar_url( $user, [ 'default' => 'mm' ] ),
+			'is_verified'  => $this->is_registration_verified(),
 		];
 	}
 
@@ -35,6 +36,17 @@ class User implements \JsonSerializable {
 	 */
 	public function get_user(): WP_User {
 		return $this->user;
+	}
+
+	/**
+	 * Check if registration verified
+	 *
+	 * @return bool
+	 */
+	public function is_registration_verified(): bool {
+		$is_verified = get_user_meta( $this->get_user()->ID, '_is_registration_verified', true );
+
+		return 'yes' == $is_verified;
 	}
 
 	/**

@@ -4,6 +4,7 @@ namespace YouSaidItCards\Modules\Auth;
 
 use YouSaidItCards\Modules\Auth\REST\AuthController;
 use YouSaidItCards\Modules\Auth\REST\UserProfileController;
+use YouSaidItCards\Modules\Auth\REST\UserRegistrationController;
 
 class AuthManager {
 	/**
@@ -24,6 +25,7 @@ class AuthManager {
 
 			Auth::init();
 			AuthController::init();
+			UserRegistrationController::init();
 			UserProfileController::init();
 		}
 
