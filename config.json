@@ -1,0 +1,14 @@
+{
+  "proxyURL": "http://yousaid.test/wp-admin",
+  "entryPoints": {
+    "frontend": [
+      "./assets/src/scss/frontend.scss",
+      "./assets/src/frontend/stackonet/main.js",
+      "./assets/src/frontend/main.js"
+    ],
+    "admin": [
+      "./assets/src/scss/admin.scss",
+      "./assets/src/admin/stackonet/main.js"
+    ]
+  }
+}
