@@ -9,6 +9,7 @@ use WP_REST_Server;
 use YouSaidItCards\Admin\Admin;
 use YouSaidItCards\Frontend\Frontend;
 use YouSaidItCards\Modules\Auth\AuthManager;
+use YouSaidItCards\Modules\WooCommerce\WooCommerceManager;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -84,6 +85,7 @@ class Plugin {
 	 */
 	public function modules_includes() {
 		$this->container['module_auth'] = AuthManager::init();
+		$this->container['module_wc']   = WooCommerceManager::init();
 	}
 
 	/**

@@ -34,22 +34,30 @@ class UserRegistrationController extends ApiController {
 		return self::$instance;
 	}
 
+	public function not_logged_in(): bool {
+		$user = wp_get_current_user();
+
+		return ! $user->exists();
+	}
+
 	/**
 	 * Registers the routes for the objects of the controller.
 	 */
 	public function register_routes() {
 		register_rest_route( $this->namespace, '/registration', [
 			[
-				'methods'  => WP_REST_Server::CREATABLE,
-				'callback' => [ $this, 'create_item' ],
-				'args'     => $this->create_item_params(),
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => [ $this, 'create_item' ],
+				'permission_callback' => [ $this, 'not_logged_in' ],
+				'args'                => $this->create_item_params(),
 			],
 		] );
 		register_rest_route( $this->namespace, '/registration/token', [
 			[
-				'methods'  => WP_REST_Server::CREATABLE,
-				'callback' => [ $this, 'generate_token' ],
-				'args'     => [
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => [ $this, 'generate_token' ],
+				'permission_callback' => [ $this, 'not_logged_in' ],
+				'args'                => [
 					'email' => [
 						'description' => __( 'User email address.' ),
 						'type'        => 'string',
@@ -60,9 +68,10 @@ class UserRegistrationController extends ApiController {
 		] );
 		register_rest_route( $this->namespace, '/registration/verify', [
 			[
-				'methods'  => WP_REST_Server::CREATABLE,
-				'callback' => [ $this, 'verify_token' ],
-				'args'     => [
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => [ $this, 'verify_token' ],
+				'permission_callback' => [ $this, 'not_logged_in' ],
+				'args'                => [
 					'email' => [
 						'description' => __( 'User email address.' ),
 						'type'        => 'string',
@@ -357,7 +366,6 @@ class UserRegistrationController extends ApiController {
 			'provider'         => [
 				'description'       => __( 'Social Auth provider' ),
 				'type'              => 'string',
-				'default'           => '',
 				'sanitize_callback' => 'sanitize_text_field',
 				'validate_callback' => 'rest_validate_request_arg',
 				'enum'              => SocialAuthProvider::get_providers(),
@@ -365,7 +373,6 @@ class UserRegistrationController extends ApiController {
 			'provider_id'      => [
 				'description'       => __( 'Social Auth provider unique id' ),
 				'type'              => 'string',
-				'default'           => '',
 				'sanitize_callback' => 'sanitize_text_field',
 				'validate_callback' => 'rest_validate_request_arg',
 			],

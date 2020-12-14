@@ -23,7 +23,7 @@ class UserProfileController extends ApiController {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self();
 
-			add_action( 'rest_api_init', array( self::$instance, 'register_routes' ) );
+			add_action( 'rest_api_init', [ self::$instance, 'register_routes' ] );
 		}
 
 		return self::$instance;
