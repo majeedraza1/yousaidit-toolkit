@@ -1,11 +1,13 @@
 <?php
 
-namespace YouSaidItCards\Modules\Auth;
+namespace YouSaidItCards\Modules\Customer;
 
-use YouSaidItCards\Modules\Auth\REST\AuthController;
-use YouSaidItCards\Modules\Auth\REST\UserRegistrationController;
+use YouSaidItCards\Modules\Customer\Models\BaseAddress;
+use YouSaidItCards\Modules\Customer\REST\AddressController;
+use YouSaidItCards\Modules\Customer\REST\UserProfileController;
 
-class AuthManager {
+class CustomerManager {
+
 	/**
 	 * The instance of the class
 	 *
@@ -22,15 +24,14 @@ class AuthManager {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self();
 
-			Auth::init();
-			AuthController::init();
-			UserRegistrationController::init();
+			AddressController::init();
+			UserProfileController::init();
 		}
 
 		return self::$instance;
 	}
 
 	public static function activation() {
-		Migration::create_table();
+		BaseAddress::create_table();
 	}
 }

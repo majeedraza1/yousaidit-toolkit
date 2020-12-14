@@ -1,6 +1,6 @@
 <?php
 
-namespace YouSaidItCards\Modules\Auth\REST;
+namespace YouSaidItCards\Modules\Customer\REST;
 
 use WP_REST_Server;
 use YouSaidItCards\Modules\Auth\Auth;
