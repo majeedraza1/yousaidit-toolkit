@@ -4,6 +4,7 @@ namespace YouSaidItCards\Modules\Customer;
 
 use YouSaidItCards\Modules\Customer\Models\BaseAddress;
 use YouSaidItCards\Modules\Customer\REST\AddressController;
+use YouSaidItCards\Modules\Customer\REST\MyAccountController;
 use YouSaidItCards\Modules\Customer\REST\UserProfileController;
 
 class CustomerManager {
@@ -26,6 +27,7 @@ class CustomerManager {
 
 			AddressController::init();
 			UserProfileController::init();
+			MyAccountController::init();
 		}
 
 		return self::$instance;

@@ -8,7 +8,6 @@ use WP_Error;
 use WP_User;
 use YouSaidItCards\Modules\Auth\Models\SocialAuthProvider;
 
-// If this file is called directly, abort.
 defined( 'ABSPATH' ) || die;
 
 class Auth {
@@ -63,7 +62,7 @@ class Auth {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self();
 
-			add_action( 'rest_api_init', [ self::$instance, 'add_cors_support' ] );
+			add_filter( 'rest_allowed_cors_headers', [ self::$instance, 'add_cors_support' ], 20 );
 			add_filter( 'determine_current_user', [ self::$instance, 'determine_current_user' ], 20 );
 			add_filter( 'rest_pre_dispatch', [ self::$instance, 'jwt_auth_error_response' ] );
 		}
@@ -73,20 +72,37 @@ class Auth {
 
 	/**
 	 * Add CORS support to the request.
+	 *
+	 * @param array $allow_headers
+	 *
+	 * @return array
 	 */
-	public static function add_cors_support() {
+	public static function add_cors_support( array $allow_headers ): array {
 		static::init_config();
 		if ( static::$enable_cors ) {
-			$allow_headers = [
-				'Access-Control-Allow-Headers',
-				'Content-Type',
-				'Authorization',
-				'X-WP-Nonce',
-				'X-Auth-Token'
-			];
-			$headers       = apply_filters( 'jwt_auth_cors_allow_headers', implode( ', ', $allow_headers ) );
-			header( sprintf( 'Access-Control-Allow-Headers: %s', $headers ) );
+			$allow_headers = array_unique( array_merge(
+				$allow_headers,
+				[ 'Authorization', 'X-WP-Nonce', 'X-Auth-Token' ]
+			) );
 		}
+
+		return $allow_headers;
+	}
+
+	/**
+	 * Filter to hook the rest_pre_dispatch, if the is an error in the request
+	 * send it, if there is no error just continue with the current request.
+	 *
+	 * @param mixed $result
+	 *
+	 * @return mixed
+	 */
+	public static function jwt_auth_error_response( $result ) {
+		if ( is_wp_error( static::$jwt_error ) ) {
+			return apply_filters( 'jwt_auth_error_response', static::$jwt_error );
+		}
+
+		return $result;
 	}
 
 	/**
@@ -98,7 +114,6 @@ class Auth {
 	 * @return int|bool
 	 */
 	public static function determine_current_user( $user_id ) {
-
 		// Don't authenticate twice
 		if ( ! empty( $user_id ) ) {
 			return $user_id;
@@ -147,24 +162,8 @@ class Auth {
 			}
 		}
 
-		/** Everything is ok, return the user ID stored in the token*/
+		//  Everything is ok, return the user ID stored in the token
 		return $token->data->user->id;
-	}
-
-	/**
-	 * Filter to hook the rest_pre_dispatch, if the is an error in the request
-	 * send it, if there is no error just continue with the current request.
-	 *
-	 * @param mixed $result
-	 *
-	 * @return mixed
-	 */
-	public static function jwt_auth_error_response( $result ) {
-		if ( is_wp_error( static::$jwt_error ) ) {
-			return apply_filters( 'jwt_auth_error_response', static::$jwt_error );
-		}
-
-		return $result;
 	}
 
 	/**
@@ -177,14 +176,6 @@ class Auth {
 	 */
 	public static function get_token_for_user( $user, $for_week = 4 ) {
 		static::init_config();
-
-		/** First thing, check the secret key if not exist return a error*/
-		if ( empty( static::$secret_key ) ) {
-			return new WP_Error( 'jwt_auth_bad_config',
-				__( 'JWT is not configured properly, please contact the admin', 'stackonet-jwt-auth' ),
-				array( 'status' => 403, )
-			);
-		}
 
 		/** Valid credentials, the user exists create the according Token */
 		$issued_at  = time();
@@ -218,16 +209,8 @@ class Auth {
 	 *
 	 * @return array|WP_Error
 	 */
-	public static function generate_token( $username, $password ) {
+	public static function generate_token( string $username, string $password ) {
 		static::init_config();
-
-		/** First thing, check the secret key if not exist return a error*/
-		if ( empty( static::$secret_key ) ) {
-			return new WP_Error( 'jwt_auth_bad_config',
-				__( 'JWT is not configured properly, please contact the admin', 'stackonet-jwt-auth' ),
-				[ 'status' => 403, ]
-			);
-		}
 
 		/** Try to authenticate the user with the passed credentials*/
 		/** @var WP_User|WP_Error $user */
@@ -251,7 +234,7 @@ class Auth {
 	 *
 	 * @return object|WP_Error
 	 */
-	public static function validate_token( $token ) {
+	public static function validate_token( string $token ) {
 		static::init_config();
 
 		if ( empty( $token ) ) {
@@ -261,17 +244,9 @@ class Auth {
 			);
 		}
 
-		/** First thing, check the secret key if not exist return a error*/
-		if ( empty( static::$secret_key ) ) {
-			return new WP_Error( 'jwt_auth_bad_config',
-				__( 'JWT is not configured properly, please contact the admin', 'stackonet-jwt-auth' ),
-				[ 'status' => 403, ]
-			);
-		}
-
 		/** Try to decode the token */
 		try {
-			$token = JWT::decode( $token, static::$secret_key, array( 'HS256' ) );
+			$token = JWT::decode( $token, static::$secret_key, [ 'HS256' ] );
 			/** The Token is decoded now validate the iss */
 			if ( $token->iss != get_bloginfo( 'url' ) ) {
 				/** The iss do not match, return error */
@@ -329,10 +304,7 @@ class Auth {
 		}
 
 		if ( ! $auth ) {
-			return new WP_Error( 'jwt_auth_no_auth_header',
-				'Authorization header not found.',
-				array( 'status' => 403, )
-			);
+			return new WP_Error( 'jwt_auth_no_auth_header', 'Authorization header not found.', [ 'status' => 403 ] );
 		}
 
 		if ( 'request_url' == $data_location ) {
@@ -342,10 +314,7 @@ class Auth {
 			list( $token ) = sscanf( $auth, 'Bearer %s' );
 		}
 		if ( ! $token ) {
-			return new WP_Error( 'jwt_auth_bad_auth_header',
-				__( 'Authorization header malformed.', 'stackonet-jwt-auth' ),
-				[ 'status' => 403, ]
-			);
+			return new WP_Error( 'jwt_auth_bad_auth_header', 'Authorization header malformed.', [ 'status' => 403 ] );
 		}
 
 		return $token;
@@ -402,7 +371,7 @@ class Auth {
 	 *
 	 * @return array
 	 */
-	public static function validate_token_rest_params() {
+	public static function validate_token_rest_params(): array {
 		return [
 			'token' => [
 				'description'       => __( 'Auth token', 'stackonet-jwt-auth' ),
@@ -420,7 +389,7 @@ class Auth {
 	 *
 	 * @return array
 	 */
-	public static function prepare_user_for_response( WP_User $user ) {
+	public static function prepare_user_for_response( WP_User $user ): array {
 		return [
 			'id'           => $user->ID,
 			'email'        => $user->user_email,

@@ -2,6 +2,7 @@
 
 namespace YouSaidItCards\Modules\WooCommerce;
 
+use YouSaidItCards\Modules\WooCommerce\REST\OrderController;
 use YouSaidItCards\Modules\WooCommerce\REST\ProductController;
 
 class WooCommerceManager {
@@ -25,6 +26,7 @@ class WooCommerceManager {
 				[ self::$instance, 'handle_custom_query_var' ], 10, 2 );
 
 			ProductController::init();
+			OrderController::init();
 		}
 
 		return self::$instance;
