@@ -77,7 +77,13 @@ class Auth {
 	public static function add_cors_support() {
 		static::init_config();
 		if ( static::$enable_cors ) {
-			$allow_headers = [ 'Access-Control-Allow-Headers', 'Content-Type', 'Authorization', 'X-WP-Nonce' ];
+			$allow_headers = [
+				'Access-Control-Allow-Headers',
+				'Content-Type',
+				'Authorization',
+				'X-WP-Nonce',
+				'X-Auth-Token'
+			];
 			$headers       = apply_filters( 'jwt_auth_cors_allow_headers', implode( ', ', $allow_headers ) );
 			header( sprintf( 'Access-Control-Allow-Headers: %s', $headers ) );
 		}
@@ -299,15 +305,23 @@ class Auth {
 	 * @return string|WP_Error
 	 */
 	public static function get_auth_token() {
-		/*
-		 * Looking for the HTTP_AUTHORIZATION header, if not present just
-		 * return the user.
-		 */
+		// Looking for the HTTP_AUTHORIZATION header, if not present just return the user.
 		$auth = isset( $_SERVER['HTTP_AUTHORIZATION'] ) ? $_SERVER['HTTP_AUTHORIZATION'] : false;
 
-		/* Double check for different auth header string (server dependent) */
+		// Double check for different auth header string (server dependent)
 		if ( ! $auth ) {
 			$auth = isset( $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ) ? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] : false;
+		}
+
+		if ( ! $auth ) {
+			$auth = isset( $_SERVER['HTTP_X_AUTH_TOKEN'] ) ? $_SERVER['HTTP_X_AUTH_TOKEN'] : false;
+		}
+
+		$data_location = 'header';
+		// Add support for auth key from query string
+		if ( ! $auth ) {
+			$auth          = isset( $_REQUEST['_auth_token'] ) ? $_REQUEST['_auth_token'] : false;
+			$data_location = 'request_url';
 		}
 
 		if ( ! $auth ) {
@@ -317,11 +331,12 @@ class Auth {
 			);
 		}
 
-		/*
-		 * The HTTP_AUTHORIZATION is present verify the format
-		 * if the format is wrong return the user.
-		 */
-		list( $token ) = sscanf( $auth, 'Bearer %s' );
+		if ( '' == $data_location ) {
+			$token = $auth;
+		} else {
+			// The HTTP_AUTHORIZATION is present verify the format if the format is wrong return the user.
+			list( $token ) = sscanf( $auth, 'Bearer %s' );
+		}
 		if ( ! $token ) {
 			return new WP_Error( 'jwt_auth_bad_auth_header',
 				__( 'Authorization header malformed.', 'stackonet-jwt-auth' ),
