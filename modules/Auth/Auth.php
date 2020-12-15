@@ -313,11 +313,15 @@ class Auth {
 			$auth = isset( $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ) ? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] : false;
 		}
 
+		$data_location = 'header';
+
+		// Check alternative header
 		if ( ! $auth ) {
+			$data_location = 'request_url';
+
 			$auth = isset( $_SERVER['HTTP_X_AUTH_TOKEN'] ) ? $_SERVER['HTTP_X_AUTH_TOKEN'] : false;
 		}
 
-		$data_location = 'header';
 		// Add support for auth key from query string
 		if ( ! $auth ) {
 			$auth          = isset( $_REQUEST['_auth_token'] ) ? $_REQUEST['_auth_token'] : false;
@@ -331,7 +335,7 @@ class Auth {
 			);
 		}
 
-		if ( '' == $data_location ) {
+		if ( 'request_url' == $data_location ) {
 			$token = $auth;
 		} else {
 			// The HTTP_AUTHORIZATION is present verify the format if the format is wrong return the user.
