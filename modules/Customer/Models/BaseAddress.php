@@ -19,6 +19,15 @@ class BaseAddress extends DatabaseModel {
 	protected $created_by = 'user_id';
 
 	/**
+	 * Get address id
+	 *
+	 * @return int
+	 */
+	public function get_id(): int {
+		return (int) $this->get( 'id' );
+	}
+
+	/**
 	 * User/Customer full name
 	 *
 	 * @return string

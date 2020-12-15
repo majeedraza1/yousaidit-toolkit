@@ -84,7 +84,7 @@ class AddressController extends ApiController {
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => [ $this, 'update_item' ],
 				'permission_callback' => [ $this, 'update_item_permissions_check' ],
-				'args'                => $this->create_item_params(),
+				'args'                => $this->update_item_params(),
 			],
 			[
 				'methods'             => WP_REST_Server::DELETABLE,
@@ -126,6 +126,19 @@ class AddressController extends ApiController {
 	 */
 	public function create_item_params(): array {
 		return BaseAddress::rest_create_item_params();
+	}
+
+	/**
+	 * @return array
+	 */
+	public function update_item_params(): array {
+		$params = [];
+		foreach ( $this->create_item_params() as $key => $config ) {
+			$config['required'] = false;
+			$params[ $key ]     = $config;
+		}
+
+		return $params;
 	}
 
 	/**

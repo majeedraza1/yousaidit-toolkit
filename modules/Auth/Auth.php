@@ -363,10 +363,10 @@ class Auth {
 			'provider'    => [
 				'description'       => __( 'Social Auth provider' ),
 				'type'              => 'string',
-				'default'           => '',
+				'default'           => 'default',
 				'sanitize_callback' => 'sanitize_text_field',
 				'validate_callback' => 'rest_validate_request_arg',
-				'enum'              => SocialAuthProvider::get_providers(),
+				'enum'              => array_merge( SocialAuthProvider::get_providers(), [ 'default' ] ),
 			],
 			'provider_id' => [
 				'description'       => __( 'Social Auth provider unique id' ),

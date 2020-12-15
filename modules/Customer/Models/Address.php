@@ -9,6 +9,7 @@ class Address extends BaseAddress {
 	 */
 	public function to_array(): array {
 		return [
+			'id'            => $this->get_id(),
 			'name'          => $this->get_name(),
 			'phone_number'  => $this->get_phone_number(),
 			'address_line1' => $this->get_address_line1(),
@@ -30,6 +31,21 @@ class Address extends BaseAddress {
 
 	public function get_state(): string {
 		return $this->get_address_level1();
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function count_records( array $args = [] ) {
+		global $wpdb;
+		$table = $this->get_table_name();
+		$sql   = "SELECT COUNT(*) AS total_records FROM {$table} WHERE 1 = 1";
+		if ( isset( $args['user_id'] ) ) {
+			$sql .= $wpdb->prepare( " AND user_id = %d", intval( $args['user_id'] ) );
+		}
+		$row = $wpdb->get_row( $sql, ARRAY_A );
+
+		return isset( $row['total_records'] ) ? intval( $row['total_records'] ) : 0;
 	}
 
 	/**
