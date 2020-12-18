@@ -2,6 +2,7 @@
 
 namespace YouSaidItCards\Modules\WooCommerce;
 
+use YouSaidItCards\Modules\WooCommerce\REST\DataController;
 use YouSaidItCards\Modules\WooCommerce\REST\OrderController;
 use YouSaidItCards\Modules\WooCommerce\REST\ProductController;
 
@@ -27,6 +28,7 @@ class WooCommerceManager {
 
 			ProductController::init();
 			OrderController::init();
+			DataController::init();
 		}
 
 		return self::$instance;

@@ -3,8 +3,10 @@
 namespace YouSaidItCards\Modules\Customer;
 
 use YouSaidItCards\Modules\Customer\Models\BaseAddress;
+use YouSaidItCards\Modules\Customer\Models\Session;
 use YouSaidItCards\Modules\Customer\REST\AddressController;
 use YouSaidItCards\Modules\Customer\REST\MyAccountController;
+use YouSaidItCards\Modules\Customer\REST\SessionController;
 use YouSaidItCards\Modules\Customer\REST\UserProfileController;
 
 class CustomerManager {
@@ -28,6 +30,7 @@ class CustomerManager {
 			AddressController::init();
 			UserProfileController::init();
 			MyAccountController::init();
+			SessionController::init();
 		}
 
 		return self::$instance;
@@ -35,5 +38,6 @@ class CustomerManager {
 
 	public static function activation() {
 		BaseAddress::create_table();
+		Session::create_table();
 	}
 }

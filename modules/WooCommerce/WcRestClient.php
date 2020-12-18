@@ -13,7 +13,29 @@ class WcRestClient extends RestClient {
 	}
 
 	/**
-	 * List order
+	 * List collection of products
+	 *
+	 * @param array $args
+	 *
+	 * @return array|\WP_Error
+	 */
+	public function list_products( array $args = [] ) {
+		return $this->get( 'products', $args );
+	}
+
+	/**
+	 * List single product
+	 *
+	 * @param int $product_id
+	 *
+	 * @return array|\WP_Error
+	 */
+	public function list_product( int $product_id ) {
+		return $this->get( 'products/' . $product_id );
+	}
+
+	/**
+	 * List collection of orders
 	 *
 	 * @param array $args
 	 *
@@ -23,7 +45,40 @@ class WcRestClient extends RestClient {
 		return $this->get( 'orders', $args );
 	}
 
-	public function list_order( $order_id ) {
+	/**
+	 * List single order
+	 *
+	 * @param int $order_id
+	 *
+	 * @return array|\WP_Error
+	 */
+	public function list_order( int $order_id ) {
 		return $this->get( 'orders/' . $order_id );
+	}
+
+	/**
+	 * List general data
+	 *
+	 * @param bool $force
+	 *
+	 * @return array
+	 */
+	public function list_general_data( bool $force = false ): array {
+		$data = get_transient( 'wc_general_data' );
+		if ( ! is_array( $data ) || $force ) {
+			$data = [
+				'taxes'            => $this->get( 'taxes' ),
+				'taxes_classes'    => $this->get( 'taxes/classes' ),
+				'payment_gateways' => $this->get( 'payment_gateways' ),
+				'shipping_zones'   => $this->get( 'shipping/zones' ),
+				'shipping_methods' => $this->get( 'shipping_methods' ),
+				'countries'        => $this->get( 'data/countries' ),
+				'currencies'       => $this->get( 'data/currencies' ),
+				'store_currency'   => $this->get( 'data/currencies/current' ),
+			];
+			set_transient( 'wc_general_data', $data, HOUR_IN_SECONDS );
+		}
+
+		return $data;
 	}
 }
