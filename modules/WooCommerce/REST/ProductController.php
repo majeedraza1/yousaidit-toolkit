@@ -114,16 +114,28 @@ class ProductController extends ApiController {
 	 * @inheritDoc
 	 */
 	public function get_items( $request ) {
-		$page     = (int) $request->get_param( 'page' );
-		$per_page = (int) $request->get_param( 'per_page' );
-		$search   = $request->get_param( 'search' );
-		$sort     = $request->get_param( 'sort' );
+		$page           = (int) $request->get_param( 'page' );
+		$per_page       = (int) $request->get_param( 'per_page' );
+		$search         = $request->get_param( 'search' );
+		$show_rude_card = $request->get_param( 'show_rude_card' );
+		$categories     = $request->get_param( 'categories' );
+		$tags           = $request->get_param( 'tags' );
+		$sort           = $request->get_param( 'sort' );
 
 		$args = [
 			'paginate' => true,
 			'limit'    => $per_page,
 			'page'     => $page,
 		];
+		if ( $show_rude_card == 'no' ) {
+			$args['show_rude_card'] = 'no';
+		}
+		if ( is_array( $categories ) && count( $categories ) ) {
+			$args['categories'] = $categories;
+		}
+		if ( is_array( $tags ) && count( $tags ) ) {
+			$args['tags'] = $tags;
+		}
 		if ( ! empty( $search ) && is_scalar( $search ) ) {
 			$products_ids    = ( new WC_Product_Data_Store_CPT )->search_products( $search, '', true );
 			$args['include'] = array_merge( $products_ids, array( 0 ) );
@@ -158,6 +170,14 @@ class ProductController extends ApiController {
 			'default'           => [],
 			'sanitize_callback' => [ $this, 'sanitize_ids' ],
 			'validate_callback' => 'rest_validate_request_arg',
+		];
+
+		$params['show_rude_card'] = [
+			'description'       => __( 'Whether to show or hide rude cards.' ),
+			'type'              => 'string',
+			'default'           => 'yes',
+			'validate_callback' => 'rest_validate_request_arg',
+			'enum'              => [ 'yes', 'no' ],
 		];
 
 		return $params;

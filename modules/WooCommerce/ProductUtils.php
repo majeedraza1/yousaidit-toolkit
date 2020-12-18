@@ -18,6 +18,11 @@ class ProductUtils {
 	public static function parse_args( array $args = [] ): array {
 		if ( isset( $args['categories'] ) ) {
 			$args['category'] = static::format_term_for_query( $args['categories'], 'product_cat' );
+			unset( $args['categories'] );
+		}
+		if ( isset( $args['tags'] ) ) {
+			$args['tag'] = static::format_term_for_query( $args['tags'], 'product_tag' );
+			unset( $args['tags'] );
 		}
 
 		$args = wp_parse_args( $args, [
