@@ -8,6 +8,7 @@ use WP_REST_Request;
 use WP_REST_Server;
 use WP_Term;
 use YouSaidItCards\Modules\WooCommerce\ProductUtils;
+use YouSaidItCards\Modules\WooCommerce\WcRestClient;
 use YouSaidItCards\REST\ApiController;
 
 class ProductController extends ApiController {
@@ -56,6 +57,11 @@ class ProductController extends ApiController {
 			'callback'            => [ $this, 'get_items' ],
 			'permission_callback' => '__return_true',
 			'args'                => $this->get_collection_params(),
+		] );
+		register_rest_route( $this->namespace, 'products/(?P<id>\d+)', [
+			'methods'             => WP_REST_Server::READABLE,
+			'callback'            => [ $this, 'get_item' ],
+			'permission_callback' => '__return_true',
 		] );
 	}
 
@@ -148,6 +154,19 @@ class ProductController extends ApiController {
 		];
 
 		return $this->respondOK( $response );
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function get_item( $request ) {
+		$client  = new WcRestClient();
+		$product = $client->list_product( (int) $request->get_param( 'id' ) );
+		if ( is_wp_error( $product ) ) {
+			return $this->respondWithError( $product );
+		}
+
+		return $this->respondOK( $product );
 	}
 
 	/**

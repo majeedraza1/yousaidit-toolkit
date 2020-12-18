@@ -5,6 +5,7 @@ namespace YouSaidItCards\Modules\WooCommerce;
 use ArrayObject;
 use WC_Product;
 use WC_Product_Query;
+use WC_Product_Variable;
 use WP_Term;
 
 class ProductUtils {
@@ -138,10 +139,15 @@ class ProductUtils {
 		return $terms;
 	}
 
+	/**
+	 * @param WC_Product|WC_Product_Variable $product
+	 *
+	 * @return array
+	 */
 	public static function format_product_for_response( WC_Product $product ): array {
 		$images = static::format_image_for_response( intval( $product->get_image_id() ) );
 
-		return [
+		$data = [
 			'product_id'    => $product->get_id(),
 			'title'         => $product->get_title(),
 			'is_on_sale'    => $product->is_on_sale(),
@@ -150,6 +156,14 @@ class ProductUtils {
 			'image'         => $images,
 			'category_ids'  => $product->get_category_ids(),
 			'tag_ids'       => $product->get_tag_ids(),
+			'product_type'  => $product->get_type(),
+			'attributes'    => $product->get_attributes(),
 		];
+
+		if ( 'variable' == $product->get_type() ) {
+			$data['variations'] = $product->get_available_variations();
+		}
+
+		return $data;
 	}
 }
