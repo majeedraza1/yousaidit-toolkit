@@ -8,6 +8,7 @@ use WP_REST_Request;
 use WP_REST_Server;
 use WP_Term;
 use YouSaidItCards\Modules\WooCommerce\ProductUtils;
+use YouSaidItCards\Modules\WooCommerce\Utils;
 use YouSaidItCards\Modules\WooCommerce\WcRestClient;
 use YouSaidItCards\REST\ApiController;
 
@@ -110,7 +111,10 @@ class ProductController extends ApiController {
 			$products_array[] = ProductUtils::format_product_for_response( $product );
 		}
 
+		$card_sizes = Utils::get_formatted_size_attribute();
+
 		return $this->respondOK( [
+			'card_sizes' => $card_sizes,
 			'products'   => $products_array,
 			'categories' => static::format_categories_collection( $categories ),
 		] );

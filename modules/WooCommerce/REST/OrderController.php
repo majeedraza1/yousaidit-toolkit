@@ -35,10 +35,17 @@ class OrderController extends ApiController {
 	 */
 	public function register_routes() {
 		register_rest_route( $this->namespace, 'me/orders', [
-			'methods'             => WP_REST_Server::READABLE,
-			'callback'            => [ $this, 'get_items' ],
-			'permission_callback' => [ $this, 'is_logged_in' ],
-			'args'                => $this->get_collection_params(),
+			[
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'get_items' ],
+				'permission_callback' => [ $this, 'is_logged_in' ],
+				'args'                => $this->get_collection_params(),
+			],
+			[
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => [ $this, 'create_item' ],
+				'permission_callback' => [ $this, 'is_logged_in' ],
+			]
 		] );
 		register_rest_route( $this->namespace, 'me/orders/(?P<id>\d+)', [
 			'methods'             => WP_REST_Server::READABLE,
@@ -65,6 +72,19 @@ class OrderController extends ApiController {
 		}
 
 		return $this->respondOK( [ 'items' => $orders ] );
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function create_item( $request ) {
+		$rest_client = new WcRestClient();
+		$order       = $rest_client->create_order( $request->get_params() );
+		if ( is_wp_error( $order ) ) {
+			return $this->respondWithError( $order );
+		}
+
+		return $this->respondOK( $order );
 	}
 
 	/**

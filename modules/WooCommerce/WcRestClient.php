@@ -46,6 +46,17 @@ class WcRestClient extends RestClient {
 	}
 
 	/**
+	 * List collection of orders
+	 *
+	 * @param array $args
+	 *
+	 * @return array|\WP_Error
+	 */
+	public function create_order( array $args = [] ) {
+		return $this->post( 'orders', $args );
+	}
+
+	/**
 	 * List single order
 	 *
 	 * @param int $order_id

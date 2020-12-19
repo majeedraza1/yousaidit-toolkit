@@ -3,6 +3,7 @@
 namespace YouSaidItCards\Modules\WooCommerce\REST;
 
 use WP_REST_Server;
+use YouSaidItCards\Modules\WooCommerce\Utils;
 use YouSaidItCards\Modules\WooCommerce\WcRestClient;
 use YouSaidItCards\REST\ApiController;
 
@@ -44,8 +45,9 @@ class DataController extends ApiController {
 	 * @inheritDoc
 	 */
 	public function get_items( $request ) {
-		$rest_client = new WcRestClient();
-		$response    = $rest_client->list_general_data();
+		$rest_client            = new WcRestClient();
+		$response               = $rest_client->list_general_data();
+		$response['card_sizes'] = Utils::get_formatted_size_attribute();
 
 		return $this->respondOK( $response );
 	}
