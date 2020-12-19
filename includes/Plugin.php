@@ -10,6 +10,7 @@ use YouSaidItCards\Admin\Admin;
 use YouSaidItCards\Frontend\Frontend;
 use YouSaidItCards\Modules\Auth\AuthManager;
 use YouSaidItCards\Modules\Customer\CustomerManager;
+use YouSaidItCards\Modules\Faq\FaqManager;
 use YouSaidItCards\Modules\WooCommerce\WooCommerceManager;
 use YouSaidItCards\REST\ContactController;
 
@@ -89,6 +90,7 @@ class Plugin {
 		$this->container['module_auth']     = AuthManager::init();
 		$this->container['module_customer'] = CustomerManager::init();
 		$this->container['module_wc']       = WooCommerceManager::init();
+		$this->container['module_faq']      = FaqManager::init();
 	}
 
 	/**
