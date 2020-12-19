@@ -7,6 +7,10 @@ use Stackonet\WP\Framework\Abstracts\Data;
 use Stackonet\WP\Framework\Supports\Logger;
 use Stackonet\WP\Framework\Supports\Sanitize;
 use WC_Customer;
+use WC_Data_Exception;
+use WC_Order_Item_Shipping;
+use WC_Shipping_Method;
+use WC_Shipping_Rate;
 use WP_REST_Server;
 use YouSaidItCards\Modules\Customer\Models\Address;
 use YouSaidItCards\Modules\WooCommerce\WcRestClient;
@@ -95,6 +99,11 @@ class OrderController extends ApiController {
 			return $this->respondUnprocessableEntity( null, 'No product item found.' );
 		}
 
+		$shipping_methods = WC()->shipping() ? WC()->shipping()->load_shipping_methods() : array();
+		$shipping_method  = $request->get_param( 'shipping_method' );
+		if ( ! array_key_exists( $shipping_method, $shipping_methods ) ) {
+			return $this->respondUnprocessableEntity();
+		}
 
 		$order = wc_create_order();
 		$order->set_customer_id( $user->ID );
@@ -128,6 +137,21 @@ class OrderController extends ApiController {
 
 		if ( is_array( $shipping ) ) {
 			$order->set_address( $shipping, 'shipping' );
+		}
+
+		try {
+			/** @var WC_Shipping_Method $_shipping_method */
+			$_shipping_method = $shipping_methods[ $shipping_method ];
+
+			$shipping_item = new WC_Order_Item_Shipping();
+			$shipping_item->set_method_title( $_shipping_method->get_title() );
+			$shipping_item->set_method_id( $_shipping_method->get_rate_id() ); // set an existing Shipping method rate ID
+			$shipping_item->set_order_id( $order->get_id() );
+			$shipping_item->set_shipping_rate( new WC_Shipping_Rate() );
+			// $shipping_item->set_total( 10 ); // (optional)
+			// $shipping_item->calculate_taxes( $order->get_address( 'shipping' ) );
+			$shipping_item->save();
+		} catch ( WC_Data_Exception $e ) {
 		}
 
 		foreach ( $line_items as $line_item ) {
