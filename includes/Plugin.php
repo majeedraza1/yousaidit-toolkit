@@ -11,6 +11,7 @@ use YouSaidItCards\Frontend\Frontend;
 use YouSaidItCards\Modules\Auth\AuthManager;
 use YouSaidItCards\Modules\Customer\CustomerManager;
 use YouSaidItCards\Modules\WooCommerce\WooCommerceManager;
+use YouSaidItCards\REST\ContactController;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -105,7 +106,8 @@ class Plugin {
 	 * @return void
 	 */
 	public function frontend_includes() {
-		$this->container['frontend'] = Frontend::init();
+		$this->container['frontend']        = Frontend::init();
+		$this->container['rest_contact_us'] = ContactController::init();
 	}
 
 	/**
