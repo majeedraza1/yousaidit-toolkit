@@ -37,6 +37,26 @@ class BaseAddress extends DatabaseModel {
 	}
 
 	/**
+	 * Get user/customer last name
+	 *
+	 * @return string
+	 */
+	public function get_last_name(): string {
+		$name_parts = explode( " ", trim( $this->get_name() ) );
+
+		return array_pop( $name_parts );
+	}
+
+	/**
+	 * Get user/customer first name
+	 *
+	 * @return string
+	 */
+	public function get_first_name(): string {
+		return trim( str_replace( $this->get_last_name(), '', $this->get_name() ) );
+	}
+
+	/**
 	 * The entire phone number without the country code
 	 *
 	 * @return string

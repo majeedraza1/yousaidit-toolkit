@@ -7,6 +7,7 @@ use Firebase\JWT\JWT;
 use WP_Error;
 use WP_User;
 use YouSaidItCards\Modules\Auth\Models\SocialAuthProvider;
+use YouSaidItCards\Modules\Customer\Models\Customer;
 
 defined( 'ABSPATH' ) || die;
 
@@ -390,11 +391,8 @@ class Auth {
 	 * @return array
 	 */
 	public static function prepare_user_for_response( WP_User $user ): array {
-		return [
-			'id'           => $user->ID,
-			'email'        => $user->user_email,
-			'display_name' => $user->display_name,
-			'avatar_url'   => get_avatar_url( $user, [ 'default' => 'mm' ] ),
-		];
+		$customer = new Customer( $user );
+
+		return $customer->to_array();
 	}
 }
