@@ -53,9 +53,10 @@ class UserProfileController extends ApiController {
 
 		register_rest_route( $this->namespace, '/me/avatar', [
 			[
-				'methods'  => WP_REST_Server::EDITABLE,
-				'callback' => [ $this, 'update_avatar' ],
-				'args'     => [
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'update_avatar' ],
+				'permission_callback' => [ $this, 'is_logged_in' ],
+				'args'                => [
 					'avatar' => [
 						'description'       => __( 'User avatar' ),
 						'type'              => 'string',
