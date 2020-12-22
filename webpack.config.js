@@ -3,50 +3,41 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const TerserPlugin = require('terser-webpack-plugin');
 const BrowserSyncPlugin = require('browser-sync-webpack-plugin');
+const autoprefixer = require('autoprefixer');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
-const svgToMiniDataURI = require('mini-svg-data-uri');
-const combineMediaQuery = require('postcss-combine-media-query');
 
 const config = require('./config.json');
+
+let plugins = [];
+
+plugins.push(new MiniCssExtractPlugin({
+	filename: "../css/[name].css"
+}));
+
+plugins.push(new BrowserSyncPlugin({
+	proxy: config.proxyURL
+}));
+
+plugins.push(new VueLoaderPlugin());
 
 module.exports = (env, argv) => {
 	let isDev = argv.mode !== 'production';
 
-	let plugins = [];
-
-	plugins.push(new MiniCssExtractPlugin({
-		filename: "../css/[name].css"
-	}));
-
-	plugins.push(new BrowserSyncPlugin({
-		proxy: config.proxyURL
-	}));
-
-	plugins.push(new VueLoaderPlugin());
-
-	const webpackConfig = {
-		entry: config.entryPoints,
-		output: {
-			path: path.resolve(__dirname, 'assets/js'),
-			filename: '[name].js'
+	return {
+		"entry": config.entryPoints,
+		"output": {
+			"path": path.resolve(__dirname, 'assets/js'),
+			"filename": '[name].js'
 		},
-		devtool: isDev ? 'eval-source-map' : false,
-		module: {
-			rules: [
+		"devtool": isDev ? 'eval-source-map' : false,
+		"module": {
+			"rules": [
 				{
-					test: /\.(js|jsx)$/i,
-					use: {
-						loader: "babel-loader",
-						options: {
-							presets: [
-								'@babel/preset-env',
-								'@babel/preset-react'
-							],
-							plugins: [
-								['@babel/plugin-proposal-class-properties', {'loose': true}],
-								['@babel/plugin-proposal-private-methods', {'loose': true}],
-								['@babel/plugin-proposal-object-rest-spread', {'loose': true}],
-							]
+					"test": /\.js$/i,
+					"use": {
+						"loader": "babel-loader",
+						"options": {
+							presets: ['@babel/preset-env']
 						}
 					}
 				},
@@ -59,9 +50,12 @@ module.exports = (env, argv) => {
 				{
 					test: /\.(sass|scss|css)$/i,
 					use: [
-						{
-							loader: isDev ? "style-loader" : MiniCssExtractPlugin.loader
-						},
+						isDev ?
+							{loader: "style-loader"} :
+							{
+								loader: MiniCssExtractPlugin.loader,
+								options: {publicPath: ''}
+							},
 						{
 							loader: "css-loader",
 							options: {
@@ -75,8 +69,7 @@ module.exports = (env, argv) => {
 								sourceMap: isDev,
 								postcssOptions: {
 									plugins: [
-										['postcss-preset-env'],
-										combineMediaQuery(),
+										autoprefixer()
 									],
 								},
 							},
@@ -132,15 +125,6 @@ module.exports = (env, argv) => {
 				new TerserPlugin(),
 				new OptimizeCSSAssetsPlugin()
 			],
-			splitChunks: {
-				cacheGroups: {
-					commonVendors: {
-						test: /[\\/]node_modules[\\/](vue|vuex|vue-router|axios)[\\/]/,
-						name: 'common-vendors',
-						chunks: 'all',
-					}
-				}
-			}
 		},
 		resolve: {
 			alias: {
@@ -154,19 +138,6 @@ module.exports = (env, argv) => {
 			],
 			extensions: ['*', '.js', '.vue', '.json']
 		},
-		plugins: plugins
+		"plugins": plugins
 	}
-
-	if (!isDev) {
-		// `jQuery`, `React`, `ReactDOM` will be loaded from WordPress
-		webpackConfig.externals = {
-			jquery: {commonjs: 'jquery', commonjs2: 'jquery', amd: 'jquery', umd: 'jquery', root: 'jQuery'},
-			react: {commonjs: 'react', commonjs2: 'react', amd: 'react', umd: 'react', root: 'React'},
-			'react-dom': {
-				commonjs: 'react-dom', commonjs2: 'react-dom', amd: 'react-dom', umd: 'react-dom', root: 'ReactDOM',
-			},
-		}
-	}
-
-	return webpackConfig;
-};
+}

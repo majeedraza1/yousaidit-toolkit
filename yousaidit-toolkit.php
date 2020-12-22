@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Yousaidit Toolkit
  * Description: A powerful WordPress plugin to extend functionality to your WordPress site.
- * Version: 1.0.0
+ * Version: 2.0.0
  * Author: Stackonet Services (Pvt.) Ltd.
  * Author URI: https://stackonet.com
  * Requires at least: 5.3
@@ -34,7 +34,7 @@ final class YousaiditToolkit {
 	 *
 	 * @var string
 	 */
-	private $version = '1.0.0';
+	private $version = '2.0.0';
 
 	/**
 	 * Minimum PHP version required
@@ -104,6 +104,7 @@ final class YousaiditToolkit {
 			$loader = new YouSaidItCards\Autoloader;
 
 			// register the base directories for the namespace prefix
+			$loader->add_namespace( 'Yousaidit', YOUSAIDIT_TOOLKIT_PATH . '/classes' );
 			$loader->add_namespace( 'YouSaidItCards', YOUSAIDIT_TOOLKIT_INCLUDES );
 			$loader->add_namespace( 'YouSaidItCards\Modules', YOUSAIDIT_TOOLKIT_MODULES );
 
@@ -119,19 +120,6 @@ final class YousaiditToolkit {
 	 */
 	public function bootstrap_plugin() {
 		YouSaidItCards\Plugin::init();
-	}
-
-	/**
-	 * What type of request is this?
-	 *
-	 * @param string $type admin, ajax, cron or frontend.
-	 *
-	 * @return bool
-	 */
-	public function is_request( $type ) {
-		_deprecated_function( __FUNCTION__, '2.0.0', YouSaidItCards\Plugin::class . "::is_request" );
-
-		return YouSaidItCards\Plugin::init()->is_request( $type );
 	}
 
 	/**

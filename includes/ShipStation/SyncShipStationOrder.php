@@ -1,9 +1,8 @@
 <?php
 
-namespace Yousaidit\Models;
+namespace YouSaidItCards\ShipStation;
 
 use Stackonet\WP\Framework\Abstracts\BackgroundProcess;
-use Yousaidit\Integration\ShipStation\ShipStationApi;
 
 class SyncShipStationOrder extends BackgroundProcess {
 

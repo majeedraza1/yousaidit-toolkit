@@ -37,12 +37,5 @@
     "khanamiryan/qrcode-detector-decoder": "^1.0",
     "bacon/bacon-qr-code": "^2.0",
     "joypixels/emoji-toolkit": "^6.0"
-  },
-  "require-dev": {
-    "phpunit/phpunit": "^7"
-  },
-  "scripts": {
-    "test:install": "bash bin/install-wp-tests.sh wordpress_test root root localhost latest",
-    "test": "./vendor/bin/phpunit"
   }
 }

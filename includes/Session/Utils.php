@@ -1,6 +1,6 @@
 <?php
 
-namespace Yousaidit\Session;
+namespace YouSaidItCards\Session;
 
 // If this file is called directly, abort.
 defined( 'ABSPATH' ) || die;

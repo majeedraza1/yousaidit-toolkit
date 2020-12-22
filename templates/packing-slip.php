@@ -1,6 +1,6 @@
 <?php
 
-use Yousaidit\Integration\ShipStation\Order;
+use YouSaidItCards\ShipStation\Order;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

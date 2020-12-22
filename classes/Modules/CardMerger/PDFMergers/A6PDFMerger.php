@@ -9,7 +9,7 @@ use setasign\Fpdi\PdfParser\Filter\FilterException;
 use setasign\Fpdi\PdfParser\PdfParserException;
 use setasign\Fpdi\PdfParser\Type\PdfTypeException;
 use setasign\Fpdi\PdfReader\PdfReaderException;
-use Yousaidit\Integration\ShipStation\Order;
+use YouSaidItCards\ShipStation\Order;
 
 class A6PDFMerger extends PDFMerger {
 	/**

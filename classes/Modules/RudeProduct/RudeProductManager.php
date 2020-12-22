@@ -4,7 +4,7 @@ namespace Yousaidit\Modules\RudeProduct;
 
 use WP_Post;
 use WP_Query;
-use Yousaidit\Session\Session;
+use YouSaidItCards\Session\Session;
 
 defined( 'ABSPATH' ) || exit;
 

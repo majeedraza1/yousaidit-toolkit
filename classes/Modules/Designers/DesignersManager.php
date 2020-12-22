@@ -24,6 +24,7 @@ use Yousaidit\Modules\Designers\REST\PayPalPayoutController;
 use Yousaidit\Modules\Designers\REST\SettingController;
 use Yousaidit\Modules\Designers\REST\UserRegistrationController;
 use Yousaidit\Modules\Designers\REST\WebLoginController;
+use YouSaidItCards\Utils;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -47,7 +48,7 @@ class DesignersManager {
 			CommissionCalculator::init();
 			DesignerCustomerProfile::init();
 
-			if ( yousaidit_toolkit()->is_request( 'frontend' ) ) {
+			if ( Utils::is_request( 'frontend' ) ) {
 				// Frontend
 				DesignerProfile::init();
 
@@ -68,7 +69,7 @@ class DesignersManager {
 				DesignerPaymentController::init();
 			}
 
-			if ( yousaidit_toolkit()->is_request( 'admin' ) ) {
+			if ( Utils::is_request( 'admin' ) ) {
 				Admin::init();
 			}
 		}

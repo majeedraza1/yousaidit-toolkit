@@ -6,11 +6,6 @@ use Stackonet\WP\Framework\Supports\Validate;
 use WP_HTTP_Response;
 use WP_REST_Request;
 use WP_REST_Server;
-use Yousaidit\Integration\ShipStation\ShipStationApi;
-use Yousaidit\Models\ShipStationOrder;
-use Yousaidit\Models\ShipStationOrderAddress;
-use Yousaidit\Models\ShipStationOrderItem;
-use Yousaidit\Models\SyncShipStationOrder;
 use Yousaidit\Modules\CardMerger\CardMergerManager;
 use Yousaidit\Modules\Designers\DesignersManager;
 use Yousaidit\Modules\FeaturedProductsFirst\FeaturedProductsFirst;
@@ -20,19 +15,25 @@ use Yousaidit\Modules\MultistepCheckout\MultistepCheckout;
 use Yousaidit\Modules\OrderDispatcher\OrderDispatcherManager;
 use Yousaidit\Modules\PackingSlip\PackingSlipManager;
 use Yousaidit\Modules\RudeProduct\RudeProductManager;
-use Yousaidit\Modules\TradeSite\TradeSiteManager;
-use Yousaidit\REST\OrderController;
-use Yousaidit\REST\ProductController;
-use Yousaidit\Session\SessionManager;
 use YouSaidItCards\Admin\Admin;
 use YouSaidItCards\Admin\SettingPage;
 use YouSaidItCards\Cli\Command;
 use YouSaidItCards\Frontend\Frontend;
 use YouSaidItCards\Modules\Auth\AuthManager;
+use YouSaidItCards\Modules\ColorTheme\ColorThemeManager;
 use YouSaidItCards\Modules\Customer\CustomerManager;
 use YouSaidItCards\Modules\Faq\FaqManager;
+use YouSaidItCards\Modules\TradeSite\TradeSiteManager;
 use YouSaidItCards\Modules\WooCommerce\WooCommerceManager;
 use YouSaidItCards\REST\ContactController;
+use YouSaidItCards\REST\OrderController;
+use YouSaidItCards\REST\ProductController;
+use YouSaidItCards\Session\SessionManager;
+use YouSaidItCards\ShipStation\ShipStationApi;
+use YouSaidItCards\ShipStation\ShipStationOrder;
+use YouSaidItCards\ShipStation\ShipStationOrderAddress;
+use YouSaidItCards\ShipStation\ShipStationOrderItem;
+use YouSaidItCards\ShipStation\SyncShipStationOrder;
 use YouSaidItCards\Utilities\PdfSizeCalculator;
 
 defined( 'ABSPATH' ) || exit;
@@ -75,6 +76,8 @@ class Plugin {
 			add_action( 'yousaidit_toolkit/activation', [ self::$instance, 'activation_includes' ] );
 			add_action( 'yousaidit_toolkit/deactivation', [ self::$instance, 'deactivation_includes' ] );
 			add_filter( 'rest_post_dispatch', [ self::$instance, 'rest_post_dispatch' ], 10, 3 );
+
+			self::$instance->container['session'] = SessionManager::init();
 		}
 
 		return self::$instance;
@@ -86,9 +89,7 @@ class Plugin {
 	 * @return void
 	 */
 	public function includes() {
-		$this->ship_station_api = ShipStationApi::init();
-
-		$this->container['session']                = SessionManager::init();
+		$this->ship_station_api                    = ShipStationApi::init();
 		$this->container['i18n']                   = i18n::init();
 		$this->container['assets']                 = Assets::init();
 		$this->container['settings']               = SettingPage::init();
@@ -127,10 +128,11 @@ class Plugin {
 	 * @return void
 	 */
 	public function modules_includes() {
-		$this->container['module_auth']     = AuthManager::init();
-		$this->container['module_customer'] = CustomerManager::init();
-		$this->container['module_wc']       = WooCommerceManager::init();
-		$this->container['module_faq']      = FaqManager::init();
+		$this->container['module_auth']        = AuthManager::init();
+		$this->container['module_customer']    = CustomerManager::init();
+		$this->container['module_wc']          = WooCommerceManager::init();
+		$this->container['module_faq']         = FaqManager::init();
+		$this->container['module_color_theme'] = ColorThemeManager::init();
 
 		$this->container['module_checkout']         = MultistepCheckout::init();
 		$this->container['module_designers']        = DesignersManager::init();
@@ -232,19 +234,6 @@ class Plugin {
 	 * @return bool
 	 */
 	public function is_request( string $type ): bool {
-		switch ( $type ) {
-			case 'admin' :
-				return is_admin();
-			case 'ajax' :
-				return defined( 'DOING_AJAX' );
-			case 'rest' :
-				return defined( 'REST_REQUEST' );
-			case 'cron' :
-				return defined( 'DOING_CRON' );
-			case 'frontend' :
-				return ( ! is_admin() || defined( 'DOING_AJAX' ) ) && ! defined( 'DOING_CRON' );
-		}
-
-		return false;
+		return Utils::is_request( $type );
 	}
 }

@@ -2,7 +2,7 @@
 
 namespace Yousaidit\Modules\OrderDispatcher;
 
-use Yousaidit\Integration\ShipStation\Order;
+use YouSaidItCards\ShipStation\Order;
 
 defined( 'ABSPATH' ) || exit;
 

@@ -8,7 +8,7 @@ use WP_Term;
 use WP_User;
 use Yousaidit\Modules\Designers\Models\CardDesigner;
 use Yousaidit\Modules\Designers\Models\DesignerCard;
-use Yousaidit\Session\Session;
+use YouSaidItCards\Session\Session;
 use YouSaidItCards\Utilities\MarketPlace;
 
 // If this file is called directly, abort.

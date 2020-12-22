@@ -5,11 +5,11 @@ namespace Yousaidit\Modules\Designers\REST;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
-use Yousaidit\REST\ApiController;
+use YouSaidItCards\REST\LegacyApiController;
 
 defined( 'ABSPATH' ) or exit;
 
-class WebLoginController extends ApiController {
+class WebLoginController extends LegacyApiController {
 	/**
 	 * The instance of the class
 	 *

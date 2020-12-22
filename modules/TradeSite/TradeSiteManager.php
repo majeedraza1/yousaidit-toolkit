@@ -1,8 +1,8 @@
 <?php
 
-namespace Yousaidit\Modules\TradeSite;
+namespace YouSaidItCards\Modules\TradeSite;
 
-use Yousaidit\Modules\TradeSite\REST\CardToProduct;
+use YouSaidItCards\Modules\TradeSite\REST\CardToProduct;
 
 defined( 'ABSPATH' ) || die;
 

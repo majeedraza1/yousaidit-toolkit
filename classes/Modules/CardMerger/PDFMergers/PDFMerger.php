@@ -10,10 +10,10 @@ use setasign\Fpdi\PdfParser\StreamReader;
 use setasign\Fpdi\PdfParser\Type\PdfTypeException;
 use setasign\Fpdi\PdfReader\PageBoundaries;
 use setasign\Fpdi\PdfReader\PdfReaderException;
-use Yousaidit\Integration\ShipStation\OrderItem;
 use Yousaidit\Modules\InnerMessage\PdfGenerator;
 use Yousaidit\Modules\OrderDispatcher\QrCode;
 use Yousaidit\Modules\OrderDispatcher\QtyCode;
+use YouSaidItCards\ShipStation\OrderItem;
 
 class PDFMerger {
 	/**

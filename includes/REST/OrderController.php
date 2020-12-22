@@ -1,14 +1,14 @@
 <?php
 
-namespace Yousaidit\REST;
+namespace YouSaidItCards\REST;
 
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
-use Yousaidit\Integration\ShipStation\Order;
+use YouSaidItCards\ShipStation\Order;
 
-class OrderController extends ApiController {
+class OrderController extends LegacyApiController {
 
 	/**
 	 * The instance of the class

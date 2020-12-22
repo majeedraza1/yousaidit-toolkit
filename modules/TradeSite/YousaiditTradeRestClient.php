@@ -1,6 +1,6 @@
 <?php
 
-namespace Yousaidit\Modules\TradeSite;
+namespace YouSaidItCards\Modules\TradeSite;
 
 use Stackonet\WP\Framework\Supports\RestClient;
 use WP_Error;

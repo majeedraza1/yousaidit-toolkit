@@ -4,7 +4,7 @@ namespace Yousaidit\Modules\PackingSlip;
 
 use Dompdf\Dompdf;
 use Exception;
-use Yousaidit\Integration\ShipStation\Order;
+use YouSaidItCards\ShipStation\Order;
 
 class PackingSlip {
 

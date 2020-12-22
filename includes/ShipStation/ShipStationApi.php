@@ -1,6 +1,6 @@
 <?php
 
-namespace Yousaidit\Integration\ShipStation;
+namespace YouSaidItCards\ShipStation;
 
 use Stackonet\WP\Framework\Supports\RestClient;
 use Stackonet\WP\Framework\Traits\Cacheable;

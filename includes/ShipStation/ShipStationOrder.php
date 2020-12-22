@@ -1,6 +1,6 @@
 <?php
 
-namespace Yousaidit\Models;
+namespace YouSaidItCards\ShipStation;
 
 use Stackonet\WP\Framework\Abstracts\DatabaseModel;
 

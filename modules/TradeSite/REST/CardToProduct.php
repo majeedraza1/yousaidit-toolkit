@@ -1,13 +1,13 @@
 <?php
 
-namespace Yousaidit\Modules\TradeSite\REST;
+namespace YouSaidItCards\Modules\TradeSite\REST;
 
 use WP_REST_Server;
 use Yousaidit\Modules\Designers\Models\DesignerCard;
-use Yousaidit\Modules\TradeSite\YousaiditTradeRestClient;
-use Yousaidit\REST\ApiController;
+use YouSaidItCards\Modules\TradeSite\YousaiditTradeRestClient;
+use YouSaidItCards\REST\LegacyApiController;
 
-class CardToProduct extends ApiController {
+class CardToProduct extends LegacyApiController {
 
 	/**
 	 * The instance of the class

@@ -1,6 +1,6 @@
 <?php
 
-namespace Yousaidit\Session;
+namespace YouSaidItCards\Session;
 
 use Stackonet\WP\Framework\Supports\Collection;
 

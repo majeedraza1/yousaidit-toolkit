@@ -4,7 +4,7 @@ namespace Yousaidit\Modules\PackingSlip;
 
 use Exception;
 use Stackonet\WP\Framework\Supports\Logger;
-use Yousaidit\Integration\ShipStation\Order;
+use YouSaidItCards\ShipStation\Order;
 
 class PackingSlipManager {
 

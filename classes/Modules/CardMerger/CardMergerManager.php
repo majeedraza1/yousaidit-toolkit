@@ -3,11 +3,11 @@
 namespace Yousaidit\Modules\CardMerger;
 
 use Stackonet\WP\Framework\Supports\Validate;
-use Yousaidit\Integration\ShipStation\Order;
-use Yousaidit\Models\SyncShipStationOrder;
 use Yousaidit\Modules\CardMerger\PDFMergers\DynamicSizePdfMerger;
 use Yousaidit\Modules\CardMerger\PDFMergers\TestPdfMerger;
 use Yousaidit\Modules\InnerMessage\PdfGenerator;
+use YouSaidItCards\ShipStation\Order;
+use YouSaidItCards\ShipStation\SyncShipStationOrder;
 
 class CardMergerManager {
 

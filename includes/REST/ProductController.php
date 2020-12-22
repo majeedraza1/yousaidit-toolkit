@@ -1,6 +1,6 @@
 <?php
 
-namespace Yousaidit\REST;
+namespace YouSaidItCards\REST;
 
 use WC_Product;
 use WC_Product_Data_Store_CPT;
@@ -11,7 +11,7 @@ use WP_REST_Response;
 use WP_REST_Server;
 use YouSaidItCards\Utilities\PdfSizeCalculator;
 
-class ProductController extends ApiController {
+class ProductController extends LegacyApiController {
 	/**
 	 * The instance of the class
 	 *

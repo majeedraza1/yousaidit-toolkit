@@ -1,6 +1,6 @@
 <?php
 
-namespace Yousaidit\Integration\ShipStation;
+namespace YouSaidItCards\ShipStation;
 
 use JsonSerializable;
 use WC_Order_Item_Product;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Yousaidit\Integration\ShipStation;
+namespace YouSaidItCards\ShipStation;
 
 use ArrayObject;
 use DateTime;
@@ -8,7 +8,6 @@ use Exception;
 use JsonSerializable;
 use Stackonet\WP\Framework\Supports\Validate;
 use WC_Product;
-use Yousaidit\Models\ShipStationOrder;
 
 class Order implements JsonSerializable {
 
