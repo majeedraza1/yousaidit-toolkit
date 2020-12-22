@@ -6,13 +6,34 @@ use Stackonet\WP\Framework\Supports\Validate;
 use WP_HTTP_Response;
 use WP_REST_Request;
 use WP_REST_Server;
+use Yousaidit\Integration\ShipStation\ShipStationApi;
+use Yousaidit\Models\ShipStationOrder;
+use Yousaidit\Models\ShipStationOrderAddress;
+use Yousaidit\Models\ShipStationOrderItem;
+use Yousaidit\Models\SyncShipStationOrder;
+use Yousaidit\Modules\CardMerger\CardMergerManager;
+use Yousaidit\Modules\Designers\DesignersManager;
+use Yousaidit\Modules\FeaturedProductsFirst\FeaturedProductsFirst;
+use Yousaidit\Modules\HideProductsFromShop\HideProductsFromShop;
+use Yousaidit\Modules\InnerMessage\InnerMessageManager;
+use Yousaidit\Modules\MultistepCheckout\MultistepCheckout;
+use Yousaidit\Modules\OrderDispatcher\OrderDispatcherManager;
+use Yousaidit\Modules\PackingSlip\PackingSlipManager;
+use Yousaidit\Modules\RudeProduct\RudeProductManager;
+use Yousaidit\Modules\TradeSite\TradeSiteManager;
+use Yousaidit\REST\OrderController;
+use Yousaidit\REST\ProductController;
+use Yousaidit\Session\SessionManager;
 use YouSaidItCards\Admin\Admin;
+use YouSaidItCards\Admin\SettingPage;
+use YouSaidItCards\Cli\Command;
 use YouSaidItCards\Frontend\Frontend;
 use YouSaidItCards\Modules\Auth\AuthManager;
 use YouSaidItCards\Modules\Customer\CustomerManager;
 use YouSaidItCards\Modules\Faq\FaqManager;
 use YouSaidItCards\Modules\WooCommerce\WooCommerceManager;
 use YouSaidItCards\REST\ContactController;
+use YouSaidItCards\Utilities\PdfSizeCalculator;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -35,6 +56,11 @@ class Plugin {
 	 * @var array
 	 */
 	private $container = [];
+
+	/**
+	 * @var ShipStationApi|null
+	 */
+	protected $ship_station_api;
 
 	/**
 	 * Ensures only one instance of the class is loaded or can be loaded.
@@ -60,8 +86,14 @@ class Plugin {
 	 * @return void
 	 */
 	public function includes() {
-		$this->container['i18n']   = i18n::init();
-		$this->container['assets'] = Assets::init();
+		$this->ship_station_api = ShipStationApi::init();
+
+		$this->container['session']                = SessionManager::init();
+		$this->container['i18n']                   = i18n::init();
+		$this->container['assets']                 = Assets::init();
+		$this->container['settings']               = SettingPage::init();
+		$this->container['bt_pdf_size_calculator'] = PdfSizeCalculator::init();
+		$this->container['sync_orders']            = SyncShipStationOrder::init();
 
 		// Load classes for admin area
 		if ( $this->is_request( 'admin' ) ) {
@@ -79,6 +111,14 @@ class Plugin {
 		}
 
 		$this->modules_includes();
+
+		/*
+		* WP-CLI Commands
+		* wp make_font_metrics generate
+		*/
+		if ( class_exists( 'WP_CLI' ) && class_exists( 'WP_CLI_Command' ) ) {
+			\WP_CLI::add_command( 'make_font_metrics', Command::class );
+		}
 	}
 
 	/**
@@ -91,6 +131,17 @@ class Plugin {
 		$this->container['module_customer'] = CustomerManager::init();
 		$this->container['module_wc']       = WooCommerceManager::init();
 		$this->container['module_faq']      = FaqManager::init();
+
+		$this->container['module_checkout']         = MultistepCheckout::init();
+		$this->container['module_designers']        = DesignersManager::init();
+		$this->container['module_rude_product']     = RudeProductManager::init();
+		$this->container['module_order_dispatcher'] = OrderDispatcherManager::init();
+		$this->container['module_packing_slip']     = PackingSlipManager::init();
+		$this->container['module_packing_slip']     = CardMergerManager::init();
+		$this->container['module_hide_product']     = HideProductsFromShop::init();
+		$this->container['module_featured_product'] = FeaturedProductsFirst::init();
+		$this->container['module_inner_message']    = InnerMessageManager::init();
+		$this->container['module_trade_site']       = TradeSiteManager::init();
 	}
 
 	/**
@@ -110,6 +161,9 @@ class Plugin {
 	public function frontend_includes() {
 		$this->container['frontend']        = Frontend::init();
 		$this->container['rest_contact_us'] = ContactController::init();
+
+		$this->container['rest-product'] = ProductController::init();
+		$this->container['rest-order']   = OrderController::init();
 	}
 
 	/**
@@ -129,6 +183,9 @@ class Plugin {
 	public function activation_includes() {
 		AuthManager::activation();
 		CustomerManager::activation();
+		ShipStationOrder::create_table();
+		ShipStationOrderAddress::create_table();
+		ShipStationOrderItem::create_table();
 		flush_rewrite_rules();
 	}
 
@@ -144,9 +201,9 @@ class Plugin {
 	/**
 	 * Modify error response for our endpoint
 	 *
-	 * @param WP_HTTP_Response $result  Result to send to the client. Usually a WP_REST_Response.
-	 * @param WP_REST_Server   $server  Server instance.
-	 * @param WP_REST_Request  $request Request used to generate the response.
+	 * @param WP_HTTP_Response $result Result to send to the client. Usually a WP_REST_Response.
+	 * @param WP_REST_Server $server Server instance.
+	 * @param WP_REST_Request $request Request used to generate the response.
 	 *
 	 * @return WP_HTTP_Response
 	 */
@@ -174,7 +231,7 @@ class Plugin {
 	 *
 	 * @return bool
 	 */
-	private function is_request( string $type ): bool {
+	public function is_request( string $type ): bool {
 		switch ( $type ) {
 			case 'admin' :
 				return is_admin();

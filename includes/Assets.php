@@ -147,16 +147,24 @@ class Assets {
 	 */
 	public function get_scripts() {
 		return [
-			"{$this->plugin_name}-vendors"  => [
-				'src' => static::get_assets_url( 'js/common-vendors.js' ),
+			'stackonet-inner-message'    => [
+				'src'       => static::get_assets_url() . '/js/inner-message.js',
+				'deps'      => [ 'wp-tinymce' ],
+				'in_footer' => true
 			],
-			"{$this->plugin_name}-frontend" => [
-				'src'  => static::get_assets_url( 'js/frontend.js' ),
-				'deps' => [ "{$this->plugin_name}-vendors" ],
+			'stackonet-toolkit-frontend' => [
+				'src'       => static::get_assets_url() . '/js/frontend.js',
+				'deps'      => [ 'jquery' ],
+				'in_footer' => true
 			],
-			"{$this->plugin_name}-admin"    => [
-				'src'  => static::get_assets_url( 'js/admin.js' ),
-				'deps' => [ "{$this->plugin_name}-vendors" ],
+			'stackonet-designer-profile' => [
+				'src'       => static::get_assets_url() . '/js/designer-profile.js',
+				'in_footer' => true
+			],
+			'stackonet-toolkit-admin'    => [
+				'src'       => static::get_assets_url() . '/js/admin.js',
+				'deps'      => [ 'jquery' ],
+				'in_footer' => true
 			],
 		];
 	}
@@ -168,11 +176,18 @@ class Assets {
 	 */
 	public function get_styles() {
 		return [
-			"{$this->plugin_name}-frontend" => [
-				'src' => static::get_assets_url( 'css/frontend.css' )
+			'stackonet-inner-message'    => [
+				'src' => static::get_assets_url() . '/css/inner-message.css'
 			],
-			"{$this->plugin_name}-admin"    => [
-				'src' => static::get_assets_url( 'css/admin.css' )
+			'stackonet-toolkit-frontend' => [
+				'src' => static::get_assets_url() . '/css/frontend.css'
+			],
+			'stackonet-designer-profile' => [
+				'src' => static::get_assets_url() . '/css/designer-profile.css'
+			],
+			'stackonet-toolkit-admin'    => [
+				'src'  => static::get_assets_url() . '/css/admin.css',
+				'deps' => [ 'wp-color-picker' ],
 			],
 		];
 	}

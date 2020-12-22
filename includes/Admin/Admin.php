@@ -16,35 +16,41 @@ class Admin {
 
 	/**
 	 * Ensures only one instance of the class is loaded or can be loaded.
-	 *
-	 * @return self
+	 * @return self - Main instance
 	 */
 	public static function init() {
 		if ( is_null( self::$instance ) ) {
-			self::$instance = new self();
+			self::$instance = new self;
 
-			// add_action( 'admin_menu', [ self::$instance, 'add_menu' ] );
+			add_action( 'admin_menu', [ self::$instance, 'add_menu' ] );
+			add_action( 'admin_enqueue_scripts', [ self::$instance, 'admin_scripts' ] );
 		}
 
 		return self::$instance;
 	}
 
+	public function admin_scripts() {
+		$data = array(
+			'root'    => esc_url_raw( rest_url( 'stackonet/v1' ) ),
+			'nonce'   => wp_create_nonce( 'wp_rest' ),
+			'ajaxurl' => admin_url( 'admin-ajax.php' ),
+		);
+		wp_localize_script( 'stackonet-toolkit-admin', 'Stackonet', $data );
+	}
+
 	/**
-	 * Add top level menu
+	 * Add admin menu
 	 */
-	public static function add_menu() {
+	public function add_menu() {
 		global $submenu;
 		$capability = 'manage_options';
-		$slug       = 'yousaidit-toolkit';
-
-		$hook = add_menu_page( __( 'Yousaidit', 'yousaidit-toolkit' ), __( 'Yousaidit', 'yousaidit-toolkit' ),
-			$capability, $slug, [ self::$instance, 'menu_page_callback' ], 'dashicons-update', 6 );
-
-		$menus = [
-			[ 'title' => __( 'Yousaidit', 'yousaidit-toolkit' ), 'slug' => '#/' ],
-			[ 'title' => __( 'Settings', 'yousaidit-toolkit' ), 'slug' => '#/settings' ],
+		$slug       = 'stackonet-art-work';
+		$hook       = add_menu_page( 'ArtWork', 'ArtWork',
+			$capability, $slug, [ self::$instance, 'menu_page_callback' ], 'dashicons-admin-post', 6 );
+		$menus      = [
+			[ 'title' => __( 'Products', 'vue-wp-starter' ), 'slug' => '#/' ],
+			[ 'title' => __( 'Orders', 'vue-wp-starter' ), 'slug' => '#/orders' ],
 		];
-
 		if ( current_user_can( $capability ) ) {
 			foreach ( $menus as $menu ) {
 				$submenu[ $slug ][] = [ $menu['title'], $capability, 'admin.php?page=' . $slug . $menu['slug'] ];
@@ -57,15 +63,16 @@ class Admin {
 	/**
 	 * Menu page callback
 	 */
-	public static function menu_page_callback() {
-		echo '<div class="wrap"><div id="yousaidit-toolkit-admin"></div></div>';
+	public function menu_page_callback() {
+		echo '<div id="stackonet_toolkit_admin"></div>';
 	}
 
 	/**
-	 * Load required styles and scripts
+	 * Menu page scripts
 	 */
-	public static function init_hooks() {
-		wp_enqueue_style( YOUSAIDIT_TOOLKIT . '-admin' );
-		wp_enqueue_script( YOUSAIDIT_TOOLKIT . '-admin' );
+	public function init_hooks() {
+		wp_enqueue_media();
+		wp_enqueue_style( 'stackonet-toolkit-admin' );
+		wp_enqueue_script( 'stackonet-toolkit-admin' );
 	}
 }

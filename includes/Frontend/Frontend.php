@@ -23,47 +23,27 @@ class Frontend {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self();
 
-			// add_shortcode( 'stackonet_frontend_sample', [ self::$instance, 'frontend_sample' ] );
-			// add_action( 'wp_enqueue_scripts', [ self::$instance, 'frontend_scripts' ] );
+			add_action( 'wp_enqueue_scripts', [ self::$instance, 'frontend_scripts' ] );
+			add_shortcode( 'you_said_it_how_it_works', [ self::$instance, 'how_it_works' ] );
 		}
 
 		return self::$instance;
 	}
 
 	/**
-	 * Frontend view sample
+	 * How it works
 	 *
 	 * @return string
 	 */
-	public function frontend_sample() {
-		return '<div id="yousaidit-toolkit-frontend"></div>';
+	public function how_it_works() {
+		return '<div id="you_said_it_how_it_works"></div>';
 	}
 
 	/**
 	 * Load frontend scripts
 	 */
 	public function frontend_scripts() {
-		if ( $this->should_load_scripts() ) {
-			wp_enqueue_style( YOUSAIDIT_TOOLKIT . '-frontend' );
-			wp_enqueue_script( YOUSAIDIT_TOOLKIT . '-frontend' );
-		}
-	}
-
-	/**
-	 * Check if scripts should be loaded
-	 *
-	 * @return bool
-	 */
-	public function should_load_scripts() {
-		$shortcodes = [ 'stackonet_frontend_sample' ];
-		global $post;
-
-		foreach ( $shortcodes as $shortcode ) {
-			if ( is_a( $post, 'WP_Post' ) && has_shortcode( $post->post_content, $shortcode ) ) {
-				return true;
-			}
-		}
-
-		return false;
+		wp_enqueue_style( YOUSAIDIT_TOOLKIT . '-frontend' );
+		wp_enqueue_script( YOUSAIDIT_TOOLKIT . '-frontend' );
 	}
 }

@@ -1,0 +1,29 @@
+.yousaidti-card--creator {
+	align-items: center;
+	display: flex;
+	width: 100%;
+
+	.single-product & {
+		margin-bottom: 10px;
+		margin-top: 10px;
+	}
+
+	.shapla-image-container {
+		width: 32px;
+		height: 32px;
+		margin-right: 10px;
+		flex-shrink: 0;
+
+		&.has-rounded-image {
+			> img {
+				border-radius: 999px;
+			}
+
+			+ span {
+				overflow: hidden;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+			}
+		}
+	}
+}

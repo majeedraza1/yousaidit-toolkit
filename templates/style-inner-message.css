@@ -1,0 +1,113 @@
+/* Main Body */
+@page {
+	margin-top: 0cm;
+	margin-bottom: 0cm;
+	margin-left: 0cm;
+	margin-right: 0cm;
+}
+
+body {
+	background: #fff;
+	color: #000;
+	margin: 0cm;
+	font-family: 'Open Sans', sans-serif;
+	font-size: 9pt;
+	line-height: 100%; /* fixes inherit dompdf bug */
+}
+
+h1, h2, h3, h4 {
+	font-weight: bold;
+	margin: 0;
+}
+
+h1 {
+	font-size: 16pt;
+	margin: 5mm 0;
+}
+
+h2 {
+	font-size: 14pt;
+}
+
+h3, h4 {
+	font-size: 9pt;
+}
+
+
+ol,
+ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+li,
+ul {
+	margin-bottom: 0.75em;
+}
+
+p {
+	margin: 0;
+	padding: 0;
+}
+
+p + p {
+	margin-top: 1.25em;
+}
+
+a {
+	border-bottom: 1px solid;
+	text-decoration: none;
+}
+
+/* Basic Table Styling */
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+	page-break-inside: always;
+	border: 0;
+	margin: 0;
+	padding: 0;
+}
+
+th, td {
+	vertical-align: top;
+	text-align: left;
+}
+
+table.container {
+	width: 100%;
+	border: 0;
+}
+
+tr.no-borders,
+td.no-borders {
+	border: 0 !important;
+	border-top: 0 !important;
+	border-bottom: 0 !important;
+	padding: 0 !important;
+	width: auto;
+}
+
+.card-content img.joypixels {
+	width: 1em;
+	height: 1em;
+	vertical-align: baseline;
+	margin-left: 2px;
+	margin-right: 2px;
+	display: inline-block;
+}
+
+.left-column, .right-column {
+	width: 50% !important;
+}
+
+/*.left-column {*/
+/*	background: rgba(0, 255, 0, 0.06); !* @TODO remove it after testing *!*/
+/*}*/
+
+/*.right-column {*/
+/*	background: rgba(255, 0, 0, 0.06); !* @TODO remove it after testing *!*/
+/*}*/
+
+

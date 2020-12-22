@@ -1,9 +1,9 @@
 # Folders
 node_modules
 vendor/*
-assets/*
-!assets/src
-!assets/static-images
+assets/css/
+assets/fonts/
+assets/js/
 .idea
 wp-helpers
 
