@@ -165,7 +165,7 @@ class Fonts {
 		if ( ! file_exists( $path ) ) {
 			$path = str_replace( '-Regular', '', $path );
 		}
-		$url = str_replace( STACKONET_TOOLKIT_PATH, STACKONET_TOOLKIT_URL, $path );
+		$url = str_replace( YOUSAIDIT_TOOLKIT_PATH, YOUSAIDIT_TOOLKIT_URL, $path );
 
 		return [
 			"label"        => $fontFamily,
@@ -188,7 +188,7 @@ class Fonts {
 		$dir        = str_replace( " ", "_", $fontFamily );
 		$file       = str_replace( " ", "", $fontFamily );
 		$file       = $file . "-Regular.ttf";
-		$basePath   = STACKONET_TOOLKIT_PATH . '/assets/google-fonts';
+		$basePath   = YOUSAIDIT_TOOLKIT_PATH . '/assets/google-fonts';
 
 		return join( DIRECTORY_SEPARATOR, [ $basePath, $dir, $file ] );
 	}

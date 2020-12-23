@@ -96,8 +96,8 @@ class RudeProductManager {
 	 * Load frontend scripts
 	 */
 	public function load_frontend_scripts() {
-		wp_enqueue_style( STACKONET_TOOLKIT . '-frontend' );
-		wp_enqueue_script( STACKONET_TOOLKIT . '-frontend' );
+		wp_enqueue_style( YOUSAIDIT_TOOLKIT . '-frontend' );
+		wp_enqueue_script( YOUSAIDIT_TOOLKIT . '-frontend' );
 	}
 
 	/**

@@ -21,11 +21,11 @@ class SessionManager {
 			self::$instance = new self();
 
 			// Plugin activation
-			add_action( 'stackonet_yousaidit_card/activation', [ self::$instance, 'create_database' ] );
-			add_action( 'stackonet_yousaidit_card/activation', [ self::$instance, 'schedule_event' ] );
+			add_action( 'yousaidit_toolkit/activation', [ self::$instance, 'create_database' ] );
+			add_action( 'yousaidit_toolkit/activation', [ self::$instance, 'schedule_event' ] );
 
 			// Plugin deactivation
-			add_action( 'stackonet_yousaidit_card/deactivation', [ self::$instance, 'clear_scheduled' ] );
+			add_action( 'yousaidit_toolkit/deactivation', [ self::$instance, 'clear_scheduled' ] );
 
 			add_action( 'plugins_loaded', [ self::$instance, 'start_session' ] );
 			add_action( 'shutdown', [ self::$instance, 'write_data' ] );

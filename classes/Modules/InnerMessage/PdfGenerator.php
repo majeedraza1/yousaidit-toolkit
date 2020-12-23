@@ -158,7 +158,7 @@ class PdfGenerator {
 			<meta charset="UTF-8">
 			<title>Document</title>
 			<style type="text/css">
-				<?php include STACKONET_TOOLKIT_PATH . '/templates/style-inner-message.css'; ?>
+				<?php include YOUSAIDIT_TOOLKIT_PATH . '/templates/style-inner-message.css'; ?>
 			</style>
 			<?php $this->get_pdf_dynamic_style(); ?>
 			<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
@@ -183,7 +183,7 @@ class PdfGenerator {
 
 	public function get_message_lines() {
 		$client               = new Client( new Ruleset() );
-		$client->imagePathPNG = STACKONET_TOOLKIT_ASSETS . '/emoji-assets-6.0.0/64/';
+		$client->imagePathPNG = YOUSAIDIT_TOOLKIT_ASSETS . '/emoji-assets-6.0.0/64/';
 		$message              = str_replace( '<p>', '<div>', $this->message );
 		$message              = str_replace( '</p>', '</div>', $message );
 		$messages             = explode( '<div>', $message );

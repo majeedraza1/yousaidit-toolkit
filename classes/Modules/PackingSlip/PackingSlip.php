@@ -192,10 +192,10 @@ class PackingSlip {
 		font-family: 'Open Sans';
 		font-weight: normal;
 		font-style: normal;
-		src: local('Open Sans'), local('Open-Sans'), url(<?php echo STACKONET_TOOLKIT_PATH; ?>/templates/OpenSans-Regular.ttf) format('truetype');
+		src: local('Open Sans'), local('Open-Sans'), url(<?php echo YOUSAIDIT_TOOLKIT_PATH; ?>/templates/OpenSans-Regular.ttf) format('truetype');
 		}
 		<?php
-		include STACKONET_TOOLKIT_PATH . '/templates/style.css';
+		include YOUSAIDIT_TOOLKIT_PATH . '/templates/style.css';
 	}
 
 	/**

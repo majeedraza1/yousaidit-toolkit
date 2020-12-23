@@ -105,9 +105,6 @@ class OrderController extends ApiController {
 			return $this->respondUnprocessableEntity();
 		}
 
-		$order = wc_create_order();
-		$order->set_customer_id( $user->ID );
-
 		$billing  = $request->get_param( 'billing' );
 		$shipping = $request->get_param( 'shipping' );
 
@@ -116,6 +113,13 @@ class OrderController extends ApiController {
 			if ( $address instanceof Data ) {
 				$billing          = $address->to_array();
 				$billing['email'] = $user->user_email;
+			}
+		}
+
+		if ( is_numeric( $shipping ) ) {
+			$address = ( new Address )->find_single( intval( $shipping ) );
+			if ( $address instanceof Data ) {
+				$shipping = $address->to_array();
 			}
 		}
 
@@ -130,6 +134,9 @@ class OrderController extends ApiController {
 		} catch ( Exception $e ) {
 			Logger::log( $e );
 		}
+
+		$order = wc_create_order();
+		$order->set_customer_id( $user->ID );
 
 		if ( is_array( $billing ) ) {
 			$order->set_address( $billing, 'billing' );

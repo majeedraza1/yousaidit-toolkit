@@ -163,7 +163,7 @@ class DesignerProfile {
 	 */
 	public function template_include( $template ) {
 		if ( is_archive() && is_author() ) {
-			$template = STACKONET_TOOLKIT_PATH . '/templates/author.php';
+			$template = YOUSAIDIT_TOOLKIT_PATH . '/templates/author.php';
 		}
 
 		return $template;

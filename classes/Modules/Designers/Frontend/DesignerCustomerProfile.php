@@ -262,7 +262,7 @@ class DesignerCustomerProfile {
 		$wp_query->queried_object = $user;
 		add_filter( 'woocommerce_enqueue_styles', '__return_false' );
 
-		include STACKONET_TOOLKIT_PATH . '/templates/author.php';
+		include YOUSAIDIT_TOOLKIT_PATH . '/templates/author.php';
 		exit;
 	}
 }
