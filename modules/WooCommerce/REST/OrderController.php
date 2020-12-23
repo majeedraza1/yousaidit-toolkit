@@ -8,11 +8,14 @@ use Stackonet\WP\Framework\Supports\Logger;
 use Stackonet\WP\Framework\Supports\Sanitize;
 use WC_Customer;
 use WC_Data_Exception;
+use WC_Order_Item_Product;
 use WC_Order_Item_Shipping;
+use WC_Product;
 use WC_Shipping_Method;
-use WC_Shipping_Rate;
+use WC_Shipping_Zones;
 use WP_REST_Server;
 use YouSaidItCards\Modules\Customer\Models\Address;
+use YouSaidItCards\Modules\WooCommerce\ShippingCalculator;
 use YouSaidItCards\Modules\WooCommerce\WcRestClient;
 use YouSaidItCards\REST\ApiController;
 
@@ -58,12 +61,37 @@ class OrderController extends ApiController {
 				'args'                => $this->get_create_item_params(),
 			]
 		] );
+		register_rest_route( $this->namespace, 'me/orders/shipping_methods', [
+			[
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'shipping_methods' ],
+				'permission_callback' => [ $this, 'is_logged_in' ],
+			]
+		] );
 		register_rest_route( $this->namespace, 'me/orders/(?P<id>\d+)', [
 			'methods'             => WP_REST_Server::READABLE,
 			'callback'            => [ $this, 'get_item' ],
 			'permission_callback' => [ $this, 'is_logged_in' ],
 			'args'                => $this->get_collection_params(),
 		] );
+	}
+
+	public function shipping_methods( \WP_REST_Request $request ) {
+		$country  = $request->get_param( 'country' );
+		$state    = $request->get_param( 'state' );
+		$postcode = $request->get_param( 'postcode' );
+
+		$shipping_zone     = WC_Shipping_Zones::get_zone_matching_package( [
+			"destination" => [ "country" => $country, "state" => $state, "postcode" => $postcode, ]
+		] );
+		$methods           = $shipping_zone->get_shipping_methods( true, 'json' );
+		$available_methods = [];
+		foreach ( $methods as $method ) {
+			$method->settings_html = '';
+			$available_methods[]   = $method;
+		}
+
+		return $this->respondOK( [ 'shipping_methods' => $available_methods ] );
 	}
 
 	/**
@@ -147,17 +175,20 @@ class OrderController extends ApiController {
 		}
 
 		try {
-			/** @var WC_Shipping_Method $_shipping_method */
-			$_shipping_method = $shipping_methods[ $shipping_method ];
+			$chosen_method = ( new ShippingCalculator )->get_chosen_shipping_method( $shipping_method );
 
-			$shipping_item = new WC_Order_Item_Shipping();
-			$shipping_item->set_method_title( $_shipping_method->get_title() );
-			$shipping_item->set_method_id( $_shipping_method->get_rate_id() ); // set an existing Shipping method rate ID
-			$shipping_item->set_order_id( $order->get_id() );
-			$shipping_item->set_shipping_rate( new WC_Shipping_Rate() );
-			// $shipping_item->set_total( 10 ); // (optional)
-			// $shipping_item->calculate_taxes( $order->get_address( 'shipping' ) );
-			$shipping_item->save();
+			if ( $chosen_method instanceof WC_Shipping_Method ) {
+				$shipping_rate = ( new ShippingCalculator )->get_shipping_rate( $shipping_method );
+
+				$shipping_item = new WC_Order_Item_Shipping();
+				$shipping_item->set_method_title( $chosen_method->get_title() );
+				$shipping_item->set_method_id( $chosen_method->get_rate_id() ); // set an existing Shipping method rate ID
+				$shipping_item->set_order_id( $order->get_id() );
+				$shipping_item->set_shipping_rate( $shipping_rate );
+				// $shipping_item->set_total( 10 ); // (optional)
+				// $shipping_item->calculate_taxes( $order->get_address( 'shipping' ) );
+				$shipping_item->save();
+			}
 		} catch ( WC_Data_Exception $e ) {
 		}
 
@@ -171,11 +202,11 @@ class OrderController extends ApiController {
 				continue;
 			}
 			$product = wc_get_product( $variation_id ? $variation_id : $product_id );
-			if ( ! $product instanceof \WC_Product ) {
+			if ( ! $product instanceof WC_Product ) {
 				continue;
 			}
 
-			$order_item = new \WC_Order_Item_Product();
+			$order_item = new WC_Order_Item_Product();
 			$order_item->set_product( $product );
 			$order_item->set_quantity( $quantity );
 			$order_item->set_subtotal( wc_get_price_excluding_tax( $product, array( 'qty' => $quantity ) ) );

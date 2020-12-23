@@ -3,7 +3,12 @@
 namespace YouSaidItCards\Modules\WooCommerce;
 
 use WC_Customer;
+use WC_Data_Exception;
+use WC_Order_Item_Shipping;
 use WC_Product;
+use WC_Shipping_Method;
+use WC_Shipping_Rate;
+use WC_Shipping_Zones;
 use WC_Tax;
 
 class ShippingCalculator {
@@ -34,6 +39,88 @@ class ShippingCalculator {
 		if ( property_exists( $this, $name ) ) {
 			$this->{$name} = $value;
 		}
+	}
+
+	/**
+	 * @param string $country
+	 * @param string $state
+	 * @param string $postcode
+	 *
+	 * @return WC_Shipping_Method[]
+	 */
+	public static function get_shipping_methods( string $country, string $state, string $postcode ): array {
+		$shipping_zone = WC_Shipping_Zones::get_zone_matching_package( [
+			"destination" => [ "country" => $country, "state" => $state, "postcode" => $postcode, ]
+		] );
+		/** @var WC_Shipping_Method[] $methods */
+		$methods = $shipping_zone->get_shipping_methods( true );
+
+		return $methods;
+	}
+
+	/**
+	 * @param string $shipping_method
+	 *
+	 * @return false|WC_Shipping_Method
+	 * @TODO Replace boolean value with default method
+	 */
+	public function get_chosen_shipping_method( string $shipping_method ) {
+		$methods       = static::get_shipping_methods(
+			$this->get_customer_prop( 'country' ),
+			$this->get_customer_prop( 'state' ),
+			$this->get_customer_prop( 'postcode' )
+		);
+		$chosen_method = false;
+		foreach ( $methods as $method ) {
+			if ( $method->id == $shipping_method ) {
+				$chosen_method = $method;
+			}
+		}
+
+		return $chosen_method;
+	}
+
+	/**
+	 * @param string|WC_Shipping_Method $shipping_method
+	 *
+	 * @return WC_Shipping_Rate
+	 */
+	public function get_shipping_rate( $shipping_method ): WC_Shipping_Rate {
+		$shipping_rate = new WC_Shipping_Rate();
+
+		if ( is_string( $shipping_method ) ) {
+			$shipping_method = $this->get_chosen_shipping_method( $shipping_method );
+		}
+		if ( $shipping_method instanceof WC_Shipping_Method ) {
+			$shipping_rate->set_id( $shipping_method->get_rate_id() );
+			$shipping_rate->set_label( $shipping_method->title );
+			$shipping_rate->set_instance_id( $shipping_method->get_instance_id() );
+			$shipping_rate->set_method_id( $shipping_method->id );
+			// $shipping_rate->set_cost( $chosen_method->cost );
+		}
+
+		return $shipping_rate;
+	}
+
+	/**
+	 * @param string $shipping_method_id
+	 *
+	 * @return WC_Order_Item_Shipping
+	 * @throws WC_Data_Exception
+	 */
+	public function get_order_item_shipping( string $shipping_method_id ): WC_Order_Item_Shipping {
+		$chosen_method = $this->get_chosen_shipping_method( $shipping_method_id );
+		$shipping_rate = $this->get_shipping_rate( $chosen_method );
+
+		$shipping_item = new WC_Order_Item_Shipping();
+		$shipping_item->set_method_title( $chosen_method->get_title() );
+		$shipping_item->set_method_id( $chosen_method->id ); // set an existing Shipping method rate ID
+		$shipping_item->set_shipping_rate( $shipping_rate );
+
+		// $shipping_item->set_total( 10 ); // (optional)
+		// $shipping_item->calculate_taxes( $order->get_address( 'shipping' ) );
+		// $shipping_item->set_order_id( $order->get_id() );
+		return $shipping_item;
 	}
 
 	/**
