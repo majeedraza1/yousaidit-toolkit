@@ -11,7 +11,8 @@ use WC_Order_Item_Product;
 use WC_Order_Item_Shipping;
 use WC_Product;
 use WC_Shipping_Rate;
-use WC_Shipping_Zones;
+use WP_REST_Request;
+use WP_REST_Response;
 use WP_REST_Server;
 use YouSaidItCards\Modules\Customer\Models\Address;
 use YouSaidItCards\Modules\WooCommerce\ShippingCalculator;
@@ -75,19 +76,30 @@ class OrderController extends ApiController {
 		] );
 	}
 
-	public function shipping_methods( \WP_REST_Request $request ) {
+	/**
+	 * Show available shipping method for a location
+	 *
+	 * @param WP_REST_Request $request
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function shipping_methods( WP_REST_Request $request ): WP_REST_Response {
 		$country  = $request->get_param( 'country' );
 		$state    = $request->get_param( 'state' );
 		$postcode = $request->get_param( 'postcode' );
+		$amount   = $request->get_param( 'amount' );
 
-		$shipping_zone     = WC_Shipping_Zones::get_zone_matching_package( [
-			"destination" => [ "country" => $country, "state" => $state, "postcode" => $postcode, ]
-		] );
-		$methods           = $shipping_zone->get_shipping_methods( true, 'json' );
+		$methods           = ShippingCalculator::get_shipping_methods( $country, $state, $postcode, 'json' );
 		$available_methods = [];
 		foreach ( $methods as $method ) {
-			$method->settings_html = '';
-			$available_methods[]   = $method;
+			$min_amount = isset( $method->min_amount ) && is_numeric( $method->min_amount ) ? floatval( $method->min_amount ) : .01;
+			if ( is_numeric( $amount ) && floatval( $amount ) < $min_amount ) {
+				continue;
+			}
+			if ( isset( $method->settings_html ) ) {
+				unset( $method->settings_html );
+			}
+			$available_methods[] = $method;
 		}
 
 		return $this->respondOK( [ 'shipping_methods' => $available_methods ] );
@@ -164,10 +176,12 @@ class OrderController extends ApiController {
 
 		$customer_note = $request->get_param( 'customer_note' );
 
-		$shipping_calculator = new ShippingCalculator;
+		$shipping_method_instance_id = $request->get_param( 'shipping_method_instance_id' );
+		$shipping_calculator         = new ShippingCalculator;
 		$shipping_calculator->set_shipping_address( $shipping );
 		$shipping_calculator->set_line_items( $line_items );
 		$shipping_calculator->set_shipping_method_id( $shipping_method );
+		$shipping_calculator->set_shipping_method_instance_id( $shipping_method_instance_id );
 
 		$order = wc_create_order( [
 			'customer_id'   => $user->ID,

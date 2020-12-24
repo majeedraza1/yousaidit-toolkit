@@ -39,6 +39,7 @@ class ShippingCalculator {
 	 * @var string
 	 */
 	protected $shipping_method_id = '';
+	protected $shipping_method_instance_id = '';
 
 	public function __set( $name, $value ) {
 		if ( property_exists( $this, $name ) ) {
@@ -48,24 +49,26 @@ class ShippingCalculator {
 
 	/**
 	 * @param string $country
-	 * @param string $state
-	 * @param string $postcode
+	 * @param string|null $state
+	 * @param string|null $postcode
+	 * @param string $context
 	 *
 	 * @return WC_Shipping_Method[]
 	 */
-	public static function get_shipping_methods( string $country, string $state, string $postcode ): array {
+	public static function get_shipping_methods( string $country, ?string $state, ?string $postcode, string $context = 'admin' ): array {
 		$shipping_zone = WC_Shipping_Zones::get_zone_matching_package( [
 			"destination" => [ "country" => $country, "state" => $state, "postcode" => $postcode, ]
 		] );
 		/** @var WC_Shipping_Method[] $methods */
-		$methods = $shipping_zone->get_shipping_methods( true );
+		$methods = $shipping_zone->get_shipping_methods( true, $context );
 
-		return $methods;
+		return array_values( $methods );
 	}
 
 	/**
+	 * Get chosen shipping method
+	 *
 	 * @return false|WC_Shipping_Method
-	 * @TODO Replace boolean value with default method
 	 */
 	public function get_chosen_shipping_method() {
 		$methods       = static::get_shipping_methods(
@@ -73,9 +76,10 @@ class ShippingCalculator {
 			$this->get_customer_prop( 'state' ),
 			$this->get_customer_prop( 'postcode' )
 		);
-		$chosen_method = false;
+		$chosen_method = isset( $methods[0] ) ? $methods[0] : false;
 		foreach ( $methods as $method ) {
-			if ( $method->id == $this->get_shipping_method_id() ) {
+			if ( $method->id == $this->get_shipping_method_id() &&
+			     $method->instance_id == $this->get_shipping_method_instance_id() ) {
 				$chosen_method = $method;
 			}
 		}
@@ -170,6 +174,24 @@ class ShippingCalculator {
 	 */
 	public function set_shipping_method_id( string $shipping_method_id ): ShippingCalculator {
 		$this->shipping_method_id = $shipping_method_id;
+
+		return $this;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function get_shipping_method_instance_id(): string {
+		return $this->shipping_method_instance_id;
+	}
+
+	/**
+	 * @param string $shipping_method_instance_id
+	 *
+	 * @return ShippingCalculator
+	 */
+	public function set_shipping_method_instance_id( string $shipping_method_instance_id ): ShippingCalculator {
+		$this->shipping_method_instance_id = $shipping_method_instance_id;
 
 		return $this;
 	}
