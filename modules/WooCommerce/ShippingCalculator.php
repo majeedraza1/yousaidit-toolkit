@@ -35,6 +35,11 @@ class ShippingCalculator {
 	 */
 	protected $applied_coupons = [];
 
+	/**
+	 * @var string
+	 */
+	protected $shipping_method_id = '';
+
 	public function __set( $name, $value ) {
 		if ( property_exists( $this, $name ) ) {
 			$this->{$name} = $value;
@@ -59,12 +64,10 @@ class ShippingCalculator {
 	}
 
 	/**
-	 * @param string $shipping_method
-	 *
 	 * @return false|WC_Shipping_Method
 	 * @TODO Replace boolean value with default method
 	 */
-	public function get_chosen_shipping_method( string $shipping_method ) {
+	public function get_chosen_shipping_method() {
 		$methods       = static::get_shipping_methods(
 			$this->get_customer_prop( 'country' ),
 			$this->get_customer_prop( 'state' ),
@@ -72,7 +75,7 @@ class ShippingCalculator {
 		);
 		$chosen_method = false;
 		foreach ( $methods as $method ) {
-			if ( $method->id == $shipping_method ) {
+			if ( $method->id == $this->get_shipping_method_id() ) {
 				$chosen_method = $method;
 			}
 		}
@@ -81,25 +84,19 @@ class ShippingCalculator {
 	}
 
 	/**
-	 * @param string|WC_Shipping_Method $shipping_method
+	 * Get shipping rate
+	 *
+	 * @param WC_Shipping_Method|null $shipping_method
 	 *
 	 * @return WC_Shipping_Rate
 	 */
-	public function get_shipping_rate( $shipping_method ): WC_Shipping_Rate {
-		$shipping_rate = new WC_Shipping_Rate();
-
-		if ( is_string( $shipping_method ) ) {
-			$shipping_method = $this->get_chosen_shipping_method( $shipping_method );
+	public function get_shipping_rate( ?WC_Shipping_Method $shipping_method = null ): WC_Shipping_Rate {
+		if ( ! $shipping_method instanceof WC_Shipping_Method ) {
+			$shipping_method = $this->get_chosen_shipping_method();
 		}
-		if ( $shipping_method instanceof WC_Shipping_Method ) {
-			$shipping_rate->set_id( $shipping_method->get_rate_id() );
-			$shipping_rate->set_label( $shipping_method->title );
-			$shipping_rate->set_instance_id( $shipping_method->get_instance_id() );
-			$shipping_rate->set_method_id( $shipping_method->id );
-			// $shipping_rate->set_cost( $chosen_method->cost );
-		}
+		$shipping_method->calculate_shipping( $this->get_shipping_packages() );
 
-		return $shipping_rate;
+		return current( $shipping_method->rates );
 	}
 
 	/**
@@ -121,6 +118,60 @@ class ShippingCalculator {
 		// $shipping_item->calculate_taxes( $order->get_address( 'shipping' ) );
 		// $shipping_item->set_order_id( $order->get_id() );
 		return $shipping_item;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function get_shipping_address(): array {
+		return $this->shipping_address;
+	}
+
+	/**
+	 * @param array $shipping_address
+	 *
+	 * @return ShippingCalculator
+	 */
+	public function set_shipping_address( array $shipping_address ): ShippingCalculator {
+		$this->shipping_address = $shipping_address;
+
+		return $this;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function get_line_items(): array {
+		return $this->line_items;
+	}
+
+	/**
+	 * @param array $line_items
+	 *
+	 * @return ShippingCalculator
+	 */
+	public function set_line_items( array $line_items ): ShippingCalculator {
+		$this->line_items = $line_items;
+
+		return $this;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function get_shipping_method_id(): string {
+		return $this->shipping_method_id;
+	}
+
+	/**
+	 * @param string $shipping_method_id
+	 *
+	 * @return ShippingCalculator
+	 */
+	public function set_shipping_method_id( string $shipping_method_id ): ShippingCalculator {
+		$this->shipping_method_id = $shipping_method_id;
+
+		return $this;
 	}
 
 	/**
@@ -147,27 +198,25 @@ class ShippingCalculator {
 		return WC()->shipping()->calculate_shipping( $this->get_shipping_packages() );
 	}
 
-	public function get_shipping_packages() {
+	public function get_shipping_packages(): array {
 		return [
-			[
-				'contents'        => $this->get_items_needing_shipping(),
-				'contents_cost'   => array_sum( wp_list_pluck( $this->get_items_needing_shipping(), 'line_total' ) ),
-				'applied_coupons' => $this->get_applied_coupons(),
-				'user'            => [
-					'ID' => get_current_user_id(),
-				],
-				'destination'     => [
-					'country'   => $this->get_customer_prop( 'country' ),
-					'state'     => $this->get_customer_prop( 'state' ),
-					'postcode'  => $this->get_customer_prop( 'postcode' ),
-					'city'      => $this->get_customer_prop( 'city' ),
-					'address'   => $this->get_customer_prop( 'address' ),
-					'address_1' => $this->get_customer_prop( 'address_1' ),
-					// Provide both address and address_1 for backwards compatibility.
-					'address_2' => $this->get_customer_prop( 'address_2' ),
-				],
-				'cart_subtotal'   => $this->get_displayed_subtotal(),
+			'contents'        => $this->get_items_needing_shipping(),
+			'contents_cost'   => array_sum( wp_list_pluck( $this->get_items_needing_shipping(), 'line_total' ) ),
+			'applied_coupons' => $this->get_applied_coupons(),
+			'user'            => [
+				'ID' => get_current_user_id(),
 			],
+			'destination'     => [
+				'country'   => $this->get_customer_prop( 'country' ),
+				'state'     => $this->get_customer_prop( 'state' ),
+				'postcode'  => $this->get_customer_prop( 'postcode' ),
+				'city'      => $this->get_customer_prop( 'city' ),
+				'address'   => $this->get_customer_prop( 'address' ),
+				'address_1' => $this->get_customer_prop( 'address_1' ),
+				// Provide both address and address_1 for backwards compatibility.
+				'address_2' => $this->get_customer_prop( 'address_2' ),
+			],
+			'cart_subtotal'   => $this->get_displayed_subtotal(),
 		];
 	}
 

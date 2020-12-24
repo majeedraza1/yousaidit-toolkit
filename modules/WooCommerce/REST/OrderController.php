@@ -7,11 +7,10 @@ use Stackonet\WP\Framework\Abstracts\Data;
 use Stackonet\WP\Framework\Supports\Logger;
 use Stackonet\WP\Framework\Supports\Sanitize;
 use WC_Customer;
-use WC_Data_Exception;
 use WC_Order_Item_Product;
 use WC_Order_Item_Shipping;
 use WC_Product;
-use WC_Shipping_Method;
+use WC_Shipping_Rate;
 use WC_Shipping_Zones;
 use WP_REST_Server;
 use YouSaidItCards\Modules\Customer\Models\Address;
@@ -163,8 +162,18 @@ class OrderController extends ApiController {
 			Logger::log( $e );
 		}
 
-		$order = wc_create_order();
-		$order->set_customer_id( $user->ID );
+		$customer_note = $request->get_param( 'customer_note' );
+
+		$shipping_calculator = new ShippingCalculator;
+		$shipping_calculator->set_shipping_address( $shipping );
+		$shipping_calculator->set_line_items( $line_items );
+		$shipping_calculator->set_shipping_method_id( $shipping_method );
+
+		$order = wc_create_order( [
+			'customer_id'   => $user->ID,
+			'customer_note' => ! empty( $customer_note ) ? sanitize_textarea_field( $customer_note ) : null,
+			'created_via'   => 'rest-api',
+		] );
 
 		if ( is_array( $billing ) ) {
 			$order->set_address( $billing, 'billing' );
@@ -174,23 +183,16 @@ class OrderController extends ApiController {
 			$order->set_address( $shipping, 'shipping' );
 		}
 
-		try {
-			$chosen_method = ( new ShippingCalculator )->get_chosen_shipping_method( $shipping_method );
-
-			if ( $chosen_method instanceof WC_Shipping_Method ) {
-				$shipping_rate = ( new ShippingCalculator )->get_shipping_rate( $shipping_method );
-
-				$shipping_item = new WC_Order_Item_Shipping();
-				$shipping_item->set_method_title( $chosen_method->get_title() );
-				$shipping_item->set_method_id( $chosen_method->get_rate_id() ); // set an existing Shipping method rate ID
-				$shipping_item->set_order_id( $order->get_id() );
-				$shipping_item->set_shipping_rate( $shipping_rate );
-				// $shipping_item->set_total( 10 ); // (optional)
-				// $shipping_item->calculate_taxes( $order->get_address( 'shipping' ) );
-				$shipping_item->save();
-			}
-		} catch ( WC_Data_Exception $e ) {
+		$shipping_rate = $shipping_calculator->get_shipping_rate();
+		if ( $shipping_rate instanceof WC_Shipping_Rate ) {
+			$shipping_item = new WC_Order_Item_Shipping();
+			$shipping_item->set_shipping_rate( $shipping_rate );
+			$shipping_item->set_order_id( $order->get_id() );
+			// $shipping_item->set_total( 10 ); // (optional)
+			// $shipping_item->calculate_taxes( $order->get_address( 'shipping' ) );
+			$shipping_item->save();
 		}
+
 
 		foreach ( $line_items as $line_item ) {
 			$product_id    = isset( $line_item['product_id'] ) ? intval( $line_item['product_id'] ) : 0;
@@ -223,7 +225,6 @@ class OrderController extends ApiController {
 		$order->set_payment_method( $request->get_param( 'payment_method' ) );
 		$order->set_payment_method_title( $request->get_param( 'payment_method_title' ) );
 
-		$order->set_created_via( 'rest-api' );
 		$order->set_prices_include_tax( 'yes' === get_option( 'woocommerce_prices_include_tax' ) );
 
 
