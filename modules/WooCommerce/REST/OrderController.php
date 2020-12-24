@@ -11,6 +11,7 @@ use WC_Order_Item_Product;
 use WC_Order_Item_Shipping;
 use WC_Product;
 use WC_Shipping_Rate;
+use WC_Tax;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
@@ -44,6 +45,31 @@ class OrderController extends ApiController {
 	}
 
 	/**
+	 * @param $country
+	 * @param $state
+	 * @param $postcode
+	 * @param int|null $amount
+	 *
+	 * @return array
+	 */
+	public static function get_available_shipping_methods( string $country, ?string $state, ?string $postcode, ?int $amount = null ): array {
+		$methods           = ShippingCalculator::get_shipping_methods( $country, $state, $postcode, 'json' );
+		$available_methods = [];
+		foreach ( $methods as $method ) {
+			$min_amount = isset( $method->min_amount ) && is_numeric( $method->min_amount ) ? floatval( $method->min_amount ) : .01;
+			if ( is_numeric( $amount ) && floatval( $amount ) < $min_amount ) {
+				continue;
+			}
+			if ( isset( $method->settings_html ) ) {
+				unset( $method->settings_html );
+			}
+			$available_methods[] = $method;
+		}
+
+		return $available_methods;
+	}
+
+	/**
 	 * Registers the routes for the objects of the controller.
 	 */
 	public function register_routes() {
@@ -57,6 +83,14 @@ class OrderController extends ApiController {
 			[
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => [ $this, 'create_item' ],
+				'permission_callback' => [ $this, 'is_logged_in' ],
+				'args'                => $this->get_create_item_params(),
+			]
+		] );
+		register_rest_route( $this->namespace, 'me/orders/cost-info', [
+			[
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => [ $this, 'order_cost_info' ],
 				'permission_callback' => [ $this, 'is_logged_in' ],
 				'args'                => $this->get_create_item_params(),
 			]
@@ -89,20 +123,89 @@ class OrderController extends ApiController {
 		$postcode = $request->get_param( 'postcode' );
 		$amount   = $request->get_param( 'amount' );
 
-		$methods           = ShippingCalculator::get_shipping_methods( $country, $state, $postcode, 'json' );
-		$available_methods = [];
-		foreach ( $methods as $method ) {
-			$min_amount = isset( $method->min_amount ) && is_numeric( $method->min_amount ) ? floatval( $method->min_amount ) : .01;
-			if ( is_numeric( $amount ) && floatval( $amount ) < $min_amount ) {
-				continue;
-			}
-			if ( isset( $method->settings_html ) ) {
-				unset( $method->settings_html );
-			}
-			$available_methods[] = $method;
-		}
+		$available_methods = self::get_available_shipping_methods( $country, $state, $postcode, $amount );
 
 		return $this->respondOK( [ 'shipping_methods' => $available_methods ] );
+	}
+
+	public function order_cost_info( WP_REST_Request $request ): WP_REST_Response {
+		$user = wp_get_current_user();
+		if ( ! $user->exists() ) {
+			return $this->respondUnauthorized();
+		}
+
+		$line_items = $request->get_param( 'line_items' );
+		if ( count( $line_items ) < 1 ) {
+			return $this->respondUnprocessableEntity( null, 'No product item found.' );
+		}
+
+		$shipping = $request->get_param( 'shipping' );
+		if ( is_numeric( $shipping ) ) {
+			$address = ( new Address )->find_single( intval( $shipping ) );
+			if ( $address instanceof Data ) {
+				$shipping = $address->to_array();
+			}
+		}
+
+		$response     = [
+			'shipping'         => $shipping,
+			'line_items'       => [],
+			'line_items_total' => 0,
+		];
+		$total_amount = 0;
+
+		foreach ( $line_items as $line_item ) {
+			$product_id   = isset( $line_item['product_id'] ) ? intval( $line_item['product_id'] ) : 0;
+			$quantity     = isset( $line_item['quantity'] ) ? intval( $line_item['quantity'] ) : 0;
+			$variation_id = isset( $line_item['variation_id'] ) ? intval( $line_item['variation_id'] ) : 0;
+
+			if ( empty( $product_id ) || empty( $quantity ) ) {
+				continue;
+			}
+			$product = wc_get_product( $variation_id ? $variation_id : $product_id );
+			if ( ! $product instanceof WC_Product ) {
+				continue;
+			}
+
+			$cost  = wc_get_price_excluding_tax( $product, array( 'qty' => $quantity ) );
+			$price = ( (float) $product->get_price() * $quantity );
+
+			$total_amount += $price;
+
+			$item_tax = 0;
+			$taxable  = $product->get_tax_status() == 'taxable';
+			if ( $taxable ) {
+				$tax_class  = $product->get_tax_class();
+				$rates_args = [
+					'country'   => $shipping['country'],
+					'state'     => $shipping['state'],
+					'postcode'  => $shipping['postcode'],
+					'city'      => $shipping['city'],
+					'tax_class' => $tax_class,
+				];
+				$tax_rates  = WC_Tax::find_rates( $rates_args );
+				$item_tax   = WC_Tax::calc_tax( $cost, $tax_rates, false );
+			}
+
+			$response['line_items'][] = [
+				'product_id'   => $product_id,
+				'variation_id' => $variation_id,
+				'quantity'     => $quantity,
+				'cost'         => [
+					'cost'  => $cost,
+					'tax'   => array_sum( $item_tax ),
+					'total' => $price,
+				],
+			];
+		}
+
+		$response['shipping_methods'] = self::get_available_shipping_methods(
+			$shipping['country'], $shipping['state'], $shipping['postcode'], $total_amount
+		);
+
+		$response['line_items_total'] = $total_amount;
+
+		return $this->respondOK( $response );
 	}
 
 	/**
@@ -144,9 +247,7 @@ class OrderController extends ApiController {
 			return $this->respondUnprocessableEntity();
 		}
 
-		$billing  = $request->get_param( 'billing' );
-		$shipping = $request->get_param( 'shipping' );
-
+		$billing = $request->get_param( 'billing' );
 		if ( is_numeric( $billing ) ) {
 			$address = ( new Address )->find_single( intval( $billing ) );
 			if ( $address instanceof Data ) {
@@ -155,6 +256,7 @@ class OrderController extends ApiController {
 			}
 		}
 
+		$shipping = $request->get_param( 'shipping' );
 		if ( is_numeric( $shipping ) ) {
 			$address = ( new Address )->find_single( intval( $shipping ) );
 			if ( $address instanceof Data ) {
@@ -176,7 +278,7 @@ class OrderController extends ApiController {
 
 		$customer_note = $request->get_param( 'customer_note' );
 
-		$shipping_method_instance_id = $request->get_param( 'shipping_method_instance_id' );
+		$shipping_method_instance_id = (int) $request->get_param( 'shipping_method_instance_id' );
 		$shipping_calculator         = new ShippingCalculator;
 		$shipping_calculator->set_shipping_address( $shipping );
 		$shipping_calculator->set_line_items( $line_items );
@@ -267,37 +369,45 @@ class OrderController extends ApiController {
 
 	public function get_create_item_params(): array {
 		return [
-			'item_sent_to'         => [
+			'item_sent_to'                => [
 				'type'        => 'string',
 				'description' => __( 'Straight to customer door delivery' ),
 				'enum'        => [ 'me', 'them' ]
 			],
-			'billing'              => [
+			'billing'                     => [
 				'type'        => [ 'integer', 'array' ],
 				'description' => __( 'Customer billing address.' ),
 			],
-			'shipping'             => [
+			'shipping'                    => [
 				'type'        => [ 'integer', 'array' ],
 				'description' => __( 'Customer shipping address.' ),
 			],
-			'customer_note'        => [
+			'customer_note'               => [
 				'type'        => 'string',
 				'description' => __( 'Note left by customer during checkout.' )
 			],
-			'transaction_id'       => [
+			'transaction_id'              => [
 				'type'        => 'string',
 				'description' => __( 'Unique transaction ID.' )
 			],
-			'payment_method'       => [
+			'payment_method'              => [
 				'type'        => 'string',
 				'required'    => true,
 				'description' => __( 'Payment method ID.' )
 			],
-			'payment_method_title' => [
+			'payment_method_title'        => [
 				'type'        => 'string',
 				'description' => __( 'Payment method title.' )
 			],
-			'line_items'           => [
+			'shipping_method'             => [
+				'type'        => 'string',
+				'description' => __( 'Shipping method.' )
+			],
+			'shipping_method_instance_id' => [
+				'type'        => 'string',
+				'description' => __( 'Shipping method instance id.' )
+			],
+			'line_items'                  => [
 				'description' => __( 'Line items data.' ),
 				'type'        => 'array',
 				'required'    => true,

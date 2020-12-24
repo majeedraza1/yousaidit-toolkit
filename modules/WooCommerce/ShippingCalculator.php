@@ -186,11 +186,11 @@ class ShippingCalculator {
 	}
 
 	/**
-	 * @param string $shipping_method_instance_id
+	 * @param int $shipping_method_instance_id
 	 *
 	 * @return ShippingCalculator
 	 */
-	public function set_shipping_method_instance_id( string $shipping_method_instance_id ): ShippingCalculator {
+	public function set_shipping_method_instance_id( int $shipping_method_instance_id ): ShippingCalculator {
 		$this->shipping_method_instance_id = $shipping_method_instance_id;
 
 		return $this;
@@ -287,8 +287,8 @@ class ShippingCalculator {
 					'quantity'          => $quantity,
 					'line_tax_data'     => [],
 					'line_subtotal'     => $price,
-					'line_subtotal_tax' => 0,
-					'line_total'        => 0,
+					'line_subtotal_tax' => $item_tax,
+					'line_total'        => $price,
 					'line_tax'          => $item_tax,
 					'data'              => $product,
 				];
