@@ -45,9 +45,10 @@ class DataController extends ApiController {
 	 * @inheritDoc
 	 */
 	public function get_items( $request ) {
-		$rest_client            = new WcRestClient();
-		$response               = $rest_client->list_general_data();
-		$response['card_sizes'] = Utils::get_formatted_size_attribute();
+		$rest_client                 = new WcRestClient();
+		$response                    = $rest_client->list_general_data();
+		$response['card_sizes']      = Utils::get_formatted_size_attribute();
+		$response['currency_symbol'] = get_woocommerce_currency_symbol();
 
 		return $this->respondOK( $response );
 	}

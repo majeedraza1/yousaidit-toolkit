@@ -3,7 +3,7 @@
 namespace YouSaidItCards\Modules\TradeSite\REST;
 
 use WP_REST_Server;
-use Yousaidit\Modules\Designers\Models\DesignerCard;
+use YouSaidItCards\Modules\Designers\Models\DesignerCard;
 use YouSaidItCards\Modules\TradeSite\YousaiditTradeRestClient;
 use YouSaidItCards\REST\LegacyApiController;
 

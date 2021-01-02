@@ -103,7 +103,9 @@ class Session extends Collection {
 
 		$this->read_data();
 
-		$this->set_cookie();
+		if ( ! headers_sent() ) {
+			$this->set_cookie();
+		}
 	}
 
 	/**
@@ -192,7 +194,9 @@ class Session extends Collection {
 
 		$this->session_id = Utils::generate_id();
 
-		$this->set_cookie();
+		if ( ! headers_sent() ) {
+			$this->set_cookie();
+		}
 	}
 
 	/**

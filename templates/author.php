@@ -1,7 +1,7 @@
 <?php
 /** @var WP_User $author */
 $author     = get_queried_object();
-$designer   = new Yousaidit\Modules\Designers\Models\CardDesigner( $author );
+$designer   = new YouSaidItCards\Modules\Designers\Models\CardDesigner( $author );
 $avatar_url = $designer->get_avatar_url();
 $location   = $designer->get_location();
 ?>

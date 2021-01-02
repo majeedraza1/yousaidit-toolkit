@@ -4,7 +4,7 @@ namespace YouSaidItCards\Cli;
 
 use Dompdf\Exception;
 use Stackonet\WP\Framework\Supports\Logger;
-use Yousaidit\Modules\InnerMessage\Fonts;
+use YouSaidItCards\Modules\InnerMessage\Fonts;
 
 class Command extends \WP_CLI_Command {
 	/**

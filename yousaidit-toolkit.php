@@ -104,7 +104,6 @@ final class YousaiditToolkit {
 			$loader = new YouSaidItCards\Autoloader;
 
 			// register the base directories for the namespace prefix
-			$loader->add_namespace( 'Yousaidit', YOUSAIDIT_TOOLKIT_PATH . '/classes' );
 			$loader->add_namespace( 'YouSaidItCards', YOUSAIDIT_TOOLKIT_INCLUDES );
 			$loader->add_namespace( 'YouSaidItCards\Modules', YOUSAIDIT_TOOLKIT_MODULES );
 
