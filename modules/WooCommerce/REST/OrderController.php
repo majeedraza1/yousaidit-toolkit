@@ -92,7 +92,7 @@ class OrderController extends ApiController {
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => [ $this, 'order_cost_info' ],
 				'permission_callback' => [ $this, 'is_logged_in' ],
-				'args'                => $this->get_create_item_params(),
+				'args'                => $this->get_cost_info_params(),
 			]
 		] );
 		register_rest_route( $this->namespace, 'me/orders/shipping_methods', [
@@ -135,6 +135,8 @@ class OrderController extends ApiController {
 		}
 
 		$line_items = $request->get_param( 'line_items' );
+		$line_items = is_string( $line_items ) ? json_decode( $line_items, true ) : $line_items;
+
 		if ( count( $line_items ) < 1 ) {
 			return $this->respondUnprocessableEntity( null, 'No product item found.' );
 		}
@@ -392,7 +394,6 @@ class OrderController extends ApiController {
 			],
 			'payment_method'              => [
 				'type'        => 'string',
-				'required'    => true,
 				'description' => __( 'Payment method ID.' )
 			],
 			'payment_method_title'        => [
@@ -409,8 +410,7 @@ class OrderController extends ApiController {
 			],
 			'line_items'                  => [
 				'description' => __( 'Line items data.' ),
-				'type'        => 'array',
-				'required'    => true,
+				// 'type'              => [ 'array', 'string' ],
 				'items'       => [
 					'type'       => 'object',
 					'properties' => [
@@ -442,5 +442,24 @@ class OrderController extends ApiController {
 				],
 			],
 		];
+	}
+
+	/**
+	 * Get cost info params
+	 *
+	 * @return array[]
+	 */
+	public function get_cost_info_params(): array {
+		$params = $this->get_create_item_params();
+
+		$new_params        = [];
+		$params_white_list = [ 'shipping', 'line_items' ];
+		foreach ( $params as $key => $config ) {
+			if ( in_array( $key, $params_white_list ) ) {
+				$new_params[ $key ] = $config;
+			}
+		}
+
+		return $new_params;
 	}
 }
