@@ -208,10 +208,7 @@ class OrderController extends ApiController {
 		$shippingCalculator->set_line_items( $line_items );
 		$shippingCalculator->set_shipping_address( $shipping );
 
-		$response['shipping_rates']   = $shippingCalculator->get_shipping_rates_array();
-		$response['shipping_methods'] = self::get_available_shipping_methods(
-			$shipping['country'], $shipping['state'], $shipping['postcode'], $total_amount
-		);
+		$response['shipping_rates'] = $shippingCalculator->get_shipping_rates_array();
 
 		return $this->respondOK( $response );
 	}
