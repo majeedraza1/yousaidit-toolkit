@@ -37,9 +37,13 @@ class PdfGenerator {
 		}
 
 		$product = $order_item->get_product();
-		$pdf_id  = (int) $product->get_meta( '_pdf_id', true );
-		$width   = (int) get_post_meta( $pdf_id, '_pdf_width_millimeter', true );
-		$height  = (int) get_post_meta( $pdf_id, '_pdf_height_millimeter', true );
+		if ( ! $product instanceof \WC_Product ) {
+			return false;
+		}
+
+		$pdf_id = (int) $product->get_meta( '_pdf_id', true );
+		$width  = (int) get_post_meta( $pdf_id, '_pdf_width_millimeter', true );
+		$height = (int) get_post_meta( $pdf_id, '_pdf_height_millimeter', true );
 
 		$this->dir  = $order->get_date_created()->format( "Y-m-d" );
 		$meta       = $order_item->get_meta( '_inner_message', true );

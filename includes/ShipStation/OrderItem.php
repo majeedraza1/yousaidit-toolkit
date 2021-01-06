@@ -97,18 +97,24 @@ class OrderItem implements JsonSerializable {
 	protected $inner_message_info = [];
 
 	protected $ship_station_order_id = 0;
+	/**
+	 * @var int
+	 */
+	protected $total_quantities_in_order;
 
 	/**
 	 * OrderItem constructor.
 	 *
 	 * @param array $data
 	 * @param int $ship_station_order_id
+	 * @param int $quantities_in_order
 	 */
-	public function __construct( $data = [], $ship_station_order_id = 0 ) {
-		$this->data                  = $data;
-		$this->ship_station_order_id = $ship_station_order_id;
-		$this->sku                   = isset( $data['sku'] ) ? $data['sku'] : '';
-		$this->product_id            = wc_get_product_id_by_sku( $this->sku );
+	public function __construct( $data = [], $ship_station_order_id = 0, $quantities_in_order = 0 ) {
+		$this->data                      = $data;
+		$this->ship_station_order_id     = $ship_station_order_id;
+		$this->total_quantities_in_order = $quantities_in_order;
+		$this->sku                       = isset( $data['sku'] ) ? $data['sku'] : '';
+		$this->product_id                = wc_get_product_id_by_sku( $this->sku );
 		if ( $this->product_id ) {
 			$this->product = wc_get_product( $this->product_id );
 
@@ -449,5 +455,12 @@ class OrderItem implements JsonSerializable {
 	 */
 	public function get_ship_station_order_id() {
 		return $this->ship_station_order_id;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function get_total_quantities_in_order(): int {
+		return $this->total_quantities_in_order;
 	}
 }

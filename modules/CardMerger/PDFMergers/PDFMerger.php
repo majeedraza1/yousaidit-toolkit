@@ -95,10 +95,6 @@ class PDFMerger {
 	 * @throws PdfTypeException
 	 */
 	public static function add_page_to_pdf( $order_items, Fpdi &$pdf ) {
-		$total_qty = 0;
-		foreach ( $order_items as $order_item ) {
-			$total_qty += $order_item->get_quantity();
-		}
 		foreach ( $order_items as $order_item ) {
 			if ( ! filter_var( $order_item->get_pdf_url(), FILTER_VALIDATE_URL ) ) {
 				continue;
@@ -115,7 +111,7 @@ class PDFMerger {
 
 				// Add qr code
 				self::add_qr_code( $pdf, $order_item->get_ship_station_order_id(), $card_width, $card_height );
-				self::add_total_qty( $pdf, $card_height, $total_qty );
+				self::add_total_qty( $pdf, $card_height, $order_item->get_total_quantities_in_order() );
 
 				// Add new page for inner message
 				if ( $order_item->has_inner_message() && static::$print_inner_message ) {
