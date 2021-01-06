@@ -39,6 +39,7 @@ class ShippingCalculator {
 	 * @var string
 	 */
 	protected $shipping_method_id = '';
+
 	protected $shipping_method_instance_id = '';
 
 	public function __set( $name, $value ) {
@@ -85,6 +86,69 @@ class ShippingCalculator {
 		}
 
 		return $chosen_method;
+	}
+
+	/**
+	 * @return WC_Shipping_Method[]
+	 */
+	public function get_available_shipping_methods(): array {
+		$methods = static::get_shipping_methods(
+			$this->get_customer_prop( 'country' ),
+			$this->get_customer_prop( 'state' ),
+			$this->get_customer_prop( 'postcode' )
+		);
+
+		// Calculate subtotal
+		$this->get_items_needing_shipping();
+
+		$amount = $this->get_displayed_subtotal();
+
+		$available_methods = [];
+		foreach ( $methods as $method ) {
+			$min_amount = isset( $method->min_amount ) && is_numeric( $method->min_amount ) ?
+				floatval( $method->min_amount ) : .01;
+
+			if ( is_numeric( $amount ) && floatval( $amount ) < $min_amount ) {
+				continue;
+			}
+
+			$available_methods[] = $method;
+
+		}
+
+		return $available_methods;
+	}
+
+	/**
+	 * @return array|WC_Shipping_Rate[]
+	 */
+	public function get_shipping_rates(): array {
+		$rates   = [];
+		$methods = $this->get_available_shipping_methods();
+		foreach ( $methods as $method ) {
+			$method->calculate_shipping( $this->get_shipping_packages() );
+			foreach ( $method->rates as $key => $rate ) {
+				$rates[ $key ] = $rate;
+			}
+		}
+
+		return $rates;
+	}
+
+	public function get_shipping_rates_array(): array {
+		$rates       = $this->get_shipping_rates();
+		$rates_array = [];
+		foreach ( $rates as $rate ) {
+			$rates_array[] = [
+				'id'          => $rate->get_id(),
+				'method_id'   => $rate->get_method_id(),
+				'instance_id' => $rate->get_instance_id(),
+				'label'       => $rate->get_label(),
+				'cost'        => $rate->get_cost(),
+			];
+		}
+
+		return $rates_array;
 	}
 
 	/**
