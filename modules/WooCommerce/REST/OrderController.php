@@ -239,6 +239,8 @@ class OrderController extends ApiController {
 		}
 
 		$line_items = $request->get_param( 'line_items' );
+		$line_items = is_string( $line_items ) ? json_decode( $line_items, true ) : $line_items;
+
 		if ( count( $line_items ) < 1 ) {
 			return $this->respondUnprocessableEntity( null, 'No product item found.' );
 		}
