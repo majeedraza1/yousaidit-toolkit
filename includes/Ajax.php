@@ -44,12 +44,12 @@ class Ajax {
 			'idempotency_key' => '310445ef-bf1a-40ad-ad55-3dd1fdfe6ddb',
 			'source_id'       => 'cnon:card-nonce-ok',
 			'amount_money'    => [
-				'amount'   => floatval( '10.55' ),
+				'amount'   => floatval( '10.55' ) * 100,
 				'currency' => 'USD',//get_woocommerce_currency()
 			],
 		];
-		$response = $square->post( 'payments', $args );
-		var_dump( [ $square, $response, $args ] );
+		$response = $square->post( 'payments', wp_json_encode( $args ) );
+		var_dump( $response );
 		die();
 	}
 }

@@ -17,6 +17,7 @@ use WP_REST_Response;
 use WP_REST_Server;
 use YouSaidItCards\Modules\Customer\Models\Address;
 use YouSaidItCards\Modules\WooCommerce\ShippingCalculator;
+use YouSaidItCards\Modules\WooCommerce\SquarePaymentRestClient;
 use YouSaidItCards\Modules\WooCommerce\WcRestClient;
 use YouSaidItCards\REST\ApiController;
 
@@ -345,8 +346,29 @@ class OrderController extends ApiController {
 		}
 
 		// Set payment gateway
-		$order->set_payment_method( $request->get_param( 'payment_method' ) );
+		$payment_method = $request->get_param( 'payment_method' );
+		$order->set_payment_method( $payment_method );
 		$order->set_payment_method_title( $request->get_param( 'payment_method_title' ) );
+
+		if ( in_array( $payment_method, [ 'square', 'square_credit_card' ] ) ) {
+			$payment_token = $request->get_param( 'payment_token' );
+
+			$squareClient   = new SquarePaymentRestClient;
+			$squareResponse = $squareClient->create_payments( $order, [ 'payment_token' => $payment_token ] );
+
+			if ( ! is_wp_error( $squareResponse ) ) {
+				$payment = new Data( $squareResponse['payment'] );
+
+				$order->add_meta_data( 'square_id', $payment['id'], true );
+				$order->add_meta_data( 'square_order_id', $payment['order_id'], true );
+				$order->add_meta_data( 'square_location_id', $payment['location_id'], true );
+
+				if ( 'COMPLETED' == $payment['status'] ) {
+					$order->set_date_paid( $payment['created_at'] );
+					$order->set_status( 'processing', 'Square payment status: COMPLETED' );
+				}
+			}
+		}
 
 		$order->set_prices_include_tax( 'yes' === get_option( 'woocommerce_prices_include_tax' ) );
 
@@ -354,6 +376,7 @@ class OrderController extends ApiController {
 		$item_sent_to = $request->get_param( 'item_sent_to' );
 		$sent_to      = in_array( $item_sent_to, [ 'me', 'them' ] ) ? $item_sent_to : '';
 		$order->add_meta_data( '_item_sent_to', $sent_to );
+		$order->save_meta_data();
 
 		$order->calculate_totals();
 		$order->save();

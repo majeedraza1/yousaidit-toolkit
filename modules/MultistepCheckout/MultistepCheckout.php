@@ -92,6 +92,9 @@ class MultistepCheckout {
 		if ( 'checkout/review-order.php' == $template_name ) {
 			$template = dirname( __FILE__ ) . '/templates/review-order.php';
 		}
+		if ( 'checkout/form-register.php' == $template_name ) {
+			$template = dirname( __FILE__ ) . '/templates/form-register.php';
+		}
 
 		return $template;
 	}
@@ -249,7 +252,7 @@ class MultistepCheckout {
 				<?php wc_get_template( 'checkout/form-login.php', array( 'checkout' => $checkout, ) ); ?>
 			</div>
 			<div class="multistep-checkout--form-register" data-inline_tab="checkout-form-register"
-			     style="display: none">
+				 style="display: none">
 				<?php wc_get_template( 'checkout/form-register.php', array( 'checkout' => $checkout ) ); ?>
 			</div>
 		</div>

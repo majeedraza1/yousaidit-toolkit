@@ -2,6 +2,7 @@
 
 namespace YouSaidItCards\Modules\WooCommerce;
 
+use Stackonet\WP\Framework\Abstracts\Data;
 use Stackonet\WP\Framework\Supports\RestClient;
 use WC_Order;
 
@@ -41,7 +42,7 @@ class SquarePaymentRestClient extends RestClient {
 		$order->get_total();
 
 		$amount_money = [
-			'amount'   => floatval( $order->get_total() ),
+			'amount'   => floatval( $order->get_total() ) * 100,
 			'currency' => get_woocommerce_currency()
 		];
 
@@ -72,6 +73,10 @@ class SquarePaymentRestClient extends RestClient {
 			],
 		];
 
-		return $this->post( 'payments', $params );
+		$response = $this->post( 'payments', wp_json_encode( $params ) );
+
+
+
+		return $response;
 	}
 }

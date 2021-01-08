@@ -59,7 +59,7 @@ class OrderPostcardController extends ApiController {
 		}
 
 		if ( ! $card->isPdf() ) {
-			return $this->respondUnprocessableEntity( 'invalid_file', 'Only PDF are allowed.' );
+			return $this->respondUnprocessableEntity( 'invalid_file', 'Only PDF is allowed.' );
 		}
 
 		$card_width  = 0;
