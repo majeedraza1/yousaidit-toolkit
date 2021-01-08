@@ -3,6 +3,8 @@
 namespace YouSaidItCards;
 
 // If this file is called directly, abort.
+use YouSaidItCards\Modules\WooCommerce\SquarePaymentRestClient;
+
 defined( 'ABSPATH' ) || exit;
 
 class Ajax {
@@ -37,40 +39,17 @@ class Ajax {
 			wp_die( __( 'Sorry. This link only for developer to do some testing.', 'yousaidit-toolkit' ) );
 		}
 
-		$shipping_zone = \WC_Shipping_Zones::get_zone_matching_package( [
-			"destination" => [
-				"country"  => "GB",
-				"state"    => "",
-				"postcode" => "CA2 5JL",
-			]
-		] );
-
-
-		/** @var \WC_Shipping_Method[] $methods */
-		$methods = $shipping_zone->get_shipping_methods( true );
-
-		$first_method = current( $methods );
-		$class_cost   = $first_method->evaluate_cost(
-			$first_method->cost,
-			array(
-				'qty'  => 1,
-				'cost' => 20.50,
-			)
-		);
-
-		$shipping_rate = new \WC_Shipping_Rate();
-		$shipping_rate->set_id( $first_method->get_rate_id() );
-		$shipping_rate->set_label( $first_method->title );
-		$shipping_rate->set_cost( $first_method->cost );
-		$shipping_rate->set_instance_id( $first_method->get_instance_id() );
-		$shipping_rate->set_method_id( $first_method->id );
-
-
-		var_dump( [
-			'$class_cost'   => $class_cost,
-			'shipping_rate' => $shipping_rate,
-//			'methods' => $first_method,
-		] );
+		$square   = new SquarePaymentRestClient();
+		$args     = [
+			'idempotency_key' => '310445ef-bf1a-40ad-ad55-3dd1fdfe6ddb',
+			'source_id'       => 'cnon:card-nonce-ok',
+			'amount_money'    => [
+				'amount'   => floatval( '10.55' ),
+				'currency' => 'USD',//get_woocommerce_currency()
+			],
+		];
+		$response = $square->post( 'payments', $args );
+		var_dump( [ $square, $response, $args ] );
 		die();
 	}
 }
