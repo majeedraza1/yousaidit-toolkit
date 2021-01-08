@@ -372,7 +372,6 @@ class OrderController extends ApiController {
 
 		$order->set_prices_include_tax( 'yes' === get_option( 'woocommerce_prices_include_tax' ) );
 
-
 		$item_sent_to = $request->get_param( 'item_sent_to' );
 		$sent_to      = in_array( $item_sent_to, [ 'me', 'them' ] ) ? $item_sent_to : '';
 		$order->add_meta_data( '_item_sent_to', $sent_to );

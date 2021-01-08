@@ -2,30 +2,49 @@
 
 namespace YouSaidItCards\Modules\WooCommerce;
 
-use Stackonet\WP\Framework\Abstracts\Data;
 use Stackonet\WP\Framework\Supports\RestClient;
 use WC_Order;
 
 class SquarePaymentRestClient extends RestClient {
 
+	protected static $access_token = null;
+	protected static $application_id = null;
+	protected static $setting_read = false;
+	protected static $is_sandbox = false;
+
 	public function __construct() {
-		$settings       = get_option( 'wc_square_settings', [] );
-		$enable_sandbox = isset( $settings['enable_sandbox'] ) && 'yes' == $settings['enable_sandbox'];
-		if ( $enable_sandbox ) {
-			$token          = isset( $settings['sandbox_token'] ) ? $settings['sandbox_token'] : '';
-			$application_id = isset( $settings['sandbox_application_id'] ) ? $settings['sandbox_application_id'] : '';
-		} else {
-			$token          = isset( $settings['sandbox_token'] ) ? $settings['sandbox_token'] : '';
-			$application_id = isset( $settings['sandbox_application_id'] ) ? $settings['sandbox_application_id'] : '';
-		}
-
-		$api_base_url = 'https://connect.squareupsandbox.com/v2';
-
 		$this->add_headers( 'Square-Version', '2020-12-16' );
 		$this->add_headers( 'Content-Type', 'application/json' );
-		$this->add_headers( 'Authorization', sprintf( '%s %s', 'Bearer', $token ) );
+		$this->add_headers( 'Authorization', sprintf( '%s %s', 'Bearer', static::get_setting( 'access_token' ) ) );
 
-		parent::__construct( $api_base_url );
+		parent::__construct( 'https://connect.squareupsandbox.com/v2' );
+	}
+
+	/**
+	 * @param string|null $key
+	 *
+	 * @return string
+	 */
+	public static function get_setting( string $key ): string {
+		if ( ! static::$setting_read ) {
+			$settings           = get_option( 'wc_square_settings', [] );
+			static::$is_sandbox = isset( $settings['enable_sandbox'] ) && 'yes' == $settings['enable_sandbox'];
+			if ( static::$is_sandbox ) {
+				static::$access_token   = isset( $settings['sandbox_token'] ) ? $settings['sandbox_token'] : '';
+				static::$application_id = isset( $settings['sandbox_application_id'] ) ? $settings['sandbox_application_id'] : '';
+			} else {
+				static::$access_token   = isset( $settings['sandbox_token'] ) ? $settings['sandbox_token'] : '';
+				static::$application_id = isset( $settings['sandbox_application_id'] ) ? $settings['sandbox_application_id'] : '';
+			}
+		}
+
+		$settings = [
+			'access_token'   => static::$access_token,
+			'application_id' => static::$application_id,
+			'is_sandbox'     => static::$is_sandbox,
+		];
+
+		return isset( $settings[ $key ] ) ? $settings[ $key ] : '';
 	}
 
 	/**
@@ -74,7 +93,6 @@ class SquarePaymentRestClient extends RestClient {
 		];
 
 		$response = $this->post( 'payments', wp_json_encode( $params ) );
-
 
 
 		return $response;
