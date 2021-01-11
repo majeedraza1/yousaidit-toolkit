@@ -77,17 +77,15 @@ class WcRestClient extends RestClient {
 	public function list_general_data( bool $force = false ): array {
 		$data = get_transient( 'wc_general_data' );
 		if ( ! is_array( $data ) || $force ) {
-			$gateways = $this->get( 'payment_gateways' );
-
 			$data = [
-				'taxes'            => $this->get( 'taxes' ),
-				'taxes_classes'    => $this->get( 'taxes/classes' ),
-				'payment_gateways' => $gateways,
-				'shipping_zones'   => $this->get( 'shipping/zones' ),
-				'shipping_methods' => $this->get( 'shipping_methods' ),
-				'countries'        => $this->get( 'data/countries' ),
-				'currencies'       => $this->get( 'data/currencies' ),
-				'store_currency'   => $this->get( 'data/currencies/current' ),
+				// 'taxes'            => $this->get( 'taxes' ),
+				// 'taxes_classes'    => $this->get( 'taxes/classes' ),
+				// 'shipping_zones'   => $this->get( 'shipping/zones' ),
+				// 'shipping_methods' => $this->get( 'shipping_methods' ),
+				// 'payment_gateways' => $this->get( 'payment_gateways' ),
+				// 'countries'        => $this->get( 'data/countries' ),
+				// 'currencies'       => $this->get( 'data/currencies' ),
+				'store_currency' => $this->get( 'data/currencies/current' ),
 			];
 			set_transient( 'wc_general_data', $data, HOUR_IN_SECONDS );
 		}

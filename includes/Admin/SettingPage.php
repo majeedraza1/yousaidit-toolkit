@@ -36,6 +36,7 @@ class SettingPage {
 			'ship_station_api_key'                => '26abc5f26e6848daaf9eb0b68c64ddc0',
 			'ship_station_api_secret'             => 'c4501ea5a74d489aa91568a82b3fd420',
 			// Trade Site
+			'postcard_product_id'                 => '',
 			'trade_site_url'                      => '',
 			'trade_site_auth_token'               => '',
 			'trade_site_rest_namespace'           => '',
@@ -60,8 +61,16 @@ class SettingPage {
 			'menu_slug'   => 'stackonet-toolkit',
 		] );
 
+		$setting->set_panel( [ 'id' => 'general', 'title' => 'General', 'priority' => 5, ] );
 		$setting->set_panel( [ 'id' => 'integrations', 'title' => 'Integrations', 'priority' => 10, ] );
 		$setting->set_panel( [ 'id' => 'trade_site', 'title' => 'Trade Site', 'priority' => 20 ] );
+
+		$setting->set_section( [
+			'id'       => 'section_postcard_settings',
+			'title'    => __( 'Postcard Settings' ),
+			'panel'    => 'general',
+			'priority' => 5,
+		] );
 
 		$setting->set_section( [
 			'id'          => 'section_ship_station_api',
@@ -77,6 +86,17 @@ class SettingPage {
 			'description' => __( 'Auth settings', 'dialog-contact-form' ),
 			'panel'       => 'trade_site',
 			'priority'    => 10,
+		] );
+
+		$setting->set_field( [
+			'id'                => 'postcard_product_id',
+			'type'              => 'text',
+			'title'             => __( 'Postcard Product id' ),
+			'description'       => __( 'Product ID for postcard.' ),
+			'default'           => '',
+			'priority'          => 10,
+			'sanitize_callback' => 'sanitize_text_field',
+			'panel'             => 'general',
 		] );
 
 		$setting->set_field( [

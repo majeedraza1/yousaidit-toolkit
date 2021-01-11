@@ -319,10 +319,11 @@ class OrderController extends ApiController {
 
 
 		foreach ( $line_items as $line_item ) {
-			$product_id    = isset( $line_item['product_id'] ) ? intval( $line_item['product_id'] ) : 0;
-			$quantity      = isset( $line_item['quantity'] ) ? intval( $line_item['quantity'] ) : 0;
-			$variation_id  = isset( $line_item['variation_id'] ) ? intval( $line_item['variation_id'] ) : 0;
-			$inner_message = isset( $line_item['inner_message'] ) ? Sanitize::deep( $line_item['inner_message'] ) : [];
+			$product_id      = isset( $line_item['product_id'] ) ? intval( $line_item['product_id'] ) : 0;
+			$quantity        = isset( $line_item['quantity'] ) ? intval( $line_item['quantity'] ) : 0;
+			$variation_id    = isset( $line_item['variation_id'] ) ? intval( $line_item['variation_id'] ) : 0;
+			$inner_message   = isset( $line_item['inner_message'] ) ? Sanitize::deep( $line_item['inner_message'] ) : [];
+			$postcard_pdf_id = isset( $line_item['postcard_pdf_id'] ) ? intval( $line_item['postcard_pdf_id'] ) : 0;
 
 			if ( empty( $product_id ) || empty( $quantity ) ) {
 				continue;
@@ -340,6 +341,10 @@ class OrderController extends ApiController {
 
 			if ( ! empty( $inner_message ) ) {
 				$order_item->add_meta_data( '_inner_message', $inner_message, true );
+			}
+
+			if ( ! empty( $postcard_pdf_id ) ) {
+				$order_item->add_meta_data( '_postcard_pdf_id', $postcard_pdf_id, true );
 			}
 
 			$order->add_item( $order_item );
@@ -396,6 +401,11 @@ class OrderController extends ApiController {
 		return $this->respondOK( $order );
 	}
 
+	/**
+	 * Get create item params
+	 *
+	 * @return array[]
+	 */
 	public function get_create_item_params(): array {
 		return [
 			'item_sent_to'                => [
@@ -427,6 +437,10 @@ class OrderController extends ApiController {
 				'type'        => 'string',
 				'description' => __( 'Payment method title.' )
 			],
+			'payment_token'               => [
+				'type'        => 'string',
+				'description' => __( 'Payment token.' )
+			],
 			'shipping_method'             => [
 				'type'        => 'string',
 				'description' => __( 'Shipping method.' )
@@ -441,21 +455,21 @@ class OrderController extends ApiController {
 				'items'       => [
 					'type'       => 'object',
 					'properties' => [
-						'product_id'    => [
+						'product_id'      => [
 							'type'        => 'integer',
 							'required'    => true,
 							'description' => __( 'Product ID.' ),
 						],
-						'quantity'      => [
+						'quantity'        => [
 							'type'        => 'integer',
 							'required'    => true,
 							'description' => __( 'Quantity ordered.' )
 						],
-						'variation_id'  => [
+						'variation_id'    => [
 							'type'        => 'integer',
 							'description' => __( 'Variation ID, if applicable.' )
 						],
-						'inner_message' => [
+						'inner_message'   => [
 							'type'       => 'object',
 							'properties' => [
 								'content' => [ 'type' => 'string' ],
@@ -464,6 +478,10 @@ class OrderController extends ApiController {
 								'align'   => [ 'type' => 'string' ],
 								'color'   => [ 'type' => 'string' ],
 							],
+						],
+						'postcard_pdf_id' => [
+							'type'        => 'integer',
+							'description' => __( 'Provide postcard pdf id.' )
 						],
 					],
 				],

@@ -96,6 +96,6 @@ class OrderPostcardController extends ApiController {
 
 		$pdf_id = Uploader::uploadSingleFile( $card );
 
-		return $this->respondOK( [ $pdf_id ] );
+		return $this->respondOK( [ 'pdf_id' => $pdf_id ] );
 	}
 }
