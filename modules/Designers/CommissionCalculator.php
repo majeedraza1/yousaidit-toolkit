@@ -54,8 +54,8 @@ class CommissionCalculator {
 				$commission_id = $item->get_meta( '_card_designer_commission_id', true );
 				if ( ! empty( $commission_id ) ) {
 					( new DesignerCommission )->update( [
-							'commission_id' => $commission_id,
-							'order_status'  => $order->get_status( 'edit' )
+						'commission_id' => $commission_id,
+						'order_status'  => $order->get_status( 'edit' )
 					] );
 				}
 			}
@@ -113,16 +113,17 @@ class CommissionCalculator {
 			$order->save_meta_data();;
 
 			$commission_id = DesignerCommission::createIfNotExists( [
-					'card_id'          => $card_id,
-					'designer_id'      => $designer_id,
-					'customer_id'      => $order->get_customer_id(),
-					'order_id'         => $order_id,
-					'order_item_id'    => $item->get_id(),
-					'order_quantity'   => $item->get_quantity(),
-					'item_commission'  => $commission_per_sale,
-					'total_commission' => $commission_amount,
-					'card_size'        => $size,
-					'order_status'     => $order->get_status( 'edit' ),
+				'card_id'          => $card_id,
+				'designer_id'      => $designer_id,
+				'customer_id'      => $order->get_customer_id(),
+				'order_id'         => $order_id,
+				'order_item_id'    => $item->get_id(),
+				'order_quantity'   => $item->get_quantity(),
+				'item_commission'  => $commission_per_sale,
+				'total_commission' => $commission_amount,
+				'card_size'        => $size,
+				'order_status'     => $order->get_status( 'edit' ),
+				'payment_status'   => 'unpaid',
 			] );
 
 			wc_update_order_item_meta( $item_id, '_card_designer_commission_id', $commission_id );
