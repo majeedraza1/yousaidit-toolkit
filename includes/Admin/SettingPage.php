@@ -26,9 +26,34 @@ class SettingPage {
 			self::$instance = new self;
 
 			self::$instance->add_settings_page();
+
+			add_action( 'admin_init', [ self::$instance, 'clear_cache' ] );
 		}
 
 		return self::$instance;
+	}
+
+	public function clear_cache() {
+		if ( isset( $_POST['option_page'] ) && '_stackonet_toolkit' == $_POST['option_page'] ) {
+			$names = [
+				'_transient_timeout_ship_station_orders_',
+				'_transient_ship_station_orders_',
+				'_transient_timeout_order_items_by_card_sizes',
+				'_transient_order_items_by_card_sizes',
+			];
+			global $wpdb;
+			$sql = "DELETE FROM {$wpdb->options} WHERE 1 = 1 AND";
+			$sql .= " (";
+			foreach ( $names as $index => $name ) {
+				if ( $index > 0 ) {
+					$sql .= " OR";
+				}
+				$sql .= $wpdb->prepare( " option_name LIKE %s", '%' . $name . '%' );
+			}
+			$sql .= " )";
+
+			$wpdb->query( $sql );
+		}
 	}
 
 	public static function get_option( $key, $default = '' ) {
