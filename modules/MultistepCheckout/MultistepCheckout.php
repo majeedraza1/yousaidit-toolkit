@@ -113,7 +113,7 @@ class MultistepCheckout {
 		$tabs[] = [ 'key' => 'billing', 'number_text' => '2', 'tab_text' => 'Billing' ];
 		$tabs[] = [ 'key' => 'order-payment', 'number_text' => '3', 'tab_text' => 'Order & Payment' ];
 		?>
-		<div class="checkout-tabs-wrapper">
+		<div class="checkout-tabs-wrapper" id="yousaidit-checkout-tabs">
 			<ul class="checkout-tabs">
 				<?php
 				foreach ( $tabs as $index => $tab ) {

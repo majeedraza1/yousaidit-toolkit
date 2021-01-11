@@ -169,7 +169,7 @@ document.addEventListener('click', event => {
 	}
 });
 
-// Pre button
+// Pre, Next button
 document.addEventListener('click', event => {
 	let navClicked = '';
 	if (event.target.closest('.button--checkout-pre')) {
@@ -182,6 +182,9 @@ document.addEventListener('click', event => {
 	}
 
 	if (navClicked) {
+		let element = document.getElementById("yousaidit-checkout-tabs");
+		element.scrollIntoView({behavior: "smooth", block: "start", inline: "start"});
+
 		let activeIndex = activeTabIndex(),
 			nexTabIndex = activeIndex,
 			notificationDiv = document.querySelector('.checkout-notification');
