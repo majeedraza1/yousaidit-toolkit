@@ -66,27 +66,7 @@
 					<span v-html="data.row.shipping_address"> </span>
 				</template>
 				<template slot="art_work" slot-scope="data">
-					<div v-for="_product in data.row.products" v-if="_product.product_sku"
-						 class="yousaidit-loop-product">
-						<a :href="_product.edit_product_url" :title="_product.title">{{ _product.title }}</a>
-						<span class="yousaidit-loop-product__sku">({{ _product.product_sku }})</span>
-						<a class="yousaidit-loop-product__art_work" target="_blank" v-if="_product.art_work.url"
-						   :href="_product.art_work.url" title="Download Card PDF">
-							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-								<path fill="none" d="M0 0h24v24H0z"/>
-								<path
-									d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8.5 7.5c0 .83-.67 1.5-1.5 1.5H9v2H7.5V7H10c.83 0 1.5.67 1.5 1.5v1zm5 2c0 .83-.67 1.5-1.5 1.5h-2.5V7H15c.83 0 1.5.67 1.5 1.5v3zm4-3H19v1h1.5V11H19v2h-1.5V7h3v1.5zM9 9.5h1v-1H9v1zM4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm10 5.5h1v-3h-1v3z"/>
-							</svg>
-						</a>
-						<span class="yousaidit-loop-product__inner_message" v-if="_product.has_inner_message"
-							  title="Inner Message">
-								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-									<path
-										d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
-									<path d="M0 0h24v24H0z" fill="none"/>
-								</svg>
-							</span>
-					</div>
+					<art-work-items :item="data.row"/>
 				</template>
 			</data-table>
 		</column>
@@ -100,10 +80,11 @@
 <script>
 import {mapState} from 'vuex';
 import {column, columns, dataTable, pagination, selectField, shaplaButton} from 'shapla-vue-components'
+import ArtWorkItems from "../components/ArtWorkItems";
 
 export default {
 	name: "Orders",
-	components: {shaplaButton, dataTable, pagination, columns, column, selectField},
+	components: {ArtWorkItems, shaplaButton, dataTable, pagination, columns, column, selectField},
 	data() {
 		return {
 			columns: [

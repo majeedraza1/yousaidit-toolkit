@@ -20,10 +20,16 @@ class DynamicSizePdfMerger extends PDFMerger {
 		$pdf_merger->set_card_height( $card_height );
 		$pdf_merger->set_size( [ $pdf_merger->get_card_width(), $pdf_merger->get_card_height() ] );
 
+		$args = [
+			'card_width'    => $card_width,
+			'card_height'   => $card_height,
+			'inner_message' => $inner_message,
+		];
+
 		$pdf = $pdf_merger->get_fpdi_instance();
 
 		try {
-			static::add_page_to_pdf( $order_items, $pdf );
+			static::add_page_to_pdf( $order_items, $pdf, $args );
 		} catch ( CrossReferenceException $e ) {
 		} catch ( FilterException $e ) {
 		} catch ( PdfTypeException $e ) {

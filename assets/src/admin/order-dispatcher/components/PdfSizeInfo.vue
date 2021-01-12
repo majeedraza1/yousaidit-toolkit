@@ -15,8 +15,8 @@
 					<div>Total <strong>{{ item.items.length }}</strong> Item(s)</div>
 					<div>{{ item.inner_message ? 'Contain Inner Message' : '&nbsp;' }}</div>
 					<div class="mt-4">
-						<shapla-button theme="primary" size="small" fullwidth outline @click="mergePdf(item)">
-							Merge PDF
+						<shapla-button theme="primary" size="small" fullwidth outline target="_blank"
+									   :href="get_pdf_url(item)"> Merge PDF
 						</shapla-button>
 					</div>
 				</div>
@@ -49,17 +49,20 @@ export default {
 				console.log(error);
 			})
 		},
-		mergePdf(item) {
+		get_pdf_url(item) {
 			let _items = item.items.map(el => el.shipStation_order_id);
-			let _url = new URL(Stackonet.ajaxurl), params = _url.searchParams;
+			let _url = new URL(Stackonet.ajaxurl),
+				params = _url.searchParams;
 			params.set('action', 'yousaidit_download_pdf');
 			params.set('card_size', item.card_size);
 			params.set('card_width', item.width);
 			params.set('card_height', item.height);
 			params.set('inner_message', item.inner_message);
 			params.set('ids', _items.toString());
-
-			window.open(_url.toString(), '_blank');
+			return _url.toString();
+		},
+		mergePdf(item) {
+			window.open(this.get_pdf_url(item), '_blank');
 		}
 	},
 	mounted() {

@@ -87,6 +87,7 @@ class PDFMerger {
 	/**
 	 * @param OrderItem[] $order_items
 	 * @param Fpdi $pdf
+	 * @param array $args
 	 *
 	 * @throws CrossReferenceException
 	 * @throws FilterException
@@ -94,11 +95,22 @@ class PDFMerger {
 	 * @throws PdfReaderException
 	 * @throws PdfTypeException
 	 */
-	public static function add_page_to_pdf( $order_items, Fpdi &$pdf ) {
+	public static function add_page_to_pdf( array $order_items, Fpdi &$pdf, array $args = [] ) {
 		foreach ( $order_items as $order_item ) {
 			if ( ! filter_var( $order_item->get_pdf_url(), FILTER_VALIDATE_URL ) ) {
 				continue;
 			}
+			if ( isset( $args['inner_message'] ) ) {
+				if ( ! ( $args['inner_message'] && $order_item->has_inner_message() ) ) {
+//					continue;
+				}
+			}
+			if ( isset( $args['card_width'], $args['card_height'] ) ) {
+				if ( ! ( $args['card_width'] == $order_item->get_pdf_width() && $args['card_height'] == $order_item->get_pdf_height() ) ) {
+//					continue;
+				}
+			}
+
 			foreach ( range( 1, $order_item->get_quantity() ) as $qty ) {
 				// Import card
 				$cardContent = file_get_contents( $order_item->get_pdf_url(), 'rb' );
@@ -588,9 +600,7 @@ class PDFMerger {
 	 *
 	 * @return Fpdi
 	 */
-	public function get_fpdi_instance() {
-		$pdf = new Fpdi( $this->get_orientation(), $this->get_unit(), $this->get_size() );
-
-		return $pdf;
+	public function get_fpdi_instance(): Fpdi {
+		return new Fpdi( $this->get_orientation(), $this->get_unit(), $this->get_size() );
 	}
 }

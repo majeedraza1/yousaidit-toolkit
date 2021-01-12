@@ -358,7 +358,7 @@ class Order implements JsonSerializable {
 	 *
 	 * @return array
 	 */
-	public static function get_order_items_by_card_sizes() {
+	public static function get_order_items_by_card_sizes(): array {
 		$transient_name = 'order_items_by_card_sizes';
 		$items          = get_transient( $transient_name );
 		if ( false == $items ) {
@@ -368,23 +368,30 @@ class Order implements JsonSerializable {
 			foreach ( $orders['items'] as $order ) {
 				$order_items = $order->get_order_items();
 				foreach ( $order_items as $order_item ) {
+					if ( ! $order_item->get_pdf_width() || ! $order_item->get_pdf_height() ) {
+						continue;
+					}
 					$key = sprintf( "%sx%sx%s", $order_item->get_pdf_width(), $order_item->get_pdf_height(),
 						$order_item->has_inner_message() ? 'i' : 'b' );
+					$qty = isset( $items[ $key ]['quantity'] ) ? intval( $items[ $key ]['quantity'] ) : 0;
 
 					$items[ $key ]['width']         = $order_item->get_pdf_width();
 					$items[ $key ]['height']        = $order_item->get_pdf_height();
 					$items[ $key ]['inner_message'] = $order_item->has_inner_message();
 					$items[ $key ]['card_size']     = $order_item->get_card_size();
+					$items[ $key ]['quantity']      = $order_item->get_quantity() + $qty;
 
 					$items[ $key ]['items'][] = [
 						'shipStation_order_id' => $order->get_id(),
 						'has_inner_message'    => $order_item->has_inner_message(),
 						'pdf'                  => $order_item->get_pdf_info(),
 						'inner_message'        => $order_item->get_inner_message_info(),
+						'quantity'             => $order_item->get_quantity(),
 					];
 				}
 			}
 
+			asort( $items );
 			set_transient( $transient_name, $items, MINUTE_IN_SECONDS * 60 );
 		}
 
