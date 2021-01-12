@@ -108,7 +108,7 @@ class CardMergerManager {
 
 		$mode      = isset( $_REQUEST['mode'] ) && in_array( $_REQUEST['mode'], [ 'pdf', 'html' ] ) ?
 			$_REQUEST['mode'] : 'pdf';
-		$generator = new PdfGenerator( $order_item, $wc_order );
+		$generator = new PdfGenerator( $order_item );
 		$generator->get_pdf( $mode );
 		die();
 	}

@@ -137,7 +137,7 @@ class OrderItem implements JsonSerializable {
 	/**
 	 * @return array
 	 */
-	public function to_array() {
+	public function to_array(): array {
 		$data = [];
 
 		if ( $this->has_product() ) {
@@ -251,7 +251,7 @@ class OrderItem implements JsonSerializable {
 	 *
 	 * @return array
 	 */
-	public function get_art_work() {
+	public function get_art_work(): array {
 		if ( empty( $this->pdf_id ) ) {
 			return [ 'id' => 0, 'url' => '' ];
 		}
@@ -259,8 +259,10 @@ class OrderItem implements JsonSerializable {
 		return [
 			'id'        => $this->pdf_id,
 			'title'     => get_the_title( $this->pdf_id ),
-			'url'       => wp_get_attachment_url( $this->pdf_id ),
+			'url'       => $this->get_pdf_url(),
 			'thumb_url' => wp_get_attachment_thumb_url( $this->pdf_id ),
+			'width'     => $this->get_pdf_width(),
+			'height'    => $this->get_pdf_height(),
 		];
 	}
 
@@ -342,8 +344,8 @@ class OrderItem implements JsonSerializable {
 	/**
 	 * @return bool
 	 */
-	public function has_inner_message() {
-		return $this->has_inner_message;
+	public function has_inner_message(): bool {
+		return $this->has_inner_message || count( $this->inner_message_info ) > 1;
 	}
 
 	/**
@@ -400,7 +402,7 @@ class OrderItem implements JsonSerializable {
 	 *
 	 * @return string
 	 */
-	public function get_card_size() {
+	public function get_card_size(): string {
 		return $this->card_size;
 	}
 
@@ -409,7 +411,7 @@ class OrderItem implements JsonSerializable {
 	 *
 	 * @return bool
 	 */
-	public function is_square_card() {
+	public function is_square_card(): bool {
 		return $this->get_card_size() == 'square';
 	}
 
@@ -418,7 +420,7 @@ class OrderItem implements JsonSerializable {
 	 *
 	 * @return bool
 	 */
-	public function is_a4_card() {
+	public function is_a4_card(): bool {
 		return $this->get_card_size() == 'a4';
 	}
 
@@ -427,7 +429,7 @@ class OrderItem implements JsonSerializable {
 	 *
 	 * @return bool
 	 */
-	public function is_a5_card() {
+	public function is_a5_card(): bool {
 		return $this->get_card_size() == 'a5';
 	}
 
@@ -436,14 +438,14 @@ class OrderItem implements JsonSerializable {
 	 *
 	 * @return bool
 	 */
-	public function is_a6_card() {
+	public function is_a6_card(): bool {
 		return $this->get_card_size() == 'a6';
 	}
 
 	/**
 	 * @return array
 	 */
-	public function get_inner_message_info() {
+	public function get_inner_message_info(): array {
 		$data              = $this->inner_message_info;
 		$data['page_size'] = $this->get_card_size();
 
@@ -453,14 +455,14 @@ class OrderItem implements JsonSerializable {
 	/**
 	 * @return int
 	 */
-	public function get_ship_station_order_id() {
-		return $this->ship_station_order_id;
+	public function get_ship_station_order_id(): int {
+		return (int) $this->ship_station_order_id;
 	}
 
 	/**
 	 * @return int
 	 */
 	public function get_total_quantities_in_order(): int {
-		return $this->total_quantities_in_order;
+		return (int) $this->total_quantities_in_order;
 	}
 }

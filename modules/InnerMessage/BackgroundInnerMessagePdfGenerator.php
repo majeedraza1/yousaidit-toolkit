@@ -51,7 +51,7 @@ class BackgroundInnerMessagePdfGenerator extends BackgroundProcess {
 			$_inner_message = $item->get_meta( '_inner_message', true );
 			if ( is_array( $_inner_message ) ) {
 				if ( $immediately ) {
-					$generator = new PdfGenerator( $item, $order );
+					$generator = new PdfGenerator( $item );
 					$generator->save_to_file_system();
 				} else {
 					static::init()->push_to_queue( [ 'order_id' => $order->get_id(), 'item_id' => $item->get_id() ] );
@@ -79,7 +79,7 @@ class BackgroundInnerMessagePdfGenerator extends BackgroundProcess {
 		if ( $order_id && $item_id ) {
 			$wc_order   = wc_get_order( $order_id );
 			$order_item = new \WC_Order_Item_Product( $item_id );
-			$generator  = new PdfGenerator( $order_item, $wc_order );
+			$generator  = new PdfGenerator( $order_item );
 			$generator->save_to_file_system();
 		}
 

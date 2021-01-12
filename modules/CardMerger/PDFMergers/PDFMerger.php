@@ -96,18 +96,19 @@ class PDFMerger {
 	 * @throws PdfTypeException
 	 */
 	public static function add_page_to_pdf( array $order_items, Fpdi &$pdf, array $args = [] ) {
+		$im = isset( $args['inner_message'] ) && $args['inner_message'] == true;
+
 		foreach ( $order_items as $order_item ) {
 			if ( ! filter_var( $order_item->get_pdf_url(), FILTER_VALIDATE_URL ) ) {
 				continue;
 			}
-			if ( isset( $args['inner_message'] ) ) {
-				if ( ! ( $args['inner_message'] && $order_item->has_inner_message() ) ) {
-//					continue;
-				}
+			if ( ( $im && ! $order_item->has_inner_message() ) || ( ! $im && $order_item->has_inner_message() ) ) {
+				continue;
 			}
+
 			if ( isset( $args['card_width'], $args['card_height'] ) ) {
 				if ( ! ( $args['card_width'] == $order_item->get_pdf_width() && $args['card_height'] == $order_item->get_pdf_height() ) ) {
-//					continue;
+					continue;
 				}
 			}
 
@@ -127,8 +128,9 @@ class PDFMerger {
 
 				// Add new page for inner message
 				if ( $order_item->has_inner_message() && static::$print_inner_message ) {
+					$info          = $order_item->get_inner_message_info();
 					$wc_order_item = $order_item->get_wc_order_item();
-					if ( $wc_order_item instanceof \WC_Order_Item_Product ) {
+					if ( $wc_order_item instanceof \WC_Order_Item_Product && count( $info ) > 1 ) {
 						$file   = PdfGenerator::get_pdf_for_order_item( $wc_order_item );
 						$stream = StreamReader::createByFile( $file );
 						$pdf->addPage();
