@@ -7,7 +7,7 @@ use YouSaidItCards\Modules\CardMerger\PDFMergers\DynamicSizePdfMerger;
 use YouSaidItCards\Modules\CardMerger\PDFMergers\TestPdfMerger;
 use YouSaidItCards\Modules\InnerMessage\PdfGenerator;
 use YouSaidItCards\ShipStation\Order;
-use YouSaidItCards\ShipStation\SyncShipStationOrder;
+use YouSaidItCards\ShipStation\ShipStationApi;
 
 class CardMergerManager {
 
@@ -40,8 +40,9 @@ class CardMergerManager {
 			die( 'Only admin can perform this action.' );
 		}
 		$order_id = isset( $_REQUEST['order_id'] ) ? intval( $_REQUEST['order_id'] ) : 0;
-		$pages    = SyncShipStationOrder::init_sync_for_shipped_orders();
-		var_dump( $pages );
+		$order    = ShipStationApi::init()->get_order( $order_id );
+		$order    = new Order( $order );
+		var_dump( [ $order->to_array() ] );
 		die();
 	}
 

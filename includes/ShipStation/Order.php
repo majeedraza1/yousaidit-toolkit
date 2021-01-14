@@ -100,7 +100,7 @@ class Order implements JsonSerializable {
 	 *
 	 * @return array
 	 */
-	public function to_array() {
+	public function to_array(): array {
 		return [
 			'orderId'                  => $this->get_id(),
 			'orderStatus'              => $this->get_order_status(),
@@ -109,6 +109,7 @@ class Order implements JsonSerializable {
 			'customer_email'           => $this->get_customer_email(),
 			'customer_phone'           => $this->get_customer_phone(),
 			'customer_notes'           => $this->get_customer_notes(),
+			'internal_notes'           => $this->get_internal_notes(),
 			'shipping_address'         => $this->get_formatted_shipping_address(),
 			'shipping_service'         => $this->requested_shipping_service(),
 			'products'                 => $this->get_order_items(),
@@ -232,10 +233,10 @@ class Order implements JsonSerializable {
 	 *
 	 * @return array
 	 */
-	public function stackonet_custom_info() {
+	public function stackonet_custom_info(): array {
 		$data = isset( $this->data['advancedOptions']['customField2'] ) ? $this->data['advancedOptions']['customField2'] : null;
 		if ( $data ) {
-			$data = json_decode( $data );
+			$data = json_decode( $data, true );
 		}
 
 		return is_array( $data ) ? $data : [];
@@ -246,7 +247,7 @@ class Order implements JsonSerializable {
 	 *
 	 * @return string
 	 */
-	public function straight_to_door_delivery() {
+	public function straight_to_door_delivery(): string {
 		$data = $this->stackonet_custom_info();
 
 		return isset( $data['straight_to_door_delivery'] ) ? $data['straight_to_door_delivery'] : 'No info';

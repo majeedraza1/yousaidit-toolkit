@@ -1,0 +1,56 @@
+$tooltip-text-color: rgb(255, 255, 255) !default;
+$tooltip-background-color: rgba(97, 97, 97, 0.9) !default;
+$tooltip-font-size: 12px !default;
+$tooltip-font-size-large: 16px !default;
+$tooltip-z-index: 9999 !default;
+$animation-curve-linear-out-slow-in: cubic-bezier(0, 0, 0.2, 1) !default;
+
+.shapla-tooltip {
+	transform: scale(0);
+	transform-origin: top center;
+	z-index: $tooltip-z-index;
+	background-color: $tooltip-background-color;
+	background-image: linear-gradient(to bottom, #444, #000);
+	box-shadow: 0 4px 5px 0 rgba(#000, 0.14), 0 1px 10px 0 rgba(#000, 0.12), 0 2px 4px -1px rgba(#000, 0.2);
+	border-radius: 2px;
+	color: $tooltip-text-color;
+	display: inline-block;
+	font-size: $tooltip-font-size;
+	line-height: 1.5;
+	max-width: 170px;
+	position: fixed;
+	top: -500px;
+	left: -500px;
+	padding: 8px;
+	text-align: center;
+
+	&.is-light {
+		background-color: #fff;
+		background-image: linear-gradient(to bottom, #f5f5f5, #fff);
+		color: #323232;
+	}
+
+	&.is-active {
+		animation: pulse 200ms $animation-curve-linear-out-slow-in forwards;
+	}
+
+	&--large {
+		font-size: $tooltip-font-size-large;
+		padding: 16px;
+	}
+}
+
+@keyframes pulse {
+	0% {
+		transform: scale(0);
+		opacity: 0;
+	}
+	50% {
+		transform: scale(0.99);
+	}
+	100% {
+		transform: scale(1);
+		opacity: 1;
+		visibility: visible;
+	}
+}

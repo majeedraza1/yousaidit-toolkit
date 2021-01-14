@@ -37,14 +37,8 @@
 						:current_page="order_pagination.currentPage" @pagination="paginate"/>
 		</column>
 		<column :tablet="12">
-			<data-table
-				:columns="columns"
-				:items="orders"
-				index="orderId"
-				action-column="art_work"
-				:selectedItems="checked_items"
-				@item:select="checkedItems"
-			>
+			<data-table :columns="columns" :items="orders" index="orderId" action-column="art_work"
+						:selectedItems="checked_items" @item:select="checkedItems">
 				<template slot="orderId" slot-scope="data">
 					<a target="_blank"
 					   :href="`/wp-admin/admin-ajax.php?action=yousaidit_ship_station_order&order_id=${data.row.orderId}`"

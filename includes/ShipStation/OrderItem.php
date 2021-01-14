@@ -345,7 +345,14 @@ class OrderItem implements JsonSerializable {
 	 * @return bool
 	 */
 	public function has_inner_message(): bool {
-		return $this->has_inner_message || count( $this->inner_message_info ) > 1;
+		if ( $this->has_inner_message ) {
+			return true;
+		}
+
+		$content = is_array( $this->inner_message_info ) && isset( $this->inner_message_info['content'] ) ?
+			$this->inner_message_info['content'] : '';
+
+		return ! empty( $content );
 	}
 
 	/**
@@ -446,8 +453,13 @@ class OrderItem implements JsonSerializable {
 	 * @return array
 	 */
 	public function get_inner_message_info(): array {
-		$data              = $this->inner_message_info;
-		$data['page_size'] = $this->get_card_size();
+		$data    = [];
+		$content = is_array( $this->inner_message_info ) && isset( $this->inner_message_info['content'] ) ?
+			$this->inner_message_info['content'] : '';
+		if ( ! empty( $content ) ) {
+			$data              = $this->inner_message_info;
+			$data['page_size'] = $this->get_card_size();
+		}
 
 		return $data;
 	}

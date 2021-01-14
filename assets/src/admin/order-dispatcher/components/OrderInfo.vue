@@ -11,7 +11,6 @@
 					<div>
 						<div><strong>Order Status:</strong> {{ getStatusText(order.orderStatus) }}</div>
 						<div><strong>Order Number:</strong> {{ order.orderId }}</div>
-						<div><strong>Door Delivery:</strong> {{ order.door_delivery }}</div>
 					</div>
 				</div>
 			</div>
@@ -44,6 +43,12 @@
 					<span>{{ order.customer_notes }}</span>
 				</div>
 			</div>
+			<div class="section section--customer_notes" v-if="order.internal_notes">
+				<div class="customer_notes flex">
+					<span>Internal Note: </span>
+					<span>{{ order.internal_notes }}</span>
+				</div>
+			</div>
 			<div class="section section--address">
 				<div class="shipping-address flex">
 					<span>Address: </span>
@@ -55,6 +60,11 @@
 					<shapla-button theme="secondary" @click="$store.dispatch('printAddress',order.orderId)">
 						Print Address
 					</shapla-button>
+					<div class="spacer"></div>
+					<div class="door_delivery">
+						<div><strong>Door Delivery:</strong></div>
+						{{ order.door_delivery }}
+					</div>
 					<div class="spacer"></div>
 					<div class="shipping_service">
 						<div>Shipping Method:</div>
@@ -72,10 +82,11 @@
 </template>
 
 <script>
+import {mapState} from 'vuex'
 import shaplaButton from 'shapla-button';
 import imageContainer from 'shapla-image-container';
+import iconContainer from 'shapla-icon-container';
 import dataTable from 'shapla-data-table';
-import {mapState} from 'vuex'
 import modal from 'shapla-modal';
 import selectField from 'shapla-select-field';
 import {column, columns} from 'shapla-columns';
@@ -86,7 +97,7 @@ import MarkAsShipped from "./MarkAsShipped";
 export default {
 	name: "OrderInfo",
 	components: {
-		MarkAsShipped,
+		MarkAsShipped, iconContainer,
 		shaplaButton, imageContainer, dataTable, modal, selectField, columns, column, textField, shaplaCheckbox
 	},
 	props: {
@@ -160,5 +171,9 @@ export default {
 			margin-left: 18px;
 		}
 	}
+}
+
+.door_delivery {
+	text-align: center;
 }
 </style>
