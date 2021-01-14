@@ -54,6 +54,8 @@ class CardMergerManager {
 			die( 'Only admin can perform this action.' );
 		}
 
+		$type = isset( $_GET['type'] ) && in_array( $_GET['type'], [ 'both', 'pdf', 'im' ] ) ? $_GET['type'] : 'both';
+
 		$card_width    = isset( $_GET['card_width'] ) ? intval( $_GET['card_width'] ) : 0;
 		$card_height   = isset( $_GET['card_height'] ) ? intval( $_GET['card_height'] ) : 0;
 		$inner_message = isset( $_GET['inner_message'] ) ? Validate::checked( $_GET['inner_message'] ) : false;
@@ -71,7 +73,7 @@ class CardMergerManager {
 				}
 			}
 		}
-		DynamicSizePdfMerger::combinePDFs( $items, $card_width, $card_height, $inner_message );
+		DynamicSizePdfMerger::combinePDFs( $items, $card_width, $card_height, $inner_message, $type );
 		die();
 	}
 

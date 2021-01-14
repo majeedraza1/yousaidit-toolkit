@@ -6,7 +6,7 @@
 		</div>
 		<div class="md:flex flex-wrap -m-4" v-if="Object.keys(items).length">
 			<div class="p-4 md:w-3/12 lg:w-2/12" v-for="(item, key) in items" :key="key">
-				<div class="shadow p-4">
+				<div class="shadow p-4 bg-white">
 					<div>
 						<strong>{{ item.width }}</strong>x<strong>{{ item.height }}</strong>
 						<small>pdf size</small>
@@ -14,9 +14,15 @@
 					<div><strong>{{ item.card_size }}</strong> card</div>
 					<div>Total <strong>{{ item.items.length }}</strong> Item(s)</div>
 					<div>{{ item.inner_message ? 'Contain Inner Message' : '&nbsp;' }}</div>
-					<div class="mt-4">
-						<shapla-button theme="primary" size="small" fullwidth outline target="_blank"
-									   :href="get_pdf_url(item)"> Merge PDF
+					<div class="mt-4 flex space-y-2 flex-wrap">
+						<shapla-button theme="default" size="small" fullwidth target="_blank"
+									   :href="get_pdf_url(item,'im')">Merge Inner Message
+						</shapla-button>
+						<shapla-button theme="secondary" outline size="small" fullwidth target="_blank"
+									   :href="get_pdf_url(item,'pdf')">Merge PDF
+						</shapla-button>
+						<shapla-button theme="primary" size="small" fullwidth target="_blank"
+									   :href="get_pdf_url(item,'both')"> Merge PDF & Inner Message
 						</shapla-button>
 					</div>
 				</div>
@@ -52,11 +58,12 @@ export default {
 				console.log(error);
 			})
 		},
-		get_pdf_url(item) {
+		get_pdf_url(item, type = 'both') {
 			let _items = item.items.map(el => el.shipStation_order_id);
 			let _url = new URL(Stackonet.ajaxurl),
 				params = _url.searchParams;
 			params.set('action', 'yousaidit_download_pdf');
+			params.set('type', type);
 			params.set('card_size', item.card_size);
 			params.set('card_width', item.width);
 			params.set('card_height', item.height);
@@ -81,4 +88,5 @@ export default {
 @import "~shapla-css/src/spacing/margin";
 @import "~shapla-css/src/spacing/padding";
 @import "~shapla-css/src/spacing/space-between";
+@import "~shapla-css/src/colors/background-color";
 </style>

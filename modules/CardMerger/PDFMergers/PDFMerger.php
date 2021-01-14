@@ -10,6 +10,7 @@ use setasign\Fpdi\PdfParser\StreamReader;
 use setasign\Fpdi\PdfParser\Type\PdfTypeException;
 use setasign\Fpdi\PdfReader\PageBoundaries;
 use setasign\Fpdi\PdfReader\PdfReaderException;
+use WC_Order_Item_Product;
 use YouSaidItCards\Modules\InnerMessage\PdfGenerator;
 use YouSaidItCards\Modules\OrderDispatcher\QrCode;
 use YouSaidItCards\Modules\OrderDispatcher\QtyCode;
@@ -96,7 +97,8 @@ class PDFMerger {
 	 * @throws PdfTypeException
 	 */
 	public static function add_page_to_pdf( array $order_items, Fpdi &$pdf, array $args = [] ) {
-		$im = isset( $args['inner_message'] ) && $args['inner_message'] == true;
+		$im   = isset( $args['inner_message'] ) && $args['inner_message'] == true;
+		$type = isset( $args['type'] ) && in_array( $args['type'], [ 'both', 'pdf', 'im' ] ) ? $args['type'] : 'both';
 
 		foreach ( $order_items as $order_item ) {
 			if ( ! filter_var( $order_item->get_pdf_url(), FILTER_VALIDATE_URL ) ) {
@@ -113,34 +115,20 @@ class PDFMerger {
 			}
 
 			foreach ( range( 1, $order_item->get_quantity() ) as $qty ) {
-				// Import card
-				$cardContent = file_get_contents( $order_item->get_pdf_url(), 'rb' );
-				$stream      = StreamReader::createByString( $cardContent );
-				$pdf->addPage();
-				$pdf->setSourceFile( $stream );
-				$pageId = $pdf->importPage( 1, PageBoundaries::MEDIA_BOX );
-				list( $card_width, $card_height ) = $pdf->getImportedPageSize( $pageId );
-				$pdf->useImportedPage( $pageId, 0, 0, $card_width, $card_height );
+				if ( in_array( $type, [ 'both', 'pdf' ] ) ) {
+					// Import card
+					self::import_base_card( $pdf, $order_item );
 
-				// Add qr code
-				self::add_qr_code( $pdf, $order_item->get_ship_station_order_id(), $card_width, $card_height );
-				self::add_total_qty( $pdf, $card_height, $order_item->get_total_quantities_in_order() );
+					// Add qr code
+					self::add_qr_code( $pdf, $order_item->get_ship_station_order_id(),
+						$order_item->get_pdf_width(), $order_item->get_pdf_height() );
+					// Add total quantity
+					self::add_total_qty( $pdf, $order_item->get_pdf_height(), $order_item->get_total_quantities_in_order() );
+				}
 
-				// Add new page for inner message
-				if ( $order_item->has_inner_message() && static::$print_inner_message ) {
-					$info          = $order_item->get_inner_message_info();
-					$wc_order_item = $order_item->get_wc_order_item();
-					if ( $wc_order_item instanceof \WC_Order_Item_Product && count( $info ) > 1 ) {
-						$file   = PdfGenerator::get_pdf_for_order_item( $wc_order_item );
-						$stream = StreamReader::createByFile( $file );
-						$pdf->addPage();
-						$totalPagesCount = $pdf->setSourceFile( $stream );
-						$pageId          = $pdf->importPage( $totalPagesCount, PageBoundaries::MEDIA_BOX );
-						list( $card_width, $card_height ) = $pdf->getImportedPageSize( $pageId );
-						$pdf->useImportedPage( $pageId, 0, 0, $card_width, $card_height );
-					} else {
-						static::add_inner_message( $pdf, $order_item, $card_width, $card_height );
-					}
+				if ( in_array( $type, [ 'both', 'im' ] ) ) {
+					// Add new page for inner message
+					self::_add_message( $pdf, $order_item, $order_item->get_pdf_width(), $order_item->get_pdf_height() );
 				}
 			}
 		}
@@ -229,6 +217,59 @@ class PDFMerger {
 			$max_height, // height
 			'png'
 		);
+	}
+
+	/**
+	 * @param Fpdi $pdf
+	 * @param OrderItem $order_item
+	 * @param $card_width
+	 * @param $card_height
+	 *
+	 * @throws CrossReferenceException
+	 * @throws FilterException
+	 * @throws PdfParserException
+	 * @throws PdfReaderException
+	 * @throws PdfTypeException
+	 */
+	private static function _add_message( Fpdi &$pdf, OrderItem $order_item, $card_width, $card_height ): void {
+		if ( $order_item->has_inner_message() && static::$print_inner_message ) {
+			$info          = $order_item->get_inner_message_info();
+			$wc_order_item = $order_item->get_wc_order_item();
+			if ( $wc_order_item instanceof WC_Order_Item_Product && count( $info ) > 1 ) {
+				$file   = PdfGenerator::get_pdf_for_order_item( $wc_order_item );
+				$stream = StreamReader::createByFile( $file );
+				$pdf->addPage();
+				$totalPagesCount = $pdf->setSourceFile( $stream );
+				$pageId          = $pdf->importPage( $totalPagesCount, PageBoundaries::MEDIA_BOX );
+				list( $card_width, $card_height ) = $pdf->getImportedPageSize( $pageId );
+				$pdf->useImportedPage( $pageId, 0, 0, $card_width, $card_height );
+			} else {
+				static::add_inner_message( $pdf, $order_item, $card_width, $card_height );
+			}
+		}
+	}
+
+	/**
+	 * @param Fpdi $pdf
+	 * @param OrderItem $order_item
+	 *
+	 * @return mixed
+	 * @throws CrossReferenceException
+	 * @throws FilterException
+	 * @throws PdfParserException
+	 * @throws PdfReaderException
+	 * @throws PdfTypeException
+	 */
+	private static function import_base_card( Fpdi &$pdf, OrderItem $order_item ) {
+		$cardContent = file_get_contents( $order_item->get_pdf_url(), 'rb' );
+		$stream      = StreamReader::createByString( $cardContent );
+		$pdf->addPage();
+		$pdf->setSourceFile( $stream );
+		$pageId = $pdf->importPage( 1, PageBoundaries::MEDIA_BOX );
+		list( $card_width, $card_height ) = $pdf->getImportedPageSize( $pageId );
+		$pdf->useImportedPage( $pageId, 0, 0, $card_width, $card_height );
+
+		return $card_height;
 	}
 
 	/**

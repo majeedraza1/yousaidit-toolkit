@@ -10,7 +10,7 @@ use setasign\Fpdi\PdfReader\PdfReaderException;
 
 class DynamicSizePdfMerger extends PDFMerger {
 
-	public static function combinePDFs( array $order_items, $card_width, $card_height, $inner_message ) {
+	public static function combinePDFs( array $order_items, $card_width, $card_height, $inner_message, $type = 'both' ) {
 		static::$print_inner_message = $inner_message;
 
 		$pdf_merger = new PDFMerger();
@@ -24,6 +24,7 @@ class DynamicSizePdfMerger extends PDFMerger {
 			'card_width'    => $card_width,
 			'card_height'   => $card_height,
 			'inner_message' => $inner_message,
+			'type'          => in_array( $type, [ 'both', 'pdf', 'im' ] ) ? $type : 'both',
 		];
 
 		$pdf = $pdf_merger->get_fpdi_instance();
