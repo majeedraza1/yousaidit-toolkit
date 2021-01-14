@@ -2,6 +2,7 @@
 
 namespace YouSaidItCards\REST;
 
+use Stackonet\WP\Framework\Supports\Validate;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -56,10 +57,13 @@ class OrderController extends LegacyApiController {
 	/**
 	 * Get order items
 	 *
+	 * @param WP_REST_Request $request
+	 *
 	 * @return WP_REST_Response
 	 */
-	public function get_order_items() {
-		$items = Order::get_order_items_by_card_sizes();
+	public function get_order_items( $request ) {
+		$force = Validate::checked( $request->get_param( 'force' ) );
+		$items = Order::get_order_items_by_card_sizes( $force );
 
 		return $this->respondOK( [ 'items' => $items ] );
 	}

@@ -2,7 +2,7 @@
 	<div class="w-full">
 		<div class="mb-4 flex">
 			<div class="flex-1"></div>
-			<shapla-button theme="primary" size="small" @click="getItems">Refresh</shapla-button>
+			<shapla-button theme="primary" size="small" @click="forceRefresh">Refresh</shapla-button>
 		</div>
 		<div class="md:flex flex-wrap -m-4" v-if="Object.keys(items).length">
 			<div class="p-4 md:w-3/12 lg:w-2/12" v-for="(item, key) in items" :key="key">
@@ -38,9 +38,12 @@ export default {
 		}
 	},
 	methods: {
-		getItems() {
+		forceRefresh() {
+			this.getItems(true);
+		},
+		getItems(force = false) {
 			this.$store.commit('SET_LOADING_STATUS', true);
-			axios.get(Stackonet.root + '/orders/card-sizes').then(response => {
+			axios.get(Stackonet.root + '/orders/card-sizes', {params: {force: force}}).then(response => {
 				this.$store.commit('SET_LOADING_STATUS', false);
 				let data = response.data.data;
 				this.items = data.items;

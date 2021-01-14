@@ -357,11 +357,16 @@ class Order implements JsonSerializable {
 	/**
 	 * Get card sizes
 	 *
+	 * @param bool $force
+	 *
 	 * @return array
 	 */
-	public static function get_order_items_by_card_sizes(): array {
+	public static function get_order_items_by_card_sizes( $force = false ): array {
 		$transient_name = 'order_items_by_card_sizes';
 		$items          = get_transient( $transient_name );
+		if ( $force ) {
+			$items = false;
+		}
 		if ( false == $items ) {
 			$items  = [];
 			$orders = static::_get_orders( [ 'force' => true ] );
