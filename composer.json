@@ -28,14 +28,15 @@
     "ext-iconv": "*",
     "ext-imagick": "*",
     "ext-json": "*",
+    "bacon/bacon-qr-code": "^2.0",
     "dompdf/dompdf": "^0.8.5",
     "firebase/php-jwt": "^5.2",
-    "setasign/fpdi": "^2.3",
-    "setasign/fpdf": "^1.8",
-    "stackonet/wp-helpers": ">=1.3",
-    "paypal/rest-api-sdk-php": "^1.14.0",
+    "joypixels/emoji-toolkit": "^6.0",
     "khanamiryan/qrcode-detector-decoder": "^1.0",
-    "bacon/bacon-qr-code": "^2.0",
-    "joypixels/emoji-toolkit": "^6.0"
+    "paypal/paypal-payouts-sdk": "^1.0",
+    "paypal/rest-api-sdk-php": "^1.14.0",
+    "setasign/fpdf": "^1.8",
+    "setasign/fpdi": "^2.3",
+    "stackonet/wp-helpers": ">=1.3"
   }
 }

@@ -6,7 +6,6 @@ use Stackonet\WP\Framework\Supports\Validate;
 use WP_HTTP_Response;
 use WP_REST_Request;
 use WP_REST_Server;
-use YouSaidItCards\Modules\Designers\DesignersManager;
 use YouSaidItCards\Admin\Admin;
 use YouSaidItCards\Admin\SettingPage;
 use YouSaidItCards\Cli\Command;
@@ -15,6 +14,8 @@ use YouSaidItCards\Modules\Auth\AuthManager;
 use YouSaidItCards\Modules\CardMerger\CardMergerManager;
 use YouSaidItCards\Modules\ColorTheme\ColorThemeManager;
 use YouSaidItCards\Modules\Customer\CustomerManager;
+use YouSaidItCards\Modules\Designers\DesignersManager;
+use YouSaidItCards\Modules\EvaTheme\EvaThemeManager;
 use YouSaidItCards\Modules\Faq\FaqManager;
 use YouSaidItCards\Modules\FeaturedProductsFirst\FeaturedProductsFirst;
 use YouSaidItCards\Modules\HideProductsFromShop\HideProductsFromShop;
@@ -144,6 +145,7 @@ class Plugin {
 		$this->container['module_featured_product'] = FeaturedProductsFirst::init();
 		$this->container['module_inner_message']    = InnerMessageManager::init();
 		$this->container['module_trade_site']       = TradeSiteManager::init();
+		$this->container['module_eva_theme']        = EvaThemeManager::init();
 	}
 
 	/**
