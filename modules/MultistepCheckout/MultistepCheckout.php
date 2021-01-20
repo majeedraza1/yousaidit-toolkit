@@ -191,7 +191,7 @@ class MultistepCheckout {
 				<input class="radio-item_sent_to" type="radio" id="box--sent-to-them" value="them" name="item_sent_to"/>
 				<label class="box box-item_sent_to box--sent-to-them" for="box--sent-to-them">
 					<strong>Sent to them</strong>
-					<span>We'll send all items straight to their door. ready for them to open</span>
+					<span>We'll send all items straight to their door, ready for them to open</span>
 				</label>
 			</div>
 		</div>

@@ -3,15 +3,15 @@
 		<columns multiline>
 			<column :tablet="6">
 				<editable-content
-						placeholder="Please click here to write your message"
-						:font-family="font_family"
-						:font-size="font_size"
-						:text-align="alignment"
-						:color="color"
-						v-model="message"
+					placeholder="Please click here to write your message"
+					:font-family="font_family"
+					:font-size="font_size"
+					:text-align="alignment"
+					:color="color"
+					v-model="message"
 				/>
 				<div v-if="showLengthError" class="has-error p-4 my-4">
-					Don't write more text.
+					Oops... your message is too long, please keep inside the box.
 				</div>
 			</column>
 			<column :tablet="6">
@@ -20,11 +20,11 @@
 						<tab name="Font" selected>
 							<div class="inner-message-font-families">
 								<div
-										class="inner-message-font-family"
-										v-for="_font in font_families"
-										:class="{'is-selected':font_family === _font.fontFamily}"
-										:style="`font-family:${_font.fontFamily}`"
-										@click="setFontFamily(_font)"
+									class="inner-message-font-family"
+									v-for="_font in font_families"
+									:class="{'is-selected':font_family === _font.fontFamily}"
+									:style="`font-family:${_font.fontFamily}`"
+									@click="setFontFamily(_font)"
 								>{{ _font.label }}
 								</div>
 							</div>
@@ -33,23 +33,23 @@
 							<div class="inner-message-font-sizes flex flex-wrap justify-center">
 								<div class="inner-message-font-size" v-for="_size in font_sizes" :key="_size">
 									<radio-button
-											:label="_size"
-											:value="_size"
-											v-model="font_size"
-											:theme="font_size === _size?'primary':'default'"/>
+										:label="_size"
+										:value="_size"
+										v-model="font_size"
+										:theme="font_size === _size?'primary':'default'"/>
 								</div>
 							</div>
 						</tab>
 						<tab name="Align">
 							<div class="inner-message-text-alignments flex flex-wrap">
 								<div class="inner-message-text-alignment flex-grow" v-for="_alignment in alignments"
-										 :key="_alignment.value">
+									 :key="_alignment.value">
 									<radio-button
-											fullwidth
-											:label="_alignment.label"
-											:value="_alignment.value"
-											v-model="alignment"
-											:theme="alignment === _alignment.value?'primary':'default'"/>
+										fullwidth
+										:label="_alignment.label"
+										:value="_alignment.value"
+										v-model="alignment"
+										:theme="alignment === _alignment.value?'primary':'default'"/>
 								</div>
 							</div>
 						</tab>
@@ -57,7 +57,7 @@
 							<div class="inner-message-colors flex flex-wrap justify-center">
 								<div v-for="_color in colors" :key="_color.hex" class="inner-message-color p-3">
 									<div @click="setFontColor(_color.hex)" class="color-box" :title="_color.label"
-											 :style="`background:${_color.hex}`">{{ _color }}
+										 :style="`background:${_color.hex}`">{{ _color }}
 									</div>
 								</div>
 							</div>
@@ -135,17 +135,12 @@ export default {
 		}
 	},
 	watch: {
-		message(newValue) {
+		message() {
 			let content = this.$el.querySelector('.editable-content'),
-					editor = content.querySelector('.editable-content__editor');
+				editor = content.querySelector('.editable-content__editor');
 
-			console.log(content.offsetHeight);
-			console.log(editor.offsetHeight);
-			this.showLengthError = editor.offsetHeight > (0.6 * content.offsetHeight);
+			this.showLengthError = editor.offsetHeight > (0.95 * content.offsetHeight);
 		}
-	},
-	mounted() {
-
 	}
 }
 </script>

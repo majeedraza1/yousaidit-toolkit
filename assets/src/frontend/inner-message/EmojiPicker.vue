@@ -18,6 +18,9 @@ export default {
 }
 </script>
 
-<style scoped>
-
+<style lang="scss">
+@import "~shapla-color-system/src/variables";
+.container-emoji::-webkit-scrollbar-thumb {
+	background: $primary;
+}
 </style>

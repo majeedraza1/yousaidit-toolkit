@@ -32,9 +32,11 @@ export default {
 	},
 	mounted() {
 		let customMessage = document.querySelector('#custom_message');
-		customMessage.addEventListener('change', event => {
-			this.showModal = event.target.checked;
-		});
+		if (customMessage) {
+			customMessage.addEventListener('change', event => {
+				this.showModal = event.target.checked;
+			});
+		}
 	},
 	methods: {
 		closeModal() {
