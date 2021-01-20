@@ -383,14 +383,26 @@ class DesignerCommission extends DatabaseModel {
 
 		$counts['orders'] = intval( $result['total_orders'] );
 
+		$query  = "SELECT SUM(total_commission) AS total_commissions FROM {$table}";
+		$query  .= " WHERE {$self->deleted_at} IS NULL AND payment_status = 'unpaid'";
+		$result = $wpdb->get_row( $query, ARRAY_A );
+
+		$counts['total_commission'] = round( floatval( $result['total_commissions'] ), 2 );
+
 		$query          = "SELECT order_status, COUNT( * ) AS total FROM {$table}";
 		$query          .= " WHERE {$self->deleted_at} IS NULL AND payment_status = 'unpaid'";
 		$query          .= " GROUP BY order_status";
 		$order_statuses = $wpdb->get_results( $query, ARRAY_A );
 
+		$currency_symbol = get_woocommerce_currency_symbol();
+
 		$cards = [
 			[ 'key' => 'designers', 'label' => 'Designers to Pay', 'count' => $counts['designers'] ],
 			[ 'key' => 'orders', 'label' => 'Total Orders to Pay', 'count' => $counts['orders'] ],
+			[ 'key'   => 'total_commission',
+			  'label' => 'Total Amount to Pay',
+			  'count' => sprintf( "%s%s", $currency_symbol, $counts['total_commission'] )
+			],
 		];
 
 		if ( count( $order_statuses ) ) {
