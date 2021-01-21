@@ -84,9 +84,20 @@ class DesignerController extends ApiController {
 		$user_search = new WP_User_Query( $args );
 
 		$users = (array) $user_search->get_results();
-		$items = [];
+
+		$commissions = DesignerCommission::get_commission_by_designers();
+		$items       = [];
 		foreach ( $users as $user ) {
-			$items[] = new CardDesigner( $user );
+			$designer = new CardDesigner( $user );
+			$data     = $designer->to_array();
+			if ( isset( $commissions[ $data['id'] ] ) ) {
+				$data = array_merge( $data, $commissions[ $data['id'] ] );
+			} else {
+				$data = array_merge( $data, [ 'unpaid_commission' => 0, 'paid_commission' => 0 ] );
+			}
+			$data['currency_symbol'] = get_woocommerce_currency_symbol();
+
+			$items[] = $data;
 		}
 
 		$pagination = static::get_pagination_data( $user_search->get_total(), $per_page, $page );

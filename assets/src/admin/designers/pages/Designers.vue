@@ -18,7 +18,10 @@
 						:show-cb="false"
 						:actions="actions"
 						@action:click="handleActionClick"
-				/>
+				>
+					<template v-slot:unpaid_commission="data">{{data.row.currency_symbol}}{{data.row.unpaid_commission}}</template>
+					<template v-slot:paid_commission="data">{{data.row.currency_symbol}}{{data.row.paid_commission}}</template>
+				</data-table>
 			</column>
 			<column :tablet="12">
 				<pagination :current_page="current_page" :per_page="per_page" :total_items="total_items"
@@ -46,6 +49,8 @@
 					{key: 'email', label: 'Email'},
 					{key: 'total_cards', label: 'Total Cards', numeric: true},
 					{key: 'total_sales', label: 'Total Sales', numeric: true},
+					{key: 'unpaid_commission', label: 'Commission (unpaid)', numeric: true},
+					{key: 'paid_commission', label: 'Commission (paid)', numeric: true},
 				],
 				actions: [
 					{key: 'view', label: 'View'}

@@ -6,6 +6,7 @@ use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
+use YouSaidItCards\Modules\Designers\Admin\Settings;
 use YouSaidItCards\Modules\Designers\Models\DesignerCommission;
 use YouSaidItCards\Modules\Designers\Models\Payment;
 use YouSaidItCards\Modules\Designers\PaypalPayoutsUtils;
@@ -73,8 +74,9 @@ class PayPalPayoutController extends ApiController {
 
 		$items = ( new Payment() )->find();
 
-		$counts   = DesignerCommission::count_card_for_payout();
-		$response = [ 'items' => $items, 'count_cards' => $counts ];
+		$counts     = DesignerCommission::count_card_for_payout();
+		$min_amount = Settings::designer_minimum_amount_to_pay();
+		$response   = [ 'items' => $items, 'count_cards' => $counts, 'min_amount' => $min_amount ];
 
 		return $this->respondOK( $response );
 	}
@@ -87,13 +89,8 @@ class PayPalPayoutController extends ApiController {
 			return $this->respondOK();
 		}
 
-		$min_amount = (float) $request->get_param( 'min_amount' );
-
-		if ( $min_amount < 1 ) {
-			$min_amount = 5.00;
-		}
-
-		$payout = PaypalPayoutsUtils::pay_unpaid_commissions( $min_amount );
+		$min_amount = Settings::designer_minimum_amount_to_pay();
+		$payout     = PaypalPayoutsUtils::pay_unpaid_commissions( $min_amount );
 		if ( $payout instanceof WP_Error ) {
 			return $this->respondUnprocessableEntity( $payout->get_error_code(), $payout->get_error_message() );
 		}

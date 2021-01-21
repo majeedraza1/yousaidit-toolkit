@@ -204,6 +204,44 @@ class DesignerCommission extends DatabaseModel {
 	}
 
 	/**
+	 * Get designer commission
+	 *
+	 * @return array
+	 */
+	public static function get_commission_by_designers(): array {
+		$self = new static;
+		global $wpdb;
+		$table = $self->get_table_name();
+
+		$query   = "SELECT SUM( total_commission ) AS unpaid_commission, designer_id FROM {$table}";
+		$query   .= " WHERE {$self->deleted_at} IS NULL";
+		$query   .= $wpdb->prepare( " AND payment_status = %s", 'unpaid' );
+		$query   .= " GROUP BY designer_id";
+		$results = $wpdb->get_results( $query, ARRAY_A );
+
+		$query    = "SELECT SUM( total_commission ) AS paid_commission, designer_id FROM {$table}";
+		$query    .= " WHERE {$self->deleted_at} IS NULL";
+		$query    .= $wpdb->prepare( " AND payment_status = %s", 'paid' );
+		$query    .= " GROUP BY designer_id";
+		$results2 = $wpdb->get_results( $query, ARRAY_A );
+
+		$data = [];
+		foreach ( $results as $result ) {
+			$data[ $result['designer_id'] ] = [
+				'unpaid_commission' => round( floatval( $result['unpaid_commission'] ), 2 ),
+			];
+		}
+		foreach ( $results2 as $result ) {
+			if ( ! isset( $data[ $result['designer_id'] ] ) ) {
+				$data[ $result['designer_id'] ] = [ 'unpaid_commission' => 0 ];
+			}
+			$data[ $result['designer_id'] ]['paid_commission'] = round( floatval( $result['paid_commission'] ), 2 );
+		}
+
+		return $data;
+	}
+
+	/**
 	 * @param int $designer_id
 	 *
 	 * @return false|float|int
@@ -399,9 +437,10 @@ class DesignerCommission extends DatabaseModel {
 		$cards = [
 			[ 'key' => 'designers', 'label' => 'Designers to Pay', 'count' => $counts['designers'] ],
 			[ 'key' => 'orders', 'label' => 'Total Orders to Pay', 'count' => $counts['orders'] ],
-			[ 'key'   => 'total_commission',
-			  'label' => 'Total Amount to Pay',
-			  'count' => sprintf( "%s%s", $currency_symbol, $counts['total_commission'] )
+			[
+				'key'   => 'total_commission',
+				'label' => 'Total Amount to Pay',
+				'count' => sprintf( "%s%s", $currency_symbol, $counts['total_commission'] )
 			],
 		];
 

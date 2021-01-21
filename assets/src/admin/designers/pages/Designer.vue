@@ -22,6 +22,18 @@
 				<column :tablet="3">Business Name</column>
 				<column :tablet="9">{{designer.business_name}}</column>
 			</columns>
+			<columns multiline>
+				<column :tablet="3">Commission (unpaid)</column>
+				<column :tablet="9">{{designer.unpaid_commission}}</column>
+			</columns>
+			<columns multiline>
+				<column :tablet="3">Commission (paid)</column>
+				<column :tablet="9">{{designer.paid_commission}}</column>
+			</columns>
+			<columns multiline>
+				<column :tablet="3">Total Commission</column>
+				<column :tablet="9">{{designer.total_commission}}</column>
+			</columns>
 		</div>
 		<h2 class="title">Card Info</h2>
 		<toggles v-if="cards.length">
@@ -77,6 +89,9 @@
 				axios.get(Stackonet.root + '/designers/' + this.id).then(response => {
 					let data = response.data.data;
 					this.designer = data.designer;
+					this.designer.total_commission = data.total_commission;
+					this.designer.unpaid_commission = data.unpaid_commission;
+					this.designer.paid_commission = data.paid_commission;
 					this.$store.commit('SET_LOADING_STATUS', false);
 				}).catch(errors => {
 					console.log(errors);

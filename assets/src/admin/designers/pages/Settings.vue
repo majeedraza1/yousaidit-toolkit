@@ -34,7 +34,7 @@
 													 v-model="options[field.id]">
 									</template>
 									<template v-else>
-										<input type="text" class="regular-text" :id="field.id"
+										<input :type="field.type" class="regular-text" :id="field.id"
 													 v-model="options[field.id]">
 									</template>
 									<p class="description" v-if="field.description" v-html="field.description"></p>

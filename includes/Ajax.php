@@ -3,6 +3,7 @@
 namespace YouSaidItCards;
 
 // If this file is called directly, abort.
+use YouSaidItCards\Modules\Designers\Models\DesignerCommission;
 use YouSaidItCards\Modules\WooCommerce\SquarePaymentRestClient;
 
 defined( 'ABSPATH' ) || exit;
@@ -39,17 +40,8 @@ class Ajax {
 			wp_die( __( 'Sorry. This link only for developer to do some testing.', 'yousaidit-toolkit' ) );
 		}
 
-		$square   = new SquarePaymentRestClient();
-		$args     = [
-			'idempotency_key' => '310445ef-bf1a-40ad-ad55-3dd1fdfe6ddb',
-			'source_id'       => 'cnon:card-nonce-ok',
-			'amount_money'    => [
-				'amount'   => floatval( '10.55' ) * 100,
-				'currency' => 'USD',//get_woocommerce_currency()
-			],
-		];
-		$response = $square->post( 'payments', wp_json_encode( $args ) );
-		var_dump( $response );
+		$commission = DesignerCommission::get_commission_by_designers();
+		var_dump( $commission );
 		die();
 	}
 }

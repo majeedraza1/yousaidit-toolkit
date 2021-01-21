@@ -49,6 +49,7 @@ export default {
 	data() {
 		return {
 			showModal: false,
+			min_amount: 1,
 			count_cards: [],
 			items: [],
 			columns: [
@@ -78,6 +79,7 @@ export default {
 			}).then(response => {
 				this.items = response.data.data.items;
 				this.count_cards = response.data.data.count_cards;
+				this.min_amount = response.data.data.min_amount;
 				this.$store.commit('SET_LOADING_STATUS', false);
 			}).catch(errors => {
 				console.log(errors);
@@ -105,7 +107,7 @@ export default {
 		payNow() {
 			let config = {
 				title: 'Are you sure to create a new payout?',
-				message: 'Only designers, whom unpaid commissions are more than 5.00, will be paid.',
+				message: 'Only designers, whom unpaid commissions are more than ' + this.min_amount + ', will be paid.',
 				icon: 'info'
 			};
 			this.$dialog.confirm(config).then(confirmed => {
