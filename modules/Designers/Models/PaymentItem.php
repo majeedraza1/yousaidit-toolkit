@@ -31,14 +31,14 @@ class PaymentItem extends DatabaseModel {
 	 *
 	 * @return array
 	 */
-	public function find_by_designer_id( $designer_id, array $args = [] ) {
+	public function find_by_designer_id( int $designer_id, array $args = [] ): array {
 		list( $per_page, $offset, $orderby, $order ) = $this->get_pagination_and_order_data( $args );
 
 		global $wpdb;
 		$table = $wpdb->prefix . $this->table;
 
 		$query = "SELECT * FROM {$table} WHERE 1=1";
-		$query .= $wpdb->prepare( " AND designer_id = %d", intval( $designer_id ) );
+		$query .= $wpdb->prepare( " AND designer_id = %d", $designer_id );
 
 		$query   .= " ORDER BY {$orderby} {$order}";
 		$query   .= $wpdb->prepare( " LIMIT %d OFFSET %d", $per_page, $offset );
@@ -81,32 +81,7 @@ class PaymentItem extends DatabaseModel {
 	}
 
 	/**
-	 * @inheritDoc
-	 */
-	public function count_records() {
-		return [];
-	}
-
-	/**
-	 * @param \PayPal\Api\PayoutItemDetails $data
-	 *
-	 * @return mixed
-	 */
-	public static function payoutItemToPaymentItem( $data ) {
-		$item = $data->getPayoutItem();
-
-		return [
-			'item_id'            => (int) $item->getSenderItemId(),
-			'payout_item_id'     => $data->getPayoutItemId(),
-			'transaction_status' => $data->getTransactionStatus(),
-			'currency'           => $item->getAmount()->getCurrency(),
-			'total_commissions'  => (float) $item->getAmount()->getValue(),
-			'error_message'      => $data->getErrors()->getMessage(),
-		];
-	}
-
-	/**
-	 * @inheritDoc
+	 * Create table
 	 */
 	public function create_table() {
 		global $wpdb;

@@ -8,8 +8,7 @@ use WP_REST_Response;
 use WP_REST_Server;
 use YouSaidItCards\Modules\Designers\Models\DesignerCommission;
 use YouSaidItCards\Modules\Designers\Models\Payment;
-use YouSaidItCards\Modules\Designers\Models\PaymentItem;
-use YouSaidItCards\Modules\Designers\PayPal;
+use YouSaidItCards\Modules\Designers\PaypalPayoutsUtils;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -65,11 +64,7 @@ class PayPalPayoutController extends ApiController {
 	}
 
 	/**
-	 * Retrieves a collection of items.
-	 *
-	 * @param WP_REST_Request $request Full details about the request.
-	 *
-	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 * @inheritDoc
 	 */
 	public function get_items( $request ) {
 		if ( ! current_user_can( 'manage_options' ) ) {
@@ -85,11 +80,7 @@ class PayPalPayoutController extends ApiController {
 	}
 
 	/**
-	 * Creates one item from the collection.
-	 *
-	 * @param WP_REST_Request $request Full details about the request.
-	 *
-	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 * @inheritDoc
 	 */
 	public function create_item( $request ) {
 		if ( ! current_user_can( 'manage_options' ) ) {
@@ -102,7 +93,7 @@ class PayPalPayoutController extends ApiController {
 			$min_amount = 5.00;
 		}
 
-		$payout = ( new PayPal() )->pay_unpaid_commissions( $min_amount );
+		$payout = PaypalPayoutsUtils::pay_unpaid_commissions( $min_amount );
 		if ( $payout instanceof WP_Error ) {
 			return $this->respondUnprocessableEntity( $payout->get_error_code(), $payout->get_error_message() );
 		}
@@ -111,11 +102,7 @@ class PayPalPayoutController extends ApiController {
 	}
 
 	/**
-	 * Retrieves one item from the collection.
-	 *
-	 * @param WP_REST_Request $request Full details about the request.
-	 *
-	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 * @inheritDoc
 	 */
 	public function get_item( $request ) {
 		if ( ! current_user_can( 'manage_options' ) ) {
@@ -152,27 +139,9 @@ class PayPalPayoutController extends ApiController {
 			return $this->respondNotFound();
 		}
 
-		$info = ( new PayPal() )->get_batch_status( $item->get_payment_batch_id() );
+		$info = PaypalPayoutsUtils::sync_batch_items( $item->get_payment_batch_id() );
 		if ( is_wp_error( $info ) ) {
 			return $this->respondInternalServerError( $info->get_error_code(), $info->get_error_message() );
-		}
-
-		$batch_status = $info->getBatchHeader()->getBatchStatus();
-		$currency     = $info->getBatchHeader()->getAmount()->getCurrency();
-		$amount       = $info->getBatchHeader()->getAmount()->getValue();
-
-		// Update Payment data
-		( new Payment() )->update( [
-			'payment_id'     => $id,
-			'payment_status' => $batch_status,
-			'currency'       => $currency,
-			'amount'         => floatval( $amount ),
-		] );
-
-		// Update Payment item
-		$items = $info->getItems();
-		foreach ( $items as $item ) {
-			( new PaymentItem )->update( PaymentItem::payoutItemToPaymentItem( $item ) );
 		}
 
 		return $this->respondOK();

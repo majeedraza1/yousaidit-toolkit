@@ -60,6 +60,10 @@ class SettingPage {
 		$default_options = [
 			'ship_station_api_key'                => '26abc5f26e6848daaf9eb0b68c64ddc0',
 			'ship_station_api_secret'             => 'c4501ea5a74d489aa91568a82b3fd420',
+			// PayPal Config
+			'paypal_sandbox_mode'                 => '',
+			'paypal_client_id'                    => '',
+			'paypal_client_secret'                => '',
 			// Trade Site
 			'postcard_product_id'                 => '',
 			'trade_site_url'                      => '',
@@ -106,6 +110,14 @@ class SettingPage {
 		] );
 
 		$setting->set_section( [
+			'id'          => 'section_paypal_api',
+			'panel'       => 'integrations',
+			'title'       => __( 'PayPal Api', 'dialog-contact-form' ),
+			'description' => __( 'PayPal Api settings', 'dialog-contact-form' ),
+			'priority'    => 20,
+		] );
+
+		$setting->set_section( [
 			'id'          => 'section_trade_site_auth',
 			'title'       => __( 'Auth', 'dialog-contact-form' ),
 			'description' => __( 'Auth settings', 'dialog-contact-form' ),
@@ -132,7 +144,7 @@ class SettingPage {
 			'default'           => '',
 			'priority'          => 10,
 			'sanitize_callback' => 'sanitize_text_field',
-			'panel'             => 'integrations',
+			'section'           => 'section_ship_station_api',
 		] );
 
 		$setting->set_field( [
@@ -143,7 +155,7 @@ class SettingPage {
 			'default'           => '',
 			'priority'          => 15,
 			'sanitize_callback' => 'sanitize_text_field',
-			'panel'             => 'integrations',
+			'section'           => 'section_ship_station_api',
 		] );
 
 		$setting->set_field( [
@@ -188,6 +200,39 @@ class SettingPage {
 			'priority'          => 15,
 			'sanitize_callback' => 'sanitize_text_field',
 			'section'           => 'section_trade_site_auth',
+		] );
+
+		$setting->set_field( [
+			'id'                => 'paypal_client_id',
+			'type'              => 'text',
+			'title'             => __( 'Client ID' ),
+			'description'       => __( 'Enter PayPal Client id or define a new constant `PAYPAL_CLIENT_ID` in wp-config.php file.' ),
+			'default'           => '',
+			'priority'          => 10,
+			'sanitize_callback' => 'sanitize_text_field',
+			'section'           => 'section_paypal_api',
+		] );
+
+		$setting->set_field( [
+			'id'                => 'paypal_client_secret',
+			'type'              => 'text',
+			'title'             => __( 'Client Secret' ),
+			'description'       => __( 'Enter PayPal Secret or define a new constant `PAYPAL_CLIENT_SECRET` in wp-config.php file.' ),
+			'default'           => '',
+			'priority'          => 20,
+			'sanitize_callback' => 'sanitize_text_field',
+			'section'           => 'section_paypal_api',
+		] );
+
+		$setting->set_field( [
+			'id'                => 'paypal_sandbox_mode',
+			'type'              => 'checkbox',
+			'title'             => __( 'Sandbox Mode' ),
+			'description'       => __( 'Check the checkbox to enable sandbox mode.' ),
+			'default'           => '',
+			'priority'          => 30,
+			'sanitize_callback' => 'sanitize_text_field',
+			'section'           => 'section_paypal_api',
 		] );
 	}
 }

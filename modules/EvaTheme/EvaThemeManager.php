@@ -35,11 +35,11 @@ class EvaThemeManager {
 					<li>BUY ANY 5 CARDS FOR <strong>£9.99</strong></li>
 					<li>
 						<Strong>
-							<i class="fas fa-star"></i>
-							<i class="fas fa-star"></i>
-							<i class="fas fa-star"></i>
-							<i class="fas fa-star"></i>
-							<i class="fas fa-star"></i>
+							<i class="fa fa-star"></i>
+							<i class="fa fa-star"></i>
+							<i class="fa fa-star"></i>
+							<i class="fa fa-star"></i>
+							<i class="fa fa-star"></i>
 						</Strong>
 						5 STAR RATING
 					</li>

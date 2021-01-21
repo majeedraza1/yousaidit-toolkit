@@ -3,6 +3,7 @@
 namespace YouSaidItCards\Modules\Designers\Models;
 
 use Stackonet\WP\Framework\Abstracts\DatabaseModel;
+use Stackonet\WP\Framework\Supports\Validate;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -190,8 +191,10 @@ class Payment extends DatabaseModel {
 
 		$data['currency'] = apply_filters( 'woocommerce_currency', get_option( 'woocommerce_currency' ) );
 
-		$item_id = ( new PaymentItem )->create( $data );
-		if ( $item_id ) {
+		if ( Validate::email( $designer->get_paypal_email() ) ) {
+			$item_id = ( new PaymentItem )->create( $data );
+		}
+		if ( isset( $item_id ) && is_numeric( $item_id ) ) {
 			$data['item_id'] = $item_id;
 		} else {
 			$data['item_id'] = uniqid();
@@ -203,7 +206,7 @@ class Payment extends DatabaseModel {
 	/**
 	 * @inheritDoc
 	 */
-	public function count_records(array $args = []) {
+	public function count_records( array $args = [] ) {
 		return [];
 	}
 
