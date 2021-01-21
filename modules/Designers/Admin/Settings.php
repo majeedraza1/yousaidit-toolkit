@@ -106,24 +106,6 @@ class Settings {
 				},
 				'options'           => static::get_product_attribute_taxonomies(),
 			),
-			array(
-				'section'           => 'general_settings_section',
-				'id'                => 'paypal_client_id',
-				'type'              => 'text',
-				'title'             => __( 'PayPal Client ID', 'stackonet-yousaidit-toolkit' ),
-				'description'       => __( 'Enter PayPal Client id or define a new constant `PAYPAL_CLIENT_ID` in wp-config.php file.', 'stackonet-yousaidit-toolkit' ),
-				'priority'          => 40,
-				'sanitize_callback' => 'sanitize_text_field',
-			),
-			array(
-				'section'           => 'general_settings_section',
-				'id'                => 'paypal_client_secret',
-				'type'              => 'text',
-				'title'             => __( 'PayPal Client Secret', 'stackonet-yousaidit-toolkit' ),
-				'description'       => __( 'Enter PayPal Client secret or define a new constant `PAYPAL_CLIENT_SECRET` in wp-config.php file.', 'stackonet-yousaidit-toolkit' ),
-				'priority'          => 40,
-				'sanitize_callback' => 'sanitize_text_field',
-			),
 		);
 
 		$option_page->add_fields( $fields );

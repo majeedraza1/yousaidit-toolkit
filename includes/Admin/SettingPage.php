@@ -228,7 +228,7 @@ class SettingPage {
 			'id'                => 'paypal_sandbox_mode',
 			'type'              => 'checkbox',
 			'title'             => __( 'Sandbox Mode' ),
-			'description'       => __( 'Check the checkbox to enable sandbox mode.' ),
+			'description'       => __( 'Check the checkbox to enable sandbox mode or define a new constant `PAYPAL_SANDBOX_MODE` with true value in wp-config.php file.' ),
 			'default'           => '',
 			'priority'          => 30,
 			'sanitize_callback' => 'sanitize_text_field',

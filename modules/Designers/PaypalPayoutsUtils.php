@@ -25,6 +25,22 @@ class PaypalPayoutsUtils {
 	protected static $client;
 
 	/**
+	 * @var bool
+	 */
+	protected static $has_config;
+
+	/**
+	 * @return bool
+	 */
+	public static function is_configured_properly(): bool {
+		if ( ! is_bool( static::$has_config ) ) {
+			static::get_client();
+		}
+
+		return static::$has_config;
+	}
+
+	/**
 	 * Get paypal http client
 	 *
 	 * @return PayPalHttpClient
@@ -41,6 +57,8 @@ class PaypalPayoutsUtils {
 				$client_secret = isset( $options['paypal_client_secret'] ) ? $options['paypal_client_secret'] : '';
 				$is_sandbox    = isset( $options['paypal_sandbox_mode'] ) && Validate::checked( $options['paypal_sandbox_mode'] );
 			}
+
+			static::$has_config = ! empty( $client_id ) && ! empty( $client_secret );
 
 			if ( $is_sandbox ) {
 				$environment = new SandboxEnvironment( $client_id, $client_secret );
@@ -59,6 +77,9 @@ class PaypalPayoutsUtils {
 	 * @return HttpResponse|WP_Error
 	 */
 	public static function create_payout( array $data ) {
+		if ( ! static::is_configured_properly() ) {
+			return new WP_Error( 'paypal_not_configured', 'PayPal API is not configured.' );
+		}
 		$body          = static::format_payout_data( $data );
 		$request       = new PayoutsPostRequest();
 		$request->body = $body;
@@ -84,6 +105,10 @@ class PaypalPayoutsUtils {
 	 * @return HttpResponse|WP_Error
 	 */
 	public static function get_payout_batch_status( string $payout_batch_id ) {
+		if ( ! static::is_configured_properly() ) {
+			return new WP_Error( 'paypal_not_configured', 'PayPal API is not configured.' );
+		}
+
 		$request = new PayoutsGetRequest( $payout_batch_id );
 		try {
 			return static::get_client()->execute( $request );
@@ -168,6 +193,10 @@ class PaypalPayoutsUtils {
 
 		// Save payment info in database for using in payout
 		$data = Payment::create_payout( $commission, [], $min_amount );
+
+		if ( ! $data['payment_id'] ) {
+			return new WP_Error( 'no_item_to_pay', 'No designer to be payable yet.' );
+		}
 
 		// Attempt to pay
 		$payout = static::create_payout( $data );

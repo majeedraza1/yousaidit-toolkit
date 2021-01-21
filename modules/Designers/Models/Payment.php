@@ -100,6 +100,11 @@ class Payment extends DatabaseModel {
 			}
 		}
 
+		if ( count( $items ) < 1 ) {
+			( new static )->delete( $payment_id );
+			$payment_id = 0;
+		}
+
 		return [
 			'payment_id'     => $payment_id,
 			'items'          => $items,
