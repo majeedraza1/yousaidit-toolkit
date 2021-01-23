@@ -90,7 +90,12 @@ $location   = $designer->get_location();
 					?>
 				</div>
 
-				<?php do_action( 'woocommerce_before_shop_loop_result_count' ); ?>
+				<div class="top_bar_shop">
+					<div class="catalog-ordering">
+						<div class="shop-filter"><span>Filter</span></div>
+						<?php do_action( 'woocommerce_before_shop_loop_result_count' ); ?>
+					</div>
+				</div>
 				<div class="active_filters_ontop"><?php the_widget( 'WC_Widget_Layered_Nav_Filters', array(), array() ); ?></div>
 				<p>&nbsp;</p>
 				<?php do_action( 'designer_cards' ); ?>

@@ -201,20 +201,15 @@ class RudeProductManager {
 	 */
 	public function rude_card_content() {
 		?>
-		<div class="top_bar_shop">
-			<div class="catalog-ordering">
-				<div class="shop-filter"><span>Filter</span></div>
-				<div id="yousaidit-top-bar" class="yousaidit-top-bar">
-					<div class="sidebar-top">
-						<?php
-						if ( is_active_sidebar( 'widgets-product-listing' ) ) {
-							dynamic_sidebar( 'widgets-product-listing' );
-						}
-						?>
-					</div>
-					<?php $this->rude_card(); ?>
-				</div>
+		<div id="yousaidit-top-bar" class="yousaidit-top-bar">
+			<div class="sidebar-top">
+				<?php
+				if ( is_active_sidebar( 'widgets-product-listing' ) ) {
+					dynamic_sidebar( 'widgets-product-listing' );
+				}
+				?>
 			</div>
+			<?php $this->rude_card(); ?>
 		</div>
 		<?php
 	}
@@ -249,13 +244,13 @@ class RudeProductManager {
 			<span class="show-rude-card__label">Rude Products?</span>
 			<label class="mdl-checkbox">
 				<input type="radio" name="_show_rude_card" id="_show_rude_card_yes"
-				       class="mdl-checkbox__input" value="yes" <?php checked( $show, 'yes' ) ?>>
+					   class="mdl-checkbox__input" value="yes" <?php checked( $show, 'yes' ) ?>>
 				<span class="mdl-checkbox__mark"></span>
 				<span class="mdl-checkbox__label">Yes</span>
 			</label>
 			<label class="mdl-checkbox">
 				<input type="radio" name="_show_rude_card" id="_show_rude_card_no"
-				       class="mdl-checkbox__input" value="no" <?php checked( $show, 'no' ) ?>>
+					   class="mdl-checkbox__input" value="no" <?php checked( $show, 'no' ) ?>>
 				<span class="mdl-checkbox__mark"></span>
 				<span class="mdl-checkbox__label">No</span>
 			</label>
@@ -286,7 +281,7 @@ class RudeProductManager {
 				<div class="line-3">
 					<label class="mdl-checkbox">
 						<input type="radio" name="_show_rude_card_dialog" id="_show_rude_card_yes"
-						       class="mdl-checkbox__input" value="yes">
+							   class="mdl-checkbox__input" value="yes">
 						<span class="mdl-checkbox__mark"></span>
 						<span class="mdl-checkbox__label">Yes Please</span>
 					</label>
@@ -294,7 +289,7 @@ class RudeProductManager {
 				<div class="line-4">
 					<label class="mdl-checkbox">
 						<input type="radio" name="_show_rude_card_dialog" id="_show_rude_card_no"
-						       class="mdl-checkbox__input" value="no">
+							   class="mdl-checkbox__input" value="no">
 						<span class="mdl-checkbox__mark"></span>
 						<span class="mdl-checkbox__label">No Thanks, Keep Them Clean!</span>
 					</label>
@@ -324,12 +319,12 @@ class RudeProductManager {
 			<legend class="screen-reader-text"><span>Is rude card?</span></legend>
 			<label for="_is_rude_card_yes">
 				<input name="_is_rude_card" type="radio" id="_is_rude_card_yes"
-				       value="yes" <?php echo $is_rude_card == 'yes' ? 'checked' : '' ?>> Yes
+					   value="yes" <?php echo $is_rude_card == 'yes' ? 'checked' : '' ?>> Yes
 			</label>
 			<span>&nbsp;&nbsp;</span>
 			<label for="_is_rude_card_no">
 				<input name="_is_rude_card" type="radio" id="_is_rude_card_no"
-				       value="no" <?php echo $is_rude_card == 'no' ? 'checked' : '' ?>> No
+					   value="no" <?php echo $is_rude_card == 'no' ? 'checked' : '' ?>> No
 			</label>
 		</fieldset>
 		<?php
@@ -338,7 +333,7 @@ class RudeProductManager {
 	/**
 	 * Save meta boxes
 	 *
-	 * @param int     $post_id
+	 * @param int $post_id
 	 * @param WP_Post $post
 	 */
 	public function save_meta_boxes( $post_id, $post ) {
