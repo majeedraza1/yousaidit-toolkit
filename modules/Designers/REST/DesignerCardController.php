@@ -197,7 +197,7 @@ class DesignerCardController extends ApiController {
 			return $this->respondUnauthorized();
 		}
 
-		$required_params = [ 'title', 'sizes', 'categories_ids', 'tags_ids', 'pdf_ids' ];
+		$required_params = [ 'title', 'sizes', 'categories_ids', 'pdf_ids' ];
 
 		$errors = [];
 
@@ -237,13 +237,8 @@ class DesignerCardController extends ApiController {
 			$errors['categories_ids'][] = 'Categories ids is required.';
 		}
 
-		if ( ! ( is_array( $tags_ids ) && count( $tags_ids ) > 0 ) ) {
-			$errors['tags_ids'][] = 'Categories ids is required.';
-		}
-
 		$categories_ids = array_map( 'intval', $categories_ids );
-		$tags_ids       = array_map( 'intval', $tags_ids );
-		// $pdf_ids        = array_map( 'intval', $pdf_ids );
+		$tags_ids       = is_array( $tags_ids ) ? array_map( 'intval', $tags_ids ) : [];
 
 		$valid_cats_ids = DesignerCard::get_valid_categories_ids();
 		$valid_tags_ids = DesignerCard::get_valid_tags_ids();

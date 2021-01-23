@@ -155,6 +155,8 @@ document.addEventListener('click', event => {
 		}
 	}
 
+	let element = document.getElementById("yousaidit-checkout-tabs");
+	element.scrollIntoView({behavior: "smooth", block: "start", inline: "start"});
 });
 
 window.addEventListener('load', event => {

@@ -45,7 +45,8 @@
 					><strong>{{ data.row.orderId }}</strong></a>
 				</template>
 				<template slot="invoice" slot-scope="data">
-					<shapla-button :shadow="true" @click="showInvoice(data.row.orderId)">Packing Slip
+					<shapla-button :shadow="true" :href="invoiceUrl(data.row.orderId)"
+								   @click.prevent="showInvoice(data.row.orderId)">Packing Slip
 					</shapla-button>
 				</template>
 				<template slot="customer" slot-scope="data">
@@ -141,9 +142,11 @@ export default {
 			this.getOrders();
 		},
 		showInvoice(orderId) {
-			let url = ajaxurl + '?action=stackonet_order_packing_slip&id=' + orderId;
-			window.open(url, '_blank');
+			window.open(this.invoiceUrl(orderId), '_blank');
 		},
+		invoiceUrl(orderId) {
+			return ajaxurl + '?action=stackonet_order_packing_slip&id=' + orderId;
+		}
 	}
 }
 </script>

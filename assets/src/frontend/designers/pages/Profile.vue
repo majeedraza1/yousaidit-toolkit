@@ -45,7 +45,7 @@
 							   @save="updateProfileUrl">
 					<span v-html="`${designer.profile_base_url}/${designer.user_login}`"></span>
 					<text-field type="url" label="Username" v-model="designer.user_login"
-								help-text="Your username will be used as your profile slug"/>
+								help-text="Your username will be used as your profile page URL."/>
 				</profile-field>
 			</tab>
 

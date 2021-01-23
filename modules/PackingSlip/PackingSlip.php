@@ -70,6 +70,10 @@ class PackingSlip {
 							<th><?php _e( 'Shipping Method:', 'woocommerce-pdf-invoices-packing-slips' ); ?></th>
 							<td><?php echo $order->requested_shipping_service(); ?></td>
 						</tr>
+						<tr class="shipping-method">
+							<th><?php _e( 'Door Delivery:', 'woocommerce-pdf-invoices-packing-slips' ); ?></th>
+							<td><?php echo $order->straight_to_door_delivery(); ?></td>
+						</tr>
 					</table>
 				</td>
 			</tr>

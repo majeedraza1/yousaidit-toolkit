@@ -381,6 +381,10 @@ class DesignerCard extends DatabaseModel {
 	 * @return array
 	 */
 	public function get_tags() {
+		$tags_ids = $this->get( 'tags_ids' );
+		if ( count( $tags_ids ) < 1 ) {
+			return [];
+		}
 		/** @var \WP_Term[] $terms */
 		$terms = get_terms( array(
 			'taxonomy'   => 'product_tag',

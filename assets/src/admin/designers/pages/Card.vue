@@ -380,6 +380,7 @@ export default {
 							title: 'Success!',
 							message: 'Request has been sent successfully.'
 						});
+						this.getItem();
 					}).catch(errors => {
 						this.$store.commit('SET_LOADING_STATUS', false);
 						if (typeof errors.response.data.message === "string") {
@@ -441,6 +442,7 @@ export default {
 				this.card = response.data.data;
 				this.showAcceptConfirmModal = false;
 				this.showRejectConfirmModal = false;
+				this.getItem();
 			}).catch(errors => {
 				this.$store.commit('SET_LOADING_STATUS', false);
 				console.log(errors);
@@ -455,6 +457,7 @@ export default {
 				this.$store.commit('SET_LOADING_STATUS', false);
 				this.card = response.data.data;
 				this.showCreateProductModal = false;
+				this.getItem();
 			}).catch(errors => {
 				this.$store.commit('SET_LOADING_STATUS', false);
 				console.log(errors);
