@@ -110,22 +110,27 @@ class PaymentItem extends DatabaseModel {
 
 		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 		dbDelta( $tables );
+		$constant_name = $this->get_foreign_key_constant_name( $table_name, $payment_table );
+		$option        = get_option( $table_name . '-version', '0.1.0' );
+		if ( version_compare( $option, '1.0.0', '<' ) ) {
+			$sql = "ALTER TABLE `{$table_name}`";
+			$sql .= " ADD CONSTRAINT `{$constant_name}`";
+			$sql .= " FOREIGN KEY (`payment_id`)";
+			$sql .= " REFERENCES `{$payment_table}`(`payment_id`)";
+			$sql .= " ON DELETE CASCADE";
+			$sql .= " ON UPDATE CASCADE;";
+			$wpdb->query( $sql );
 
-		$sql = "ALTER TABLE `{$table_name}`";
-		$sql .= " ADD CONSTRAINT `{$payment_table}_{$table_name}_foreign`";
-		$sql .= " FOREIGN KEY (`payment_id`)";
-		$sql .= " REFERENCES `{$payment_table}`(`payment_id`)";
-		$sql .= " ON DELETE CASCADE";
-		$sql .= " ON UPDATE CASCADE;";
-		$wpdb->query( $sql );
+			$sql = "ALTER TABLE `{$table_name}` ADD INDEX `designer_id` (`designer_id`);";
+			$wpdb->query( $sql );
 
-		$sql = "ALTER TABLE `{$table_name}` ADD INDEX `designer_id` (`designer_id`);";
-		$wpdb->query( $sql );
+			$sql = "ALTER TABLE `{$table_name}` ADD INDEX `paypal_email` (`paypal_email`);";
+			$wpdb->query( $sql );
 
-		$sql = "ALTER TABLE `{$table_name}` ADD INDEX `paypal_email` (`paypal_email`);";
-		$wpdb->query( $sql );
+			$sql = "ALTER TABLE `{$table_name}` ADD INDEX `created_at` (`created_at`);";
+			$wpdb->query( $sql );
 
-		$sql = "ALTER TABLE `{$table_name}` ADD INDEX `created_at` (`created_at`);";
-		$wpdb->query( $sql );
+			update_option( $table_name . '-version', '1.0.0' );
+		}
 	}
 }

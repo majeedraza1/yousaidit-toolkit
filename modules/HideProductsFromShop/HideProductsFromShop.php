@@ -2,9 +2,9 @@
 
 namespace YouSaidItCards\Modules\HideProductsFromShop;
 
-// If this file is called directly, abort.
 use YouSaidItCards\Modules\Designers\Models\CardDesigner;
 
+// If this file is called directly, abort.
 defined( 'ABSPATH' ) || die;
 
 class HideProductsFromShop {
@@ -57,7 +57,7 @@ class HideProductsFromShop {
 				<label for="_hide_from_shop">
 					<input type="hidden" name="_hide_from_shop" value="off">
 					<input name="_hide_from_shop" type="checkbox" id="_hide_from_shop"
-					       value="on" <?php checked( 'on', $_hide_from_shop ) ?>>
+						   value="on" <?php checked( 'on', $_hide_from_shop ) ?>>
 					Hide from Shop
 				</label>
 			</fieldset>
@@ -107,14 +107,14 @@ class HideProductsFromShop {
 	/**
 	 * Hide product from shortcode with custom meta value
 	 *
-	 * @param $query_args
+	 * @param array $query_args
 	 *
 	 * @return array
 	 */
-	public function shortcode_products_query( $query_args ) {
+	public function shortcode_products_query( array $query_args ): array {
 		global $wp_query;
 		if ( empty( $wp_query->get( CardDesigner::PROFILE_ENDPOINT ) ) ) {
-			$query_args['meta_query'] = [
+			$query_args['meta_query'][] = [
 				'relation' => 'OR',
 				[
 					'key'     => '_hide_from_shop',
@@ -136,7 +136,7 @@ class HideProductsFromShop {
 	 *
 	 * @return bool
 	 */
-	public static function is_woocommerce_page() {
+	public static function is_woocommerce_page(): bool {
 		return ( is_shop() || is_product_taxonomy() || is_product_category() || is_product_tag() );
 	}
 }

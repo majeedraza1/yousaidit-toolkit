@@ -500,13 +500,13 @@ class DesignerCommission extends DatabaseModel {
 	public function add_foreign_key() {
 		$option = get_option( 'designer_commissions_table_version', '1.0.0' );
 		if ( version_compare( $option, '1.0.1', '<' ) ) {
-			$table_name = $this->get_table_name( $this->table );
-			$card_table = $this->get_table_name( $this->card_table );
+			$table_name    = $this->get_table_name( $this->table );
+			$card_table    = $this->get_table_name( $this->card_table );
+			$constant_name = $this->get_foreign_key_constant_name( $table_name, $card_table );
 
 			global $wpdb;
-
 			$sql = "ALTER TABLE `{$table_name}`";
-			$sql .= " ADD CONSTRAINT `{$card_table}_{$table_name}_foreign`";
+			$sql .= " ADD CONSTRAINT `{$constant_name}`";
 			$sql .= " FOREIGN KEY (`card_id`)";
 			$sql .= " REFERENCES `{$card_table}`(`id`)";
 			$sql .= " ON DELETE NO ACTION";
