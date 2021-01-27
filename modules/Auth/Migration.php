@@ -31,8 +31,8 @@ class Migration {
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta( $table_schema );
 
-		$version = get_option( $table_name . '-version' );
-		if ( false === $version ) {
+		$version = get_option( $table_name . '-version', '0.1.0' );
+		if ( version_compare( $version, '1.0.0', '<' ) ) {
 			$wpdb->query( "ALTER TABLE `{$table_name}` ADD INDEX `provider` (`provider`);" );
 			$wpdb->query( "ALTER TABLE `{$table_name}` ADD INDEX `provider_id` (`provider_id`);" );
 
