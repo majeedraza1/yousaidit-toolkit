@@ -903,22 +903,17 @@ class DesignerCard extends DatabaseModel {
 	 * Add table column
 	 */
 	public function get_table_column() {
-		$option = get_option( 'designer_cards_table_version', '1.0.0' );
+		global $wpdb;
+		$table_name = $this->get_table_name();
+		$option     = get_option( $table_name . '-version', '1.0.0' );
 		if ( version_compare( $option, '1.0.2', '<' ) ) {
-			global $wpdb;
-			$table_name = $this->get_table_name( $this->table );
-			$sql        = "ALTER TABLE {$table_name} ADD `market_places` TEXT NULL DEFAULT NULL AFTER `suggest_tags`;";
+			$sql = "ALTER TABLE {$table_name} ADD `market_places` TEXT NULL DEFAULT NULL AFTER `suggest_tags`;";
 			$wpdb->query( $sql );
 
-			update_option( 'designer_cards_table_version', '1.0.2' );
-		}
-		if ( version_compare( $option, '1.0.3', '<' ) ) {
-			global $wpdb;
-			$table_name = $this->get_table_name( $this->table );
-			$sql        = "ALTER TABLE {$table_name} ADD `marketplace_commission` TEXT NULL DEFAULT NULL AFTER `commission_per_sale`;";
+			$sql = "ALTER TABLE {$table_name} ADD `marketplace_commission` TEXT NULL DEFAULT NULL AFTER `commission_per_sale`;";
 			$wpdb->query( $sql );
 
-			update_option( 'designer_cards_table_version', '1.0.3' );
+			update_option( $table_name . '-version', '1.0.3' );
 		}
 	}
 
@@ -926,11 +921,10 @@ class DesignerCard extends DatabaseModel {
 	 * Add indexes
 	 */
 	public function add_foreign_key() {
-		$option = get_option( 'designer_cards_table_version', '1.0.0' );
+		global $wpdb;
+		$table_name = $this->get_table_name( $this->table );
+		$option     = get_option( $table_name . '-version', '1.0.0' );
 		if ( version_compare( $option, '1.0.1', '<' ) ) {
-			global $wpdb;
-			$table_name = $this->get_table_name( $this->table );
-
 			$sql = "ALTER TABLE `{$table_name}` ADD INDEX `designer_user_id` (`designer_user_id`);";
 			$wpdb->query( $sql );
 

@@ -237,5 +237,13 @@ class Payment extends DatabaseModel {
 
 		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 		dbDelta( $tables );
+
+		$option = get_option( $table_name . '-version', '1.0.0' );
+		if ( version_compare( $option, '1.0.2', '<' ) ) {
+			$sql = "ALTER TABLE `{$table_name}` ADD INDEX `payment_status` (`payment_status`);";
+			$wpdb->query( $sql );
+
+			update_option( 'designer_cards_table_version', '1.0.0' );
+		}
 	}
 }

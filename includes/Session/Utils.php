@@ -242,7 +242,7 @@ class Utils {
 		$collate   = $wpdb->get_charset_collate();
 
 		$tableSchema = "CREATE TABLE IF NOT EXISTS `{$tableName}` (
-			session_id BIGINT( 20 ) UNSIGNED NOT null AUTO_INCREMENT,
+			session_id BIGINT( 20 ) UNSIGNED NOT NULL AUTO_INCREMENT,
 		  	session_key char( 32 ) NOT null,
 		  	session_value LONGTEXT NOT null,
 		  	session_expiry BIGINT( 20 ) UNSIGNED NOT null,

@@ -137,9 +137,6 @@ class Session extends Collection {
 	 * @uses apply_filters Calls `wp_session_cookie_httponly` to set the $httponly parameter of setcookie()
 	 */
 	protected function set_cookie() {
-		if ( headers_sent() ) {
-			return;
-		}
 		$secure   = apply_filters( 'wp_session_cookie_secure', false );
 		$httponly = apply_filters( 'wp_session_cookie_httponly', false );
 		setcookie( WP_SESSION_COOKIE,
