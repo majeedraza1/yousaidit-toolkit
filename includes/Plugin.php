@@ -145,7 +145,7 @@ class Plugin {
 		$this->container['module_inner_message']    = InnerMessageManager::init();
 		$this->container['module_trade_site']       = TradeSiteManager::init();
 		$this->container['module_eva_theme']        = EvaThemeManager::init();
-		// $this->container['module_featured_product'] = FeaturedProductsFirst::init();
+		$this->container['module_featured_product'] = FeaturedProductsFirst::init();
 	}
 
 	/**

@@ -24,7 +24,7 @@ class FeaturedProductsFirst {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self();
 
-			add_filter( 'woocommerce_product_query', [ self::$instance, 'woocommerce_product_query' ], 99 );
+			add_action( 'woocommerce_product_query', [ self::$instance, 'woocommerce_product_query' ], 99 );
 		}
 
 		return self::$instance;
@@ -35,7 +35,7 @@ class FeaturedProductsFirst {
 	 *
 	 * @return WP_Query
 	 */
-	public function woocommerce_product_query( $query ) {
+	public function woocommerce_product_query( WP_Query $query ): WP_Query {
 		if ( $query->is_main_query() ) {
 			add_filter( 'posts_clauses', array( $this, 'order_by_featured_products' ) );
 		}
@@ -53,9 +53,11 @@ class FeaturedProductsFirst {
 	 *
 	 * @return array
 	 */
-	public function order_by_featured_products( $args ) {
-		$orderby         = $this->get_order_by_sql() . " DESC, ";
-		$args['orderby'] = $orderby . $args['orderby'];
+	public function order_by_featured_products( array $args ): array {
+		$orderby = $this->get_order_by_sql();
+		if ( ! empty( $orderby ) ) {
+			$args['orderby'] = $orderby . ', ' . $args['orderby'];
+		}
 
 		return $args;
 	}
@@ -65,12 +67,14 @@ class FeaturedProductsFirst {
 	 *
 	 * @return string
 	 */
-	public function get_order_by_sql() {
+	public function get_order_by_sql(): string {
 		global $wpdb;
 		$featured_product_ids = wc_get_featured_product_ids();
-		sort( $featured_product_ids );
-		$orderby = "FIELD(" . $wpdb->posts . ".ID," . implode( ',', $featured_product_ids ) . ")";
+		if ( is_array( $featured_product_ids ) && count( $featured_product_ids ) ) {
+			sort( $featured_product_ids );
+			$order_by = "FIELD(" . $wpdb->posts . ".ID," . implode( ',', $featured_product_ids ) . ") DESC";
+		}
 
-		return $orderby;
+		return isset( $order_by ) ? $order_by : '';
 	}
 }
