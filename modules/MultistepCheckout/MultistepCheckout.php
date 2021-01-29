@@ -211,6 +211,7 @@ class MultistepCheckout {
 		<div class="checkout-tabs-content">
 			<div data-tab="tab-shipping" style="display: none">
 				<?php do_action( 'tab_shipping_content' ); ?>
+				<input type="hidden" name="ship_to_different_address" value="1">
 			</div>
 			<div data-tab="tab-billing" class="field--checkout_billing" style="display: none">
 				<?php do_action( 'woocommerce_checkout_billing' ); ?>
