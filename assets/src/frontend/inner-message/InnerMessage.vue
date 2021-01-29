@@ -36,6 +36,11 @@ export default {
 			customMessage.addEventListener('change', event => {
 				this.showModal = event.target.checked;
 			});
+			customMessage.addEventListener('blur', event => {
+				this.showModal = event.target.checked;
+			});
+		}else{
+			console.log('Inner message is not detected.')
 		}
 	},
 	methods: {
