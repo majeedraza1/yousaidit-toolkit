@@ -89,16 +89,25 @@ class ShipStationApi extends RestClient {
 	 *
 	 * @return array|mixed|object
 	 */
-	public function _get_orders( $args = [] ) {
-		$args = wp_parse_args( $args, array(
+	public function _get_orders( array $args = [] ) {
+		$default    = [
 			'pageSize'    => 100,
 			'page'        => 1,
 			'sortBy'      => 'OrderDate',
 			'sortDir'     => 'DESC',
 			'orderStatus' => 'awaiting_shipment',
-		) );
+		];
+		$parameters = [];
+		foreach ( $default as $key => $default_value ) {
+			$parameters[ $key ] = isset( $args[ $key ] ) ? $args[ $key ] : $default_value;
+		}
 
-		return $this->get( 'orders', $args );
+		$orders = $this->get( 'orders', $parameters );
+		if ( is_wp_error( $orders ) ) {
+			return [];
+		}
+
+		return $orders;
 	}
 
 	/**
