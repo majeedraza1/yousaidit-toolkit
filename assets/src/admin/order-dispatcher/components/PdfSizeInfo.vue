@@ -82,11 +82,4 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~shapla-css/src/grid";
-@import "~shapla-css/src/effects/box-shadow";
-@import "~shapla-css/src/sizing/width";
-@import "~shapla-css/src/spacing/margin";
-@import "~shapla-css/src/spacing/padding";
-@import "~shapla-css/src/spacing/space-between";
-@import "~shapla-css/src/colors/background-color";
 </style>

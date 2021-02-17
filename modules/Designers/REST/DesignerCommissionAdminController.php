@@ -85,8 +85,10 @@ class DesignerCommissionAdminController extends ApiController {
 			$args['order_status'] = $order_status;
 		}
 
-		$items = ( new DesignerCommission() )->find( $args );
+		$items      = ( new DesignerCommission() )->find( $args );
+		$count      = ( new DesignerCommission )->count_records( $args );
+		$pagination = static::get_pagination_data( $count, $per_page, $page );
 
-		return $this->respondOK( [ 'commissions' => $items ] );
+		return $this->respondOK( [ 'commissions' => $items, 'pagination' => $pagination ] );
 	}
 }

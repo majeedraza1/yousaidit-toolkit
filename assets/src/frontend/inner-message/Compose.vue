@@ -147,12 +147,6 @@ export default {
 
 <style lang="scss">
 @import "~shapla-color-system/src/variables";
-@import "~shapla-css/src/flexbox/display";
-@import "~shapla-css/src/flexbox/flex-wrap";
-@import "~shapla-css/src/flexbox/justify-content";
-@import "~shapla-css/src/flexbox/flex-grow";
-@import "~shapla-css/src/spacing/padding";
-@import "~shapla-css/src/spacing/margin";
 @import url('https://fonts.googleapis.com/css2?family=Amatic+SC&family=Caveat&family=Cedarville+Cursive&family=Fontdiner+Swanky&family=Handlee&family=Indie+Flower&family=Josefin+Slab&family=Kranky&family=Lovers+Quarrel&family=Mountains+of+Christmas&family=Prata&family=Sacramento&display=swap');
 
 .inner-message-font-families {

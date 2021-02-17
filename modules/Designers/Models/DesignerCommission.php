@@ -125,32 +125,9 @@ class DesignerCommission extends DatabaseModel {
 		$table      = $this->get_table_name( $this->table );
 		$card_table = $this->get_table_name( $this->card_table );
 
-		$query = "SELECT {$table}.*, {$card_table}.card_title AS product_title, {$wpdb->users}.display_name as designer_name FROM {$table}";
+		$query = "SELECT {$table}.*, {$card_table}.card_title AS product_title, {$wpdb->users}.display_name as designer_name";
 
-		$query .= " LEFT JOIN {$card_table} ON {$table}.card_id = {$card_table}.id";
-		$query .= " LEFT JOIN {$wpdb->users} ON {$table}.designer_id = {$wpdb->users}.ID";
-		$query .= " WHERE 1=1";
-
-		if ( isset( $args['designer_id'] ) && is_numeric( $args['designer_id'] ) ) {
-			$query .= $wpdb->prepare( " AND designer_id = %d", intval( $args['designer_id'] ) );
-		}
-
-		if ( isset( $args['payment_status'] ) && in_array( $args['payment_status'], [ 'paid', 'unpaid' ] ) ) {
-			$query .= $wpdb->prepare( " AND payment_status = %s", $args['payment_status'] );
-		}
-
-
-		if ( ! empty( $args['order_status'] ) && substr( $args['order_status'], 0, 3 ) == 'wc-' ) {
-			$order_status = str_replace( 'wc-', '', $args['order_status'] );
-			$query        .= $wpdb->prepare( " AND order_status = %s", $order_status );
-		}
-
-		if ( isset( $args['from'], $args['to'] ) && Validate::date( $args['from'] ) && Validate::date( $args['to'] ) ) {
-			$query .= $wpdb->prepare( " AND {$table}.created_at BETWEEN %s AND %s",
-				$args['from'] . " 00:00:00",
-				$args['to'] . " 23:59:59"
-			);
-		}
+		$query .= $this->get_query_sql( $args );
 
 		$query   .= " ORDER BY {$orderby} {$order}";
 		$query   .= $wpdb->prepare( " LIMIT %d OFFSET %d", $per_page, $offset );
@@ -372,25 +349,13 @@ class DesignerCommission extends DatabaseModel {
 	/**
 	 * @inheritDoc
 	 */
-	public function count_records( $designer_id = 0 ) {
+	public function count_records( array $args = [] ) {
 		global $wpdb;
-		$table = $this->get_table_name( $this->table );
-		$query = "SELECT card_size, SUM( order_quantity ) AS total_sales FROM {$table} WHERE {$this->deleted_at} IS NULL";
-		if ( $designer_id ) {
-			$query .= $wpdb->prepare( " AND designer_id = %d", intval( $designer_id ) );
-		}
-		$query   .= " GROUP BY `card_size`";
-		$results = $wpdb->get_results( $query, ARRAY_A );
+		$query   = "SELECT COUNT(*) AS total_items";
+		$query   .= $this->get_query_sql( $args );
+		$results = $wpdb->get_row( $query, ARRAY_A );
 
-		$statuses = [];
-
-		foreach ( $results as $status ) {
-			$statuses[ $status['card_size'] ] = intval( $status['total_sales'] );
-		}
-
-		$statuses['all'] = array_sum( $statuses );
-
-		return $statuses;
+		return is_numeric( $results['total_items'] ) ? intval( $results['total_items'] ) : 0;
 	}
 
 	/**
@@ -531,5 +496,44 @@ class DesignerCommission extends DatabaseModel {
 
 			update_option( 'designer_commissions_table_version', '1.0.1' );
 		}
+	}
+
+	/**
+	 * @param array $args
+	 *
+	 * @return string
+	 */
+	public function get_query_sql( array $args ): string {
+		global $wpdb;
+		$table      = $this->get_table_name( $this->table );
+		$card_table = $this->get_table_name( $this->card_table );
+
+		$query = " FROM {$table}";
+		$query .= " LEFT JOIN {$card_table} ON {$table}.card_id = {$card_table}.id";
+		$query .= " LEFT JOIN {$wpdb->users} ON {$table}.designer_id = {$wpdb->users}.ID";
+		$query .= " WHERE 1=1";
+
+		if ( isset( $args['designer_id'] ) && is_numeric( $args['designer_id'] ) ) {
+			$query .= $wpdb->prepare( " AND designer_id = %d", intval( $args['designer_id'] ) );
+		}
+
+		if ( isset( $args['payment_status'] ) && in_array( $args['payment_status'], [ 'paid', 'unpaid' ] ) ) {
+			$query .= $wpdb->prepare( " AND payment_status = %s", $args['payment_status'] );
+		}
+
+
+		if ( ! empty( $args['order_status'] ) && substr( $args['order_status'], 0, 3 ) == 'wc-' ) {
+			$order_status = str_replace( 'wc-', '', $args['order_status'] );
+			$query        .= $wpdb->prepare( " AND order_status = %s", $order_status );
+		}
+
+		if ( isset( $args['from'], $args['to'] ) && Validate::date( $args['from'] ) && Validate::date( $args['to'] ) ) {
+			$query .= $wpdb->prepare( " AND {$table}.created_at BETWEEN %s AND %s",
+				$args['from'] . " 00:00:00",
+				$args['to'] . " 23:59:59"
+			);
+		}
+
+		return $query;
 	}
 }

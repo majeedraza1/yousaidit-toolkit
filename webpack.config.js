@@ -69,7 +69,8 @@ module.exports = (env, argv) => {
 								sourceMap: isDev,
 								postcssOptions: {
 									plugins: [
-										autoprefixer()
+										autoprefixer(),
+										['tailwindcss']
 									],
 								},
 							},
