@@ -1,21 +1,21 @@
 <template>
 	<div class="yousaidit-designer-profile">
 		<dashboard-layout
-				title="Dashboard"
-				:activate-side-nav="activateSideNav"
-				@open:sidenav="activateSideNav = true"
-				@close:sidenav="activateSideNav = false"
-				:user-display-name="current_user.display_name"
-				:avatar-url="current_user.avatar_url"
-				greeting="Hello,"
-				header-theme="default"
+			title="Dashboard"
+			:activate-side-nav="activateSideNav"
+			@open:sidenav="activateSideNav = true"
+			@close:sidenav="activateSideNav = false"
+			:user-display-name="current_user.display_name"
+			:avatar-url="current_user.avatar_url"
+			greeting="Hello,"
+			header-theme="default"
 		>
 			<template v-slot:sidenav-menu>
 				<ul class="sidenav-list">
 					<template v-for="menu in routeEndpoints">
 						<li class="sidenav-list__item" v-if="!menu.hideSidenav">
 							<a class="sidenav-list__link" :class="{'is-active':$route.name === menu.name}"
-							   :href="`#${menu.path}`" @click.prevent="toRoute(menu)">{{menu.title}}</a>
+							   :href="`#${menu.path}`" @click.prevent="toRoute(menu)">{{ menu.title }}</a>
 						</li>
 					</template>
 				</ul>
@@ -61,117 +61,118 @@
 </template>
 
 <script>
-	import {mapState} from 'vuex';
-	import dashboardLayout from 'shapla-dashboard-layout';
-	import spinner from 'shapla-spinner';
-	import notification from 'shapla-notifications';
-	import iconContainer from 'shapla-icon-container';
-	import {ConfirmDialog} from 'shapla-confirm-dialog'
-	import {TouchSwipe} from './TouchSwipe'
-	import {routeEndpoints} from "./routers";
-	import SvgIcons from "./SvgIcons";
+import {mapState} from 'vuex';
+import dashboardLayout from 'shapla-dashboard-layout';
+import spinner from 'shapla-spinner';
+import notification from 'shapla-notifications';
+import iconContainer from 'shapla-icon-container';
+import {ConfirmDialog} from 'shapla-confirm-dialog'
+import {TouchSwipe} from './TouchSwipe'
+import {routeEndpoints} from "./routers";
+import SvgIcons from "./SvgIcons";
 
-	export default {
-		name: "Dashboard",
-		mixins: [TouchSwipe],
-		components: {SvgIcons, dashboardLayout, spinner, notification, ConfirmDialog, iconContainer},
+export default {
+	name: "Dashboard",
+	mixins: [TouchSwipe],
+	components: {SvgIcons, dashboardLayout, spinner, notification, ConfirmDialog, iconContainer},
 
-		data() {
-			return {
-				activateSideNav: false,
+	data() {
+		return {
+			activateSideNav: false,
+		}
+	},
+	computed: {
+		...mapState(['loading', 'notification']),
+		routeEndpoints() {
+			return routeEndpoints;
+		},
+		current_user() {
+			return DesignerProfile.user;
+		},
+		logoUrl() {
+			return DesignerProfile.logoUrl;
+		},
+		logOutUrl() {
+			return DesignerProfile.logOutUrl.replace('&amp;', '&').replace('&amp;', '&');
+		},
+	},
+
+	mounted() {
+		this.$on('swipe:end', (direction, data) => {
+			if (!this.activateSideNav && 'to-right' === direction && data['startX'] < 20) {
+				this.activateSideNav = true;
 			}
-		},
-		computed: {
-			...mapState(['loading', 'notification']),
-			routeEndpoints() {
-				return routeEndpoints;
-			},
-			current_user() {
-				return DesignerProfile.user;
-			},
-			logoUrl() {
-				return DesignerProfile.logoUrl;
-			},
-			logOutUrl() {
-				return DesignerProfile.logOutUrl.replace('&amp;', '&').replace('&amp;', '&');
-			},
-		},
-
-		mounted() {
-			this.$on('swipe:end', (direction, data) => {
-				if (!this.activateSideNav && 'to-right' === direction && data['startX'] < 20) {
-					this.activateSideNav = true;
-				}
-				if (this.activateSideNav && 'to-left' === direction) {
-					this.activateSideNav = false;
-				}
-			});
-		},
-		methods: {
-			toRoute(menu) {
-				if (this.$route.name !== menu.name) {
-					this.$router.push({name: menu.name});
-				}
+			if (this.activateSideNav && 'to-left' === direction) {
 				this.activateSideNav = false;
 			}
+		});
+	},
+	methods: {
+		toRoute(menu) {
+			if (this.$route.name !== menu.name) {
+				this.$router.push({name: menu.name});
+			}
+			this.activateSideNav = false;
 		}
 	}
+}
 </script>
 
 <style lang="scss">
-	@import "~shapla-color-system/src/variables";
+@import "~shapla-color-system/src/variables";
+@import "../../scss/tailwind";
 
-	body.designer-profile-page {
-		header.site-header {
-			z-index: -1;
-		}
+body.designer-profile-page {
+	header.site-header {
+		z-index: -1;
 	}
+}
 
-	.yousaidit-designer-profile {
-		.sidenav-list__item {
-			margin: 0;
-		}
-
-		.shapla-dashboard-sidenav-menu {
-			height: 100%;
-			display: flex;
-			flex-direction: column;
-		}
-
-		.sidenav-spacer {
-			flex-grow: 1;
-		}
-
-		.shapla-text-field__help-text {
-			color: var(--shapla-text-secondary, rgba(0, 0, 0, 0.54));
-		}
-	}
-
-	.nav-menu {
-		list-style-type: none;
+.yousaidit-designer-profile {
+	.sidenav-list__item {
 		margin: 0;
+	}
+
+	.shapla-dashboard-sidenav-menu {
+		height: 100%;
 		display: flex;
-
-		a {
-			font-size: 16px;
-			font-weight: 500;
-			padding-right: 1rem;
-		}
-
-		li {
-			margin-bottom: 5px;
-			margin-top: 5px;
-			line-height: 1;
-
-			&:last-child a {
-				padding-right: 0;
-			}
-		}
+		flex-direction: column;
 	}
 
-	.dashboard-logo {
-		img {
-			max-height: 40px;
+	.sidenav-spacer {
+		flex-grow: 1;
+	}
+
+	.shapla-text-field__help-text {
+		color: var(--shapla-text-secondary, rgba(0, 0, 0, 0.54));
+	}
+}
+
+.nav-menu {
+	list-style-type: none;
+	margin: 0;
+	display: flex;
+
+	a {
+		font-size: 16px;
+		font-weight: 500;
+		padding-right: 1rem;
+	}
+
+	li {
+		margin-bottom: 5px;
+		margin-top: 5px;
+		line-height: 1;
+
+		&:last-child a {
+			padding-right: 0;
 		}
 	}
+}
+
+.dashboard-logo {
+	img {
+		max-height: 40px;
+	}
+}
 </style>

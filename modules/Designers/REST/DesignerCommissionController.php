@@ -72,14 +72,17 @@ class DesignerCommissionController extends ApiController {
 
 		list( $from, $to ) = DesignerCommission::get_start_and_end_date( $report_type, $date_from, $date_to );
 
-		$items = ( new DesignerCommission() )->find( [
+		$args       = [
 			'designer_id' => $id,
 			'from'        => $from,
 			'to'          => $to,
 			'per_page'    => $per_page,
 			'paged'       => $page,
-		] );
+		];
+		$items      = ( new DesignerCommission() )->find( $args );
+		$count      = ( new DesignerCommission )->count_records( $args );
+		$pagination = static::get_pagination_data( $count, $per_page, $page );
 
-		return $this->respondOK( [ 'commissions' => $items ] );
+		return $this->respondOK( [ 'commissions' => $items, 'pagination' => $pagination ] );
 	}
 }

@@ -20,6 +20,8 @@ export default function designersStore() {
 			unique_customers: 0,
 			total_orders: 0,
 			commissions: [],
+			total_commissions_items: 0,
+			revenue_current_page: 1,
 		},
 
 		// Commit + track state changes
@@ -60,6 +62,12 @@ export default function designersStore() {
 			SET_TOTAL_ORDERS(state, total_orders) {
 				state.total_orders = total_orders;
 			},
+			SET_TOTAL_COMMISSIONS_ITEMS(state, total_commissions_items) {
+				state.total_commissions_items = total_commissions_items;
+			},
+			SET_REVENUE_CURRENT_PAGE(state, revenue_current_page) {
+				state.revenue_current_page = revenue_current_page;
+			},
 		},
 
 		// Same as Vue methods
@@ -90,10 +98,13 @@ export default function designersStore() {
 						report_type: args['type'],
 						date_from: args['from'],
 						date_to: args['to'],
+						page: state.revenue_current_page
 					}
 				}).then(response => {
+					let data = response.data.data
 					commit('SET_LOADING_STATUS', false);
-					commit('SET_COMMISSIONS', response.data.data.commissions);
+					commit('SET_COMMISSIONS', data.commissions);
+					commit('SET_TOTAL_COMMISSIONS_ITEMS', data.pagination.total_items);
 				}).catch(errors => {
 					commit('SET_LOADING_STATUS', false);
 					let error = errors.response.data;
