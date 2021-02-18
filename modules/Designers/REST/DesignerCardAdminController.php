@@ -224,11 +224,16 @@ class DesignerCardAdminController extends ApiController {
 		if ( ! $item instanceof DesignerCard ) {
 			return $this->respondNotFound();
 		}
+		$commission_data = $item->get_commission_data();
+		$commission_type = isset( $commission_data['commission_type'] ) ? $commission_data['commission_type'] : '';
 
-		$commission             = $request->get_param( 'commission' );
+		$commissions            = $request->get_param( 'commission' );
 		$marketplace_commission = $request->get_param( 'marketplace_commission' );
 
 		$data = [ 'id' => $id ];
+
+		$data['commission_per_sale'] = [ 'commission_type' => $commission_type, 'commission' => $commissions ];
+
 		if ( is_array( $marketplace_commission ) && count( $marketplace_commission ) ) {
 			$data['marketplace_commission'] = $marketplace_commission;
 		}
