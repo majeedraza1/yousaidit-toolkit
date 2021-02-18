@@ -138,6 +138,7 @@
 
 			DesignerEventBus.$on('card:added', card => {
 				this.cards.unshift(card);
+				window.location.reload();
 			});
 		},
 		computed: {

@@ -272,7 +272,7 @@ export default {
 				if (this.card_attributes.length && !Object.keys(this.card.attributes).length) {
 					return false;
 				}
-				return !!(this.card.title.length > 5 && this.card.sizes.length && this.card.categories_ids.length);
+				return !!(this.card.title.length > 1 && this.card.sizes.length && this.card.categories_ids.length);
 			}
 			if (this.current_step === 2) {
 				return this.num_of_pdf_files === this.card.sizes.length;
