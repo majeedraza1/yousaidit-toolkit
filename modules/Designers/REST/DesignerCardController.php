@@ -223,7 +223,7 @@ class DesignerCardController extends ApiController {
 		$card_images_ids = $request->get_param( 'gallery_images_ids' );
 		$pdf_ids         = $request->get_param( 'pdf_ids' );
 
-		if ( strlen( $card_title ) < 10 ) {
+		if ( strlen( $card_title ) < 2 ) {
 			$errors['card_title'][] = 'Cart title too short.';
 		}
 
