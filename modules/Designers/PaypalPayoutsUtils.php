@@ -47,15 +47,25 @@ class PaypalPayoutsUtils {
 	 */
 	public static function get_client(): PayPalHttpClient {
 		if ( ! self::$client instanceof PayPalHttpClient ) {
-			if ( defined( 'PAYPAL_CLIENT_ID' ) && defined( 'PAYPAL_CLIENT_SECRET' ) ) {
-				$client_id     = PAYPAL_CLIENT_ID;
-				$client_secret = PAYPAL_CLIENT_SECRET;
-				$is_sandbox    = defined( 'PAYPAL_SANDBOX_MODE' ) && PAYPAL_SANDBOX_MODE === true;
+			$options    = (array) get_option( '_stackonet_toolkit', [] );
+			$is_sandbox = defined( 'PAYPAL_SANDBOX_MODE' ) ? PAYPAL_SANDBOX_MODE === true :
+				( isset( $options['paypal_sandbox_mode'] ) && Validate::checked( $options['paypal_sandbox_mode'] ) );
+			if ( $is_sandbox ) {
+				if ( defined( 'PAYPAL_SANDBOX_CLIENT_ID' ) && defined( 'PAYPAL_SANDBOX_CLIENT_SECRET' ) ) {
+					$client_id     = PAYPAL_SANDBOX_CLIENT_ID;
+					$client_secret = PAYPAL_SANDBOX_CLIENT_SECRET;
+				} else {
+					$client_id     = isset( $options['paypal_sandbox_client_id'] ) ? $options['paypal_sandbox_client_id'] : '';
+					$client_secret = isset( $options['paypal_sandbox_client_secret'] ) ? $options['paypal_sandbox_client_secret'] : '';
+				}
 			} else {
-				$options       = (array) get_option( '_stackonet_toolkit', [] );
-				$client_id     = isset( $options['paypal_client_id'] ) ? $options['paypal_client_id'] : '';
-				$client_secret = isset( $options['paypal_client_secret'] ) ? $options['paypal_client_secret'] : '';
-				$is_sandbox    = isset( $options['paypal_sandbox_mode'] ) && Validate::checked( $options['paypal_sandbox_mode'] );
+				if ( defined( 'PAYPAL_CLIENT_ID' ) && defined( 'PAYPAL_CLIENT_SECRET' ) ) {
+					$client_id     = PAYPAL_CLIENT_ID;
+					$client_secret = PAYPAL_CLIENT_SECRET;
+				} else {
+					$client_id     = isset( $options['paypal_client_id'] ) ? $options['paypal_client_id'] : '';
+					$client_secret = isset( $options['paypal_client_secret'] ) ? $options['paypal_client_secret'] : '';
+				}
 			}
 
 			static::$has_config = ! empty( $client_id ) && ! empty( $client_secret );

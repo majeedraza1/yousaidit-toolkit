@@ -234,5 +234,27 @@ class SettingPage {
 			'sanitize_callback' => 'sanitize_text_field',
 			'section'           => 'section_paypal_api',
 		] );
+
+		$setting->set_field( [
+			'id'                => 'paypal_sandbox_client_id',
+			'type'              => 'text',
+			'title'             => __( 'Sandbox Client ID' ),
+			'description'       => __( 'Enter PayPal Client id or define a new constant `PAYPAL_SANDBOX_CLIENT_ID` in wp-config.php file.' ),
+			'default'           => '',
+			'priority'          => 40,
+			'sanitize_callback' => 'sanitize_text_field',
+			'section'           => 'section_paypal_api',
+		] );
+
+		$setting->set_field( [
+			'id'                => 'paypal_sandbox_client_secret',
+			'type'              => 'text',
+			'title'             => __( 'Sandbox Client Secret' ),
+			'description'       => __( 'Enter PayPal Secret or define a new constant `PAYPAL_SANDBOX_CLIENT_SECRET` in wp-config.php file.' ),
+			'default'           => '',
+			'priority'          => 45,
+			'sanitize_callback' => 'sanitize_text_field',
+			'section'           => 'section_paypal_api',
+		] );
 	}
 }
