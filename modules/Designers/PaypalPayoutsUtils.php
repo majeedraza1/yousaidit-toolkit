@@ -182,7 +182,7 @@ class PaypalPayoutsUtils {
 			"recipient_type" => "EMAIL",
 			"receiver"       => $item['paypal_email'],
 			"amount"         => [
-				"value"    => $item['total_commissions'],
+				"value"    => (string) $item['total_commissions'],
 				"currency" => $item['currency'],
 			],
 			"note"           => $item['note'],
