@@ -194,12 +194,13 @@ class PaypalPayoutsUtils {
 	 * Pay unpaid commissions
 	 *
 	 * @param int $min_amount
+	 * @param string $order_status
 	 *
 	 * @return string|WP_Error
 	 */
-	public static function pay_unpaid_commissions( $min_amount = 0 ) {
+	public static function pay_unpaid_commissions( $min_amount = 0, $order_status = 'completed' ) {
 		// Get unpaid commissions
-		$commission = ( new DesignerCommission )->get_unpaid_commission();
+		$commission = ( new DesignerCommission )->get_unpaid_commission( [ 'order_status' => $order_status ] );
 
 		// Save payment info in database for using in payout
 		$data = Payment::create_payout( $commission, [], $min_amount );

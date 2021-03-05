@@ -90,7 +90,7 @@ class PayPalPayoutController extends ApiController {
 		}
 
 		$min_amount = Settings::designer_minimum_amount_to_pay();
-		$payout     = PaypalPayoutsUtils::pay_unpaid_commissions( $min_amount );
+		$payout     = PaypalPayoutsUtils::pay_unpaid_commissions( $min_amount, 'completed' );
 		if ( $payout instanceof WP_Error ) {
 			return $this->respondUnprocessableEntity( $payout->get_error_code(), $payout->get_error_message() );
 		}

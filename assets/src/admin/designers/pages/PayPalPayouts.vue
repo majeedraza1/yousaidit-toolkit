@@ -107,7 +107,7 @@ export default {
 		payNow() {
 			let config = {
 				title: 'Are you sure to create a new payout?',
-				message: 'Only designers, whom unpaid commissions are more than ' + this.min_amount + ', will be paid.',
+				message: 'Only designers, whom unpaid commissions (for completed orders) are more than ' + this.min_amount + ', will be paid.',
 				icon: 'info'
 			};
 			this.$dialog.confirm(config).then(confirmed => {
