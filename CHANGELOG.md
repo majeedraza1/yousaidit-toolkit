@@ -1,5 +1,11 @@
 # Changelog
 
+#### Version 1.0.4 (2021-03-05)
+
+* Add setting to add PayPal sandbox setting.
+* Fix PayPal payout is not working.
+* Update functionality to pay only complete orders for commission.
+
 #### Version 1.0.3 (2021-02-19)
 
 * Change card title length from 10 to 2 characters.
