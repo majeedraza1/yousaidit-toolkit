@@ -1,5 +1,9 @@
 # Changelog
 
+#### Version 1.0.5 (2021-03-20)
+
+* Fix single product page design issue.
+
 #### Version 1.0.4 (2021-03-05)
 
 * Add setting to add PayPal sandbox setting.

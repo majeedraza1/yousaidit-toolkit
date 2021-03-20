@@ -1,12 +1,12 @@
 module.exports = {
 	// prefix: 'tw-',
 	purge: {
-		enabled: false,
+		enabled: true,
 		content: [
-			'./resources/**/*.vue',
-			'./resources/**/*.js',
-			'./resources/**/*.jsx',
-			'./resources/**/*.scss',
+			'./assets/src/**/*.vue',
+			'./assets/src/**/*.js',
+			'./assets/src/**/*.jsx',
+			'./assets/src/**/*.scss',
 		]
 	},
 	darkMode: false, // or 'media' or 'class'
