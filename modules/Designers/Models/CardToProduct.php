@@ -69,7 +69,13 @@ class CardToProduct {
 		$product->set_regular_price( $prices );
 		$product->set_sku( $sku );
 
-		$product->set_name( wp_filter_post_kses( $designer_card->get( 'card_title' ) ) );
+		$options       = (array) get_option( 'yousaiditcard_designers_settings' );
+		$default_title = isset( $options['default_product_title'] ) ? $options['default_product_title'] : '';
+		$default_title = str_replace( "{{card_title}}", $designer_card->get( 'card_title' ), $default_title );
+		$product->set_name( wp_filter_post_kses( $default_title ) );
+		$default_content = isset( $options['default_product_content'] ) ? $options['default_product_content'] : '';
+		$product->set_description( wp_filter_post_kses( $default_content ) );
+
 		$product->set_status( 'draft' );
 
 		$product->set_category_ids( $designer_card->get( 'categories_ids' ) );
@@ -111,7 +117,13 @@ class CardToProduct {
 		$product->set_date_on_sale_from( '' );
 		$product->set_price( '' );
 
-		$product->set_name( wp_filter_post_kses( $designer_card->get( 'card_title' ) ) );
+		$options       = (array) get_option( 'yousaiditcard_designers_settings' );
+		$default_title = isset( $options['default_product_title'] ) ? $options['default_product_title'] : '';
+		$default_title = str_replace( "{{card_title}}", $designer_card->get( 'card_title' ), $default_title );
+		$product->set_name( wp_filter_post_kses( $default_title ) );
+		$default_content = isset( $options['default_product_content'] ) ? $options['default_product_content'] : '';
+		$product->set_description( wp_filter_post_kses( $default_content ) );
+
 		$product->set_status( 'draft' );
 
 		$product->set_category_ids( $designer_card->get( 'categories_ids' ) );

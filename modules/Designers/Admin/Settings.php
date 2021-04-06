@@ -135,7 +135,7 @@ class Settings {
 				'id'                => 'default_product_title',
 				'type'              => 'text',
 				'title'             => __( 'Default Product Title', 'stackonet-yousaidit-toolkit' ),
-				'description'       => __( 'Default product title when generating product from card.', 'stackonet-yousaidit-toolkit' ),
+				'description'       => __( 'Default product title when generating product from card. Add placeholder {{card_title}} to get dynamic card title.', 'stackonet-yousaidit-toolkit' ),
 				'priority'          => 50,
 				'sanitize_callback' => 'sanitize_text_field',
 			],
