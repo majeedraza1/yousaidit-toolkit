@@ -123,7 +123,9 @@ class PDFMerger {
 					self::add_qr_code( $pdf, $order_item->get_ship_station_order_id(),
 						$order_item->get_pdf_width(), $order_item->get_pdf_height() );
 					// Add total quantity
-					self::add_total_qty( $pdf, $order_item->get_pdf_height(), $order_item->get_total_quantities_in_order() );
+					$string = sprintf( "%s - %s", $order_item->get_total_quantities_in_order(),
+						$order_item->get_ship_station_order_id() );
+					self::add_total_qty( $pdf, $order_item->get_pdf_height(), $string );
 				}
 
 				if ( in_array( $type, [ 'both', 'im' ] ) ) {

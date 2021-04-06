@@ -2,8 +2,13 @@
 
 namespace YouSaidItCards\Modules\CardMerger\PDFMergers;
 
+use setasign\Fpdi\PdfParser\CrossReference\CrossReferenceException;
+use setasign\Fpdi\PdfParser\Filter\FilterException;
+use setasign\Fpdi\PdfParser\PdfParserException;
 use setasign\Fpdi\PdfParser\StreamReader;
+use setasign\Fpdi\PdfParser\Type\PdfTypeException;
 use setasign\Fpdi\PdfReader\PageBoundaries;
+use setasign\Fpdi\PdfReader\PdfReaderException;
 use WC_Order_Item_Product;
 
 class TestPdfMerger extends PDFMerger {
@@ -11,11 +16,11 @@ class TestPdfMerger extends PDFMerger {
 	 * @param WC_Order_Item_Product $order_item
 	 * @param int $order_id
 	 *
-	 * @throws \setasign\Fpdi\PdfParser\CrossReference\CrossReferenceException
-	 * @throws \setasign\Fpdi\PdfParser\Filter\FilterException
-	 * @throws \setasign\Fpdi\PdfParser\PdfParserException
-	 * @throws \setasign\Fpdi\PdfParser\Type\PdfTypeException
-	 * @throws \setasign\Fpdi\PdfReader\PdfReaderException
+	 * @throws CrossReferenceException
+	 * @throws FilterException
+	 * @throws PdfParserException
+	 * @throws PdfTypeException
+	 * @throws PdfReaderException
 	 */
 	public static function combinePDFs( $order_item, $order_id = 0 ) {
 		$product = $order_item->get_product();

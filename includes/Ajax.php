@@ -2,9 +2,7 @@
 
 namespace YouSaidItCards;
 
-// If this file is called directly, abort.
 use YouSaidItCards\Modules\Designers\Models\DesignerCommission;
-use YouSaidItCards\Modules\WooCommerce\SquarePaymentRestClient;
 
 defined( 'ABSPATH' ) || exit;
 

@@ -1,24 +1,25 @@
 {
   "proxyURL": "http://yousaidit.test/dashboard",
   "entryPoints": {
-	"admin": [
-	  "./assets/src/admin/order-dispatcher/main.js",
-	  "./assets/src/admin/designers/main.js",
-	  "./assets/src/admin/main.js"
-	],
-	"designer-profile": [
-	  "./assets/src/frontend/designers/main.js",
-	  "./assets/src/frontend/login/main.js",
-	  "./assets/src/frontend/how-it-works/main.js"
-	],
-	"frontend": [
-	  "./assets/src/frontend/main.js",
-	  "./assets/src/frontend/multistep-checkout.js",
-	  "./assets/src/scss/_multistep-checkout.scss",
-	  "./assets/src/scss/frontend.scss"
-	],
-	"inner-message": [
-	  "./assets/src/frontend/inner-message/main.js"
-	]
+    "admin": [
+      "./assets/src/admin/order-dispatcher/main.js",
+      "./assets/src/admin/designers/main.js",
+      "./assets/src/admin/main.js",
+      "./assets/src/scss/admin.scss"
+    ],
+    "designer-profile": [
+      "./assets/src/frontend/designers/main.js",
+      "./assets/src/frontend/login/main.js",
+      "./assets/src/frontend/how-it-works/main.js"
+    ],
+    "frontend": [
+      "./assets/src/frontend/main.js",
+      "./assets/src/frontend/multistep-checkout.js",
+      "./assets/src/scss/_multistep-checkout.scss",
+      "./assets/src/scss/frontend.scss"
+    ],
+    "inner-message": [
+      "./assets/src/frontend/inner-message/main.js"
+    ]
   }
 }

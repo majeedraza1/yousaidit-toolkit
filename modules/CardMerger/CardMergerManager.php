@@ -6,6 +6,7 @@ use Stackonet\WP\Framework\Supports\Validate;
 use YouSaidItCards\Modules\CardMerger\PDFMergers\DynamicSizePdfMerger;
 use YouSaidItCards\Modules\CardMerger\PDFMergers\TestPdfMerger;
 use YouSaidItCards\Modules\InnerMessage\PdfGenerator;
+use YouSaidItCards\Modules\OrderDispatcher\QtyCode;
 use YouSaidItCards\ShipStation\Order;
 use YouSaidItCards\ShipStation\ShipStationApi;
 
@@ -27,6 +28,7 @@ class CardMergerManager {
 			add_action( 'wp_ajax_yousaidit_single_im_card', [ self::$instance, 'single_inner_message_card' ] );
 			add_action( 'wp_ajax_yousaidit_single_pdf_card', [ self::$instance, 'single_pdf_card' ] );
 			add_action( 'wp_ajax_yousaidit_ship_station_order', [ self::$instance, 'ship_station_order' ] );
+			add_action( 'wp_ajax_yousaidit_text_to_image', [ self::$instance, 'text_to_image' ] );
 		}
 
 		return self::$instance;
@@ -123,10 +125,28 @@ class CardMergerManager {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			die( 'Only admin can perform this action.' );
 		}
-		$order_id   = isset( $_GET['order_id'] ) ? intval( $_GET['order_id'] ) : 0;
-		$item_id    = isset( $_GET['item_id'] ) ? intval( $_GET['item_id'] ) : 0;
-		$order_item = new \WC_Order_Item_Product( $item_id );
-		$merger     = TestPdfMerger::combinePDFs( $order_item, $order_id );
+		$order_id = isset( $_GET['order_id'] ) ? intval( $_GET['order_id'] ) : 0;
+		$order    = ShipStationApi::init()->get_order( $order_id );
+		$order    = new Order( $order );
+		$image    = QtyCode::get_dynamic_image( 96, $order->get_id() );
+		header( "Content-Type: image/png" );
+		echo $image;
+		die();
+	}
+
+	public function text_to_image() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			die( 'Only admin can perform this action.' );
+		}
+		$text = isset( $_REQUEST['text'] ) ? sanitize_text_field( $_REQUEST['text'] ) : '';
+
+		if ( ! empty( $text ) ) {
+			$image = QtyCode::get_dynamic_image( 96, $text );
+			header( "Content-Type: image/png" );
+			echo $image;
+			die();
+		}
+		echo 'No content available';
 		die();
 	}
 }

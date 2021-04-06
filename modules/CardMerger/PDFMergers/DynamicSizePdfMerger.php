@@ -7,10 +7,18 @@ use setasign\Fpdi\PdfParser\Filter\FilterException;
 use setasign\Fpdi\PdfParser\PdfParserException;
 use setasign\Fpdi\PdfParser\Type\PdfTypeException;
 use setasign\Fpdi\PdfReader\PdfReaderException;
+use YouSaidItCards\ShipStation\OrderItem;
 
 class DynamicSizePdfMerger extends PDFMerger {
 
-	public static function combinePDFs( array $order_items, $card_width, $card_height, $inner_message, $type = 'both' ) {
+	/**
+	 * @param OrderItem[] $order_items
+	 * @param int $card_width Card width in mm
+	 * @param int $card_height Card height in mm
+	 * @param bool $inner_message Should show inner message
+	 * @param string $type Card type 'inner message', 'card' or both
+	 */
+	public static function combinePDFs( array $order_items, int $card_width, int $card_height, bool $inner_message, $type = 'both' ) {
 		static::$print_inner_message = $inner_message;
 
 		$pdf_merger = new PDFMerger();
