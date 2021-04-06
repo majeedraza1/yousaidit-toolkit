@@ -58,15 +58,22 @@ class Settings {
 		// Add settings page tab
 		$option_page->add_panels( $panels );
 
-		$sections = array(
-			array(
+		$sections = [
+			[
 				'id'          => 'general_settings_section',
 				'title'       => __( 'General', 'stackonet-yousaidit-toolkit' ),
 				'description' => __( 'Plugin general options.', 'stackonet-yousaidit-toolkit' ),
 				'panel'       => 'general_settings_panel',
 				'priority'    => 10,
-			)
-		);
+			],
+			[
+				'id'          => 'product_settings_section',
+				'title'       => __( 'Product', 'stackonet-yousaidit-toolkit' ),
+				'description' => __( 'Plugin product options.', 'stackonet-yousaidit-toolkit' ),
+				'panel'       => 'general_settings_panel',
+				'priority'    => 20,
+			]
+		];
 
 		// Add Sections
 		$option_page->add_sections( $sections );
@@ -122,6 +129,24 @@ class Settings {
 				'description'       => __( 'Enter minimum commission amount required to be payable. Value must be 1 or more.', 'stackonet-yousaidit-toolkit' ),
 				'priority'          => 50,
 				'sanitize_callback' => 'floatval',
+			],
+			[
+				'section'           => 'product_settings_section',
+				'id'                => 'default_product_title',
+				'type'              => 'text',
+				'title'             => __( 'Default Product Title', 'stackonet-yousaidit-toolkit' ),
+				'description'       => __( 'Default product title when generating product from card.', 'stackonet-yousaidit-toolkit' ),
+				'priority'          => 50,
+				'sanitize_callback' => 'sanitize_text_field',
+			],
+			[
+				'section'           => 'product_settings_section',
+				'id'                => 'default_product_content',
+				'type'              => 'textarea',
+				'title'             => __( 'Default Product Content', 'stackonet-yousaidit-toolkit' ),
+				'description'       => __( 'Default product content when generating product from card.', 'stackonet-yousaidit-toolkit' ),
+				'priority'          => 50,
+				'sanitize_callback' => 'wp_filter_post_kses',
 			],
 		];
 
