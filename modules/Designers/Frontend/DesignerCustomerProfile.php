@@ -35,7 +35,7 @@ class DesignerCustomerProfile {
 			add_action( 'init', [ self::$instance, 'custom_rewrite_rule' ], 10, 0 );
 			add_filter( 'query_vars', [ self::$instance, 'add_query_var' ] );
 			add_action( 'template_redirect', [ self::$instance, 'template_redirect' ] );
-			add_filter( 'document_title_parts', [ self::$instance, 'document_title' ], 10 );
+			add_filter( 'pre_get_document_title', [ self::$instance, 'document_title' ], 20 );
 			add_action( 'pre_get_posts', [ self::$instance, 'pre_get_posts' ] );
 			add_filter( 'woocommerce_product_categories_widget_dropdown_args',
 				[ self::$instance, 'categories_widget_dropdown_args' ] );
@@ -215,14 +215,15 @@ class DesignerCustomerProfile {
 	 *
 	 * @param array $title
 	 *
-	 * @return array
+	 * @return string
 	 */
-	public function document_title( $title ) {
+	public function document_title( string $title ) {
 		global $wp_query;
 		if ( ! empty( $wp_query->get( self::$endpoint ) ) ) {
 			$author = get_queried_object();
 			if ( $author instanceof \WP_User ) {
-				$title['title'] = $author->display_name;
+				$sep   = apply_filters( 'document_title_separator', '-' );
+				$title = sprintf( "%s $sep %s", $author->display_name, get_bloginfo( 'name', 'display' ) );
 			}
 		}
 
