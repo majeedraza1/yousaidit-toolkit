@@ -109,32 +109,36 @@ class RudeProductManager {
 	 */
 	public function query_with_metadata( $query ) {
 		// It's the main query for a front end page of your site.
-		if ( ! $query->is_main_query() ) {
-			return $query;
-		}
-
 		// Not a query for an admin page.
-		if ( is_admin() ) {
+		if ( ! $query->is_main_query() || is_admin() ) {
 			return $query;
 		}
 
 		$session        = Session::get_instance();
 		$show_rude_card = $session->get( 'show_rude_card' );
 		if ( 'no' == $show_rude_card ) {
-			$meta_query   = (array) $query->get( 'meta_query' );
-			$meta_query[] = array(
-				'relation' => 'OR',
-				array(
-					'key'     => '_is_rude_card',
-					'compare' => 'NOT EXISTS',
-				),
-				array(
-					'key'     => '_is_rude_card',
-					'value'   => 'yes',
-					'compare' => '!=',
-				)
-			);
-			$query->set( 'meta_query', $meta_query );
+//			$meta_query   = (array) $query->get( 'meta_query' );
+//			$meta_query[] = array(
+//				'relation' => 'OR',
+//				array(
+//					'key'     => '_is_rude_card',
+//					'compare' => 'NOT EXISTS',
+//				),
+//				array(
+//					'key'     => '_is_rude_card',
+//					'value'   => 'yes',
+//					'compare' => '!=',
+//				)
+//			);
+//			$query->set( 'meta_query', $meta_query );
+
+			$ids          = static::get_rude_products_ids();
+			$existing_ids = (array) $query->get( 'post__not_in' );
+			$new_ids      = array_filter( array_merge( $existing_ids, $ids ) );
+
+			if ( count( $new_ids ) ) {
+				$query->set( 'post__not_in', $new_ids );
+			}
 		}
 
 		return $query;
