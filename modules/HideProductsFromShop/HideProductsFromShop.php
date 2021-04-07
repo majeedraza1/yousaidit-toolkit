@@ -27,7 +27,7 @@ class HideProductsFromShop {
 			add_action( 'woocommerce_product_query', [ self::$instance, 'custom_pre_get_posts_query' ] );
 
 			add_action( 'add_meta_boxes', [ self::$instance, 'add_meta_boxes' ] );
-			add_action( 'save_post', [ self::$instance, 'save_product_meta' ] );
+			add_action( 'save_post', [ self::$instance, 'save_product_meta' ], 10, 2 );
 		}
 
 		return self::$instance;
@@ -71,11 +71,14 @@ class HideProductsFromShop {
 	 *
 	 * @param int $post_id
 	 */
-	public function save_product_meta( $post_id ) {
+	public function save_product_meta( $post_id, $post ) {
 		if ( isset( $_POST['_hide_from_shop'] ) ) {
 			update_post_meta( $post_id, '_hide_from_shop', $_POST['_hide_from_shop'] );
 		} elseif ( false !== get_post_meta( $post_id, '_hide_from_shop', true ) ) {
 			delete_post_meta( $post_id, '_hide_from_shop' );
+		}
+		if ( 'product' == get_post_type( $post ) ) {
+			delete_transient( 'hide_from_shop_products_ids' );
 		}
 	}
 
@@ -86,21 +89,13 @@ class HideProductsFromShop {
 	 */
 	public function custom_pre_get_posts_query( $query ) {
 		if ( empty( $query->get( CardDesigner::PROFILE_ENDPOINT ) ) && static::is_woocommerce_page() ) {
-			// Meta Query
-			$meta_query   = (array) $query->get( 'meta_query' );
-			$meta_query[] = [
-				'relation' => 'OR',
-				[
-					'key'     => '_hide_from_shop',
-					'compare' => 'NOT EXISTS',
-				],
-				[
-					'key'     => '_hide_from_shop',
-					'value'   => 'on',
-					'compare' => '!=',
-				]
-			];
-			$query->set( 'meta_query', $meta_query );
+			$ids          = static::get_hide_from_shop_products_ids();
+			$existing_ids = (array) $query->get( 'post__not_in' );
+			$new_ids      = array_filter( array_merge( $existing_ids, $ids ) );
+
+			if ( count( $new_ids ) ) {
+				$query->set( 'post__not_in', $new_ids );
+			}
 		}
 	}
 
@@ -138,5 +133,28 @@ class HideProductsFromShop {
 	 */
 	public static function is_woocommerce_page(): bool {
 		return ( is_shop() || is_product_taxonomy() || is_product_category() || is_product_tag() );
+	}
+
+	/**
+	 * Hide from shop products ids
+	 *
+	 * @return array
+	 */
+	public static function get_hide_from_shop_products_ids(): array {
+		$ids = get_transient( 'hide_from_shop_products_ids' );
+		if ( ! is_array( $ids ) ) {
+			$ids = [];
+			global $wpdb;
+			$sql    = "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_hide_from_shop' AND meta_value = 'on'";
+			$result = $wpdb->get_results( $sql, ARRAY_A );
+			if ( is_array( $result ) && count( $result ) ) {
+				$_ids = wp_list_pluck( $result, 'post_id' );
+				$ids  = array_map( 'intval', $_ids );
+			}
+
+			set_transient( 'hide_from_shop_products_ids', $ids, YEAR_IN_SECONDS );
+		}
+
+		return $ids;
 	}
 }

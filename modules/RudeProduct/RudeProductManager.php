@@ -145,20 +145,19 @@ class RudeProductManager {
 	 *
 	 * @return array
 	 */
-	public static function get_rude_products_ids() {
+	public static function get_rude_products_ids(): array {
 		$ids = get_transient( 'rude_products_ids' );
-		if ( false === $ids ) {
+		if ( ! is_array( $ids ) ) {
 			global $wpdb;
 			$sql    = "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_is_rude_card' AND meta_value = 'yes'";
 			$result = $wpdb->get_results( $sql, ARRAY_A );
+			$ids    = [];
 			if ( is_array( $result ) && count( $result ) ) {
 				$_ids = wp_list_pluck( $result, 'post_id' );
 				$ids  = array_map( 'intval', $_ids );
-			} else {
-				$ids = array();
 			}
 
-			set_transient( 'rude_products_ids', $ids, DAY_IN_SECONDS );
+			set_transient( 'rude_products_ids', $ids, YEAR_IN_SECONDS );
 		}
 
 		return $ids;
