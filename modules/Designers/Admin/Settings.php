@@ -144,7 +144,7 @@ class Settings {
 				'id'                => 'default_product_content',
 				'type'              => 'textarea',
 				'title'             => __( 'Default Product Content', 'stackonet-yousaidit-toolkit' ),
-				'description'       => __( 'Default product content when generating product from card.', 'stackonet-yousaidit-toolkit' ),
+				'description'       => __( 'Default product content when generating product from card. Add placeholder {{card_title}} to get dynamic card title.', 'stackonet-yousaidit-toolkit' ),
 				'priority'          => 50,
 				'sanitize_callback' => 'wp_filter_post_kses',
 			],
