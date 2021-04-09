@@ -3,6 +3,7 @@
 namespace YouSaidItCards\Modules\CardMerger;
 
 use Stackonet\WP\Framework\Supports\Validate;
+use WC_Order;
 use YouSaidItCards\Modules\CardMerger\PDFMergers\DynamicSizePdfMerger;
 use YouSaidItCards\Modules\CardMerger\PDFMergers\TestPdfMerger;
 use YouSaidItCards\Modules\InnerMessage\PdfGenerator;
@@ -125,12 +126,24 @@ class CardMergerManager {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			die( 'Only admin can perform this action.' );
 		}
-		$order_id = isset( $_GET['order_id'] ) ? intval( $_GET['order_id'] ) : 0;
-		$order    = ShipStationApi::init()->get_order( $order_id );
-		$order    = new Order( $order );
-		$image    = QtyCode::get_dynamic_image( 96, $order->get_id() );
-		header( "Content-Type: image/png" );
-		echo $image;
+		$wc_order_id      = isset( $_GET['order_id'] ) ? intval( $_GET['order_id'] ) : 0;
+		$wc_order_item_id = isset( $_GET['item_id'] ) ? intval( $_GET['item_id'] ) : 0;
+		$wc_order         = wc_get_order( $wc_order_id );
+		if ( ! $wc_order instanceof WC_Order ) {
+			die( 'No order found for this is.' );
+		}
+		$order_item      = new \WC_Order_Item_Product( $wc_order_item_id );
+		$product_id      = $order_item->get_product_id();
+		$product         = wc_get_product( $product_id );
+		$postcard_pdf_id = (int) $order_item->get_meta( '_postcard_pdf_id', true );
+		if ( $postcard_pdf_id ) {
+			$url = wp_get_attachment_url( $postcard_pdf_id );
+		} else {
+			$pdf_id = (int) $product->get_meta( '_pdf_id', true );
+			$url    = wp_get_attachment_url( $pdf_id );
+		}
+
+		header( "Location: {$url}" );
 		die();
 	}
 
