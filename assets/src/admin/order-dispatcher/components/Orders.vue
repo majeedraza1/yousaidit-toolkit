@@ -43,6 +43,8 @@
 					<a target="_blank"
 					   :href="`/wp-admin/admin-ajax.php?action=yousaidit_ship_station_order&order_id=${data.row.orderId}`"
 					><strong>{{ data.row.orderId }}</strong></a>
+					<br>
+					<span>{{data.row.storeName}}</span>
 				</template>
 				<template slot="invoice" slot-scope="data">
 					<shapla-button :shadow="true" :href="invoiceUrl(data.row.orderId)"

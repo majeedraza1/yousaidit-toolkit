@@ -45,7 +45,8 @@ class CardMergerManager {
 		$order_id = isset( $_REQUEST['order_id'] ) ? intval( $_REQUEST['order_id'] ) : 0;
 		$order    = ShipStationApi::init()->get_order( $order_id );
 		$order    = new Order( $order );
-		var_dump( [ $order->to_array() ] );
+		header( 'Content-type: text/json' );
+		echo json_encode( $order->to_array() );
 		die();
 	}
 

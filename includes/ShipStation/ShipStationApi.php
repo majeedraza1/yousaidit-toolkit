@@ -163,4 +163,34 @@ class ShipStationApi extends RestClient {
 	public function get_carriers() {
 		return $this->get( 'carriers' );
 	}
+
+	/**
+	 * Get stores
+	 * @return array|\WP_Error
+	 */
+	public function get_stores() {
+		$stores = get_transient( 'get_shipstation_stores' );
+		if ( ! is_array( $stores ) ) {
+			$stores = $this->get( 'stores' );
+			if ( ! is_wp_error( $stores ) ) {
+				set_transient( 'get_shipstation_stores', $stores, WEEK_IN_SECONDS );
+			}
+		}
+
+		return $stores;
+	}
+
+	public static function get_store_name( int $store_id ): string {
+		$store_name = '';
+		$stores     = self::init()->get_stores();
+		if ( is_array( $stores ) ) {
+			foreach ( $stores as $store ) {
+				if ( $store['storeId'] == $store_id ) {
+					$store_name = $store['storeName'];
+				}
+			}
+		}
+
+		return $store_name;
+	}
 }

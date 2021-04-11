@@ -72,6 +72,9 @@ class Order implements JsonSerializable {
 
 	protected $is_ordered_from_website = false;
 
+	protected $store_id = 0;
+	protected $store_name = '';
+
 	/**
 	 * Order constructor.
 	 *
@@ -79,7 +82,10 @@ class Order implements JsonSerializable {
 	 */
 	public function __construct( $data = [] ) {
 		$this->data          = $data;
-		$items               = isset( $this->data['items'] ) ? $this->data['items'] : [];
+		$this->store_id      = $this->data['advancedOptions']['storeId'] ?
+			intval( $this->data['advancedOptions']['storeId'] ) : 0;
+		$this->store_name    = ShipStationApi::get_store_name( $this->store_id );
+		$items               = $this->data['items'] ?? [];
 		$quantities_in_order = array_sum( wp_list_pluck( $items, 'quantity' ) );
 		foreach ( $items as $item ) {
 			$this->order_items[] = new OrderItem( $item, $this->get_id(), $quantities_in_order );
@@ -103,6 +109,8 @@ class Order implements JsonSerializable {
 	public function to_array(): array {
 		return [
 			'orderId'                  => $this->get_id(),
+			'storeId'                  => $this->get_store_id(),
+			'storeName'                => $this->get_store_name(),
 			'orderStatus'              => $this->get_order_status(),
 			'order_date'               => $this->get_order_date(),
 			'customer_full_name'       => $this->get_customer_full_name(),
@@ -619,5 +627,19 @@ class Order implements JsonSerializable {
 	 */
 	public function get_original_data() {
 		return $this->data;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function get_store_id(): int {
+		return $this->store_id;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function get_store_name(): string {
+		return $this->store_name;
 	}
 }
