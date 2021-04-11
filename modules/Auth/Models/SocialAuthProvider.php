@@ -67,7 +67,7 @@ class SocialAuthProvider extends DatabaseModel {
 	/**
 	 * @param string $provider
 	 * @param string $provider_id
-	 * @param int    $user_id
+	 * @param int $user_id
 	 *
 	 * @return ArrayObject|static
 	 */
@@ -87,7 +87,7 @@ class SocialAuthProvider extends DatabaseModel {
 	}
 
 	/**
-	 * @param int         $user_id
+	 * @param int $user_id
 	 * @param string|null $provider
 	 *
 	 * @return static[]|array
@@ -126,6 +126,15 @@ class SocialAuthProvider extends DatabaseModel {
 		}
 
 		return ( new static )->create( $data );
+	}
+
+	public static function unlink( array $data ) {
+		$item = static::find_for( $data['provider'], $data['provider_id'] );
+		if ( $item instanceof self ) {
+			return $item->delete( (int) $item->get( 'id' ) );
+		}
+
+		return false;
 	}
 
 	/**

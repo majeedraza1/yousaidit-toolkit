@@ -52,6 +52,37 @@ class AuthController extends ApiController {
 			'args'                => Auth::validate_token_rest_params(),
 			'permission_callback' => '__return_true',
 		] );
+		register_rest_route( $this->namespace, '/auth-provider', [
+			'methods'             => WP_REST_Server::CREATABLE,
+			'callback'            => [ $this, 'create_auth_provider' ],
+			'permission_callback' => '__return_true',
+			'args'                => [
+				'provider'    => [
+					'description'       => __( 'Auth provider', 'stackonet-jwt-auth' ),
+					'type'              => 'string',
+					'required'          => true,
+					'validate_callback' => 'rest_validate_request_arg',
+					'enum'              => SocialAuthProvider::get_providers()
+				],
+				'provider_id' => [
+					'description'       => __( 'Auth provider id', 'stackonet-jwt-auth' ),
+					'type'              => 'string',
+					'required'          => true,
+					'validate_callback' => 'rest_validate_request_arg',
+				],
+				'email'       => [
+					'description'       => __( 'Public email from auth provider.', 'stackonet-jwt-auth' ),
+					'type'              => 'string',
+					'validate_callback' => 'rest_validate_request_arg',
+				],
+				'mode'        => [
+					'description'       => __( 'action mode', 'stackonet-jwt-auth' ),
+					'type'              => 'string',
+					'validate_callback' => 'rest_validate_request_arg',
+					'enum'              => [ 'link', 'unlink' ]
+				]
+			]
+		] );
 	}
 
 	/**
@@ -140,5 +171,50 @@ class AuthController extends ApiController {
 		];
 
 		return $this->respondOK( $response );
+	}
+
+	/**
+	 * Add or remove auth provider
+	 *
+	 * @param WP_REST_Request $request
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function create_auth_provider( $request ) {
+		$user = wp_get_current_user();
+
+		if ( ! $user->exists() ) {
+			return $this->respondUnauthorized();
+		}
+
+		$provider    = $request->get_param( 'provider' );
+		$provider_id = $request->get_param( 'provider_id' );
+		$email       = $request->get_param( 'email' );
+		$mode        = $request->get_param( 'mode' );
+		$mode        = in_array( $mode, [ 'link', 'unlink' ] ) ? $mode : 'link';
+
+		if ( empty( $provider ) || empty( $provider_id ) ) {
+			return $this->respondUnprocessableEntity( null, 'Both provider and provider_id are required.' );
+		}
+
+		if ( ! in_array( $provider, SocialAuthProvider::get_providers() ) ) {
+			return $this->respondUnprocessableEntity( null, 'Provider does not support.' );
+		}
+
+		if ( 'unlink' == $mode ) {
+			$unlink = SocialAuthProvider::unlink( [ 'provider' => $provider, 'provider_id' => $provider_id, ] );
+			if ( $unlink ) {
+				return $this->respondOK( 'Social auth provider has been removed.' );
+			}
+
+			return $this->respondInternalServerError();
+		}
+		SocialAuthProvider::create_or_update( [
+			'provider'      => $provider,
+			'provider_id'   => $provider_id,
+			'email_address' => $email,
+		] );
+
+		return $this->respondOK();
 	}
 }
