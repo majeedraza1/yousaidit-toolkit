@@ -3,6 +3,7 @@
 namespace YouSaidItCards\Admin;
 
 use Stackonet\WP\Framework\SettingApi\DefaultSettingApi;
+use YouSaidItCards\ShipStation\ShipStationApi;
 
 // If this file is called directly, abort.
 defined( 'ABSPATH' ) || exit;
@@ -93,6 +94,7 @@ class SettingPage {
 		$setting->set_panel( [ 'id' => 'general', 'title' => 'General', 'priority' => 5, ] );
 		$setting->set_panel( [ 'id' => 'integrations', 'title' => 'Integrations', 'priority' => 10, ] );
 		$setting->set_panel( [ 'id' => 'trade_site', 'title' => 'Trade Site', 'priority' => 20 ] );
+		$setting->set_panel( [ 'id' => 'market_place', 'title' => 'Market Places', 'priority' => 30 ] );
 
 		$setting->set_section( [
 			'id'       => 'section_postcard_settings',
@@ -122,6 +124,14 @@ class SettingPage {
 			'title'       => __( 'Auth', 'dialog-contact-form' ),
 			'description' => __( 'Auth settings', 'dialog-contact-form' ),
 			'panel'       => 'trade_site',
+			'priority'    => 10,
+		] );
+
+		$setting->set_section( [
+			'id'          => 'section_marketplace',
+			'title'       => __( 'Marketplace', 'dialog-contact-form' ),
+			'description' => __( 'Marketplace settings', 'dialog-contact-form' ),
+			'panel'       => 'market_place',
 			'priority'    => 10,
 		] );
 
@@ -256,5 +266,65 @@ class SettingPage {
 			'sanitize_callback' => 'sanitize_text_field',
 			'section'           => 'section_paypal_api',
 		] );
+
+		$setting->set_field( [
+			'id'                => 'shipstation_yousaidit_store_id',
+			'type'              => 'select',
+			'title'             => __( 'Store 1: You Said It Cards' ),
+			'description'       => __( 'ShipStation store for You Said It Cards' ),
+			'default'           => '',
+			'priority'          => 10,
+			'sanitize_callback' => 'sanitize_text_field',
+			'section'           => 'section_marketplace',
+			'options'           => self::get_market_places(),
+		] );
+
+		$setting->set_field( [
+			'id'                => 'shipstation_etsy_store_id',
+			'type'              => 'select',
+			'title'             => __( 'Store 1: Etsy' ),
+			'description'       => __( 'ShipStation store for Etsy' ),
+			'default'           => '',
+			'priority'          => 20,
+			'sanitize_callback' => 'sanitize_text_field',
+			'section'           => 'section_marketplace',
+			'options'           => self::get_market_places(),
+		] );
+
+		$setting->set_field( [
+			'id'                => 'shipstation_amazon_store_id',
+			'type'              => 'select',
+			'title'             => __( 'Store 1: Amazon' ),
+			'description'       => __( 'ShipStation store for Amazon' ),
+			'default'           => '',
+			'priority'          => 20,
+			'sanitize_callback' => 'sanitize_text_field',
+			'section'           => 'section_marketplace',
+			'options'           => self::get_market_places(),
+		] );
+
+		$setting->set_field( [
+			'id'                => 'shipstation_ebay_store_id',
+			'type'              => 'select',
+			'title'             => __( 'Store 1: eBay' ),
+			'description'       => __( 'ShipStation store for eBay' ),
+			'default'           => '',
+			'priority'          => 20,
+			'sanitize_callback' => 'sanitize_text_field',
+			'section'           => 'section_marketplace',
+			'options'           => self::get_market_places(),
+		] );
+	}
+
+	public static function get_market_places(): array {
+		$items  = [];
+		$stores = ShipStationApi::init()->get_stores();
+		if ( is_array( $stores ) ) {
+			foreach ( $stores as $store ) {
+				$items[ $store['storeId'] ] = $store['storeName'];
+			}
+		}
+
+		return $items;
 	}
 }
