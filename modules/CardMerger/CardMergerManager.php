@@ -43,8 +43,12 @@ class CardMergerManager {
 			die( 'Only admin can perform this action.' );
 		}
 		$order_id = isset( $_REQUEST['order_id'] ) ? intval( $_REQUEST['order_id'] ) : 0;
-		$order    = ShipStationApi::init()->get_order( $order_id );
-		$order    = new Order( $order );
+		$order    = get_transient( 'some_temp' );
+		if ( false === $order ) {
+			$order = ShipStationApi::init()->get_order( $order_id );
+			set_transient( 'some_temp', $order );
+		}
+		$order = new Order( $order );
 		header( 'Content-type: text/json' );
 		echo json_encode( $order->to_array() );
 		die();

@@ -75,7 +75,7 @@ class SettingPage {
 		$_options        = (array) get_option( '_stackonet_toolkit', [] );
 		$options         = wp_parse_args( $_options, $default_options );
 
-		return isset( $options[ $key ] ) ? $options[ $key ] : $default;
+		return $options[ $key ] ?? $default;
 	}
 
 	/**

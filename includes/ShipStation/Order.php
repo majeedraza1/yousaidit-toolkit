@@ -88,8 +88,8 @@ class Order implements JsonSerializable {
 		$items               = $this->data['items'] ?? [];
 		$quantities_in_order = array_sum( wp_list_pluck( $items, 'quantity' ) );
 		foreach ( $items as $item ) {
-			$this->order_items[] = new OrderItem( $item, $this->get_id(), $quantities_in_order );
-			$sku                 = isset( $item['sku'] ) ? $item['sku'] : '';
+			$this->order_items[] = new OrderItem( $item, $this->get_id(), $quantities_in_order, $this->store_id );
+			$sku                 = $item['sku'] ?? '';
 			$product_id          = wc_get_product_id_by_sku( $sku );
 			if ( $product_id ) {
 				$this->products[] = wc_get_product( $product_id );

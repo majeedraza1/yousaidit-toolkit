@@ -225,7 +225,7 @@ class DesignerCardAdminController extends ApiController {
 			return $this->respondNotFound();
 		}
 		$commission_data = $item->get_commission_data();
-		$commission_type = isset( $commission_data['commission_type'] ) ? $commission_data['commission_type'] : '';
+		$commission_type = $commission_data['commission_type'] ?? '';
 
 		$commissions            = $request->get_param( 'commission' );
 		$marketplace_commission = $request->get_param( 'marketplace_commission' );

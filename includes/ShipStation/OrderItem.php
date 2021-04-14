@@ -5,6 +5,8 @@ namespace YouSaidItCards\ShipStation;
 use JsonSerializable;
 use WC_Order_Item_Product;
 use WC_Product;
+use YouSaidItCards\Modules\Designers\Models\DesignerCard;
+use YouSaidItCards\Utilities\MarketPlace;
 
 class OrderItem implements JsonSerializable {
 
@@ -102,6 +104,11 @@ class OrderItem implements JsonSerializable {
 	 */
 	protected $total_quantities_in_order;
 
+	protected $store_id = 0;
+	protected $card_id = 0;
+	protected $designer_id = 0;
+	protected $designer_commission = 0;
+
 	/**
 	 * OrderItem constructor.
 	 *
@@ -109,11 +116,12 @@ class OrderItem implements JsonSerializable {
 	 * @param int $ship_station_order_id
 	 * @param int $quantities_in_order
 	 */
-	public function __construct( $data = [], $ship_station_order_id = 0, $quantities_in_order = 0 ) {
+	public function __construct( $data = [], $ship_station_order_id = 0, $quantities_in_order = 0, $store_id = 0 ) {
 		$this->data                      = $data;
 		$this->ship_station_order_id     = $ship_station_order_id;
 		$this->total_quantities_in_order = $quantities_in_order;
-		$this->sku                       = isset( $data['sku'] ) ? $data['sku'] : '';
+		$this->store_id                  = $store_id;
+		$this->sku                       = $data['sku'] ?? '';
 		$this->product_id                = wc_get_product_id_by_sku( $this->sku );
 		if ( $this->product_id ) {
 			$this->product = wc_get_product( $this->product_id );
@@ -122,6 +130,14 @@ class OrderItem implements JsonSerializable {
 			$this->pdf_id     = is_numeric( $pdf_id ) ? intval( $pdf_id ) : 0;
 			$this->pdf_width  = (int) get_post_meta( $this->pdf_id, '_pdf_width_millimeter', true );
 			$this->pdf_height = (int) get_post_meta( $this->pdf_id, '_pdf_height_millimeter', true );
+
+			$this->designer_id = (int) $this->product->get_meta( '_card_designer_id', true );
+			$this->card_id = (int) $this->product->get_meta( '_card_id', true );
+			$designer_card = ( new DesignerCard )->find_by_id( $this->designer_id );
+			$store_info    = MarketPlace::get( $this->store_id );
+			if ( is_array( $store_info ) ) {
+				$this->designer_commission = $designer_card->get_commission( $this->get_card_size(), $store_info['key'] );
+			}
 		}
 
 		$this->order_item_id = $this->get_order_item_id();
@@ -152,6 +168,10 @@ class OrderItem implements JsonSerializable {
 			$data['quantity']          = $this->get_quantity();
 			$data['options']           = $this->get_option();
 			$data['product_thumbnail'] = $url;
+			$data['card_id']           = $this->card_id;
+			$data['designer_id']       = $this->designer_id;
+			$data['commission']        = $this->designer_commission;
+			$data['total_commission']  = ( $this->designer_commission * $this->get_quantity() );
 		}
 
 		$data = array_merge( $data, [

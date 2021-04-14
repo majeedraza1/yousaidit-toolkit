@@ -169,7 +169,7 @@ class DesignerCard extends DatabaseModel {
 	 *
 	 * @return array
 	 */
-	public function get_market_places() {
+	public function get_market_places(): array {
 		$market_places = $this->get( 'market_places' );
 		$market_places = is_array( $market_places ) ? $market_places : [];
 
@@ -910,10 +910,14 @@ class DesignerCard extends DatabaseModel {
 			$sql = "ALTER TABLE {$table_name} ADD `market_places` TEXT NULL DEFAULT NULL AFTER `suggest_tags`;";
 			$wpdb->query( $sql );
 
+			update_option( $table_name . '-version', '1.0.3' );
+		}
+
+		if ( version_compare( $option, '1.0.4', '<' ) ) {
 			$sql = "ALTER TABLE {$table_name} ADD `marketplace_commission` TEXT NULL DEFAULT NULL AFTER `commission_per_sale`;";
 			$wpdb->query( $sql );
 
-			update_option( $table_name . '-version', '1.0.3' );
+			update_option( $table_name . '-version', '1.0.4' );
 		}
 	}
 

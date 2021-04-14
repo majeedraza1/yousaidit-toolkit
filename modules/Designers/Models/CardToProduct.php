@@ -70,11 +70,11 @@ class CardToProduct {
 		$product->set_sku( $sku );
 
 		$options       = (array) get_option( 'yousaiditcard_designers_settings' );
-		$default_title = isset( $options['default_product_title'] ) ? $options['default_product_title'] : '';
+		$default_title = $options['default_product_title'] ?? '';
 		$default_title = str_replace( "{{card_title}}", $designer_card->get( 'card_title' ), $default_title );
 		$product->set_name( wp_filter_post_kses( $default_title ) );
 
-		$default_content = isset( $options['default_product_content'] ) ? $options['default_product_content'] : '';
+		$default_content = $options['default_product_content'] ?? '';
 		$default_content = str_replace( "{{card_title}}", $designer_card->get( 'card_title' ), $default_content );
 		$product->set_description( wp_filter_post_kses( $default_content ) );
 

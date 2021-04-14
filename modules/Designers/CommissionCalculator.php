@@ -47,7 +47,6 @@ class CommissionCalculator {
 	 */
 	public function update_commission_status( $order_id, $status_from, $status_to, $order ) {
 		if ( 'yes' == $order->get_meta( '_has_designer_commissions', true ) ) {
-			Logger::log( [ 'Working', $order_id, $status_from, $status_to ] );
 			/** @var WC_Order_Item_Product[] $items */
 			$items = $order->get_items( 'line_item' );
 			foreach ( $items as $item ) {
