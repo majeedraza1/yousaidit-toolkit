@@ -6,6 +6,7 @@ use ArrayObject;
 use Stackonet\WP\Framework\Abstracts\DatabaseModel;
 use Stackonet\WP\Framework\Supports\Validate;
 use WP_Error;
+use YouSaidItCards\Utilities\MarketPlace;
 
 class DesignerCommission extends DatabaseModel {
 
@@ -301,14 +302,11 @@ class DesignerCommission extends DatabaseModel {
 		global $wpdb;
 		$table = $this->get_table_name( $this->table );
 
-		$payment_statuses = [ 'paid', 'unpaid' ];
-		$order_statuses   = array_keys( wc_get_order_statuses() );
+		$payment_status = $args['payment_status'] ?? '';
+		$payment_status = in_array( $payment_status, [ 'paid', 'unpaid' ] ) ? $payment_status : 'unpaid';
 
-		$payment_status = isset( $args['payment_status'] ) ? $args['payment_status'] : '';
-		$payment_status = in_array( $payment_status, $payment_statuses ) ? $payment_status : 'unpaid';
-
-		$order_status = isset( $args['order_status'] ) ? $args['order_status'] : '';
-		$order_status = in_array( 'wc-' . $order_status, $order_statuses ) ? $order_status : '';
+		$order_status = $args['order_status'] ?? '';
+		$order_status = is_array( $order_status ) ? $order_status : [ $order_status ];
 
 		$designer_id = isset( $args['designer_id'] ) ? intval( $args['designer_id'] ) : 0;
 		$order_id    = isset( $args['order_id'] ) ? intval( $args['order_id'] ) : 0;
@@ -317,8 +315,9 @@ class DesignerCommission extends DatabaseModel {
 		$query .= " WHERE 1 = 1";
 		$query .= $wpdb->prepare( " AND payment_status = %s", $payment_status );
 
-		if ( ! empty( $order_status ) ) {
-			$query .= $wpdb->prepare( " AND order_status = %s", $order_status );
+		if ( count( $order_status ) ) {
+			$order_status = array_map( 'esc_sql', $order_status );
+			$query        .= " AND order_status IN('" . implode( "', '", $order_status ) . "')";
 		}
 
 		if ( ! empty( $designer_id ) ) {
@@ -413,9 +412,13 @@ class DesignerCommission extends DatabaseModel {
 			if ( ! function_exists( 'wc_get_order_statuses' ) && defined( 'WC_ABSPATH' ) ) {
 				include_once WC_ABSPATH . 'includes/wc-order-functions.php';
 			}
-			$_statuses = wc_get_order_statuses();
+			$wc_order_statuses          = wc_get_order_statuses();
+			$shipstation_order_statuses = MarketPlace::get_shipstation_order_status();
 			foreach ( $order_statuses as $result ) {
-				$label = $_statuses[ 'wc-' . $result['order_status'] ];
+				$label = $wc_order_statuses[ 'wc-' . $result['order_status'] ] ?? '';
+				if ( empty( $label ) ) {
+					$label = $shipstation_order_statuses[ $result['order_status'] ] ?? '';
+				}
 
 				$cards[] = [
 					'key'   => 'orders_status_' . $result['order_status'],

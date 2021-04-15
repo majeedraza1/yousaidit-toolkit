@@ -61,4 +61,15 @@ class MarketPlace {
 
 		return false;
 	}
+
+	public static function get_shipstation_order_status(): array {
+		return [
+			'awaiting_payment'    => __( 'Awaiting Payment' ),
+			'awaiting_shipment'   => __( 'Awaiting Shipment' ),
+			'pending_fulfillment' => __( 'Pending Fulfillment' ),
+			'shipped'             => __( 'Shipped' ),
+			'on_hold'             => __( 'On Hold' ),
+			'cancelled'           => __( 'Cancelled' )
+		];
+	}
 }

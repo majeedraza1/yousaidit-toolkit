@@ -194,7 +194,7 @@ class PaypalPayoutsUtils {
 	 * Pay unpaid commissions
 	 *
 	 * @param int $min_amount
-	 * @param string $order_status
+	 * @param string|array $order_status
 	 *
 	 * @return string|WP_Error
 	 */

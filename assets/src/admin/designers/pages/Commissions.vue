@@ -21,9 +21,10 @@
 						{{ data.row.payment_status }}
 					</span>
 					<template slot="order_id" slot-scope="data">
-						<a :href="`/wp-admin/post.php?post=${data.row.order_id}&action=edit`" target="_blank">
+						<a v-if="data.row.created_via !== 'shipstation-api'" :href="`/wp-admin/post.php?post=${data.row.order_id}&action=edit`" target="_blank">
 							#{{ data.row.order_id }}
 						</a>
+						<span v-else>#{{ data.row.order_id }}</span>
 					</template>
 				</data-table>
 				<div class="mt-4">
