@@ -42,6 +42,13 @@ class BackgroundCommissionSync extends BackgroundProcess {
 	 * @param array $items
 	 */
 	public static function sync_orders( array $items = [] ) {
+		$last_sync    = get_option( 'last_commission_sync_time' );
+		$one_hour_ago = time() - HOUR_IN_SECONDS;
+		// Only sync once in one hour
+		if ( is_numeric( $last_sync ) && $last_sync > $one_hour_ago ) {
+			return;
+		}
+
 		if ( count( $items ) < 1 ) {
 			$items = ShipStationApi::init()->get_orders();
 		}
@@ -65,5 +72,7 @@ class BackgroundCommissionSync extends BackgroundProcess {
 				self::init()->push_to_queue( $data );
 			}
 		}
+
+		update_option( 'last_commission_sync_time', time() );
 	}
 }

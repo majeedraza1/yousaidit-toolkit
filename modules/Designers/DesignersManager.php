@@ -43,6 +43,8 @@ class DesignersManager {
 			self::$instance = new self();
 
 			add_action( 'init', [ self::$instance, 'register_post_type' ] );
+			add_action( 'wp', [ self::$instance, 'schedule_cron_event' ] );
+			add_action( 'sync_commissions_from_shipstation', [ self::$instance, 'sync_commission' ] );
 			add_action( 'wp_ajax_sync_orders_commissions', [ self::$instance, 'sync_commission' ] );
 
 			CommissionCalculator::init();
@@ -87,6 +89,7 @@ class DesignersManager {
 		( new PaymentItem() )->create_table();
 		DesignerCustomerProfile::custom_rewrite_rule();
 		CardDesigner::add_role_if_not_exists();
+		self::schedule_cron_event();
 	}
 
 	/**
@@ -96,8 +99,20 @@ class DesignersManager {
 		register_post_type( FAQ::POST_TYPE, FAQ::get_post_type_args() );
 	}
 
+	/**
+	 * Schedule cron event
+	 */
+	public static function schedule_cron_event() {
+		if ( ! wp_next_scheduled( 'sync_commissions_from_shipstation' ) ) {
+			wp_schedule_event( current_time( 'timestamp' ), 'hourly', 'sync_commissions_from_shipstation' );
+		}
+	}
+
+	/**
+	 * Sync commission
+	 */
 	public function sync_commission() {
-		$task = BackgroundCommissionSync::sync_orders();
+		BackgroundCommissionSync::sync_orders();
 		die();
 	}
 }
