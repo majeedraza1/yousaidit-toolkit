@@ -43,6 +43,7 @@ class DesignersManager {
 			self::$instance = new self();
 
 			add_action( 'init', [ self::$instance, 'register_post_type' ] );
+			add_action( 'wp_ajax_sync_orders_commissions', [ self::$instance, 'sync_commission' ] );
 
 			CommissionCalculator::init();
 			DesignerCustomerProfile::init();
@@ -93,5 +94,10 @@ class DesignersManager {
 	 */
 	public function register_post_type() {
 		register_post_type( FAQ::POST_TYPE, FAQ::get_post_type_args() );
+	}
+
+	public function sync_commission() {
+		$task = BackgroundCommissionSync::sync_orders();
+		die();
 	}
 }

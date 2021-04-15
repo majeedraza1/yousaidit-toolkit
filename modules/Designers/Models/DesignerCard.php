@@ -294,9 +294,9 @@ class DesignerCard extends DatabaseModel {
 	 *
 	 * @return array
 	 */
-	public function get_commission_data() {
+	public function get_commission_data(): array {
 		$commission  = $this->get( 'commission_per_sale' );
-		$_commission = isset( $commission['commission'] ) ? $commission['commission'] : [];
+		$_commission = $commission['commission'] ?? [];
 		$data        = [];
 		if ( isset( $commission['commission_type'] ) ) {
 			$data['commission_type'] = $commission['commission_type'];

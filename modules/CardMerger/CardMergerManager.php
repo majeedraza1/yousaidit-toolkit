@@ -44,13 +44,19 @@ class CardMergerManager {
 		}
 		$order_id = isset( $_REQUEST['order_id'] ) ? intval( $_REQUEST['order_id'] ) : 0;
 		$order    = get_transient( 'some_temp' );
-		if ( false === $order ) {
+		if ( ! is_array( $order ) ) {
 			$order = ShipStationApi::init()->get_order( $order_id );
 			set_transient( 'some_temp', $order );
 		}
-		$order = new Order( $order );
-		header( 'Content-type: text/json' );
-		echo json_encode( $order->to_array() );
+//		header( 'Content-type: text/json' );
+		if ( is_array( $order ) ) {
+			$order = new Order( $order );
+			echo "<pre><code>";
+			var_dump( $order );
+			echo "</code></pre>";
+		} else {
+			var_dump( $order );
+		}
 		die();
 	}
 
@@ -66,8 +72,8 @@ class CardMergerManager {
 
 		$card_width    = isset( $_GET['card_width'] ) ? intval( $_GET['card_width'] ) : 0;
 		$card_height   = isset( $_GET['card_height'] ) ? intval( $_GET['card_height'] ) : 0;
-		$inner_message = isset( $_GET['inner_message'] ) ? Validate::checked( $_GET['inner_message'] ) : false;
-		$ids           = isset( $_GET['ids'] ) ? $_GET['ids'] : '';
+		$inner_message = isset( $_GET['inner_message'] ) && Validate::checked( $_GET['inner_message'] );
+		$ids           = $_GET['ids'] ?? '';
 		$ids           = is_string( $ids ) ? explode( ',', $ids ) : [];
 		$ids           = count( $ids ) ? array_map( 'intval', $ids ) : [];
 

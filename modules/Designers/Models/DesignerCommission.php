@@ -73,7 +73,7 @@ class DesignerCommission extends DatabaseModel {
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function get_start_and_end_date( $report_type, $from = '', $to = '' ) {
+	public static function get_start_and_end_date( string $report_type, string $from = '', string $to = '' ): array {
 		$startTime = new \DateTime();
 		$startTime->setTimezone( wp_timezone() );
 
@@ -441,8 +441,8 @@ class DesignerCommission extends DatabaseModel {
 			card_id bigint(20) UNSIGNED NOT NULL DEFAULT '0',
 			designer_id bigint(20) NOT NULL DEFAULT '0',
 			customer_id bigint(20) NOT NULL DEFAULT '0',
-			order_id bigint(20) NOT NULL DEFAULT '0',
-			order_item_id bigint(20) NOT NULL DEFAULT '0',
+			order_id bigint(20) NOT NULL DEFAULT '0' COMMENT 'ShipStation order id',
+			order_item_id bigint(20) NOT NULL DEFAULT '0' COMMENTS 'ShipStation order item id',
 			order_quantity int(10) NOT NULL DEFAULT '0',
 			item_commission float NOT NULL DEFAULT '0',
 			total_commission float NOT NULL DEFAULT '0',
@@ -463,19 +463,19 @@ class DesignerCommission extends DatabaseModel {
 	}
 
 	public function add_foreign_key() {
+		global $wpdb;
+		$table_name = $this->get_table_name( $this->table );
+		$card_table = $this->get_table_name( $this->card_table );
+
 		$option = get_option( 'designer_commissions_table_version', '1.0.0' );
 		if ( version_compare( $option, '1.0.1', '<' ) ) {
-			$table_name    = $this->get_table_name( $this->table );
-			$card_table    = $this->get_table_name( $this->card_table );
 			$constant_name = $this->get_foreign_key_constant_name( $table_name, $card_table );
-
-			global $wpdb;
-			$sql = "ALTER TABLE `{$table_name}`";
-			$sql .= " ADD CONSTRAINT `{$constant_name}`";
-			$sql .= " FOREIGN KEY (`card_id`)";
-			$sql .= " REFERENCES `{$card_table}`(`id`)";
-			$sql .= " ON DELETE NO ACTION";
-			$sql .= " ON UPDATE CASCADE;";
+			$sql           = "ALTER TABLE `{$table_name}`";
+			$sql           .= " ADD CONSTRAINT `{$constant_name}`";
+			$sql           .= " FOREIGN KEY (`card_id`)";
+			$sql           .= " REFERENCES `{$card_table}`(`id`)";
+			$sql           .= " ON DELETE NO ACTION";
+			$sql           .= " ON UPDATE CASCADE;";
 			$wpdb->query( $sql );
 
 			$sql = "ALTER TABLE `{$table_name}` ADD INDEX `designer_id` (`designer_id`);";
@@ -493,8 +493,14 @@ class DesignerCommission extends DatabaseModel {
 			$sql = "ALTER TABLE `{$table_name}` ADD INDEX `created_at` (`created_at`);";
 			$wpdb->query( $sql );
 
-
 			update_option( 'designer_commissions_table_version', '1.0.1' );
+		}
+
+		if ( version_compare( $option, '1.0.2', '<' ) ) {
+			$sql = "ALTER TABLE `{$table_name}` ADD INDEX `order_id` (`order_id`);";
+			$wpdb->query( $sql );
+
+			update_option( 'designer_commissions_table_version', '1.0.2' );
 		}
 	}
 
@@ -515,6 +521,11 @@ class DesignerCommission extends DatabaseModel {
 
 		if ( isset( $args['designer_id'] ) && is_numeric( $args['designer_id'] ) ) {
 			$query .= $wpdb->prepare( " AND designer_id = %d", intval( $args['designer_id'] ) );
+		}
+
+		if ( isset( $args['order_id__in'] ) && is_array( $args['order_id__in'] ) ) {
+			$ids   = array_map( 'intval', $args['order_id__in'] );
+			$query .= " AND order_id IN(" . implode( ',', $ids ) . ")";
 		}
 
 		if ( isset( $args['payment_status'] ) && in_array( $args['payment_status'], [ 'paid', 'unpaid' ] ) ) {

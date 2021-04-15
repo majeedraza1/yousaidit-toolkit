@@ -223,7 +223,7 @@ class Order implements JsonSerializable {
 	 *
 	 * @return int
 	 */
-	public function get_id() {
+	public function get_id(): int {
 		return intval( $this->data['orderId'] );
 	}
 
@@ -358,7 +358,7 @@ class Order implements JsonSerializable {
 	 *
 	 * @return OrderItem[]
 	 */
-	public function get_order_items() {
+	public function get_order_items(): array {
 		return $this->order_items;
 	}
 
@@ -415,9 +415,9 @@ class Order implements JsonSerializable {
 	/**
 	 * @param array $args
 	 *
-	 * @return array|static[]
+	 * @return array
 	 */
-	public static function _get_orders( $args = [] ) {
+	public static function _get_orders( $args = [] ): array {
 		$orders = ShipStationApi::init()->get_orders( $args );
 		$items  = [];
 		foreach ( $orders['orders'] as $order ) {
@@ -425,9 +425,9 @@ class Order implements JsonSerializable {
 		}
 
 		return [
-			'total_items'  => isset( $orders['total'] ) ? $orders['total'] : 0,
-			'current_page' => isset( $orders['page'] ) ? $orders['page'] : 0,
-			'total_pages'  => isset( $orders['pages'] ) ? $orders['pages'] : 0,
+			'total_items'  => $orders['total'] ?? 0,
+			'current_page' => $orders['page'] ?? 0,
+			'total_pages'  => $orders['pages'] ?? 0,
 			'items'        => $items,
 		];
 	}

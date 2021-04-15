@@ -3,6 +3,7 @@
 namespace YouSaidItCards\ShipStation;
 
 use JsonSerializable;
+use Stackonet\WP\Framework\Abstracts\DatabaseModel;
 use WC_Order_Item_Product;
 use WC_Product;
 use YouSaidItCards\Modules\Designers\Models\DesignerCard;
@@ -132,12 +133,7 @@ class OrderItem implements JsonSerializable {
 			$this->pdf_height = (int) get_post_meta( $this->pdf_id, '_pdf_height_millimeter', true );
 
 			$this->designer_id = (int) $this->product->get_meta( '_card_designer_id', true );
-			$this->card_id = (int) $this->product->get_meta( '_card_id', true );
-			$designer_card = ( new DesignerCard )->find_by_id( $this->designer_id );
-			$store_info    = MarketPlace::get( $this->store_id );
-			if ( is_array( $store_info ) ) {
-				$this->designer_commission = $designer_card->get_commission( $this->get_card_size(), $store_info['key'] );
-			}
+			$this->card_id     = (int) $this->product->get_meta( '_card_id', true );
 		}
 
 		$this->order_item_id = $this->get_order_item_id();
@@ -148,6 +144,18 @@ class OrderItem implements JsonSerializable {
 
 		// Check item card size
 		$this->read_card_size();
+	}
+
+	/**
+	 * Get property
+	 *
+	 * @param string $key
+	 * @param null $default
+	 *
+	 * @return mixed|null
+	 */
+	public function get_prop( string $key, $default = null ) {
+		return $this->data[ $key ] ?? $default;
 	}
 
 	/**
@@ -191,13 +199,39 @@ class OrderItem implements JsonSerializable {
 	 *
 	 * @return array
 	 */
-	public function get_pdf_info() {
+	public function get_pdf_info(): array {
 		return [
 			'id'     => $this->get_pdf_id(),
 			'url'    => $this->get_pdf_url(),
 			'width'  => $this->get_pdf_width(),
 			'height' => $this->get_pdf_height(),
 		];
+	}
+
+	/**
+	 * Check if item contain commissions
+	 *
+	 * @return bool
+	 */
+	public function has_designer_commission(): bool {
+		return ! ! ( $this->designer_id && $this->card_id );
+	}
+
+	/**
+	 * Get designer commission
+	 *
+	 * @return float
+	 */
+	public function get_designer_commission(): float {
+		if ( $this->has_designer_commission() ) {
+			$store_info = MarketPlace::get( $this->store_id );
+			if ( is_array( $store_info ) ) {
+				$designer_card             = ( new DesignerCard )->find_by_id( $this->designer_id );
+				$this->designer_commission = $designer_card->get_commission( $this->get_card_size(), $store_info['key'] );
+			}
+		}
+
+		return (float) $this->designer_commission;
 	}
 
 	/**
@@ -309,7 +343,7 @@ class OrderItem implements JsonSerializable {
 	 *
 	 * @return int
 	 */
-	public function get_order_item_id() {
+	public function get_order_item_id(): int {
 		return isset( $this->data['lineItemKey'] ) ? intval( $this->data['lineItemKey'] ) : 0;
 	}
 
@@ -488,7 +522,7 @@ class OrderItem implements JsonSerializable {
 	 * @return int
 	 */
 	public function get_ship_station_order_id(): int {
-		return (int) $this->ship_station_order_id;
+		return $this->ship_station_order_id;
 	}
 
 	/**
@@ -496,5 +530,19 @@ class OrderItem implements JsonSerializable {
 	 */
 	public function get_total_quantities_in_order(): int {
 		return (int) $this->total_quantities_in_order;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function get_card_id(): int {
+		return $this->card_id;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function get_designer_id(): int {
+		return $this->designer_id;
 	}
 }
