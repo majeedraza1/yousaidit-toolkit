@@ -26,26 +26,52 @@
 			</tab>
 		</tabs>
 		<div style="position: fixed;bottom:15px;right:15px;z-index: 100">
-			<shapla-button fab theme="primary" size="large" @click="payNow">+</shapla-button>
+			<shapla-button fab theme="primary" size="large" @click="showModal = true">+</shapla-button>
 		</div>
-		<modal :active="showModal" title="New Payout" @close="showModal = false">
-			Are you sure to create a new payout to pay all unpaid commissions?
-		</modal>
+		<modal-box :active="showModal" title="New Payout" content-class="shapla-modal-confirm" :show-close-icon="false"
+				   :close-on-background-click="false">
+			<div class="shapla-modal-confirm__content">
+				<div class="shapla-modal-confirm__icon is-info">
+					<div class="shapla-modal-confirm__icon-content">!</div>
+				</div>
+				<h3 class="shapla-modal-confirm__title">Are you sure to create a new payout?</h3>
+				<div class="shapla-modal-confirm__message">
+					Only designers, whom unpaid commissions (for completed orders) are more than {{ min_amount }}, will
+					be paid.
+
+					<p>Choose order status to pay.</p>
+					<div class="text-left mt-4">
+						<template v-for="info in count_cards">
+							<shapla-checkbox v-if="info.status" :value="info.key" v-model="statuses_to_pay">
+								{{ info.status }}
+							</shapla-checkbox>
+						</template>
+					</div>
+				</div>
+			</div>
+			<div class="shapla-modal-confirm__actions">
+				<button class="shapla-button" @click.prevent="showModal = false">Cancel</button>
+				<button class="shapla-button is-primary" @click.prevent="payNow" :disabled="statuses_to_pay.length < 1">
+					Ok
+				</button>
+			</div>
+		</modal-box>
 	</div>
 </template>
 
 <script>
 import axios from "axios";
 import dataTable from 'shapla-data-table';
-import modal from 'shapla-modal';
+import {ModalBox} from 'shapla-modal';
 import {column, columns} from 'shapla-columns';
 import {tab, tabs} from 'shapla-tabs';
 import shaplaButton from 'shapla-button';
+import {shaplaCheckbox} from 'shapla-vue-components'
 import ReportCard from "../../../components/ReportCard";
 
 export default {
 	name: "PayPalPayouts",
-	components: {dataTable, columns, column, shaplaButton, tabs, tab, ReportCard, modal},
+	components: {dataTable, columns, column, shaplaButton, tabs, tab, ReportCard, ModalBox, shaplaCheckbox},
 	data() {
 		return {
 			showModal: false,
@@ -64,6 +90,7 @@ export default {
 				{key: 'view', label: 'View'},
 				{key: 'sync', label: 'Sync'},
 			],
+			statuses_to_pay: [],
 		}
 	},
 	mounted() {
@@ -105,32 +132,23 @@ export default {
 			});
 		},
 		payNow() {
-			let config = {
-				title: 'Are you sure to create a new payout?',
-				message: 'Only designers, whom unpaid commissions (for completed orders) are more than ' + this.min_amount + ', will be paid.',
-				icon: 'info'
-			};
-			this.$dialog.confirm(config).then(confirmed => {
-				if (confirmed) {
-					this.$store.commit('SET_LOADING_STATUS', true);
-					axios.post(window.DesignerProfile.restRoot + '/paypal-payouts').then(() => {
-						this.$store.commit('SET_LOADING_STATUS', false);
-						this.$store.commit('SET_NOTIFICATION', {
-							type: 'success',
-							title: 'Success',
-							message: 'Payout has been run successfully.'
-						});
-						this.getItems();
-					}).catch(errors => {
-						this.$store.commit('SET_LOADING_STATUS', false);
-						this.$store.commit('SET_NOTIFICATION', {
-							type: 'error',
-							title: 'Error',
-							message: errors.response.data.message
-						});
-					});
-				}
-			})
+			this.$store.commit('SET_LOADING_STATUS', true);
+			axios.post(window.DesignerProfile.restRoot + '/paypal-payouts', {order_status: this.statuses_to_pay}).then(() => {
+				this.$store.commit('SET_LOADING_STATUS', false);
+				this.$store.commit('SET_NOTIFICATION', {
+					type: 'success',
+					title: 'Success',
+					message: 'Payout has been run successfully.'
+				});
+				this.getItems();
+			}).catch(errors => {
+				this.$store.commit('SET_LOADING_STATUS', false);
+				this.$store.commit('SET_NOTIFICATION', {
+					type: 'error',
+					title: 'Error',
+					message: errors.response.data.message
+				});
+			});
 		}
 	}
 }

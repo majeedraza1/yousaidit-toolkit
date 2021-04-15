@@ -89,8 +89,17 @@ class PayPalPayoutController extends ApiController {
 			return $this->respondOK();
 		}
 
+		$order_status = $request->get_param( 'order_status' );
+		$statuses     = [];
+		if ( is_array( $order_status ) ) {
+			foreach ( $order_status as $status ) {
+				$statuses[] = str_replace( 'orders_status_', '', $status );
+			}
+		}
+		$statuses = count( $statuses ) ? $statuses : [ 'completed' ];
+
 		$min_amount = Settings::designer_minimum_amount_to_pay();
-		$payout     = PaypalPayoutsUtils::pay_unpaid_commissions( $min_amount, 'completed' );
+		$payout     = PaypalPayoutsUtils::pay_unpaid_commissions( $min_amount, $statuses );
 		if ( $payout instanceof WP_Error ) {
 			return $this->respondUnprocessableEntity( $payout->get_error_code(), $payout->get_error_message() );
 		}

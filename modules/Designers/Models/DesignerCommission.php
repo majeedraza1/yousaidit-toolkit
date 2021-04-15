@@ -421,9 +421,10 @@ class DesignerCommission extends DatabaseModel {
 				}
 
 				$cards[] = [
-					'key'   => 'orders_status_' . $result['order_status'],
-					'label' => 'Orders(' . $label . ') to Pay',
-					'count' => intval( $result['total'] )
+					'key'    => 'orders_status_' . $result['order_status'],
+					'label'  => 'Orders(' . $label . ') to Pay',
+					'count'  => intval( $result['total'] ),
+					'status' => $label,
 				];
 			}
 		}
