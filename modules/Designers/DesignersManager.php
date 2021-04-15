@@ -49,6 +49,7 @@ class DesignersManager {
 
 			CommissionCalculator::init();
 			DesignerCustomerProfile::init();
+			BackgroundCommissionSync::init();
 
 			if ( Utils::is_request( 'frontend' ) ) {
 				// Frontend

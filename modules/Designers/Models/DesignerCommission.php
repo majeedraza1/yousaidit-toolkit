@@ -502,6 +502,13 @@ class DesignerCommission extends DatabaseModel {
 
 			update_option( 'designer_commissions_table_version', '1.0.2' );
 		}
+
+		if ( version_compare( $option, '1.0.3', '<' ) ) {
+			$sql = "ALTER TABLE `{$table_name}` ADD `created_via` VARCHAR(50) NULL DEFAULT NULL AFTER `order_status`";
+			$wpdb->query( $sql );
+
+			update_option( 'designer_commissions_table_version', '1.0.3' );
+		}
 	}
 
 	/**

@@ -14,9 +14,17 @@ class BackgroundCommissionSync extends BackgroundProcess {
 	public static function init() {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self;
+
+			add_action( 'shutdown', [ self::$instance, 'save_and_dispatch' ] );
 		}
 
 		return self::$instance;
+	}
+
+	public function save_and_dispatch() {
+		if ( ! empty( $this->data ) ) {
+			$this->save()->dispatch();
+		}
 	}
 
 	/**
@@ -38,10 +46,8 @@ class BackgroundCommissionSync extends BackgroundProcess {
 
 	/**
 	 * Sync commission
-	 *
-	 * @param array $items
 	 */
-	public static function sync_orders( array $items = [] ) {
+	public static function sync_orders() {
 		$last_sync    = get_option( 'last_commission_sync_time' );
 		$one_hour_ago = time() - HOUR_IN_SECONDS;
 		// Only sync once in one hour
@@ -49,8 +55,9 @@ class BackgroundCommissionSync extends BackgroundProcess {
 			return;
 		}
 
-		if ( count( $items ) < 1 ) {
-			$items = ShipStationApi::init()->get_orders();
+		$items = ShipStationApi::init()->get_orders();
+		if ( ! isset( $items['orders'] ) ) {
+			return;
 		}
 		foreach ( $items['orders'] as $order ) {
 			$_order = new Order( $order );
@@ -68,11 +75,13 @@ class BackgroundCommissionSync extends BackgroundProcess {
 					'total_commission' => $order_item->get_designer_commission() * $order_item->get_quantity(),
 					'card_size'        => $order_item->get_card_size(),
 					'order_status'     => $_order->get_order_status(),
+					'payment_status'   => 'unpaid',
+					'created_via'      => 'shipstation-api',
 				];
 				self::init()->push_to_queue( $data );
 			}
 		}
 
-		update_option( 'last_commission_sync_time', time() );
+		update_option( 'last_commission_sync_time', time(), false );
 	}
 }
