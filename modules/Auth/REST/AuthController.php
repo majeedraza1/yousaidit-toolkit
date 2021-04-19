@@ -105,6 +105,7 @@ class AuthController extends ApiController {
 
 		$provider = $request->get_param( 'provider' );
 		$provider = in_array( $provider, SocialAuthProvider::get_providers() ) ? $provider : 'default';
+		$email    = $request->get_param( 'email' );
 
 		if ( 'default' == $provider ) {
 			if ( ! ( username_exists( $username ) || email_exists( $username ) ) ) {
@@ -116,6 +117,21 @@ class AuthController extends ApiController {
 			$provider_id = $request->get_param( 'provider_id' );
 			/** @var WP_User|WP_Error $user */
 			$user = SocialAuthProvider::authenticate( $provider, $provider_id );
+
+			if ( ! $user instanceof WP_User && is_email( $email ) ) {
+				$_user = get_user_by( 'email', $email );
+				if ( $_user instanceof WP_User ) {
+					$data = [
+						'user_id'       => $_user->ID,
+						'email_address' => $email,
+						'provider'      => $provider,
+						'provider_id'   => $provider_id,
+					];
+
+					SocialAuthProvider::create_or_update( $data );
+					$user = $_user;
+				}
+			}
 		}
 
 		if ( is_wp_error( $user ) ) {
@@ -210,6 +226,7 @@ class AuthController extends ApiController {
 			return $this->respondInternalServerError();
 		}
 		SocialAuthProvider::create_or_update( [
+			'user_id'       => $user->ID,
 			'provider'      => $provider,
 			'provider_id'   => $provider_id,
 			'email_address' => $email,
