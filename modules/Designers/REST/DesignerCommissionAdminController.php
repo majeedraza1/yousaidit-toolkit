@@ -7,6 +7,7 @@ use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
 use YouSaidItCards\Modules\Designers\Models\DesignerCommission;
+use YouSaidItCards\Utilities\MarketPlace;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -47,7 +48,8 @@ class DesignerCommissionAdminController extends ApiController {
 	 *
 	 * @param WP_REST_Request $request Full data about the request.
 	 *
-	 * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
+	 * @return WP_REST_Response Response object on success, or WP_Error object on failure.
+	 * @throws \Exception
 	 */
 	public function get_item( $request ) {
 		if ( ! current_user_can( 'manage_options' ) ) {
@@ -89,6 +91,10 @@ class DesignerCommissionAdminController extends ApiController {
 		$count      = ( new DesignerCommission )->count_records( $args );
 		$pagination = static::get_pagination_data( $count, $per_page, $page );
 
-		return $this->respondOK( [ 'commissions' => $items, 'pagination' => $pagination ] );
+		return $this->respondOK( [
+			'commissions'  => $items,
+			'pagination'   => $pagination,
+			'marketplaces' => MarketPlace::all(),
+		] );
 	}
 }

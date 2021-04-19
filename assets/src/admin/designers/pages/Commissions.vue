@@ -20,6 +20,11 @@
 					<span slot="payment_status" slot-scope="data" :class="`payment-status--${data.row.payment_status}`">
 						{{ data.row.payment_status }}
 					</span>
+					<template v-slot:marketplace="data">
+						<span v-for="_market in marketplaces" v-if="_market.key === data.row.marketplace">
+						{{ _market.label }}
+						</span>
+					</template>
 					<template slot="order_id" slot-scope="data">
 						<a v-if="data.row.created_via !== 'shipstation-api'" :href="`/wp-admin/post.php?post=${data.row.order_id}&action=edit`" target="_blank">
 							#{{ data.row.order_id }}
@@ -96,11 +101,13 @@ export default {
 	data() {
 		return {
 			commissions: [],
+			marketplaces: [],
 			columns: [
 				{key: 'order_id', label: 'Order'},
 				{key: 'product_title', label: 'Title'},
 				{key: 'designer_name', label: 'Designer'},
 				{key: 'card_size', label: 'Card Size'},
+				{key: 'marketplace', label: 'Marketplace'},
 				{key: 'created_at', label: 'Sale Date'},
 				{key: 'payment_status', label: 'Payment Status'},
 				{key: 'order_quantity', label: 'Qty', numeric: true},
@@ -184,6 +191,7 @@ export default {
 			}).then(response => {
 				let data = response.data.data;
 				this.commissions = data.commissions;
+				this.marketplaces = data.marketplaces;
 				this.total_items = data.pagination.total_items;
 				this.show_filter_sidenav = false;
 				this.$store.commit('SET_LOADING_STATUS', false);

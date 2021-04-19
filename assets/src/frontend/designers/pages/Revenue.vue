@@ -16,11 +16,13 @@
 		</columns>
 		<tabs alignment="center" size="medium" @tab:change="handleTabChange">
 			<tab name="Today's Orders" selected>
-				<data-table
-					:show-cb="false"
-					:items="commissions"
-					:columns="columns"
-				/>
+				<data-table :show-cb="false" :items="commissions" :columns="columns">
+					<template v-slot:marketplace="data">
+						<span v-for="_market in marketplaces" v-if="_market.key === data.row.marketplace">
+							{{ _market.label }}
+						</span>
+					</template>
+				</data-table>
 			</tab>
 			<tab name="Previous Orders">
 				<columns multiline>
@@ -41,11 +43,13 @@
 						</div>
 					</column>
 					<column :tablet="12">
-						<data-table
-							:show-cb="false"
-							:items="commissions"
-							:columns="columns"
-						/>
+						<data-table :show-cb="false" :items="commissions" :columns="columns">
+							<template v-slot:marketplace="data">
+								<span v-for="_market in marketplaces" v-if="_market.key === data.row.marketplace">
+									{{ _market.label }}
+								</span>
+							</template>
+						</data-table>
 						<div class="mt-4">
 							<pagination :total_items="total_items" :per_page="per_page"
 										:current_page="revenue_current_page" @pagination="paginate"/>
@@ -76,6 +80,7 @@ export default {
 			columns: [
 				{key: 'product_title', label: 'Title'},
 				{key: 'card_size', label: 'Card Size'},
+				{key: 'marketplace', label: 'Marketplace'},
 				{key: 'created_at', label: 'Sale Date'},
 				{key: 'order_quantity', label: 'Qty', numeric: true},
 				{key: 'total_commission', label: 'Total Commission', numeric: true},
@@ -99,6 +104,9 @@ export default {
 		total_items() {
 			return this.$store.state.total_commissions_items;
 		},
+		marketplaces() {
+			return DesignerProfile.marketPlaces;
+		}
 	},
 	mounted() {
 		let user = DesignerProfile.user;
