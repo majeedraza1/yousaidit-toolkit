@@ -280,6 +280,18 @@ class SettingPage {
 		] );
 
 		$setting->set_field( [
+			'id'                => 'shipstation_yousaidit_trade_store_id',
+			'type'              => 'select',
+			'title'             => __( 'Store 1: You Said It Cards - Trade' ),
+			'description'       => __( 'ShipStation store for You Said It Cards - Trade' ),
+			'default'           => '',
+			'priority'          => 10,
+			'sanitize_callback' => 'sanitize_text_field',
+			'section'           => 'section_marketplace',
+			'options'           => self::get_market_places(),
+		] );
+
+		$setting->set_field( [
 			'id'                => 'shipstation_etsy_store_id',
 			'type'              => 'select',
 			'title'             => __( 'Store 1: Etsy' ),
@@ -317,7 +329,9 @@ class SettingPage {
 	}
 
 	public static function get_market_places(): array {
-		$items  = [];
+		$items  = [
+			"" => "-- Select Store --"
+		];
 		$stores = ShipStationApi::init()->get_stores();
 		if ( is_array( $stores ) ) {
 			foreach ( $stores as $store ) {

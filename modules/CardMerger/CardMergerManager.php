@@ -42,18 +42,19 @@ class CardMergerManager {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			die( 'Only admin can perform this action.' );
 		}
-		$order_id = isset( $_REQUEST['order_id'] ) ? intval( $_REQUEST['order_id'] ) : 0;
-		$order    = get_transient( 'some_temp' );
+		$order_id       = isset( $_REQUEST['order_id'] ) ? intval( $_REQUEST['order_id'] ) : 0;
+		$transient_name = 'shipstation_order_' . $order_id;
+		$order          = get_transient( $transient_name );
 		if ( ! is_array( $order ) ) {
 			$order = ShipStationApi::init()->get_order( $order_id );
-			set_transient( 'some_temp', $order );
+			set_transient( $transient_name, $order, DAY_IN_SECONDS );
 		}
-//		header( 'Content-type: text/json' );
+		header( 'Content-type: text/json' );
 		if ( is_array( $order ) ) {
 			$order = new Order( $order );
-			echo "<pre><code>";
-			var_dump( $order );
-			echo "</code></pre>";
+//			echo "<pre><code>";
+			echo wp_json_encode( $order->to_array() );
+//			echo "</code></pre>";
 		} else {
 			var_dump( $order );
 		}

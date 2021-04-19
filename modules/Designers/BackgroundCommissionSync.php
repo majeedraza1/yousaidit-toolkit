@@ -3,9 +3,11 @@
 namespace YouSaidItCards\Modules\Designers;
 
 use Stackonet\WP\Framework\Abstracts\BackgroundProcess;
+use Stackonet\WP\Framework\Supports\Logger;
 use YouSaidItCards\Modules\Designers\Models\DesignerCommission;
 use YouSaidItCards\ShipStation\Order;
 use YouSaidItCards\ShipStation\ShipStationApi;
+use YouSaidItCards\Utilities\MarketPlace;
 
 class BackgroundCommissionSync extends BackgroundProcess {
 
@@ -35,7 +37,10 @@ class BackgroundCommissionSync extends BackgroundProcess {
 		$order_item_id = isset( $item['order_item_id'] ) ? intval( $item['order_item_id'] ) : 0;
 		$commission    = DesignerCommission::find_for_order( $order_id, $order_item_id );
 		if ( $commission instanceof DesignerCommission ) {
+			$commission->set( 'item_commission', $item['item_commission'] );
+			$commission->set( 'total_commission', $item['total_commission'] );
 			$commission->set( 'order_status', $item['order_status'] );
+			$commission->set( 'marketplace', $item['marketplace'] );
 			$commission->update();
 		} else {
 			( new DesignerCommission )->create( $item );
@@ -52,7 +57,7 @@ class BackgroundCommissionSync extends BackgroundProcess {
 		$one_hour_ago = time() - HOUR_IN_SECONDS;
 		// Only sync once in one hour
 		if ( is_numeric( $last_sync ) && $last_sync > $one_hour_ago ) {
-			return;
+//			return;
 		}
 
 		$items = ShipStationApi::init()->get_orders();
@@ -65,6 +70,9 @@ class BackgroundCommissionSync extends BackgroundProcess {
 				if ( ! $order_item->has_designer_commission() ) {
 					continue;
 				}
+				if ( ! ( $order_item->get_designer_commission() > 0 ) ) {
+					continue;
+				}
 				$data = [
 					'card_id'          => $order_item->get_card_id(),
 					'designer_id'      => $order_item->get_designer_id(),
@@ -75,6 +83,7 @@ class BackgroundCommissionSync extends BackgroundProcess {
 					'total_commission' => $order_item->get_designer_commission() * $order_item->get_quantity(),
 					'card_size'        => $order_item->get_card_size(),
 					'order_status'     => $_order->get_order_status(),
+					'marketplace'      => MarketPlace::get_store_key( $_order->get_store_id() ),
 					'payment_status'   => 'unpaid',
 					'created_via'      => 'shipstation-api',
 				];

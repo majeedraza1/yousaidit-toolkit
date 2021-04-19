@@ -173,7 +173,7 @@ class DesignerCommission extends DatabaseModel {
 		$sql .= $wpdb->prepare( " AND order_id = %d", intval( $order_id ) );
 		$sql .= $wpdb->prepare( " AND order_item_id = %d", intval( $order_item_id ) );
 
-		$result = $wpdb->get_col( $sql, ARRAY_A );
+		$result = $wpdb->get_row( $sql, ARRAY_A );
 		if ( $result ) {
 			return new self( $result );
 		}
@@ -512,6 +512,13 @@ class DesignerCommission extends DatabaseModel {
 			$wpdb->query( $sql );
 
 			update_option( 'designer_commissions_table_version', '1.0.3' );
+		}
+
+		if ( version_compare( $option, '1.0.4', '<' ) ) {
+			$sql = "ALTER TABLE `{$table_name}` ADD `marketplace` VARCHAR(50) NULL DEFAULT NULL AFTER `card_size`";
+			$wpdb->query( $sql );
+
+			update_option( 'designer_commissions_table_version', '1.0.4' );
 		}
 	}
 

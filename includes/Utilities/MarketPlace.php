@@ -23,7 +23,7 @@ class MarketPlace {
 				'key'     => 'yousaidit-trade',
 				'label'   => 'You Said It Cards - Trade',
 				'logo'    => Assets::get_assets_url( '/images/logo-yousaidit-trade.png' ),
-				'storeId' => 0,
+				'storeId' => (int) SettingPage::get_option( 'shipstation_yousaidit_trade_store_id' ),
 			],
 			[
 				'key'     => 'etsy',
@@ -62,6 +62,22 @@ class MarketPlace {
 		return false;
 	}
 
+	/**
+	 * @param int $store_id
+	 *
+	 * @return string|null
+	 */
+	public static function get_store_key( int $store_id ): ?string {
+		$store = self::get( $store_id );
+
+		return is_array( $store ) ? $store['key'] : null;
+	}
+
+	/**
+	 * ShipStation order status
+	 *
+	 * @return array
+	 */
 	public static function get_shipstation_order_status(): array {
 		return [
 			'awaiting_payment'    => __( 'Awaiting Payment' ),

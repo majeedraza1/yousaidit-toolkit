@@ -29,7 +29,7 @@
 			<shapla-button fab theme="primary" size="large" @click="showModal = true">+</shapla-button>
 		</div>
 		<modal-box :active="showModal" title="New Payout" content-class="shapla-modal-confirm" :show-close-icon="false"
-				   :close-on-background-click="false">
+				   :close-on-background-click="false" content-size="small">
 			<div class="shapla-modal-confirm__content">
 				<div class="shapla-modal-confirm__icon is-info">
 					<div class="shapla-modal-confirm__icon-content">!</div>

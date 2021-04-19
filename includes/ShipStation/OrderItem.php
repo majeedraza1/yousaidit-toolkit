@@ -109,6 +109,7 @@ class OrderItem implements JsonSerializable {
 	protected $card_id = 0;
 	protected $designer_id = 0;
 	protected $designer_commission = 0;
+	protected $designer_commission_read = false;
 
 	/**
 	 * OrderItem constructor.
@@ -178,8 +179,8 @@ class OrderItem implements JsonSerializable {
 			$data['product_thumbnail'] = $url;
 			$data['card_id']           = $this->card_id;
 			$data['designer_id']       = $this->designer_id;
-			$data['commission']        = $this->designer_commission;
-			$data['total_commission']  = ( $this->designer_commission * $this->get_quantity() );
+			$data['commission']        = $this->get_designer_commission();
+			$data['total_commission']  = ( $this->get_designer_commission() * $this->get_quantity() );
 		}
 
 		$data = array_merge( $data, [
@@ -223,12 +224,12 @@ class OrderItem implements JsonSerializable {
 	 * @return float
 	 */
 	public function get_designer_commission(): float {
-		if ( $this->has_designer_commission() ) {
-			$store_info = MarketPlace::get( $this->store_id );
-			if ( is_array( $store_info ) ) {
-				$designer_card             = ( new DesignerCard )->find_by_id( $this->designer_id );
-				$this->designer_commission = $designer_card->get_commission( $this->get_card_size(), $store_info['key'] );
-			}
+		if ( $this->has_designer_commission() && $this->designer_commission_read === false ) {
+			$store_info                     = MarketPlace::get( $this->store_id );
+			$store_key                      = is_array( $store_info ) ? $store_info['key'] : null;
+			$designer_card                  = ( new DesignerCard )->find_by_id( $this->card_id );
+			$this->designer_commission      = $designer_card->get_commission( $this->get_card_size(), $store_key );
+			$this->designer_commission_read = true;
 		}
 
 		return (float) $this->designer_commission;
