@@ -111,6 +111,9 @@ class OrderItem implements JsonSerializable {
 	protected $designer_commission = 0;
 	protected $designer_commission_read = false;
 
+	protected $postcard_id = 0;
+	protected $has_postcard = false;
+
 	/**
 	 * OrderItem constructor.
 	 *
@@ -141,6 +144,7 @@ class OrderItem implements JsonSerializable {
 
 		// Check if item contains inner message
 		$this->read_inner_message();
+		$this->read_postcard();
 		$this->read_inner_message_info_for_web();
 
 		// Check item card size
@@ -183,7 +187,7 @@ class OrderItem implements JsonSerializable {
 			$data['total_commission']  = ( $this->get_designer_commission() * $this->get_quantity() );
 		}
 
-		$data = array_merge( $data, [
+		return array_merge( $data, [
 			'art_work'          => $this->get_art_work(),
 			'attached_file'     => $this->get_attached_file(),
 			'pdf_id'            => $this->get_pdf_id(),
@@ -191,8 +195,6 @@ class OrderItem implements JsonSerializable {
 			'inner_message'     => $this->get_inner_message(),
 			'card_size'         => $this->get_card_size(),
 		] );
-
-		return $data;
 	}
 
 	/**
@@ -240,7 +242,11 @@ class OrderItem implements JsonSerializable {
 	 *
 	 * @return int
 	 */
-	public function get_pdf_id() {
+	public function get_pdf_id(): int {
+		if ( $this->has_postcard() ) {
+			return $this->postcard_id;
+		}
+
 		return $this->pdf_id;
 	}
 
@@ -445,6 +451,24 @@ class OrderItem implements JsonSerializable {
 		}
 	}
 
+	public function read_postcard() {
+		if ( count( $this->get_option() ) < 1 ) {
+			return;
+		}
+
+		$meta_keys = [ 'postcard ref' ];
+
+		foreach ( $this->get_option() as $option ) {
+			if ( ! isset( $option['name'], $option['value'] ) ) {
+				continue;
+			}
+			if ( in_array( strtolower( $option['name'] ), $meta_keys ) ) {
+				$this->postcard_id  = intval( $option['value'] );
+				$this->has_postcard = true;
+			}
+		}
+	}
+
 	/**
 	 * Read card size
 	 */
@@ -545,5 +569,19 @@ class OrderItem implements JsonSerializable {
 	 */
 	public function get_designer_id(): int {
 		return $this->designer_id;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function has_postcard(): bool {
+		return $this->has_postcard;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function get_postcard_id(): int {
+		return $this->postcard_id;
 	}
 }

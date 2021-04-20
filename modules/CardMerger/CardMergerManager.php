@@ -49,11 +49,11 @@ class CardMergerManager {
 			$order = ShipStationApi::init()->get_order( $order_id );
 			set_transient( $transient_name, $order, DAY_IN_SECONDS );
 		}
-		header( 'Content-type: text/json' );
+//		header( 'Content-type: text/json' );
 		if ( is_array( $order ) ) {
 			$order = new Order( $order );
 //			echo "<pre><code>";
-			echo wp_json_encode( $order->to_array() );
+			var_dump( $order );
 //			echo "</code></pre>";
 		} else {
 			var_dump( $order );
