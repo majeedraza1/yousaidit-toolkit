@@ -326,11 +326,14 @@ class ShippingCalculator {
 			$product_id   = isset( $line_item['product_id'] ) ? intval( $line_item['product_id'] ) : 0;
 			$variation_id = isset( $line_item['variation_id'] ) ? intval( $line_item['variation_id'] ) : 0;
 			$quantity     = isset( $line_item['quantity'] ) ? intval( $line_item['quantity'] ) : 0;
-			$product      = wc_get_product( $variation_id ? $variation_id : $product_id );
-			$tax_class    = $product->get_tax_class();
-			$price        = ( (float) $product->get_price() * $quantity );
-			$taxable      = $product->get_tax_status() == 'taxable';
-			$item_tax     = 0;
+			$product      = wc_get_product( $variation_id ?: $product_id );
+			if ( ! $product instanceof WC_Product ) {
+				continue;
+			}
+			$tax_class = $product->get_tax_class();
+			$price     = ( (float) $product->get_price() * $quantity );
+			$taxable   = $product->get_tax_status() == 'taxable';
+			$item_tax  = 0;
 			if ( $taxable ) {
 				$tax_rates = WC_Tax::find_rates( [
 					'country'   => $this->get_customer_prop( 'country' ),

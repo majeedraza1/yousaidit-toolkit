@@ -178,7 +178,7 @@ class InnerMessageManager {
 	 *
 	 * @return array
 	 */
-	public static function sanitize_inner_message_data( $data ) {
+	public static function sanitize_inner_message_data( $data ): array {
 		if ( ! is_array( $data ) ) {
 			return [];
 		}

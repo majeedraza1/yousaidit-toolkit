@@ -252,7 +252,7 @@ class OrderController extends ApiController {
 		$shipping_methods = WC()->shipping() ? WC()->shipping()->load_shipping_methods() : array();
 		$shipping_method  = $request->get_param( 'shipping_method' );
 		if ( ! array_key_exists( $shipping_method, $shipping_methods ) ) {
-			return $this->respondUnprocessableEntity();
+			return $this->respondUnprocessableEntity( null, 'shipping_method field is required.' );
 		}
 
 		$billing = $request->get_param( 'billing' );
@@ -287,7 +287,10 @@ class OrderController extends ApiController {
 		$customer_note = $request->get_param( 'customer_note' );
 
 		$shipping_method_instance_id = (int) $request->get_param( 'shipping_method_instance_id' );
-		$shipping_calculator         = new ShippingCalculator;
+		if ( empty( $shipping_method_instance_id ) ) {
+			return $this->respondUnprocessableEntity( null, 'shipping_method_instance_id field is required.' );
+		}
+		$shipping_calculator = new ShippingCalculator;
 		$shipping_calculator->set_shipping_address( $shipping );
 		$shipping_calculator->set_line_items( $line_items );
 		$shipping_calculator->set_shipping_method_id( $shipping_method );
@@ -352,6 +355,9 @@ class OrderController extends ApiController {
 
 		// Set payment gateway
 		$payment_method = $request->get_param( 'payment_method' );
+		if ( empty( $payment_method ) ) {
+			return $this->respondUnprocessableEntity( null, 'payment_method is required.' );
+		}
 		$order->set_payment_method( $payment_method );
 		$order->set_payment_method_title( $request->get_param( 'payment_method_title' ) );
 
