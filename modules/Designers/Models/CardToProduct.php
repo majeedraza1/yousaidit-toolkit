@@ -3,6 +3,7 @@
 namespace YouSaidItCards\Modules\Designers\Models;
 
 use WC_Data_Exception;
+use WC_Product_Attribute;
 use WC_Product_Simple;
 use WC_Product_Variable;
 use WP_Error;
@@ -83,6 +84,38 @@ class CardToProduct {
 		$product->set_category_ids( $designer_card->get( 'categories_ids' ) );
 		$product->set_tag_ids( $designer_card->get( 'tags_ids' ) );
 
+		$attributes = [];
+
+		// Add product attribute
+		$_attributes = $designer_card->get_attributes();
+		foreach ( $_attributes as $_attribute ) {
+			$taxonomy  = wc_attribute_taxonomy_name( $_attribute['attribute_name'] );
+			$attribute = new WC_Product_Attribute();
+			$attribute->set_id( $_attribute['attribute_id'] );
+			$attribute->set_name( $taxonomy );
+			$attribute->set_options( wp_list_pluck( $_attribute['options'], 'id' ) );
+			$attribute->set_visible( false );
+			$attribute->set_variation( false );
+			$attributes[] = $attribute;
+		}
+
+		// Add size attribute
+		$card_size_attr = CardSizeAttribute::init()->get_attribute();
+
+		$size_ids = [];
+		foreach ( $designer_card->get( 'card_sizes' ) as $_size ) {
+			$term       = get_term_by( 'slug', $_size, $card_size_attr->get_taxonomy() );
+			$size_ids[] = $term->term_id;
+		}
+
+		$card_size_attr->set_options( $size_ids );
+		$card_size_attr->set_visible( false );
+		$card_size_attr->set_variation( false );
+
+		$attributes[] = $card_size_attr;
+
+		$product->set_attributes( $attributes );
+
 		// Add card metadata
 		$product->add_meta_data( '_card_id', $designer_card->get( 'id' ) );
 		$product->add_meta_data( '_card_size', $card_size );
@@ -120,11 +153,11 @@ class CardToProduct {
 		$product->set_price( '' );
 
 		$options       = (array) get_option( 'yousaiditcard_designers_settings' );
-		$default_title = isset( $options['default_product_title'] ) ? $options['default_product_title'] : '';
+		$default_title = $options['default_product_title'] ?? '';
 		$default_title = str_replace( "{{card_title}}", $designer_card->get( 'card_title' ), $default_title );
 		$product->set_name( wp_filter_post_kses( $default_title ) );
 
-		$default_content = isset( $options['default_product_content'] ) ? $options['default_product_content'] : '';
+		$default_content = $options['default_product_content'] ?? '';
 		$default_content = str_replace( "{{card_title}}", $designer_card->get( 'card_title' ), $default_content );
 		$product->set_description( wp_filter_post_kses( $default_content ) );
 
@@ -146,12 +179,12 @@ class CardToProduct {
 		$_attributes = $designer_card->get_attributes();
 		foreach ( $_attributes as $_attribute ) {
 			$taxonomy  = wc_attribute_taxonomy_name( $_attribute['attribute_name'] );
-			$attribute = new \WC_Product_Attribute();
+			$attribute = new WC_Product_Attribute();
 			$attribute->set_id( $_attribute['attribute_id'] );
 			$attribute->set_name( $taxonomy );
 			$attribute->set_options( wp_list_pluck( $_attribute['options'], 'id' ) );
 			$attribute->set_visible( false );
-			$attribute->set_variation( true );
+			$attribute->set_variation( false );
 			$attributes[] = $attribute;
 		}
 
