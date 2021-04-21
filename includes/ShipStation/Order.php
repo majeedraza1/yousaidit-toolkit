@@ -439,7 +439,7 @@ class Order implements JsonSerializable {
 	 * @return array|static[]
 	 */
 	public static function get_orders_by_ids( array $ids, $args = [] ) {
-		$args['orderIds'] = $ids;
+		// $args['orderIds'] = $ids;
 
 		$items  = ShipStationApi::init()->get_orders( $args );
 		$orders = [];

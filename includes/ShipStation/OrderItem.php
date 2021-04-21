@@ -465,6 +465,12 @@ class OrderItem implements JsonSerializable {
 			if ( in_array( strtolower( $option['name'] ), $meta_keys ) ) {
 				$this->postcard_id  = intval( $option['value'] );
 				$this->has_postcard = true;
+
+				if ( $this->postcard_id ) {
+					$this->pdf_id     = $this->postcard_id;
+					$this->pdf_width  = (int) get_post_meta( $this->pdf_id, '_pdf_width_millimeter', true );
+					$this->pdf_height = (int) get_post_meta( $this->pdf_id, '_pdf_height_millimeter', true );
+				}
 			}
 		}
 	}

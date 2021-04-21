@@ -53,7 +53,7 @@ class OrderPostcardController extends ApiController {
 	 */
 	public function create_item( $request ) {
 		$files = UploadedFile::getUploadedFiles();
-		$card  = isset( $files['card'] ) ? $files['card'] : false;
+		$card  = $files['card'] ?? false;
 		if ( ! $card instanceof UploadedFile ) {
 			return $this->respondUnprocessableEntity();
 		}
@@ -95,7 +95,13 @@ class OrderPostcardController extends ApiController {
 		}
 
 		$pdf_id = Uploader::uploadSingleFile( $card );
+		if ( is_numeric( $pdf_id ) ) {
+			update_post_meta( $pdf_id, '_pdf_width_millimeter', $card_width );
+			update_post_meta( $pdf_id, '_pdf_height_millimeter', $card_height );
 
-		return $this->respondOK( [ 'pdf_id' => $pdf_id ] );
+			return $this->respondOK( [ 'pdf_id' => $pdf_id ] );
+		}
+
+		return $this->respondWithError( $pdf_id );
 	}
 }
