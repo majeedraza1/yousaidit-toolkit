@@ -1,7 +1,7 @@
 module.exports = {
 	// prefix: 'tw-',
 	purge: {
-		enabled: true,
+		// enabled: true,
 		content: [
 			'./assets/src/**/*.vue',
 			'./assets/src/**/*.js',
@@ -11,7 +11,12 @@ module.exports = {
 	},
 	darkMode: false, // or 'media' or 'class'
 	theme: {
-		extend: {},
+		extend: {
+			colors: {
+				"primary": '#e42f57',
+				"on-primary": '#ffffff',
+			},
+		},
 		screens: {
 			'sm': {'max': '767px'},
 			'md': {'min': '768px'},

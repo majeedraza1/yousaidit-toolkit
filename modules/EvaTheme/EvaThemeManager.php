@@ -22,6 +22,7 @@ class EvaThemeManager {
 			self::$instance = new self();
 
 			add_action( 'eva_before_header_left_end', [ self::$instance, 'banner' ] );
+			add_filter( 'wc_get_template', [ self::$instance, 'get_template' ], 10, 3 );
 		}
 
 		return self::$instance;
@@ -48,5 +49,13 @@ class EvaThemeManager {
 			</div>
 		</div>
 		<?php
+	}
+
+	public function get_template( $template, $template_name, $args ) {
+		if ( 'single-product/add-to-cart/variable.php' == $template_name ) {
+			$template = YOUSAIDIT_TOOLKIT_PATH . '/templates/woocommerce/variable.php';
+		}
+
+		return $template;
 	}
 }

@@ -21,9 +21,9 @@
   },
   "homepage": "https://github.com/stackonet/yousaidit-toolkit#readme",
   "scripts": {
-    "dev": "webpack --mode=development --progress --watch",
-    "dev-build": "webpack --mode=development",
-    "build": "webpack --mode=production"
+    "dev": "cross-env NODE_ENV=development webpack --mode=development --progress --watch",
+    "dev-build": "cross-env NODE_ENV=development webpack --mode=development",
+    "build": "cross-env NODE_ENV=production webpack --mode=production"
   },
   "browserslist": [
     "last 1 years"
@@ -39,6 +39,7 @@
     "babel-loader": "^8.2.2",
     "browser-sync": "^2.26.14",
     "browser-sync-webpack-plugin": "^2.3.0",
+    "cross-env": "^7.0.3",
     "css-loader": "^5.0.2",
     "file-loader": "^6.2.0",
     "html-webpack-plugin": "^5.1.0",

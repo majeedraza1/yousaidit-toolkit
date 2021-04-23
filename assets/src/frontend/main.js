@@ -1,3 +1,5 @@
+import './variation-swatches';
+
 let $ = window.jQuery;
 
 $(document).on('click', '[name="_show_rude_card"]', function () {

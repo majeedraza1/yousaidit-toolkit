@@ -39,6 +39,7 @@ class WooCommerceManager {
 			OrderController::init();
 			OrderPostcardController::init();
 			DataController::init();
+			VariationSwatch::init();
 		}
 
 		return self::$instance;
