@@ -30,9 +30,10 @@ class VariationSwatch {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self();
 
-//			add_filter( 'product_attributes_type_selector', [ self::$instance, 'add_attribute_types' ] );
+			add_filter( 'product_attributes_type_selector', [ self::$instance, 'add_attribute_types' ] );
 			add_action( 'admin_init', [ self::$instance, 'init_attribute_hooks' ] );
 			add_action( 'yousaidit_swatch/attribute_fields', [ self::$instance, 'product_attribute_field' ], 10, 3 );
+			add_action( 'woocommerce_product_option_terms', [ self::$instance, 'product_option_terms' ], 10, 2 );
 
 			// frontend
 			add_filter( 'woocommerce_dropdown_variation_attribute_options_html',
@@ -354,6 +355,47 @@ class VariationSwatch {
 		$html .= 'edit' == $mode ? '</td></tr>' : '</div>';
 
 		echo $html;
+	}
+
+	/**
+	 * Add selector for extra attribute types
+	 *
+	 * @param $taxonomy
+	 * @param $index
+	 */
+	public function product_option_terms( $taxonomy, $index ) {
+		if ( ! array_key_exists( $taxonomy->attribute_type, $this->get_types() ) ) {
+			return;
+		}
+
+		$taxonomy_name = wc_attribute_taxonomy_name( $taxonomy->attribute_name );
+		global $thepostid;
+
+		$product_id = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : $thepostid;
+		?>
+
+		<select multiple="multiple" data-placeholder="<?php esc_attr_e( 'Select terms', 'wcvs' ); ?>"
+				class="multiselect attribute_values wc-enhanced-select"
+				name="attribute_values[<?php echo $index; ?>][]">
+			<?php
+
+			$all_terms = get_terms( $taxonomy_name, apply_filters( 'woocommerce_product_attribute_terms', array(
+				'orderby'    => 'name',
+				'hide_empty' => false
+			) ) );
+			if ( $all_terms ) {
+				foreach ( $all_terms as $term ) {
+					echo '<option value="' . esc_attr( $term->term_id ) . '" ' . selected( has_term( absint( $term->term_id ), $taxonomy_name, $product_id ), true, false ) . '>' . esc_attr( apply_filters( 'woocommerce_product_attribute_term_name', $term->name, $term ) ) . '</option>';
+				}
+			}
+			?>
+		</select>
+		<button class="button plus select_all_attributes"><?php esc_html_e( 'Select all', 'wcvs' ); ?></button>
+		<button class="button minus select_no_attributes"><?php esc_html_e( 'Select none', 'wcvs' ); ?></button>
+		<button class="button fr plus tawcvs_add_new_attribute"
+				data-type="<?php echo $taxonomy->attribute_type ?>"><?php esc_html_e( 'Add new', 'wcvs' ); ?></button>
+
+		<?php
 	}
 
 	/**
