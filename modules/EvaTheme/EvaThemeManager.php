@@ -23,9 +23,17 @@ class EvaThemeManager {
 
 			add_action( 'eva_before_header_left_end', [ self::$instance, 'banner' ] );
 			add_filter( 'wc_get_template', [ self::$instance, 'get_template' ], 10, 3 );
+
+			// Modify title design
+			remove_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_title', 5 );
+			add_action( 'woocommerce_single_product_summary', [ self::$instance, 'single_title' ] );
 		}
 
 		return self::$instance;
+	}
+
+	public function single_title() {
+		echo 'Title';
 	}
 
 	public static function banner() {
@@ -52,8 +60,9 @@ class EvaThemeManager {
 	}
 
 	public function get_template( $template, $template_name, $args ) {
-		if ( 'single-product/add-to-cart/variable.php' == $template_name ) {
-			$template = YOUSAIDIT_TOOLKIT_PATH . '/templates/woocommerce/variable.php';
+		$path = YOUSAIDIT_TOOLKIT_PATH . '/templates/woocommerce/' . $template_name;
+		if ( file_exists( $path ) ) {
+			$template = $path;
 		}
 
 		return $template;

@@ -118,7 +118,7 @@ class CardDesigner implements JsonSerializable {
 	}
 
 	/**
-	 * @param int   $designer_id
+	 * @param int $designer_id
 	 * @param array $filters
 	 *
 	 * @return array List of product ids
@@ -321,7 +321,7 @@ class CardDesigner implements JsonSerializable {
 	}
 
 	/**
-	 * @param int   $user_id
+	 * @param int $user_id
 	 * @param array $data
 	 *
 	 * @return int|\WP_Error
@@ -335,7 +335,7 @@ class CardDesigner implements JsonSerializable {
 	/**
 	 * Update user meta
 	 *
-	 * @param int   $user_id
+	 * @param int $user_id
 	 * @param array $data
 	 */
 	public function update_meta_data( $user_id, array $data ) {
@@ -447,13 +447,16 @@ class CardDesigner implements JsonSerializable {
 	 *
 	 * @return string
 	 */
-	public function get_profile_link_card() {
+	public function get_profile_link_card(): string {
 		$url  = $this->get_products_url();
-		$html = '<a class="yousaidti-card yousaidti-card--creator" href="' . esc_url( $url ) . '">';
-		$html .= '<span class="shapla-image-container has-rounded-image">';
-		$html .= "<img src='" . $this->get_avatar_url() . "' width='48' height='48' />";
-		$html .= '</span>';
+		$html = '<a class="yousaidit-card yousaidit-card--creator" href="' . esc_url( $url ) . '">';
+		$html .= '<span class="yousaidit-card__author">';
+		$html .= "<span>" . __( 'Designed by', 'yousaidit-toolkit' ) . "</span>";
 		$html .= "<span>" . $this->get_user()->display_name . "</span>";
+		$html .= '</span>';
+		$html .= '<span class="yousaidit-card__avatar shapla-image-container has-rounded-image">';
+		$html .= "<img class='yousaidit-card__avatar-image' src='" . $this->get_avatar_url() . "' />";
+		$html .= '</span>';
 		$html .= '</a>';
 
 		return $html;

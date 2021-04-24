@@ -40,7 +40,7 @@ class DesignerProfile {
 			 * @see https://github.com/stackonet/stackonet-yousaidit-toolkit/issues/29
 			 */
 			// add_action( 'woocommerce_after_shop_loop_item_title', [ self::$instance, 'show_designer_name' ], 99 );
-			add_action( 'woocommerce_single_product_summary', [ self::$instance, 'show_designer_name' ], 99 );
+			// add_action( 'woocommerce_single_product_summary', [ self::$instance, 'show_designer_name' ], 99 );
 		}
 
 		return self::$instance;

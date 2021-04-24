@@ -46,3 +46,32 @@
 		@apply border-primary bg-black bg-opacity-5;
 	}
 }
+
+.product_title_container {
+	@apply flex;
+
+	h1.product_title {
+		font-size: 1.75rem;
+		display: flex;
+		flex-grow: 1;
+	}
+}
+
+.yousaidit-card {
+	@apply inline-flex items-center justify-end;
+	min-width: 150px;
+
+	&__author {
+		@apply inline-flex flex-col bg-gray-200 p-2 pr-12 text-xs;
+	}
+
+	&__avatar {
+		@apply border-4 border-solid border-gray-400 rounded-full -ml-8;
+
+		img {
+			@apply rounded-full;
+			width: 56px;
+			height: 56px;
+		}
+	}
+}
