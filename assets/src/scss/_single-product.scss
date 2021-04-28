@@ -75,3 +75,19 @@
 		}
 	}
 }
+
+.button--add-inner-message {
+	margin-top: 20px;
+	margin-right: 20px;
+	background-color: white !important;
+
+	span {
+		color: #323232;
+	}
+}
+
+.inner-message-cost {
+	+ button {
+		width: 100%;
+	}
+}

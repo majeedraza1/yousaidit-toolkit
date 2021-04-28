@@ -15,7 +15,8 @@ $.fn.yousaidit_variation_swatches_form = function () {
 				let $el = $(this),
 					$select = $el.closest('.value').find('select'),
 					$radio = $el.find('input[type=radio]'),
-					value = $el.attr('data-value');
+					value = $el.attr('data-value'),
+					attribute = $el.closest('.swatch');
 
 				if ($el.hasClass('disabled')) {
 					return;

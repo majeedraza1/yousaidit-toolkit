@@ -1,21 +1,23 @@
 <template>
-	<div class="yousaidit-inner-message-compose">
-		<columns multiline>
-			<column :tablet="6">
+	<div class="yousaidit-inner-message-compose flex flex-col h-full">
+		<div class="h-full flex flex-wrap">
+			<div class="flex items-center justify-center flex-grow" id="editable-content-container">
 				<editable-content
+					class="shadow-lg sm:mb-4"
 					placeholder="Please click here to write your message"
 					:font-family="font_family"
 					:font-size="font_size"
 					:text-align="alignment"
 					:color="color"
 					v-model="message"
+					:card-size="cardSize"
 				/>
 				<div v-if="showLengthError" class="has-error p-4 my-4">
 					Oops... your message is too long, please keep inside the box.
 				</div>
-			</column>
-			<column :tablet="6">
-				<div>
+			</div>
+			<div>
+				<div class="flex flex-col h-full bg-gray-100 w-80 ml-auto">
 					<tabs>
 						<tab name="Font" selected>
 							<div class="inner-message-font-families">
@@ -66,12 +68,14 @@
 							<emoji-picker @select="selectEmoji"/>
 						</tab>
 					</tabs>
+					<div class="flex-grow"></div>
+					<div class="flex space-x-2 p-4 mt-4">
+						<shapla-button theme="primary" outline @click="$emit('close')" class="flex-grow">Cancel
+						</shapla-button>
+						<shapla-button theme="primary" @click="submit" class="flex-grow">Add to Basket</shapla-button>
+					</div>
 				</div>
-			</column>
-		</columns>
-		<div class="yousaidit-inner-message__actions">
-			<shapla-button theme="default" @click="$emit('close')">Cancel</shapla-button>
-			<shapla-button theme="primary" @click="submit">Confirm</shapla-button>
+			</div>
 		</div>
 	</div>
 </template>
@@ -91,6 +95,10 @@ export default {
 	name: "Compose",
 	components: {
 		EmojiPicker, EditableContent, selectField, tabs, tab, columns, column, radioButton, shaplaButton
+	},
+	props: {
+		cardSize: {type: String},
+		active: {type: Boolean, default: false},
 	},
 	data() {
 		return {
@@ -140,7 +148,15 @@ export default {
 				editor = content.querySelector('.editable-content__editor');
 
 			this.showLengthError = editor.offsetHeight > (0.95 * content.offsetHeight);
+		},
+		active(newValue) {
+			if (newValue) {
+				let container = this.$el.querySelector('#editable-content-container');
+				console.log(container, container.offsetWidth, container.offsetHeight);
+			}
 		}
+	},
+	mounted() {
 	}
 }
 </script>
@@ -150,7 +166,7 @@ export default {
 @import url('https://fonts.googleapis.com/css2?family=Amatic+SC&family=Caveat&family=Cedarville+Cursive&family=Fontdiner+Swanky&family=Handlee&family=Indie+Flower&family=Josefin+Slab&family=Kranky&family=Lovers+Quarrel&family=Mountains+of+Christmas&family=Prata&family=Sacramento&display=swap');
 
 .inner-message-font-families {
-	max-height: 300px;
+	max-height: 65vh;
 	overflow-y: auto;
 }
 

@@ -27,6 +27,7 @@ class EvaThemeManager {
 			// Modify title design
 			remove_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_title', 5 );
 			add_action( 'woocommerce_single_product_summary', [ self::$instance, 'single_title' ] );
+			add_action( 'woocommerce_after_add_to_cart_quantity', [ self::$instance, 'inner_message' ] );
 		}
 
 		return self::$instance;
@@ -66,5 +67,11 @@ class EvaThemeManager {
 		}
 
 		return $template;
+	}
+
+	public function inner_message() {
+		global $product;
+		echo '<button type="submit" class="button btn1 bshadow button--add-inner-message"><span>Add inner message</span></button>';
+		echo '<span class="inner-message-cost">+ £0.49</span>';
 	}
 }

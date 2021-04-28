@@ -1,26 +1,27 @@
 <template>
-	<div class="editable-content" :class="`card-size--${cardSize}`">
-		<div class="editable-content__editor"
-			 :style="editorStyle"
-			 contenteditable="true"
-			 @focus="handleFocusEvent"
-			 @input="handleInputEvent"
-		>{{ placeholder }}
+	<div class="editable-content-container">
+		<div class="editable-content" :class="`card-size--${cardSize}`" :style="containerStyle">
+			<div class="editable-content__editor"
+				 :style="editorStyle"
+				 contenteditable="true"
+				 @focus="handleFocusEvent"
+				 @input="handleInputEvent"
+			>{{ placeholder }}
+			</div>
 		</div>
 	</div>
 </template>
 
 <script>
+import {imageContainer} from 'shapla-vue-components'
+
 export default {
 	name: "EditableContent",
+	components: {imageContainer},
 	props: {
 		value: {type: String},
 		placeholder: {type: String, default: ''},
-		cardSize: {
-			type: String,
-			default: 'square',
-			validator: value => ['square', 'a4', 'a5', 'a6'].indexOf(value) !== -1
-		},
+		cardSize: {type: String, default: 'square'},
 		fontFamily: {type: String,},
 		fontSize: {type: [String, Number], default: 12},
 		textAlign: {type: String, default: 'center'},
@@ -34,6 +35,26 @@ export default {
 	computed: {
 		textLength() {
 			return this.text.length;
+		},
+		paddingTop() {
+			if ('a4' === this.cardSize) {
+				return (100 / (426 / 2) * 303) + '%';
+			}
+			if ('a5' === this.cardSize) {
+				return (100 / (303 / 2) * 216) + '%';
+			}
+			if ('a6' === this.cardSize) {
+				return (100 / (216 / 2) * 154) + '%';
+			}
+			if ('square' === this.cardSize) {
+				return (100 / (300 / 2) * 150) + '%';
+			}
+			return '100%';
+		},
+		containerStyle() {
+			let styles = [];
+			styles.push({'--padding-top': `${this.paddingTop}`});
+			return styles;
 		},
 		editorStyle() {
 			let styles = [];
@@ -79,9 +100,22 @@ export default {
 	align-items: center;
 	justify-content: center;
 	position: relative;
-	padding-top: 100%;
+	padding-top: var(--padding-top, 100%);
+
+	&-container {
+		position: relative;
+		max-height: 90vh;
+
+		width: 300px;
+		margin: 0 auto;
+		border: 1px solid rgba(#000, 0.12);
+		padding: 15px;
+	}
 
 	&.card-size--square {
+	}
+
+	&.card-size--a4 {
 	}
 
 	&__editor {
