@@ -2,7 +2,27 @@
 	<div class="yousaidit-designer-profile-card-modal">
 		<modal :active="active" content-size="large" @close="closeModal" :title="modalTitle"
 			   :close-on-background-click="false">
-			<columns v-if="current_step === 1" multiline>
+			<columns multiline v-if="current_step === 1">
+				<column :tablet="12">
+					<div class="w-full text-center">
+						<h2 class="text-xl">Choose Card size</h2>
+						<p>Please check the correct size of your design</p>
+					</div>
+				</column>
+				<column :tablet="6" class="md:flex items-center justify-end">
+					<div class="border border-solid w-36 h-36 flex items-center justify-center bg-gray-100">
+						<div class="text-lg">Square</div>
+					</div>
+				</column>
+				<column :tablet="6" class="md:flex items-center justify-start">
+					<div
+						class="border border-solid w-36 h-44 flex flex-col items-center justify-center bg-gray-100">
+						<div class="text-lg">A Size</div>
+						<div class="text-sm">(A6, A5 & A4)</div>
+					</div>
+				</column>
+			</columns>
+			<columns v-if="current_step === 2" multiline>
 				<column :tablet="12">
 					<text-field type="textarea" v-model="card.title" label="Title"
 								:has-error="!!errors.title"
@@ -86,7 +106,7 @@
 				</div>
 			</columns>
 
-			<columns multiline v-show="current_step === 2">
+			<columns multiline v-show="current_step === 3">
 				<column :tablet="12">
 					<toggles>
 						<toggle :name="`Upload files for size: ${getHeaderText(size)}`" :key="`upload-${size}`"
@@ -103,7 +123,7 @@
 				</column>
 			</columns>
 
-			<columns multiline v-if="current_step === 3">
+			<columns multiline v-if="current_step === 4">
 				<column :tablet="3"><strong>Title</strong></column>
 				<column :tablet="9">{{ card.title }}</column>
 
@@ -204,10 +224,10 @@
 			<template v-slot:foot>
 				<shapla-button v-if="current_step !== 1" @click="current_step--" theme="primary">Previous
 				</shapla-button>
-				<shapla-button v-if="current_step !== 3" @click="current_step++" theme="primary"
+				<shapla-button v-if="current_step !== 4" @click="current_step++" theme="primary"
 							   :disabled="!can_go_next_step">Next
 				</shapla-button>
-				<shapla-button v-if="current_step === 3" theme="primary" @click="handleSubmit">Submit</shapla-button>
+				<shapla-button v-if="current_step === 4" theme="primary" @click="handleSubmit">Submit</shapla-button>
 			</template>
 		</modal>
 	</div>
@@ -268,13 +288,13 @@ export default {
 	},
 	computed: {
 		can_go_next_step() {
-			if (this.current_step === 1) {
+			if (this.current_step === 2) {
 				if (this.card_attributes.length && !Object.keys(this.card.attributes).length) {
 					return false;
 				}
 				return !!(this.card.title.length > 1 && this.card.sizes.length && this.card.categories_ids.length);
 			}
-			if (this.current_step === 2) {
+			if (this.current_step === 3) {
 				return this.num_of_pdf_files === this.card.sizes.length;
 			}
 			// if (this.current_step === 2) {
