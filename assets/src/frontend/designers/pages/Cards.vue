@@ -44,18 +44,21 @@
 			<div class="m-8">
 				<div class="w-full text-center mb-4">
 					<h2 class="text-2xl text-primary">We are sorry, you have reached your card limit.</h2>
-					<p class="px-16 mb-8">Please fill in the form bellow for a member of our time to review your account and up your
+					<p class="px-16 mb-8">Please fill in the form bellow for a member of our time to review your account
+						and up your
 						limits.</p>
 				</div>
 				<columns>
 					<column :tablet="5">
-						<input type="text" class="w-full" placeholder="Username or Email">
+						<input type="text" class="w-full" placeholder="Username or Email" readonly
+							   v-model="limit_extend_request.username">
 					</column>
 					<column :tablet="5">
-						<input type="text" class="w-full" placeholder="Up Limit To?">
+						<input type="text" class="w-full" placeholder="Up Limit To?"
+							   v-model="limit_extend_request.up_limit_to">
 					</column>
 					<column :tablet="2">
-						<shapla-button theme="primary" fullwidth>Send</shapla-button>
+						<shapla-button theme="primary" fullwidth @click="submitLimitExtendRequest">Send</shapla-button>
 					</column>
 				</columns>
 			</div>
@@ -142,6 +145,10 @@ export default {
 				request_for: '',
 				message: '',
 			},
+			limit_extend_request: {
+				username: '',
+				up_limit_to: '',
+			},
 			statuses: [],
 			status: 'all',
 			comments: [],
@@ -163,6 +170,8 @@ export default {
 			this.cards.unshift(card);
 			window.location.reload();
 		});
+
+		this.limit_extend_request.username = this.user.display_name;
 	},
 	computed: {
 		...mapGetters(['user', 'card_categories', 'card_tags', 'card_attributes', 'card_sizes', 'market_places']),
@@ -174,6 +183,26 @@ export default {
 		},
 	},
 	methods: {
+		submitLimitExtendRequest() {
+			if (!this.limit_extend_request.up_limit_to) {
+				return this.$store.commit('SET_NOTIFICATION', {
+					type: 'error',
+					message: 'Please fill in "up limit to" field'
+				})
+			}
+			this.$store.commit('SET_LOADING_STATUS', true);
+			axios.post(DesignerProfile.restRoot + '/designers/extend-card-limit', this.limit_extend_request).then(() => {
+				this.modalActive = false;
+				this.$store.commit('SET_LOADING_STATUS', false);
+				this.$store.commit('SET_NOTIFICATION', {
+					type: 'success',
+					message: 'Your message has been sent.'
+				})
+			}).catch(errors => {
+				console.log(errors);
+				this.$store.commit('SET_LOADING_STATUS', false);
+			})
+		},
 		handleDeleteCard(card) {
 			this.$store.commit('SET_LOADING_STATUS', true);
 			axios.delete(window.DesignerProfile.restRoot + '/designers/' + this.user.id + '/cards/' + card.id, {

@@ -40,6 +40,18 @@ class Settings {
 	}
 
 	/**
+	 * Get email address
+	 *
+	 * @return string
+	 */
+	public static function email_for_card_limit_extension(): string {
+		$options = (array) get_option( 'yousaiditcard_designers_settings' );
+		$email   = $options['email_for_card_limit_extension'] ?? '';
+
+		return is_email( $email ) ? $email : get_option( 'admin_email' );
+	}
+
+	/**
 	 * Designer maximum allowed card
 	 *
 	 * @return int
@@ -151,6 +163,16 @@ class Settings {
 				'description'       => __( 'Designer maximum allowed card. Admin can allow more for individual designer.', 'stackonet-yousaidit-toolkit' ),
 				'priority'          => 55,
 				'sanitize_callback' => 'floatval',
+			],
+			[
+				'section'           => 'general_settings_section',
+				'id'                => 'email_for_card_limit_extension',
+				'type'              => 'text',
+				'title'             => __( 'Admin email address', 'stackonet-yousaidit-toolkit' ),
+				'description'       => __( 'Admin email address for receiving card limit extension request.', 'stackonet-yousaidit-toolkit' ),
+				'priority'          => 56,
+				'default'           => get_option( 'admin_email' ),
+				'sanitize_callback' => 'sanitize_text_field',
 			],
 			[
 				'section'           => 'product_settings_section',

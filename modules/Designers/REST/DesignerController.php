@@ -2,11 +2,14 @@
 
 namespace YouSaidItCards\Modules\Designers\REST;
 
+use Exception;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
 use WP_User_Query;
+use YouSaidItCards\Modules\Designers\Admin\Settings;
+use YouSaidItCards\Modules\Designers\Emails\Mailer;
 use YouSaidItCards\Modules\Designers\Models\CardDesigner;
 use YouSaidItCards\Modules\Designers\Models\DesignerCard;
 use YouSaidItCards\Modules\Designers\Models\DesignerCommission;
@@ -53,6 +56,13 @@ class DesignerController extends ApiController {
 			[ 'methods' => WP_REST_Server::READABLE, 'callback' => [ $this, 'get_item' ], ],
 			[ 'methods' => WP_REST_Server::EDITABLE, 'callback' => [ $this, 'update_item' ], ],
 			[ 'methods' => WP_REST_Server::DELETABLE, 'callback' => [ $this, 'delete_item' ], ],
+		] );
+
+		register_rest_route( $this->namespace, '/designers/extend-card-limit', [
+			[
+				'methods'  => WP_REST_Server::CREATABLE,
+				'callback' => [ $this, 'extend_card_limit' ],
+			],
 		] );
 	}
 
@@ -328,10 +338,45 @@ class DesignerController extends ApiController {
 	 *
 	 * @param WP_REST_Request $request Full data about the request.
 	 *
-	 * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
+	 * @return WP_REST_Response Response object on success, or WP_Error object on failure.
 	 */
 	public function delete_item( $request ) {
 		return $this->respondOK();
+	}
+
+	/**
+	 * Extend card limit request
+	 *
+	 * @param WP_REST_Request $request
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function extend_card_limit( WP_REST_Request $request ): WP_REST_Response {
+		$current_user = wp_get_current_user();
+		if ( ! $current_user->exists() ) {
+			return $this->respondUnauthorized();
+		}
+
+		$new_limit = (int) $request->get_param( 'up_limit_to' );
+
+		try {
+			$table_data = [
+				[ 'label' => 'User Email', 'value' => $current_user->user_email ],
+				[ 'label' => 'New Limit Request', 'value' => $new_limit ],
+			];
+			$mailer     = new Mailer();
+			$mailer->set_intro_lines( $mailer->all_fields_table( $table_data ) );
+			$mailer->set_greeting( 'Hello!' );
+			$mailer->setReceiver( Settings::email_for_card_limit_extension() );
+			$mailer->setSubject( __( 'Request to extend card limit.', 'ap-toolkit' ) );
+			$mailer->setFrom( $current_user->user_email, $current_user->display_name );
+			$mailer->setReplyTo( $current_user->user_email, $current_user->display_name );
+			$mailer->send();
+
+			return $this->respondOK();
+		} catch ( Exception $e ) {
+			return $this->respondInternalServerError();
+		}
 	}
 
 	/**
