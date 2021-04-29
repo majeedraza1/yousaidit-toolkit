@@ -58,7 +58,7 @@ class DesignerCardController extends ApiController {
 			$statuses[] = [
 				'key'    => $key,
 				'label'  => $label,
-				'count'  => isset( $counts[ $key ] ) ? $counts[ $key ] : 0,
+				'count'  => $counts[ $key ] ?? 0,
 				'active' => $key == $status,
 			];
 		}
@@ -127,9 +127,16 @@ class DesignerCardController extends ApiController {
 			'status'           => $status,
 		] );
 
+		$designer   = new CardDesigner( $current_user );
 		$counts     = ( new DesignerCard() )->count_records( $user_id );
 		$pagination = static::get_pagination_data( $counts[ $status ], $per_page, $page );
-		$response   = [ 'items' => $items, 'counts' => $counts, 'pagination' => $pagination ];
+		$response   = [
+			'items'                => $items,
+			'counts'               => $counts,
+			'pagination'           => $pagination,
+			'maximum_allowed_card' => $designer->get_maximum_allowed_card(),
+			'total_cards'          => $designer->get_total_cards_count(),
+		];
 
 		$response['statuses'] = static::get_statuses_with_counts( $counts, $status );
 

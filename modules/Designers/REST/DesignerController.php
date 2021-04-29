@@ -136,13 +136,15 @@ class DesignerController extends ApiController {
 		$total_orders      = ( new DesignerCommission() )->count_total_orders( $id );
 
 		return $this->respondOK( [
-			'designer'          => $designer,
-			'statuses'          => $this->get_statuses( $count ),
-			'total_commission'  => get_woocommerce_currency_symbol() . number_format( $commission, 2 ),
-			'unpaid_commission' => get_woocommerce_currency_symbol() . number_format( $unpaid_commission, 2 ),
-			'paid_commission'   => get_woocommerce_currency_symbol() . number_format( $paid_commission, 2 ),
-			'unique_customers'  => count( $unique_customers ),
-			'total_orders'      => $total_orders,
+			'designer'             => $designer->to_array(),
+			'statuses'             => $this->get_statuses( $count ),
+			'total_commission'     => get_woocommerce_currency_symbol() . number_format( $commission, 2 ),
+			'unpaid_commission'    => get_woocommerce_currency_symbol() . number_format( $unpaid_commission, 2 ),
+			'paid_commission'      => get_woocommerce_currency_symbol() . number_format( $paid_commission, 2 ),
+			'unique_customers'     => count( $unique_customers ),
+			'total_orders'         => $total_orders,
+			'maximum_allowed_card' => $designer->get_maximum_allowed_card(),
+			'total_cards'          => $designer->get_total_cards_count(),
 		] );
 	}
 

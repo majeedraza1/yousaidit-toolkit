@@ -10,13 +10,18 @@
 					</div>
 				</column>
 				<column :tablet="6" class="md:flex items-center justify-end">
-					<div class="border border-solid w-36 h-36 flex items-center justify-center bg-gray-100">
+					<div @click="card_size = 'square'"
+						 class="border border-solid border-gray-200 w-36 h-36 flex items-center justify-center bg-gray-100 cursor-pointer"
+						 :class="{'border-primary':card_size === 'square'}"
+					>
 						<div class="text-lg">Square</div>
 					</div>
 				</column>
 				<column :tablet="6" class="md:flex items-center justify-start">
-					<div
-						class="border border-solid w-36 h-44 flex flex-col items-center justify-center bg-gray-100">
+					<div @click="card_size = 'a'"
+						 class="border border-solid border-gray-200 w-36 h-44 flex flex-col items-center justify-center bg-gray-100 cursor-pointer"
+						 :class="{'border-primary':card_size === 'a'}"
+					>
 						<div class="text-lg">A Size</div>
 						<div class="text-sm">(A6, A5 & A4)</div>
 					</div>
@@ -24,48 +29,64 @@
 			</columns>
 			<columns v-if="current_step === 2" multiline>
 				<column :tablet="12">
-					<text-field type="textarea" v-model="card.title" label="Title"
-								:has-error="!!errors.title"
-								:validation-text="errors.title?errors.title[0]:''"
-								help-text="Write card title. Card title will be used as product title."
-								:rows="1"
+					<div class="w-full text-center">
+						<h2 class="text-xl">Card Details</h2>
+					</div>
+				</column>
+				<column :tablet="12">
+					<div class="flex items-center">
+						<div class="mr-4">
+							<shapla-switch v-model="card.rude_card" true-value="yes" false-value="no"/>
+						</div>
+						<span class="flex-grow">
+							<span class="bg-primary text-on-primary text-sm py-4 px-2 inline-block">Is your design classed as a rude card?</span>
+							<span class="bg-gray-100 text-sm py-4 px-2 inline-block">We class rude cards what contain words, phrases or themes of an adult content: e.i. swearing or innuendos.</span>
+						</span>
+					</div>
+				</column>
+				<column :tablet="6">
+					<text-field
+						type="textarea" v-model="card.title" label="Title"
+						:has-error="!!errors.title" :validation-text="errors.title?errors.title[0]:''" :rows="1"
+						help-text="Write card title. Card title will be used as product title."
+					/>
+				</column>
+				<column :tablet="6" style="display: none">
+					<select-field
+						v-model="card.sizes" :options="card_sizes" label="Size" multiple
+						:has-error="!!errors.sizes" :validation-text="errors.sizes?errors.sizes[0]:''"
+						help-text="Choose card size(s). You need to upload file for each selected size on next step."
 					/>
 				</column>
 				<column :tablet="6">
-					<select-field v-model="card.sizes" :options="card_sizes" label="Size" multiple
-								  :has-error="!!errors.sizes"
-								  :validation-text="errors.sizes?errors.sizes[0]:''"
-								  help-text="Choose card size(s). You need to upload file for each selected size on next step."
+					<select-field
+						v-model="card.categories_ids" :options="card_categories" label="Category"
+						label-key="name" value-key="id" multiple
+						:searchable="card_categories.length > 5"
+						singular-selected-text="category selected"
+						plural-selected-text="categories selected"
+						:has-error="!!errors.categories_ids"
+						:validation-text="errors.categories_ids?errors.categories_ids[0]:''"
+						help-text="Choose card category. Try to choose only one category but not more than three categories."
 					/>
 				</column>
 				<column :tablet="6">
-					<select-field v-model="card.categories_ids" :options="card_categories" label="Category"
-								  label-key="name" value-key="id" multiple
-								  :searchable="card_categories.length > 5"
-								  singular-selected-text="category selected"
-								  plural-selected-text="categories selected"
-								  :has-error="!!errors.categories_ids"
-								  :validation-text="errors.categories_ids?errors.categories_ids[0]:''"
-								  help-text="Choose card category. Try to choose only one category but not more than three categories."
+					<select-field
+						v-model="card.tags_ids" :options="card_tags" label="Tags"
+						label-key="name" value-key="id" multiple searchable
+						singular-selected-text="tag selected"
+						plural-selected-text="tags selected"
+						:has-error="!!errors.tags_ids"
+						:validation-text="errors.tags_ids?errors.tags_ids[0]:''"
+						help-text="Choose card tags. Choose as many tags as you need. Make sure tags are relevant to your card."
 					/>
 				</column>
 				<column :tablet="6">
-					<select-field v-model="card.tags_ids" :options="card_tags" label="Tags"
-								  label-key="name" value-key="id" multiple searchable
-								  singular-selected-text="tag selected"
-								  plural-selected-text="tags selected"
-								  :has-error="!!errors.tags_ids"
-								  :validation-text="errors.tags_ids?errors.tags_ids[0]:''"
-								  help-text="Choose card tags. Choose as many tags as you need. Make sure tags are relevant to your card."
-					/>
 					<div class="additional_tags">
-						Your tag not listed?
 						<shapla-switch v-model="has_suggest_tags" true-value="yes" false-value="no"
 									   label="Suggest a new tag."/>
 						<text-field
-							v-if="has_suggest_tags === 'yes'"
-							label="Tags"
-							type="textarea"
+							v-if="has_suggest_tags === 'yes'" label="Tags" type="textarea" :rows="1"
 							help-text="Write your suggested tags, separate by comma if you have multiple suggestion"
 							v-model="card.suggest_tags"
 						/>
@@ -75,16 +96,11 @@
 						v-if="card_attributes.length">
 					<select-field
 						v-model="card.attributes[attribute.attribute_name]"
-						:options="attribute.options"
-						:label="attribute.attribute_label"
+						:options="attribute.options" :label="attribute.attribute_label"
 						label-key="name" value-key="id" multiple :searchable="attribute.options.length > 5"
 						:has-error="!!(errors.attributes && errors.attributes[attribute.attribute_name])"
 						:validation-text="errors.attributes?errors.attributes[0]:''"
 					/>
-				</column>
-				<column :tablet="12">
-					<shapla-switch v-model="card.rude_card" true-value="yes" false-value="no">Is rude card?
-					</shapla-switch>
 				</column>
 				<div class="market-places">
 					<column :tablet="12">
@@ -92,14 +108,17 @@
 						<h4 class="section-subtitle">You can choose other market places for us to list your card on</h4>
 						<columns multiline>
 							<column :tablet="2" v-for="marketPlace in market_places" :key="marketPlace.key">
-								<shapla-switch
-									:value="marketPlace.key"
-									v-model="card.market_places"
-									@change="handleMarketPlaceChange"
-									:readonly="marketPlace.key === 'yousaidit'"
-								>
+								<div>
+									<div>
+										<shapla-switch
+											:value="marketPlace.key"
+											v-model="card.market_places"
+											@change="handleMarketPlaceChange"
+											:readonly="marketPlace.key === 'yousaidit'"
+										/>
+									</div>
 									<img :src="marketPlace.logo" :alt="marketPlace.key">
-								</shapla-switch>
+								</div>
 							</column>
 						</columns>
 					</column>
@@ -278,6 +297,7 @@ export default {
 				rude_card: 'no',
 				suggest_tags: '',
 			},
+			card_size: '',
 			pdf_files: {},
 			card_images: [],
 			card_image: {},
@@ -287,7 +307,22 @@ export default {
 		}
 	},
 	computed: {
+		chooseCardSize(cardSize) {
+			this.card.sizes = [];
+			if ('square' === cardSize) {
+				this.card.sizes.push('square');
+			} else {
+				this.card_sizes.forEach(card => {
+					if ('square' !== card.value) {
+						this.card.sizes.push(card.value);
+					}
+				})
+			}
+		},
 		can_go_next_step() {
+			if (this.current_step === 1) {
+				return !!this.card_size.length;
+			}
 			if (this.current_step === 2) {
 				if (this.card_attributes.length && !Object.keys(this.card.attributes).length) {
 					return false;
@@ -297,9 +332,6 @@ export default {
 			if (this.current_step === 3) {
 				return this.num_of_pdf_files === this.card.sizes.length;
 			}
-			// if (this.current_step === 2) {
-			// 	return !!this.card.image_id;
-			// }
 			return false;
 		},
 		num_of_pdf_files() {

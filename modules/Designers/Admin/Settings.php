@@ -40,6 +40,19 @@ class Settings {
 	}
 
 	/**
+	 * Designer maximum allowed card
+	 *
+	 * @return int
+	 */
+	public static function designer_maximum_allowed_card(): int {
+		$options = (array) get_option( 'yousaiditcard_designers_settings' );
+		$value   = isset( $options['designer_maximum_allowed_card'] ) ?
+			intval( $options['designer_maximum_allowed_card'] ) : 5;
+
+		return max( $value, 1 );
+	}
+
+	/**
 	 * Plugin settings
 	 */
 	public static function settings() {
@@ -128,6 +141,15 @@ class Settings {
 				'title'             => __( 'Min amount to pay', 'stackonet-yousaidit-toolkit' ),
 				'description'       => __( 'Enter minimum commission amount required to be payable. Value must be 1 or more.', 'stackonet-yousaidit-toolkit' ),
 				'priority'          => 50,
+				'sanitize_callback' => 'floatval',
+			],
+			[
+				'section'           => 'general_settings_section',
+				'id'                => 'designer_maximum_allowed_card',
+				'type'              => 'number',
+				'title'             => __( 'Max allowed card', 'stackonet-yousaidit-toolkit' ),
+				'description'       => __( 'Designer maximum allowed card. Admin can allow more for individual designer.', 'stackonet-yousaidit-toolkit' ),
+				'priority'          => 55,
 				'sanitize_callback' => 'floatval',
 			],
 			[

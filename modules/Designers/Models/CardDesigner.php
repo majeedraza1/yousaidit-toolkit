@@ -7,6 +7,7 @@ use WC_Product_Query;
 use WP_Role;
 use WP_User;
 use WP_User_Query;
+use YouSaidItCards\Modules\Designers\Admin\Settings;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -85,6 +86,7 @@ class CardDesigner implements JsonSerializable {
 		'vat_certificate_issue_date' => '',
 		'avatar_id'                  => 0,
 		'cover_photo_id'             => 0,
+		'maximum_allowed_card'       => 5,
 		'business_address'           => [],
 	];
 
@@ -167,23 +169,24 @@ class CardDesigner implements JsonSerializable {
 	 *
 	 * @return array
 	 */
-	public function to_array() {
+	public function to_array(): array {
 		$user = $this->get_user();
 
 		$data = [
-			'id'               => $user->ID,
-			'email'            => $user->user_email,
-			'display_name'     => $user->display_name,
-			'first_name'       => $user->first_name,
-			'last_name'        => $user->last_name,
-			'description'      => $user->description,
-			'user_url'         => $user->user_url,
-			'user_login'       => $user->user_login,
-			'avatar_url'       => $this->get_avatar_url(),
-			'cover_photo_url'  => $this->get_cover_photo_url(),
-			'total_cards'      => $this->get_total_cards_count(),
-			'profile_base_url' => $this->get_profile_base_url(),
-			'total_sales'      => 0,
+			'id'                   => $user->ID,
+			'email'                => $user->user_email,
+			'display_name'         => $user->display_name,
+			'first_name'           => $user->first_name,
+			'last_name'            => $user->last_name,
+			'description'          => $user->description,
+			'user_url'             => $user->user_url,
+			'user_login'           => $user->user_login,
+			'avatar_url'           => $this->get_avatar_url(),
+			'cover_photo_url'      => $this->get_cover_photo_url(),
+			'total_cards'          => $this->get_total_cards_count(),
+			'profile_base_url'     => $this->get_profile_base_url(),
+			'maximum_allowed_card' => $this->get_maximum_allowed_card(),
+			'total_sales'          => 0,
 		];
 
 		$cards = $this->get_user_cards();
@@ -207,6 +210,18 @@ class CardDesigner implements JsonSerializable {
 		}
 
 		return $data;
+	}
+
+	/**
+	 * Get maximum allowed card
+	 *
+	 * @return int
+	 */
+	public function get_maximum_allowed_card(): int {
+		$default = Settings::designer_maximum_allowed_card();
+		$max     = (int) get_user_meta( $this->get_user_id(), '_maximum_allowed_card', true );
+
+		return max( $max, $default );
 	}
 
 	/**
