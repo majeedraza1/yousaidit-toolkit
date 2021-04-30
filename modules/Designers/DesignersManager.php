@@ -11,6 +11,7 @@ use YouSaidItCards\Modules\Designers\Models\DesignerCard;
 use YouSaidItCards\Modules\Designers\Models\DesignerCommission;
 use YouSaidItCards\Modules\Designers\Models\Payment;
 use YouSaidItCards\Modules\Designers\Models\PaymentItem;
+use YouSaidItCards\Modules\Designers\REST\DesignerAdminController;
 use YouSaidItCards\Modules\Designers\REST\DesignerCardAdminController;
 use YouSaidItCards\Modules\Designers\REST\DesignerCardAttachmentController;
 use YouSaidItCards\Modules\Designers\REST\DesignerCardController;
@@ -70,6 +71,7 @@ class DesignersManager {
 				DesignerCommissionAdminController::init();
 				PayPalPayoutController::init();
 				DesignerPaymentController::init();
+				DesignerAdminController::init();
 			}
 
 			if ( Utils::is_request( 'admin' ) ) {
