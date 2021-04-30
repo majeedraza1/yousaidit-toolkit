@@ -4,6 +4,11 @@
 			   :close-on-background-click="false">
 			<compose :active="showModal" :card-size="card_size" @close="closeModal" @submit="submit"/>
 		</modal>
+		<modal v-if="showViewModal" :active="true" type="box" content-size="medium" @close="showViewModal = false">
+			<div v-if="innerMessage.content" :style="innerMessageStyle">
+				{{ innerMessage.content }}
+			</div>
+		</modal>
 		<confirm-dialog/>
 		<notification :options="notification"/>
 		<spinner :active="loading"/>
@@ -12,6 +17,7 @@
 
 <script>
 import {mapState} from 'vuex';
+import axios from "axios";
 import spinner from 'shapla-spinner';
 import notification from 'shapla-notifications';
 import {ConfirmDialog} from 'shapla-confirm-dialog'
@@ -26,10 +32,24 @@ export default {
 		return {
 			showModal: false,
 			card_size: '',
+			showViewModal: false,
+			innerMessage: {},
 		}
 	},
 	computed: {
 		...mapState(['loading', 'notification']),
+		innerMessageStyle() {
+			let styles = [];
+			if (!Object.keys(this.innerMessage).length) {
+				return styles;
+			}
+			// {  "font": "\\'Indie Flower\\', cursive", "size": 18, "align": "center", "color": "#1D1D1B" }
+			styles.push({"font-family": this.innerMessage.font});
+			styles.push({"text-align": this.innerMessage.align});
+			styles.push({"color": this.innerMessage.color});
+			styles.push({"font-size": this.innerMessage.size + 'px'});
+			return styles;
+		}
 	},
 	mounted() {
 		let customMessage = document.querySelector('#custom_message');
@@ -43,19 +63,35 @@ export default {
 		} else {
 			console.log('Inner message is not detected.')
 		}
-		document.querySelector('.button--add-inner-message').addEventListener('click', event => {
-			event.preventDefault();
-			this.showModal = true;
-			let variations_form = document.querySelector('form.variations_form');
-			if (variations_form) {
-				let form = new FormData(variations_form);
-				for (const [key, value] of form.entries()) {
-					if (key === "attribute_pa_size") {
-						this.card_size = value;
+		let btnIM = document.querySelector('.button--add-inner-message');
+		if (btnIM) {
+			btnIM.addEventListener('click', event => {
+				event.preventDefault();
+				this.showModal = true;
+				let variations_form = document.querySelector('form.variations_form');
+				if (variations_form) {
+					let form = new FormData(variations_form);
+					for (const [key, value] of form.entries()) {
+						if (key === "attribute_pa_size") {
+							this.card_size = value;
+						}
 					}
 				}
+			});
+		}
+		document.addEventListener('click', event => {
+			let dataset = event.target.dataset;
+			if (dataset['cartItemKey']) {
+				let data = {action: 'get_cart_item_info', item_key: dataset['cartItemKey'], mode: dataset['mode']}
+				axios.get(StackonetToolkit.ajaxUrl, {params: data}).then(response => {
+					console.log(response.data);
+					if (data.mode === 'view') {
+						this.showViewModal = true;
+						this.innerMessage = response.data._inner_message;
+					}
+				})
 			}
-		})
+		});
 	},
 	methods: {
 		closeModal() {

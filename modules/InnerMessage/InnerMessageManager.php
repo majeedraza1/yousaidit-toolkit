@@ -28,10 +28,15 @@ class InnerMessageManager {
 
 			add_action( 'wp_footer', [ self::$instance, 'add_editor' ], 5 );
 			add_action( 'wp_enqueue_scripts', [ self::$instance, 'load_scripts' ] );
+			add_action( 'wp_ajax_get_cart_item_info', [ self::$instance, 'get_cart_item_info' ] );
+			add_action( 'wp_ajax_nopriv_get_cart_item_info', [ self::$instance, 'get_cart_item_info' ] );
 
 			add_action( 'woocommerce_before_add_to_cart_button', [ self::$instance, 'add_fields' ], 20 );
 			// Step 2: Add Customer Data to WooCommerce Cart
 			add_filter( 'woocommerce_add_cart_item_data', [ self::$instance, 'add_cart_item_data' ], 10, 3 );
+
+			// Step 3: Display Details as Meta in Cart
+			add_filter( 'woocommerce_get_item_data', [ self::$instance, 'get_item_data' ], 99, 2 );
 
 			// Step 4: Add Custom Details as Order Line Items
 			add_action( 'woocommerce_checkout_create_order_line_item',
@@ -67,7 +72,7 @@ class InnerMessageManager {
 	}
 
 	public function load_scripts() {
-		if ( is_single() ) {
+		if ( is_single() || is_cart() ) {
 			wp_enqueue_script( 'stackonet-inner-message' );
 			wp_enqueue_style( 'stackonet-inner-message' );
 		}
@@ -110,6 +115,36 @@ class InnerMessageManager {
 		}
 
 		return $cart_item_data;
+	}
+
+	/**
+	 * Display information as Meta on Cart & Checkout page
+	 *
+	 * @param array $item_data
+	 * @param array $cart_item
+	 *
+	 * @return array
+	 */
+	public function get_item_data( array $item_data, array $cart_item ): array {
+		if ( array_key_exists( '_inner_message', $cart_item ) ) {
+			$im = $cart_item['_inner_message'] ?? [];
+			if ( ! empty( $im['content'] ) ) {
+				$item_data[] = [
+					'key'   => '<a data-mode="view" data-cart-item-key="' . esc_attr( $cart_item['key'] ) . '" class="inline-block border border-solid border-gray-700 p-1">View Message</a>',
+					'value' => '<a data-mode="edit" data-cart-item-key="' . esc_attr( $cart_item['key'] ) . '" class="inline-block border border-solid border-primary p-1">Edit Message</a>'
+				];
+			}
+		}
+
+		return $item_data;
+	}
+
+	public function get_cart_item_info() {
+		$item_key = $_REQUEST['item_key'] ?? '';
+
+		$data = WC()->cart->get_cart_item( $item_key );
+
+		wp_send_json( $data, 200 );
 	}
 
 	/**

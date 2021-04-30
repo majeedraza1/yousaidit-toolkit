@@ -119,9 +119,9 @@ class Assets {
 	 */
 	private function register_scripts( $scripts ) {
 		foreach ( $scripts as $handle => $script ) {
-			$deps      = isset( $script['deps'] ) ? $script['deps'] : false;
-			$in_footer = isset( $script['in_footer'] ) ? $script['in_footer'] : true;
-			$version   = isset( $script['version'] ) ? $script['version'] : $this->version;
+			$deps      = $script['deps'] ?? false;
+			$in_footer = $script['in_footer'] ?? true;
+			$version   = $script['version'] ?? $this->version;
 			wp_register_script( $handle, $script['src'], $deps, $version, $in_footer );
 		}
 	}
@@ -135,7 +135,7 @@ class Assets {
 	 */
 	public function register_styles( $styles ) {
 		foreach ( $styles as $handle => $style ) {
-			$deps = isset( $style['deps'] ) ? $style['deps'] : false;
+			$deps = $style['deps'] ?? false;
 			wp_register_style( $handle, $style['src'], $deps, $this->version );
 		}
 	}
@@ -145,7 +145,7 @@ class Assets {
 	 *
 	 * @return array
 	 */
-	public function get_scripts() {
+	public function get_scripts(): array {
 		return [
 			'stackonet-inner-message'    => [
 				'src'       => static::get_assets_url() . '/js/inner-message.js',
