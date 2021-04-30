@@ -289,6 +289,11 @@ class DesignerController extends ApiController {
 			$meta_data['avatar_id'] = intval( $avatar_id );
 		}
 
+		$card_logo_id = $request->get_param( 'card_logo_id' );
+		if ( is_numeric( $card_logo_id ) ) {
+			$meta_data['card_logo_id'] = intval( $card_logo_id );
+		}
+
 		$cover_photo_id = $request->get_param( 'cover_photo_id' );
 		if ( is_numeric( $cover_photo_id ) ) {
 			$meta_data['cover_photo_id'] = intval( $cover_photo_id );

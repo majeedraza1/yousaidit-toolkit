@@ -80,6 +80,18 @@
 					<text-field type="email" label="Email Address" v-model="designer.paypal_email"/>
 				</profile-field>
 			</tab>
+
+			<tab name="Card Settings">
+				<div v-if="designer.card_logo_id">
+					<div class="max-w-sm">
+						<img :src="designer.card_logo_url" alt="">
+					</div>
+					<shapla-button theme="primary" @click="showCardLogoModal = true">Change image</shapla-button>
+				</div>
+				<div v-if="!designer.card_logo_id">
+					<shapla-button theme="primary" @click="showCardLogoModal = true">Upload image</shapla-button>
+				</div>
+			</tab>
 		</tabs>
 		<p>&nbsp;</p>
 		<media-modal
@@ -102,6 +114,16 @@
 			@before:send="addNonceHeader"
 			@success="(file,response)=>refreshMediaList(response,'cover')"
 		/>
+		<media-modal
+			v-if="showCardLogoModal"
+			:active="showCardLogoModal"
+			@close="showCardLogoModal = false"
+			:images="images"
+			:url="uploadUrl"
+			@select:image="handleCardLogoImageId"
+			@before:send="addNonceHeader"
+			@success="(file,response)=>refreshMediaList(response,'card-logo')"
+		/>
 	</div>
 </template>
 
@@ -110,17 +132,19 @@ import axios from "axios";
 import {tab, tabs} from 'shapla-tabs';
 import textField from 'shapla-text-field'
 import selectField from 'shapla-select-field'
+import shaplaButton from 'shapla-button'
 import ProfileField from "../components/ProfileField";
 import DesignerProfileHeader from "../components/DesignerProfileHeader";
 import MediaModal from "../../../shapla/shapla-media-uploader/src/MediaModal";
 
 export default {
 	name: "Profile",
-	components: {MediaModal, DesignerProfileHeader, ProfileField, tabs, tab, textField, selectField},
+	components: {MediaModal, DesignerProfileHeader, ProfileField, tabs, tab, textField, selectField, shaplaButton},
 	data() {
 		return {
 			showChangeCoverModal: false,
 			showChangeProfileModal: false,
+			showCardLogoModal: false,
 			images: [],
 			current_password: '',
 			new_password: '',
@@ -209,6 +233,10 @@ export default {
 				this.update({cover_photo_id: image.id});
 				this.showChangeCoverModal = false;
 			}
+			if ('card-logo' === type) {
+				this.update({card_logo_id: image.id});
+				this.showCardLogoModal = false;
+			}
 		},
 		getUserUploadedImages() {
 			this.$store.commit('SET_LOADING_STATUS', true);
@@ -226,6 +254,9 @@ export default {
 		},
 		handleChooseProfileImage(image) {
 			this.update({avatar_id: image.id});
+		},
+		handleCardLogoImageId(image) {
+			this.update({card_logo_id: image.id});
 		},
 		handleChooseCoverImage(image) {
 			this.update({cover_photo_id: image.id});

@@ -86,6 +86,7 @@ class CardDesigner implements JsonSerializable {
 		'vat_certificate_issue_date' => '',
 		'avatar_id'                  => 0,
 		'cover_photo_id'             => 0,
+		'card_logo_id'               => 0,
 		'maximum_allowed_card'       => 5,
 		'business_address'           => [],
 	];
@@ -183,6 +184,7 @@ class CardDesigner implements JsonSerializable {
 			'user_login'           => $user->user_login,
 			'avatar_url'           => $this->get_avatar_url(),
 			'cover_photo_url'      => $this->get_cover_photo_url(),
+			'card_logo_url'        => $this->get_card_logo_url(),
 			'total_cards'          => $this->get_total_cards_count(),
 			'profile_base_url'     => $this->get_profile_base_url(),
 			'maximum_allowed_card' => $this->get_maximum_allowed_card(),
@@ -302,9 +304,25 @@ class CardDesigner implements JsonSerializable {
 	/**
 	 * @return string
 	 */
-	public function get_cover_photo_url() {
+	public function get_cover_photo_url(): string {
 		$id  = (int) get_user_meta( $this->get_user_id(), '_cover_photo_id', true );
 		$src = wp_get_attachment_image_src( $id, 'full' );
+
+		if ( ! is_array( $src ) ) {
+			return '';
+		}
+
+		return $src[0];
+	}
+
+	/**
+	 * Get card logo url
+	 *
+	 * @return string
+	 */
+	public function get_card_logo_url(): string {
+		$card_logo_id = get_user_meta( $this->get_user_id(), '_card_logo_id', true );
+		$src          = wp_get_attachment_image_src( $card_logo_id, 'full' );
 
 		if ( ! is_array( $src ) ) {
 			return '';
