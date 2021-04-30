@@ -64,6 +64,16 @@ class Settings {
 		return max( $value, 1 );
 	}
 
+	public static function product_categories_for_designer(): array {
+		$options = (array) get_option( 'yousaiditcard_designers_settings' );
+		$ids     = $options['product_categories_for_designer'] ?? [];
+		if ( ! is_array( $ids ) ) {
+			return [];
+		}
+
+		return array_map( 'intval', $ids );
+	}
+
 	/**
 	 * Plugin settings
 	 */
@@ -148,6 +158,19 @@ class Settings {
 			],
 			[
 				'section'           => 'general_settings_section',
+				'id'                => 'product_categories_for_designer',
+				'type'              => 'select',
+				'multiple'          => true,
+				'title'             => __( 'Product categories', 'stackonet-yousaidit-toolkit' ),
+				'description'       => __( 'Product categories for designer.', 'stackonet-yousaidit-toolkit' ),
+				'priority'          => 42,
+				'sanitize_callback' => function ( $value ) {
+					return array_map( 'sanitize_text_field', $value );
+				},
+				'options'           => static::get_product_categories(),
+			],
+			[
+				'section'           => 'general_settings_section',
 				'id'                => 'designer_minimum_amount_to_pay',
 				'type'              => 'number',
 				'title'             => __( 'Min amount to pay', 'stackonet-yousaidit-toolkit' ),
@@ -225,5 +248,20 @@ class Settings {
 		}
 
 		return $attributes;
+	}
+
+	public static function get_product_categories(): array {
+		$cats  = [];
+		$terms = get_terms( [
+			'hide_empty' => true,
+			'orderby'    => 'name',
+			'order'      => 'ASC',
+			'taxonomy'   => 'product_cat',
+		] );
+		foreach ( $terms as $term ) {
+			$cats[] = [ 'label' => esc_html( $term->name ), 'value' => $term->term_id ];
+		}
+
+		return $cats;
 	}
 }

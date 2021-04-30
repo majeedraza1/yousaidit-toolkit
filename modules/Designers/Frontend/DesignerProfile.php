@@ -6,6 +6,7 @@ use WC_Product;
 use WP_Post;
 use WP_Term;
 use WP_User;
+use YouSaidItCards\Modules\Designers\Admin\Settings;
 use YouSaidItCards\Modules\Designers\Models\CardDesigner;
 use YouSaidItCards\Modules\Designers\Models\DesignerCard;
 use YouSaidItCards\Session\Session;
@@ -215,10 +216,14 @@ class DesignerProfile {
 	 */
 	protected static function add_product_categories( array &$data ) {
 		/** @var WP_Term[] $cats */
-		$cats = get_terms( [ 'taxonomy' => 'product_cat', 'hide_empty' => false, ] );
+		$cats          = get_terms( [ 'taxonomy' => 'product_cat', 'hide_empty' => false, ] );
+		$approved_cats = Settings::product_categories_for_designer();
 
 		foreach ( $cats as $cat ) {
 			if ( 'Uncategorized' == $cat->name ) {
+				continue;
+			}
+			if ( count( $approved_cats ) && ! in_array( $cat->term_id, $approved_cats ) ) {
 				continue;
 			}
 			$data['categories'][] = [ 'id' => $cat->term_id, 'name' => $cat->name, 'parent' => $cat->parent, ];
