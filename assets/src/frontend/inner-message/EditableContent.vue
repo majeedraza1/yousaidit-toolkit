@@ -73,6 +73,12 @@ export default {
 			return styles;
 		}
 	},
+	watch: {
+		value(newValue) {
+			this.text = newValue;
+			this.$el.querySelector('.editable-content__editor').innerHTML = newValue;
+		}
+	},
 	methods: {
 		handleFocusEvent(event) {
 			let text = event.target.innerHTML;

@@ -28,8 +28,12 @@ class InnerMessageManager {
 
 			add_action( 'wp_footer', [ self::$instance, 'add_editor' ], 5 );
 			add_action( 'wp_enqueue_scripts', [ self::$instance, 'load_scripts' ] );
+
 			add_action( 'wp_ajax_get_cart_item_info', [ self::$instance, 'get_cart_item_info' ] );
 			add_action( 'wp_ajax_nopriv_get_cart_item_info', [ self::$instance, 'get_cart_item_info' ] );
+
+			add_action( 'wp_ajax_set_cart_item_info', [ self::$instance, 'set_cart_item_info' ] );
+			add_action( 'wp_ajax_nopriv_set_cart_item_info', [ self::$instance, 'set_cart_item_info' ] );
 
 			add_action( 'woocommerce_before_add_to_cart_button', [ self::$instance, 'add_fields' ], 20 );
 			// Step 2: Add Customer Data to WooCommerce Cart
@@ -145,6 +149,28 @@ class InnerMessageManager {
 		$data = WC()->cart->get_cart_item( $item_key );
 
 		wp_send_json( $data, 200 );
+	}
+
+	public function set_cart_item_info() {
+		$item_key      = $_REQUEST['item_key'] ?? '';
+		$inner_message = $_REQUEST['inner_message'] ?? [];
+
+		$data_changed  = false;
+		$cart          = WC()->cart;
+		$cart_contents = $cart->get_cart_contents();
+		foreach ( $cart_contents as $key => $cart_content ) {
+			if ( $key == $item_key ) {
+				$cart_contents[ $key ]['_inner_message'] = self::sanitize_inner_message_data( $inner_message );
+				$data_changed                            = true;
+			}
+		}
+
+		if ( $data_changed ) {
+			$cart->set_cart_contents( $cart_contents );
+			$cart->calculate_totals();
+		}
+
+		die();
 	}
 
 	/**

@@ -72,7 +72,7 @@
 					<div class="flex space-x-2 p-4 mt-4">
 						<shapla-button theme="primary" outline @click="$emit('close')" class="flex-grow">Cancel
 						</shapla-button>
-						<shapla-button theme="primary" @click="submit" class="flex-grow">Add to Basket</shapla-button>
+						<shapla-button theme="primary" @click="submit" class="flex-grow">{{ btnText }}</shapla-button>
 					</div>
 				</div>
 			</div>
@@ -99,6 +99,8 @@ export default {
 	props: {
 		cardSize: {type: String},
 		active: {type: Boolean, default: false},
+		innerMessage: {type: Object},
+		btnText: {type: String, default: 'Add to Basket'}
 	},
 	data() {
 		return {
@@ -143,6 +145,16 @@ export default {
 		}
 	},
 	watch: {
+		innerMessage: {
+			deep: true,
+			handler(newValue) {
+				this.message = newValue.content;
+				this.font_family = newValue.font;
+				this.font_size = newValue.size;
+				this.alignment = newValue.align;
+				this.color = newValue.color;
+			}
+		},
 		message() {
 			let content = this.$el.querySelector('.editable-content'),
 				editor = content.querySelector('.editable-content__editor');
@@ -152,7 +164,6 @@ export default {
 		active(newValue) {
 			if (newValue) {
 				let container = this.$el.querySelector('#editable-content-container');
-				console.log(container, container.offsetWidth, container.offsetHeight);
 			}
 		}
 	},

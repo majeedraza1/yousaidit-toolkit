@@ -2,7 +2,8 @@
 	<div class="yousaidit-inner-message">
 		<modal :active="showModal" type="box" content-size="full" @close="closeModal" :show-close-icon="false"
 			   :close-on-background-click="false">
-			<compose :active="showModal" :card-size="card_size" @close="closeModal" @submit="submit"/>
+			<compose :active="showModal" :inner-message="innerMessage" :card-size="card_size"
+					 :btn-text="btnText" @close="closeModal" @submit="submit"/>
 		</modal>
 		<modal v-if="showViewModal" :active="true" type="box" content-size="medium" @close="showViewModal = false">
 			<div v-if="innerMessage.content" :style="innerMessageStyle">
@@ -34,6 +35,8 @@ export default {
 			card_size: '',
 			showViewModal: false,
 			innerMessage: {},
+			page: 'single-product',
+			cartkey: '',
 		}
 	},
 	computed: {
@@ -43,12 +46,14 @@ export default {
 			if (!Object.keys(this.innerMessage).length) {
 				return styles;
 			}
-			// {  "font": "\\'Indie Flower\\', cursive", "size": 18, "align": "center", "color": "#1D1D1B" }
 			styles.push({"font-family": this.innerMessage.font});
 			styles.push({"text-align": this.innerMessage.align});
 			styles.push({"color": this.innerMessage.color});
 			styles.push({"font-size": this.innerMessage.size + 'px'});
 			return styles;
+		},
+		btnText() {
+			return this.page === 'cart' ? 'Update' : 'Add to Basket';
 		}
 	},
 	mounted() {
@@ -60,8 +65,6 @@ export default {
 			customMessage.addEventListener('blur', event => {
 				this.showModal = event.target.checked;
 			});
-		} else {
-			console.log('Inner message is not detected.')
 		}
 		let btnIM = document.querySelector('.button--add-inner-message');
 		if (btnIM) {
@@ -84,9 +87,14 @@ export default {
 			if (dataset['cartItemKey']) {
 				let data = {action: 'get_cart_item_info', item_key: dataset['cartItemKey'], mode: dataset['mode']}
 				axios.get(StackonetToolkit.ajaxUrl, {params: data}).then(response => {
-					console.log(response.data);
 					if (data.mode === 'view') {
 						this.showViewModal = true;
+						this.innerMessage = response.data._inner_message;
+					}
+					if (data.mode === 'edit') {
+						this.showModal = true;
+						this.page = 'cart';
+						this.cartkey = response.data.key;
 						this.innerMessage = response.data._inner_message;
 					}
 				})
@@ -112,11 +120,13 @@ export default {
 			}
 			this.showModal = false;
 			let fieldsContainer = document.querySelector('#_inner_message_fields');
-			fieldsContainer.querySelector('#_inner_message_content').value = data.message;
-			fieldsContainer.querySelector('#_inner_message_font').value = data.font_family;
-			fieldsContainer.querySelector('#_inner_message_size').value = data.font_size;
-			fieldsContainer.querySelector('#_inner_message_align').value = data.alignment;
-			fieldsContainer.querySelector('#_inner_message_color').value = data.color;
+			if (fieldsContainer) {
+				fieldsContainer.querySelector('#_inner_message_content').value = data.message;
+				fieldsContainer.querySelector('#_inner_message_font').value = data.font_family;
+				fieldsContainer.querySelector('#_inner_message_size').value = data.font_size;
+				fieldsContainer.querySelector('#_inner_message_align').value = data.alignment;
+				fieldsContainer.querySelector('#_inner_message_color').value = data.color;
+			}
 
 			let variations_form = document.querySelector('form.variations_form');
 			if (variations_form) {
@@ -128,6 +138,29 @@ export default {
 					data[`${key}`] = value;
 				}
 				variations_form.submit();
+			}
+
+			if (this.page === 'cart') {
+				console.log('update cart item', this.cartkey, data);
+				let _data = {
+					action: 'set_cart_item_info',
+					item_key: this.cartkey,
+					inner_message: {
+						content: data.message,
+						font: data.font_family,
+						size: data.font_size,
+						align: data.alignment,
+						color: data.color,
+					}
+				}
+				window.jQuery.ajax({
+					url: StackonetToolkit.ajaxUrl,
+					method: 'POST',
+					data: _data,
+					success: function () {
+						window.location.reload();
+					}
+				})
 			}
 		}
 	}
