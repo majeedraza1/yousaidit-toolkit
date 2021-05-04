@@ -85,3 +85,20 @@ widget.each(function (index, element) {
 		$(element).find('.select2-selection__rendered').html(title.html());
 	}, 300);
 });
+
+function fixShippingColspanIssue() {
+	let cartForm = $(document).find('.cart-collaterals'),
+		shippingTr = cartForm.find('tr.shipping th');
+	if (shippingTr) {
+		setTimeout(() => {
+			$(shippingTr).attr('colspan', '0')
+		}, 300);
+	}
+}
+
+$(document).ajaxComplete(() => {
+	fixShippingColspanIssue();
+});
+$(document).on('wc_update_cart', () => {
+	fixShippingColspanIssue();
+})

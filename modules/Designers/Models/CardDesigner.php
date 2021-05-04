@@ -487,7 +487,7 @@ class CardDesigner implements JsonSerializable {
 		$html .= "<span>" . __( 'Designed by', 'yousaidit-toolkit' ) . "</span>";
 		$html .= "<span>" . $this->get_user()->display_name . "</span>";
 		$html .= '</span>';
-		$html .= '<span class="yousaidit-card__avatar shapla-image-container has-rounded-image">';
+		$html .= '<span class="yousaidit-card__avatar">';
 		$html .= "<img class='yousaidit-card__avatar-image' src='" . $this->get_avatar_url() . "' />";
 		$html .= '</span>';
 		$html .= '</a>';

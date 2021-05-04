@@ -136,8 +136,9 @@ export default {
 				fieldsContainer.querySelector('#_inner_message_color').value = data.color;
 			}
 
-			let variations_form = document.querySelector('form.variations_form');
+			let variations_form = document.querySelector('form.cart');
 			if (variations_form) {
+				this.$store.commit('SET_LOADING_STATUS', true);
 				let form = new FormData(variations_form), data = {};
 				for (const [key, value] of form.entries()) {
 					if (key === "attribute_pa_size") {
@@ -149,22 +150,20 @@ export default {
 			}
 
 			if (this.page === 'cart') {
-				console.log('update cart item', this.cartkey, data);
-				let _data = {
-					action: 'set_cart_item_info',
-					item_key: this.cartkey,
-					inner_message: {
-						content: data.message,
-						font: data.font_family,
-						size: data.font_size,
-						align: data.alignment,
-						color: data.color,
-					}
-				}
 				window.jQuery.ajax({
 					url: StackonetToolkit.ajaxUrl,
 					method: 'POST',
-					data: _data,
+					data: {
+						action: 'set_cart_item_info',
+						item_key: this.cartkey,
+						inner_message: {
+							content: data.message,
+							font: data.font_family,
+							size: data.font_size,
+							align: data.alignment,
+							color: data.color,
+						}
+					},
 					success: function () {
 						window.location.reload();
 					}

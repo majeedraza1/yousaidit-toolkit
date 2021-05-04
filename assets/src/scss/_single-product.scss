@@ -59,6 +59,10 @@
 	.extra-options {
 		display: none;
 	}
+
+	button.single_add_to_cart_button {
+		width: 100%;
+	}
 }
 
 .product_title_container {
@@ -81,12 +85,14 @@
 
 	&__avatar {
 		@apply border-4 border-solid border-gray-400 rounded-full -ml-8;
+		width: 64px;
+		height: 64px;
+	}
 
-		img {
-			@apply rounded-full;
-			width: 56px;
-			height: 56px;
-		}
+	&__avatar-img {
+		@apply rounded-full;
+		width: 56px;
+		height: 56px;
 	}
 }
 
@@ -97,11 +103,5 @@
 
 	span {
 		color: #323232;
-	}
-}
-
-.inner-message-cost {
-	+ button {
-		width: 100%;
 	}
 }
