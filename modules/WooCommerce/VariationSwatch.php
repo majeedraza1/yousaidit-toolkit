@@ -127,6 +127,19 @@ class VariationSwatch {
 			// $tooltip = '<span class="swatch__tooltip">' . ( $term->description ?: $name ) . '</span>';
 		}
 
+		/** @var \WC_Product_Variable $product */
+		$product   = $args['product'];
+		$attr      = 'attribute_' . $args['attribute'];
+		$variation = false;
+		if ( $product instanceof \WC_Product_Variable ) {
+			foreach ( $product->get_available_variations() as $available_variation ) {
+				$attributes = $available_variation['attributes'] ?? [];
+
+				if ( isset( $attributes[ $attr ] ) && $attributes[ $attr ] == $term->slug ) {
+					$variation = wc_get_product( $available_variation['variation_id'] );
+				}
+			}
+		}
 		switch ( $attribute_type ) {
 			case 'color':
 				$color = get_term_meta( $term->term_id, 'color', true );
@@ -163,11 +176,16 @@ class VariationSwatch {
 				$label = get_term_meta( $term->term_id, 'label', true );
 				$label = $label ?: $name;
 				$html  = sprintf(
-					'<div class="swatch swatch-radio swatch-%s %s" data-value="%s">
+					'<div class="swatch swatch-radio flex swatch-%s %s" data-value="%s">
 							<input type="radio" %s />
-							<label>%s</label>
+							<label class="swatch__label inline-flex flex-grow">
+								<span class="block">%s</span>
+								<span class="block flex-grow"></span>
+								<span class="block">%s</span>
+							</label>
 							</div>',
-					esc_attr( $term->slug ), $selected, $term->slug, $checked, $label
+					esc_attr( $term->slug ), $selected, $term->slug, $checked, $label,
+					( $variation ? $variation->get_price_html() : '' )
 				);
 				break;
 			case 'label':

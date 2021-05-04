@@ -42,8 +42,22 @@
 		}
 	}
 
+	label {
+		display: inline-flex !important;
+
+		span {
+			color: inherit !important;
+		}
+	}
+
 	&.selected {
 		@apply border-primary bg-black bg-opacity-5;
+	}
+}
+
+.single-product {
+	.extra-options {
+		display: none;
 	}
 }
 
