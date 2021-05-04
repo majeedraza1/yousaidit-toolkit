@@ -85,8 +85,10 @@ export default {
 		document.addEventListener('click', event => {
 			let dataset = event.target.dataset;
 			if (dataset['cartItemKey']) {
+				this.$store.commit('SET_LOADING_STATUS', true);
 				let data = {action: 'get_cart_item_info', item_key: dataset['cartItemKey'], mode: dataset['mode']}
 				axios.get(StackonetToolkit.ajaxUrl, {params: data}).then(response => {
+					this.$store.commit('SET_LOADING_STATUS', false);
 					if (data.mode === 'view') {
 						this.showViewModal = true;
 						this.innerMessage = response.data._inner_message;
@@ -96,6 +98,9 @@ export default {
 						this.page = 'cart';
 						this.cartkey = response.data.key;
 						this.innerMessage = response.data._inner_message;
+						if (response.data.variation["attribute_pa_size"]) {
+							this.card_size = response.data.variation["attribute_pa_size"];
+						}
 					}
 				})
 			}
@@ -104,7 +109,10 @@ export default {
 	methods: {
 		closeModal() {
 			this.showModal = false;
-			document.querySelector('#custom_message').checked = false;
+			let checkbox = document.querySelector('#custom_message');
+			if (checkbox) {
+				checkbox.checked = false;
+			}
 		},
 		submit(data) {
 			let message = '';
