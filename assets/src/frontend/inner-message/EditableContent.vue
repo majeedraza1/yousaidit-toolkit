@@ -6,7 +6,7 @@
 				 contenteditable="true"
 				 @focus="handleFocusEvent"
 				 @input="handleInputEvent"
-			>{{ placeholder }}
+			>{{ textLength ? text : placeholder }}
 			</div>
 		</div>
 	</div>
@@ -76,7 +76,7 @@ export default {
 	watch: {
 		value(newValue) {
 			this.text = newValue;
-			this.$el.querySelector('.editable-content__editor').innerHTML = newValue;
+			// this.$el.querySelector('.editable-content__editor').innerHTML = newValue;
 		}
 	},
 	methods: {
