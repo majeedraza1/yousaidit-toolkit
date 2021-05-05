@@ -3,6 +3,7 @@
 namespace YouSaidItCards\Modules\WooCommerce;
 
 use Stackonet\WP\Framework\Supports\RestClient;
+use Stackonet\WP\Framework\Supports\Validate;
 use YouSaidItCards\AdminUser;
 
 class WcRestClient extends RestClient {
@@ -77,15 +78,24 @@ class WcRestClient extends RestClient {
 	public function list_general_data( bool $force = false ): array {
 		$data = get_transient( 'wc_general_data' );
 		if ( ! is_array( $data ) || $force ) {
+			$payment_gateways = $this->get( 'payment_gateways' );
+			$gateways         = [];
+			foreach ( $payment_gateways as $gateway ) {
+				if ( ! Validate::checked( $gateway['enabled'] ) ) {
+					continue;
+				}
+				$gateways[] = [ 'id' => $gateway['id'], 'title' => $gateway['title'], 'order' => $gateway['order'] ];
+			}
+
 			$data = [
 				// 'taxes'            => $this->get( 'taxes' ),
 				// 'taxes_classes'    => $this->get( 'taxes/classes' ),
 				// 'shipping_zones'   => $this->get( 'shipping/zones' ),
 				// 'shipping_methods' => $this->get( 'shipping_methods' ),
-				// 'payment_gateways' => $this->get( 'payment_gateways' ),
 				// 'countries'        => $this->get( 'data/countries' ),
 				// 'currencies'       => $this->get( 'data/currencies' ),
-				'store_currency' => $this->get( 'data/currencies/current' ),
+				'payment_gateways' => $gateways,
+				'store_currency'   => $this->get( 'data/currencies/current' ),
 			];
 			set_transient( 'wc_general_data', $data, HOUR_IN_SECONDS );
 		}

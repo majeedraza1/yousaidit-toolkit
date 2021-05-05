@@ -3,6 +3,7 @@
 namespace YouSaidItCards\Modules\WooCommerce\REST;
 
 use ArrayObject;
+use Stackonet\WP\Framework\Supports\Validate;
 use WC_Product;
 use WP_REST_Server;
 use YouSaidItCards\Admin\SettingPage;
@@ -50,8 +51,10 @@ class DataController extends ApiController {
 	 * @inheritDoc
 	 */
 	public function get_items( $request ) {
+		$force = Validate::checked( $request->get_param( 'force' ) );
+
 		$rest_client                       = new WcRestClient();
-		$response                          = $rest_client->list_general_data();
+		$response                          = $rest_client->list_general_data( $force );
 		$response['card_sizes']            = Utils::get_formatted_size_attribute();
 		$response['currency_symbol']       = get_woocommerce_currency_symbol();
 		$response['square_application_id'] = SquarePaymentRestClient::get_setting( 'application_id' );

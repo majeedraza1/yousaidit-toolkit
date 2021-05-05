@@ -34,11 +34,11 @@ class SquarePaymentRestClient extends RestClient {
 			$settings           = get_option( 'wc_square_settings', [] );
 			static::$is_sandbox = isset( $settings['enable_sandbox'] ) && 'yes' == $settings['enable_sandbox'];
 			if ( static::$is_sandbox ) {
-				static::$access_token   = isset( $settings['sandbox_token'] ) ? $settings['sandbox_token'] : '';
-				static::$application_id = isset( $settings['sandbox_application_id'] ) ? $settings['sandbox_application_id'] : '';
+				static::$access_token   = $settings['sandbox_token'] ?? '';
+				static::$application_id = $settings['sandbox_application_id'] ?? '';
 			} else {
-				static::$access_token   = isset( $settings['sandbox_token'] ) ? $settings['sandbox_token'] : '';
-				static::$application_id = isset( $settings['sandbox_application_id'] ) ? $settings['sandbox_application_id'] : '';
+				static::$access_token   = $settings['sandbox_token'] ?? '';
+				static::$application_id = $settings['sandbox_application_id'] ?? '';
 			}
 			static::$setting_read = true;
 		}

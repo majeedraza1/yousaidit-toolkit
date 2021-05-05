@@ -381,6 +381,11 @@ class OrderController extends ApiController {
 			}
 		}
 
+		if ( in_array( $payment_method, [ 'paypal', 'ppec_paypal' ] ) ) {
+			$order->add_meta_data( '_paypal_status', '', true );
+			$order->add_meta_data( '_transaction_id', '', true );
+		}
+
 		$order->set_prices_include_tax( 'yes' === get_option( 'woocommerce_prices_include_tax' ) );
 
 		$item_sent_to = $request->get_param( 'item_sent_to' );

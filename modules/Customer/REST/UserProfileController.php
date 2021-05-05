@@ -116,7 +116,7 @@ class UserProfileController extends ApiController {
 		}
 
 		$files  = UploadedFile::getUploadedFiles();
-		$avatar = isset( $files['avatar'] ) ? $files['avatar'] : false;
+		$avatar = $files['avatar'] ?? false;
 		$avatar = is_array( $avatar ) ? $avatar[0] : $avatar;
 
 		if ( ! $avatar instanceof UploadedFile ) {
