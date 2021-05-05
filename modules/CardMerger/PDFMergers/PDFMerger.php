@@ -126,6 +126,8 @@ class PDFMerger {
 					$string = sprintf( "%s - %s", $order_item->get_total_quantities_in_order(),
 						$order_item->get_ship_station_order_id() );
 					self::add_total_qty( $pdf, $order_item->get_pdf_height(), $string );
+					// Add designer Logo
+					self::add_designer_logo( $pdf, $order_item );
 				}
 
 				if ( in_array( $type, [ 'both', 'im' ] ) ) {
@@ -199,6 +201,39 @@ class PDFMerger {
 			QrCode::get_qr_code_file( $order_id ), // QR file Path
 			( ( $card_width / 2 ) - ( $qr_size + 10 ) ), // x position
 			( $card_height - ( $qr_size + 5 ) ), // y position
+			$qr_size, $qr_size, 'jpeg' );
+	}
+
+	/**
+	 * Add functionality to add designer logo
+	 *
+	 * @param Fpdi $pdf
+	 * @param OrderItem $order_item
+	 */
+	public static function add_designer_logo( Fpdi &$pdf, OrderItem $order_item ) {
+		if ( ! $order_item->get_designer_id() ) {
+			return;
+		}
+		$card_logo_id = (int) get_user_meta( $order_item->get_designer_id(), '_card_logo_id', true );
+		$src          = wp_get_attachment_image_src( $card_logo_id, 'full' );
+		if ( ! is_array( $src ) ) {
+			return;
+		}
+		$logo_url   = $src[0];
+		$pdf_width  = $order_item->get_pdf_width();
+		$pdf_height = $order_item->get_pdf_height();
+		$qr_size    = 20;
+
+		$x_position  = ( $pdf_width / 4 ) - ( $qr_size / 2 ); // one fourth from top left
+		$y_position  = ( $pdf_height / 4 ) - ( $qr_size / 2 );
+		$text_length = ( 11 * 1.5 ); // Character length + letter spacing
+
+		$pdf->SetFont( 'Courier' );
+		$pdf->Cell( ( $pdf_width / 2 ) - $text_length, 30, 'Designed by', 0, 0, 'C' );
+		$pdf->Image(
+			$logo_url, // QR file Path
+			$x_position, // x position
+			$y_position, // y position
 			$qr_size, $qr_size, 'jpeg' );
 	}
 

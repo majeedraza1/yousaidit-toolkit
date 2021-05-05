@@ -7,6 +7,7 @@ use setasign\Fpdi\PdfParser\Filter\FilterException;
 use setasign\Fpdi\PdfParser\PdfParserException;
 use setasign\Fpdi\PdfParser\Type\PdfTypeException;
 use setasign\Fpdi\PdfReader\PdfReaderException;
+use YouSaidItCards\ShipStation\Order;
 use YouSaidItCards\ShipStation\OrderItem;
 
 class DynamicSizePdfMerger extends PDFMerger {
@@ -51,5 +52,16 @@ class DynamicSizePdfMerger extends PDFMerger {
 		}
 
 		$pdf->Output( 'D', $output_file_name );
+	}
+
+	/**
+	 * Get order pdf
+	 *
+	 * @param Order $order
+	 */
+	public static function get_order_pdf( Order $order ) {
+		$order_item = $order->get_order_items();
+		$item       = $order_item[0];
+		self::combinePDFs( [ $item ], $item->get_pdf_width(), $item->get_pdf_height(), $item->has_inner_message() );
 	}
 }
