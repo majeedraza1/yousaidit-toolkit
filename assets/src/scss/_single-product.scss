@@ -55,9 +55,21 @@
 	}
 }
 
-.single-product {
+.single-product.has-inner-message {
 	.extra-options {
 		display: none;
+	}
+
+	.woocommerce-variation-price {
+		display: none;
+	}
+
+	.variations_form {
+		margin-top: 0;
+
+		.variations {
+			margin: 0;
+		}
 	}
 
 	button.single_add_to_cart_button {
@@ -89,7 +101,7 @@
 		height: 64px;
 	}
 
-	&__avatar-img {
+	&__avatar-image {
 		@apply rounded-full;
 		width: 56px;
 		height: 56px;
@@ -103,5 +115,20 @@
 
 	span {
 		color: #323232;
+	}
+}
+
+.yousaidit-single-product {
+	&__price {
+		font-size: 2.25rem;
+		line-height: 2.25rem;
+		letter-spacing: 1px;
+		font-weight: normal;
+		display: inline-block;
+		vertical-align: middle;
+	}
+
+	&__price-suffix {
+		font-size: 1rem;
 	}
 }

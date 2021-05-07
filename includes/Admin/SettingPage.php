@@ -26,12 +26,19 @@ class SettingPage {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self;
 
-			self::$instance->add_settings_page();
-
+			add_action( 'init', [ self::$instance, 'add_settings_page' ] );
 			add_action( 'admin_init', [ self::$instance, 'clear_cache' ] );
+			add_action( 'admin_enqueue_scripts', [ self::$instance, 'load_script' ] );
 		}
 
 		return self::$instance;
+	}
+
+	public function load_script( $hook ) {
+		if ( "settings_page_stackonet-toolkit" == $hook ) {
+			wp_enqueue_script( 'selectWoo' );
+			wp_enqueue_style( 'select2' );
+		}
 	}
 
 	public function clear_cache() {
@@ -59,18 +66,22 @@ class SettingPage {
 
 	public static function get_option( $key, $default = '' ) {
 		$default_options = [
-			'ship_station_api_key'                => '26abc5f26e6848daaf9eb0b68c64ddc0',
-			'ship_station_api_secret'             => 'c4501ea5a74d489aa91568a82b3fd420',
+			'ship_station_api_key'                => '',
+			'ship_station_api_secret'             => '',
 			// PayPal Config
 			'paypal_sandbox_mode'                 => '',
 			'paypal_client_id'                    => '',
 			'paypal_client_secret'                => '',
 			// Trade Site
-			'postcard_product_id'                 => '',
 			'trade_site_url'                      => '',
 			'trade_site_auth_token'               => '',
 			'trade_site_rest_namespace'           => '',
 			'trade_site_card_to_product_endpoint' => '',
+			// Postcard
+			'postcard_product_id'                 => '',
+			// Inner message
+			'inner_message_price'                 => '',
+			'inner_message_visible_on_cat'        => '',
 		];
 		$_options        = (array) get_option( '_stackonet_toolkit', [] );
 		$options         = wp_parse_args( $_options, $default_options );
@@ -101,6 +112,13 @@ class SettingPage {
 			'title'    => __( 'Postcard Settings' ),
 			'panel'    => 'general',
 			'priority' => 5,
+		] );
+
+		$setting->set_section( [
+			'id'       => 'section_inner_message_settings',
+			'title'    => __( 'Inner Message Settings' ),
+			'panel'    => 'general',
+			'priority' => 6,
 		] );
 
 		$setting->set_section( [
@@ -143,7 +161,7 @@ class SettingPage {
 			'default'           => '',
 			'priority'          => 10,
 			'sanitize_callback' => 'sanitize_text_field',
-			'panel'             => 'general',
+			'section'           => 'section_postcard_settings',
 		] );
 
 		$setting->set_field( [
@@ -326,8 +344,38 @@ class SettingPage {
 			'section'           => 'section_marketplace',
 			'options'           => self::get_market_places(),
 		] );
+
+		$setting->set_field( [
+			'id'                => 'inner_message_price',
+			'type'              => 'text',
+			'title'             => __( 'Inner message price' ),
+			'description'       => __( 'Enter number or float value' ),
+			'default'           => '',
+			'priority'          => 1,
+			'sanitize_callback' => 'sanitize_text_field',
+			'section'           => 'section_inner_message_settings',
+		] );
+		$setting->set_field( [
+			'id'                => 'inner_message_visible_on_cat',
+			'type'              => 'select',
+			'title'             => __( 'Inner message visible on' ),
+			'description'       => __( 'Choose category where the inner message should be visible.' ),
+			'default'           => '',
+			'priority'          => 2,
+			'multiple'          => true,
+			'sanitize_callback' => function ( $value ) {
+				return $value ? array_map( 'intval', $value ) : '';
+			},
+			'section'           => 'section_inner_message_settings',
+			'options'           => self::get_product_categories(),
+		] );
 	}
 
+	/**
+	 * Get market places list
+	 *
+	 * @return string[]
+	 */
 	public static function get_market_places(): array {
 		$items  = [
 			"" => "-- Select Store --"
@@ -337,6 +385,24 @@ class SettingPage {
 			foreach ( $stores as $store ) {
 				$items[ $store['storeId'] ] = $store['storeName'];
 			}
+		}
+
+		return $items;
+	}
+
+	/**
+	 * Woocommerce product categories
+	 *
+	 * @return string[]
+	 */
+	public static function get_product_categories(): array {
+		$terms = get_terms( [
+			'taxonomy'   => 'product_cat',
+			'hide_empty' => false,
+		] );
+		$items = [ "" => "-- Select Category --" ];
+		foreach ( $terms as $term ) {
+			$items[ $term->term_id ] = $term->name;
 		}
 
 		return $items;

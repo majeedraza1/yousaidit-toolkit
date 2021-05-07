@@ -101,4 +101,16 @@ $(document).ajaxComplete(() => {
 });
 $(document).on('wc_update_cart', () => {
 	fixShippingColspanIssue();
-})
+});
+
+let initialPriceHtml = $('body').find('.yousaidit-single-product__price-amount').html()
+document.addEventListener('change.VariationSwatches', variation => {
+	let body = $('body'),
+		vPriceHtml = body.find('.woocommerce-variation-price'),
+		priceDiv = body.find('.yousaidit-single-product__price-amount');
+	if (vPriceHtml) {
+		priceDiv.html(vPriceHtml.html());
+	} else {
+		priceDiv.html(initialPriceHtml);
+	}
+});

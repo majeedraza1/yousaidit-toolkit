@@ -25,18 +25,15 @@ class EvaThemeManager {
 			add_filter( 'wc_get_template', [ self::$instance, 'get_template' ], 10, 3 );
 
 			// Modify title design
-			remove_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_title', 5 );
-			add_action( 'woocommerce_single_product_summary', [ self::$instance, 'single_title' ] );
 			add_action( 'woocommerce_after_add_to_cart_quantity', [ self::$instance, 'inner_message' ] );
 		}
 
 		return self::$instance;
 	}
 
-	public function single_title() {
-		echo 'Title';
-	}
-
+	/**
+	 * Add banner
+	 */
 	public static function banner() {
 		?>
 		<div class="pinkbar">
@@ -71,7 +68,29 @@ class EvaThemeManager {
 
 	public function inner_message() {
 		global $product;
-		echo '<button type="submit" class="button btn1 bshadow button--add-inner-message"><span>Add inner message</span></button>';
-		echo '<span class="inner-message-cost">+ £0.49</span>';
+		$cats    = $product->get_category_ids();
+		$options = (array) get_option( '_stackonet_toolkit' );
+		$price   = isset( $options['inner_message_price'] ) ? floatval( $options['inner_message_price'] ) : 0;
+		$cat_ids = isset( $options['inner_message_visible_on_cat'] ) && is_array( $options['inner_message_visible_on_cat'] ) ?
+			$options['inner_message_visible_on_cat'] : [];
+
+		$all_cats = [];
+		foreach ( $cat_ids as $id ) {
+			$categories = get_terms( [ 'parent' => $id, 'taxonomy' => 'product_cat', ] );
+			$categories = wp_list_pluck( $categories, 'term_id' );
+			$all_cats   = array_merge( $all_cats, $categories, [ $id ] );
+		}
+
+		$should_show = false;
+		foreach ( $cats as $cat ) {
+			if ( in_array( $cat, $all_cats ) ) {
+				$should_show = true;
+			}
+		}
+
+		if ( $should_show ) {
+			echo '<button type="submit" class="button btn1 bshadow button--add-inner-message"><span>Add inner message</span></button>';
+			echo '<span class="inner-message-cost">+ ' . wc_price( $price ) . '</span>';
+		}
 	}
 }

@@ -22,6 +22,8 @@ $.fn.yousaidit_variation_swatches_form = function () {
 					return;
 				}
 
+				document.dispatchEvent(new CustomEvent('change.VariationSwatches', {detail: value}));
+
 				// For old WC
 				$select.trigger('focusin');
 
@@ -63,6 +65,8 @@ $.fn.yousaidit_variation_swatches_form = function () {
 							$options = $variationRow.find('select').find('option'),
 							$selected = $options.filter(':selected'),
 							values = [];
+
+						document.dispatchEvent(new CustomEvent('change.VariationSwatches', {detail: $selected.val()}));
 
 						$options.each(function (index, option) {
 							if (option.value !== '') {
