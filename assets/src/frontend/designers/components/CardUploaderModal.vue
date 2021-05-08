@@ -23,7 +23,7 @@
 						 :class="{'border-primary':card_size === 'a'}"
 					>
 						<div class="text-lg">A Size</div>
-						<div class="text-sm">(A6, A5 & A4)</div>
+						<div class="text-sm">(A6 & A5)</div>
 					</div>
 				</column>
 			</columns>
@@ -313,7 +313,7 @@ export default {
 				this.card.sizes.push('square');
 			} else {
 				this.card_sizes.forEach(card => {
-					if ('square' !== card.value) {
+					if (-1 === ['a4', 'square'].indexOf(card.value)) {
 						this.card.sizes.push(card.value);
 					}
 				})
