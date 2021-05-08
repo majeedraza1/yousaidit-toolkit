@@ -66,6 +66,9 @@ class EvaThemeManager {
 		return $template;
 	}
 
+	/**
+	 * Inner message
+	 */
 	public function inner_message() {
 		global $product;
 		$cats    = $product->get_category_ids();
@@ -89,8 +92,17 @@ class EvaThemeManager {
 		}
 
 		if ( $should_show ) {
-			echo '<button type="submit" class="button btn1 bshadow button--add-inner-message"><span>Add inner message</span></button>';
-			echo '<span class="inner-message-cost">+ ' . wc_price( $price ) . '</span>';
+			$html = '<div id="_inner_message_fields" style="visibility: hidden; position: absolute; width: 1px; height: 1px">';
+			$html .= '<textarea id="_inner_message_content" name="_inner_message[content]"></textarea>';
+			$html .= '<input type="text" id="_inner_message_font" name="_inner_message[font]"/>';
+			$html .= '<input type="text" id="_inner_message_size" name="_inner_message[size]"/>';
+			$html .= '<input type="text" id="_inner_message_align" name="_inner_message[align]"/>';
+			$html .= '<input type="text" id="_inner_message_color" name="_inner_message[color]"/>';
+			$html .= '</div>';
+
+			$html .= '<button type="submit" class="button btn1 bshadow button--add-inner-message"><span>Add inner message</span></button>';
+			$html .= '<span class="inner-message-cost">+ ' . wc_price( $price ) . '</span>';
+			echo $html;
 		}
 	}
 }

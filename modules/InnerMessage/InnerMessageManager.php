@@ -3,6 +3,7 @@
 namespace YouSaidItCards\Modules\InnerMessage;
 
 use Stackonet\WP\Framework\Supports\Logger;
+use WC_Cart;
 use WC_Order;
 use WC_Order_Item_Product;
 
@@ -35,9 +36,9 @@ class InnerMessageManager {
 			add_action( 'wp_ajax_set_cart_item_info', [ self::$instance, 'set_cart_item_info' ] );
 			add_action( 'wp_ajax_nopriv_set_cart_item_info', [ self::$instance, 'set_cart_item_info' ] );
 
-			add_action( 'woocommerce_before_add_to_cart_button', [ self::$instance, 'add_fields' ], 20 );
 			// Step 2: Add Customer Data to WooCommerce Cart
-			add_filter( 'woocommerce_add_cart_item_data', [ self::$instance, 'add_cart_item_data' ], 10, 3 );
+			add_filter( 'woocommerce_add_cart_item_data', [ self::$instance, 'add_cart_item_data' ] );
+			add_action( 'woocommerce_before_calculate_totals', [ self::$instance, 'before_calculate_totals' ], 1, 1 );
 
 			// Step 3: Display Details as Meta in Cart
 			add_filter( 'woocommerce_get_item_data', [ self::$instance, 'get_item_data' ], 99, 2 );
@@ -93,32 +94,51 @@ class InnerMessageManager {
 	 * Add fields
 	 */
 	public function add_fields() {
-		$html = '<div id="_inner_message_fields" style="visibility: hidden; position: absolute; width: 1px; height: 1px">';
-		$html .= '<textarea id="_inner_message_content" name="_inner_message[content]"></textarea>';
-		$html .= '<input type="text" id="_inner_message_font" name="_inner_message[font]"/>';
-		$html .= '<input type="text" id="_inner_message_size" name="_inner_message[size]"/>';
-		$html .= '<input type="text" id="_inner_message_align" name="_inner_message[align]"/>';
-		$html .= '<input type="text" id="_inner_message_color" name="_inner_message[color]"/>';
-		$html .= '</div>';
-
-		echo $html;
+		echo '';
 	}
 
 	/**
 	 * Add custom data to cart
 	 *
 	 * @param array $cart_item_data
-	 * @param int $product_id
-	 * @param int $variation_id
 	 *
 	 * @return array
 	 */
-	public function add_cart_item_data( $cart_item_data, $product_id, $variation_id ) {
+	public function add_cart_item_data( array $cart_item_data ): array {
 		if ( isset( $_REQUEST['_inner_message'] ) ) {
 			$cart_item_data['_inner_message'] = static::sanitize_inner_message_data( $_REQUEST['_inner_message'] );
 		}
 
 		return $cart_item_data;
+	}
+
+	/**
+	 * Before calculate totals
+	 *
+	 * @param WC_Cart $cart
+	 */
+	public function before_calculate_totals( WC_Cart $cart ) {
+		$options = (array) get_option( '_stackonet_toolkit' );
+		$price   = isset( $options['inner_message_price'] ) ? floatval( $options['inner_message_price'] ) : 0;
+		// If price is zero, exit here
+		if ( $price <= 0 ) {
+			return;
+		}
+
+		foreach ( $cart->get_cart_contents() as $key => &$value ) {
+			$inner_message     = $value['_inner_message'];
+			$has_inner_message = is_array( $inner_message ) && isset( $inner_message['content'] ) &&
+			                     ! empty( $inner_message['content'] );
+			// If there is no inner message, exit here
+			if ( ! $has_inner_message ) {
+				continue;
+			}
+			$orgPrice = floatval( $value['data']->get_price( '' ) );
+			if ( $price ) {
+				$extra_price = $price;
+				$value['data']->set_price( $orgPrice + $extra_price );
+			}
+		}
 	}
 
 	/**
@@ -130,7 +150,7 @@ class InnerMessageManager {
 	 * @return array
 	 */
 	public function get_item_data( array $item_data, array $cart_item ): array {
-		if ( array_key_exists( '_inner_message', $cart_item ) ) {
+		if ( is_cart() && array_key_exists( '_inner_message', $cart_item ) ) {
 			$im = $cart_item['_inner_message'] ?? [];
 			if ( ! empty( $im['content'] ) ) {
 				$item_data[] = [
