@@ -1,7 +1,7 @@
 <template>
 	<div class="yousaidit-inner-message">
 		<modal :active="showModal" type="box" content-size="full" @close="closeModal" :show-close-icon="false"
-			   :close-on-background-click="false">
+			   :close-on-background-click="false" class="modal--inner-message-compose">
 			<compose :active="showModal" :inner-message="innerMessage" :card-size="card_size"
 					 :btn-text="btnText" @close="closeModal" @submit="submit"/>
 		</modal>
@@ -176,6 +176,24 @@ export default {
 
 <style lang="scss">
 .yousaidit-inner-message {
+	.modal--inner-message-compose {
+		.shapla-modal-content {
+			border-radius: 0;
+			height: 100vh;
+			width: 100vw;
+
+			.admin-bar & {
+				margin-top: 32px;
+				height: calc(100vh - 32px);
+
+				@media screen and (max-width: 782px){
+					margin-top: 46px;
+					height: calc(100vh - 46px);
+				}
+			}
+		}
+	}
+
 	.shapla-modal-content.is-full {
 		max-height: 100vh;
 	}
