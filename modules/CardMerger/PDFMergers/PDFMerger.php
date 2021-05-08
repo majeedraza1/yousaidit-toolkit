@@ -222,14 +222,14 @@ class PDFMerger {
 		$logo_url   = $src[0];
 		$pdf_width  = $order_item->get_pdf_width();
 		$pdf_height = $order_item->get_pdf_height();
-		$qr_size    = 20;
+		$qr_size    = 40;
 
 		$x_position  = ( $pdf_width / 4 ) - ( $qr_size / 2 ); // one fourth from top left
 		$y_position  = ( $pdf_height / 4 ) - ( $qr_size / 2 );
 		$text_length = ( 11 * 1.5 ); // Character length + letter spacing
 
 		$pdf->SetFont( 'Courier' );
-		$pdf->Cell( ( $pdf_width / 2 ) - $text_length, 30, 'Designed by', 0, 0, 'C' );
+		$pdf->Cell( ( $pdf_width / 2 ) - $text_length, 10, 'Designed by', 0, 0, 'C' );
 		$pdf->Image(
 			$logo_url, // QR file Path
 			$x_position, // x position
