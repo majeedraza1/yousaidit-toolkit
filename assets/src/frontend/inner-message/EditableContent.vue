@@ -116,6 +116,10 @@ export default {
 		margin: 0 auto;
 		border: 1px solid rgba(#000, 0.12);
 		padding: 15px;
+
+		@media screen and (min-width: 1024px) {
+			width: 440px;
+		}
 	}
 
 	&.card-size--square {
