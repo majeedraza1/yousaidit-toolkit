@@ -6,9 +6,7 @@
 					 :btn-text="btnText" @close="closeModal" @submit="submit"/>
 		</modal>
 		<modal v-if="showViewModal" :active="true" type="box" content-size="medium" @close="showViewModal = false">
-			<div v-if="innerMessage.content" :style="innerMessageStyle">
-				{{ innerMessage.content }}
-			</div>
+			<div v-if="innerMessage.content" :style="innerMessageStyle" v-html="innerMessage.content"/>
 		</modal>
 		<confirm-dialog/>
 		<notification :options="notification"/>

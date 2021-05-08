@@ -6,7 +6,8 @@
 				 contenteditable="true"
 				 @focus="handleFocusEvent"
 				 @input="handleInputEvent"
-			>{{ textLength ? text : placeholder }}
+			>
+				<div v-html="textLength ? text : placeholder"></div>
 			</div>
 		</div>
 	</div>
