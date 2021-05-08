@@ -20,6 +20,7 @@
 				<div class="flex flex-col h-full bg-gray-100 w-80 ml-auto">
 					<tabs>
 						<tab name="Font" selected>
+							<div class="font-normal px-4 text-center">Choose Font Family</div>
 							<div class="inner-message-font-families">
 								<div
 									class="inner-message-font-family"
@@ -32,7 +33,8 @@
 							</div>
 						</tab>
 						<tab name="Size">
-							<div class="inner-message-font-sizes flex flex-wrap justify-center">
+							<div class="font-normal px-4 text-center">Choose Font Size</div>
+							<div class="inner-message-font-sizes flex flex-wrap justify-center p-4">
 								<div class="inner-message-font-size" v-for="_size in font_sizes" :key="_size">
 									<radio-button
 										:label="_size"
@@ -43,7 +45,18 @@
 							</div>
 						</tab>
 						<tab name="Align">
-							<div class="inner-message-text-alignments flex flex-wrap">
+							<template v-slot:name>
+								<span class="w-6 h-6 inline-flex justify-center items-center">
+									<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24"
+										 width="24px" fill="#000000">
+										<path d="M0 0h24v24H0z" fill="none"/>
+										<path
+											d="M7 15v2h10v-2H7zm-4 6h18v-2H3v2zm0-8h18v-2H3v2zm4-6v2h10V7H7zM3 3v2h18V3H3z"/>
+									</svg>
+								</span>
+							</template>
+							<div class="font-normal px-4 text-center">Choose Text Alignment</div>
+							<div class="inner-message-text-alignments flex flex-wrap p-4">
 								<div class="inner-message-text-alignment flex-grow" v-for="_alignment in alignments"
 									 :key="_alignment.value">
 									<radio-button
@@ -56,7 +69,11 @@
 							</div>
 						</tab>
 						<tab name="Color">
-							<div class="inner-message-colors flex flex-wrap justify-center">
+							<template v-slot:name>
+								<span class="inline-flex w-6 h-6 bg-black"/>
+							</template>
+							<div class="font-normal px-4 text-center">Choose Text Color</div>
+							<div class="inner-message-colors flex flex-wrap justify-center p-4">
 								<div v-for="_color in colors" :key="_color.hex" class="inner-message-color p-3">
 									<div @click="setFontColor(_color.hex)" class="color-box" :title="_color.label"
 										 :style="`background:${_color.hex}`">{{ _color }}
@@ -65,6 +82,10 @@
 							</div>
 						</tab>
 						<tab name="Emoji" nav-item-class="is-hidden-mobile">
+							<template v-slot:name>
+								<span class="inline-flex w-6 h-6 text-xl justify-center items-center">😁</span>
+							</template>
+							<div class="font-normal px-4 pb-4 text-center">Choose Emoji</div>
 							<emoji-picker @select="selectEmoji"/>
 						</tab>
 					</tabs>
@@ -177,7 +198,7 @@ export default {
 @import url('https://fonts.googleapis.com/css2?family=Amatic+SC&family=Caveat&family=Cedarville+Cursive&family=Fontdiner+Swanky&family=Handlee&family=Indie+Flower&family=Josefin+Slab&family=Kranky&family=Lovers+Quarrel&family=Mountains+of+Christmas&family=Prata&family=Sacramento&display=swap');
 
 .inner-message-font-families {
-	max-height: 65vh;
+	max-height: 64vh;
 	overflow-y: auto;
 }
 
@@ -216,6 +237,10 @@ export default {
 
 .emoji-picker {
 	width: 100% !important;
+}
+
+.container-emoji {
+	height: 310px !important;
 }
 
 .has-error {

@@ -96,7 +96,7 @@
 	}
 
 	&__avatar {
-		@apply border-4 border-solid border-gray-400 rounded-full -ml-8;
+		@apply border-4 border-solid bg-gray-200 border-gray-400 rounded-full -ml-8;
 		width: 64px;
 		height: 64px;
 	}
