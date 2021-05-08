@@ -306,27 +306,17 @@ export default {
 			has_suggest_tags: 'no',
 		}
 	},
+	watch: {
+		card_size(newValue) {
+			this.chooseCardSize(newValue);
+		}
+	},
 	computed: {
-		chooseCardSize(cardSize) {
-			this.card.sizes = [];
-			if ('square' === cardSize) {
-				this.card.sizes.push('square');
-			} else {
-				this.card_sizes.forEach(card => {
-					if (-1 === ['a4', 'square'].indexOf(card.value)) {
-						this.card.sizes.push(card.value);
-					}
-				})
-			}
-		},
 		can_go_next_step() {
 			if (this.current_step === 1) {
 				return !!this.card_size.length;
 			}
 			if (this.current_step === 2) {
-				if (this.card_attributes.length && !Object.keys(this.card.attributes).length) {
-					return false;
-				}
 				return !!(this.card.title.length > 1 && this.card.sizes.length && this.card.categories_ids.length);
 			}
 			if (this.current_step === 3) {
@@ -373,6 +363,18 @@ export default {
 		}
 	},
 	methods: {
+		chooseCardSize(cardSize) {
+			this.card.sizes = [];
+			if ('square' === cardSize) {
+				this.card.sizes.push('square');
+			} else {
+				this.card_sizes.forEach(card => {
+					if (-1 === ['a4', 'square'].indexOf(card.value)) {
+						this.card.sizes.push(card.value);
+					}
+				})
+			}
+		},
 		handleMarketPlaceChange(value) {
 			console.log(value);
 		},
