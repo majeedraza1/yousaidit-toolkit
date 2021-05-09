@@ -154,8 +154,8 @@ class InnerMessageManager {
 			$im = $cart_item['_inner_message'] ?? [];
 			if ( ! empty( $im['content'] ) ) {
 				$item_data[] = [
-					'key'   => '<a data-mode="view" data-cart-item-key="' . esc_attr( $cart_item['key'] ) . '" class="inline-block border border-solid border-gray-700 p-1">View Message</a>',
-					'value' => '<a data-mode="edit" data-cart-item-key="' . esc_attr( $cart_item['key'] ) . '" class="inline-block border border-solid border-primary p-1">Edit Message</a>'
+					'key'   => '<a data-mode="view" data-cart-item-key="' . esc_attr( $cart_item['key'] ) . '" class="inline-block border border-solid border-gray-700 p-1 sm:w-full">View Message</a>',
+					'value' => '<a data-mode="edit" data-cart-item-key="' . esc_attr( $cart_item['key'] ) . '" class="inline-block border border-solid border-primary p-1 sm:w-full">Edit Message</a>'
 				];
 			}
 		}
