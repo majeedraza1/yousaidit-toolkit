@@ -132,3 +132,19 @@
 		font-size: 1rem;
 	}
 }
+
+@media screen and (max-width: 64em) {
+	.product_after_shop_loop_buttons {
+		display: none !important;
+		height: auto;
+	}
+
+	.product_after_shop_loop,
+	.product_after_shop_loop_switcher {
+		height: auto !important;
+	}
+
+	.woocommerce ul.products li.product {
+		margin-bottom: 0 !important;
+	}
+}
