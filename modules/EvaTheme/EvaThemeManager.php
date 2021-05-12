@@ -4,6 +4,8 @@
 namespace YouSaidItCards\Modules\EvaTheme;
 
 
+use WC_Product;
+
 class EvaThemeManager {
 	/**
 	 * The instance of the class
@@ -26,6 +28,8 @@ class EvaThemeManager {
 
 			// Modify title design
 			add_action( 'woocommerce_after_add_to_cart_quantity', [ self::$instance, 'inner_message' ] );
+			add_filter( 'woocommerce_product_single_add_to_cart_text',
+				[ self::$instance, 'single_add_to_cart_text' ], 10, 2 );
 		}
 
 		return self::$instance;
@@ -71,9 +75,47 @@ class EvaThemeManager {
 	 */
 	public function inner_message() {
 		global $product;
-		$cats    = $product->get_category_ids();
 		$options = (array) get_option( '_stackonet_toolkit' );
 		$price   = isset( $options['inner_message_price'] ) ? floatval( $options['inner_message_price'] ) : 0;
+
+		if ( ! self::should_show_inner_message( $product ) ) {
+			return;
+		}
+
+		$html = '<div id="_inner_message_fields" style="visibility: hidden; position: absolute; width: 1px; height: 1px">';
+		$html .= '<textarea id="_inner_message_content" name="_inner_message[content]"></textarea>';
+		$html .= '<input type="text" id="_inner_message_font" name="_inner_message[font]"/>';
+		$html .= '<input type="text" id="_inner_message_size" name="_inner_message[size]"/>';
+		$html .= '<input type="text" id="_inner_message_align" name="_inner_message[align]"/>';
+		$html .= '<input type="text" id="_inner_message_color" name="_inner_message[color]"/>';
+		$html .= '</div>';
+
+		$html .= '<button type="submit" class="button btn1 bshadow button--add-inner-message"><span>Add a message</span></button>';
+		$html .= '<span class="inner-message-cost">+ ' . wc_price( $price ) . '</span>';
+		echo $html;
+	}
+
+	public function single_add_to_cart_text( $text, $product ) {
+		if ( self::should_show_inner_message( $product ) ) {
+			return 'Add to basket and continue shopping';
+		}
+
+		return $text;
+	}
+
+	/**
+	 * Should show inner message
+	 *
+	 * @param WC_Product|null $product
+	 *
+	 * @return bool
+	 */
+	public static function should_show_inner_message( ?WC_Product $product = null ): bool {
+		if ( ! $product instanceof WC_Product ) {
+			$product = $GLOBALS['product'];
+		}
+		$cats    = $product->get_category_ids();
+		$options = (array) get_option( '_stackonet_toolkit' );
 		$cat_ids = isset( $options['inner_message_visible_on_cat'] ) && is_array( $options['inner_message_visible_on_cat'] ) ?
 			$options['inner_message_visible_on_cat'] : [];
 
@@ -91,18 +133,6 @@ class EvaThemeManager {
 			}
 		}
 
-		if ( $should_show ) {
-			$html = '<div id="_inner_message_fields" style="visibility: hidden; position: absolute; width: 1px; height: 1px">';
-			$html .= '<textarea id="_inner_message_content" name="_inner_message[content]"></textarea>';
-			$html .= '<input type="text" id="_inner_message_font" name="_inner_message[font]"/>';
-			$html .= '<input type="text" id="_inner_message_size" name="_inner_message[size]"/>';
-			$html .= '<input type="text" id="_inner_message_align" name="_inner_message[align]"/>';
-			$html .= '<input type="text" id="_inner_message_color" name="_inner_message[color]"/>';
-			$html .= '</div>';
-
-			$html .= '<button type="submit" class="button btn1 bshadow button--add-inner-message"><span>Add inner message</span></button>';
-			$html .= '<span class="inner-message-cost">+ ' . wc_price( $price ) . '</span>';
-			echo $html;
-		}
+		return $should_show;
 	}
 }

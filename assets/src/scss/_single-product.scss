@@ -74,6 +74,17 @@
 
 	button.single_add_to_cart_button {
 		width: 100%;
+		background-color: #000000;
+		color: #ffffff;
+	}
+
+	@media screen and (min-width: 1024px) {
+		form.cart {
+			width: 70%;
+		}
+		button.single_add_to_cart_button {
+			// width: 73%;
+		}
 	}
 }
 
@@ -111,10 +122,10 @@
 .button--add-inner-message {
 	margin-top: 20px;
 	margin-right: 20px;
-	background-color: white !important;
+	background-color: #df224f !important;
 
 	span {
-		color: #323232;
+		color: #ffffff;
 	}
 }
 
