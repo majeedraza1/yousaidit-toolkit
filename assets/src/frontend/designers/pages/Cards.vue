@@ -104,6 +104,8 @@
 				{{ comment.content }}
 			</div>
 		</modal>
+
+		<card-creator/>
 	</div>
 </template>
 
@@ -119,10 +121,12 @@ import textField from 'shapla-text-field';
 import CardItem from "../components/CardItem";
 import CardUploaderModal from "../components/CardUploaderModal";
 import DesignerEventBus from "../components/DesignerEventBus";
+import CardCreator from "@/components/CardCreator";
 
 export default {
 	name: "Cards",
 	components: {
+		CardCreator,
 		CardUploaderModal, CardItem, columns, column, shaplaButton, iconContainer, modal, radioButton, textField
 	},
 	data() {
