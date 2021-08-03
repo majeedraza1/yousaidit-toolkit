@@ -37,6 +37,7 @@
     "paypal/rest-api-sdk-php": "^1.14.0",
     "setasign/fpdf": "^1.8",
     "setasign/fpdi": "^2.3",
+    "setasign/tfpdf": "^1.32",
     "stackonet/wp-helpers": ">=1.3"
   }
 }

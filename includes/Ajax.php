@@ -2,8 +2,6 @@
 
 namespace YouSaidItCards;
 
-use YouSaidItCards\Modules\Designers\Models\DesignerCommission;
-
 defined( 'ABSPATH' ) || exit;
 
 class Ajax {
@@ -38,8 +36,34 @@ class Ajax {
 			wp_die( __( 'Sorry. This link only for developer to do some testing.', 'yousaidit-toolkit' ) );
 		}
 
-		$commission = DesignerCommission::get_commission_by_designers();
-		var_dump( $commission );
+		$items = [
+			[
+				'label'        => 'Section 1',
+				'section_type' => 'static-text',
+				'position'     => [ 'top' => 30, 'left' => 10 ],
+				'text'         => 'Hello',
+				'textOptions'  => [
+					'fontFamily' => 'Arial',
+					'size'       => 96,
+					'align'      => 'center',
+					'color'      => '#00ff00'
+				]
+			],
+			[
+				'label'        => 'Section 1',
+				'section_type' => 'static-image',
+				'position'     => [ 'top' => 80, 'left' => 10 ],
+				'imageOptions' => [
+					'img'    => [ 'id' => 37494 ],
+					'width'  => 101,
+					'height' => 'auto',
+					'align'  => 'center'
+				]
+			]
+		];
+
+		$pdf = new FreePdf();
+		$pdf->generate( 'a5', $items );
 		die();
 	}
 }

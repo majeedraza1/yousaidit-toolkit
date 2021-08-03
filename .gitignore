@@ -4,6 +4,7 @@ vendor/*
 assets/css/
 assets/fonts/
 assets/js/
+assets/images/
 .idea
 wp-helpers
 

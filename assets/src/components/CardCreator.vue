@@ -44,19 +44,54 @@
 		<div class="flex h-full relative" v-show="has_card_size">
 			<div :class="`card-canvas card-canvas--${card_size}`" :style="canvas_styles">
 				<img class="card-canvas__background" v-if="Object.keys(image).length" :src="image.full.src" alt="">
+				<div v-for="(section,index) in sections"
+					 class="card-canvas__section"
+					 :class="sectionClass(section,index)"
+					 :style="sectionStyle(section)"
+				>
+					<template v-if="section.section_type === 'static-text'">
+						{{ section.text }}
+					</template>
+					<template v-if="section.section_type === 'input-text'">
+						{{ section.placeholder }}
+					</template>
+					<template v-if="section.section_type === 'static-image'">
+						<img :src="section.imageOptions.img.src" alt="" :style="sectionImageStyle(section)">
+					</template>
+					<template v-else>
+						<!--						{{ section }}-->
+					</template>
+				</div>
 			</div>
-			<div class="p-4" style="max-width: 320px">
+			<div class="p-4" style="max-width: 320px;min-width: 320px">
+				<div>
+					<template v-for="_card_size in card_sizes" v-if="_card_size.value === card_size">
+						{{ _card_size.label }}
+					</template>
+				</div>
 				<div>
 					<h4 class="font-bold mb-2 mt-0 text-base">Background Image</h4>
 					<featured-image @click:add="show_image_modal = true"/>
 				</div>
 				<div>
 					<h4 class="font-bold mb-2 mt-0 text-base">Section</h4>
-					<shapla-button @click="show_section_modal = true">Add section</shapla-button>
-					<modal :active="show_section_modal" @close="show_section_modal = false" title="Add Section"
-						   content-size="small">
-						<layer-options/>
-					</modal>
+					<p>
+						<shapla-button @click="show_section_modal = true">Add section</shapla-button>
+					</p>
+					<!--					<modal :active="show_section_modal" @close="show_section_modal = false" title="Add Section"-->
+					<!--						   content-size="small">-->
+					<!--					</modal>-->
+					<layer-options v-show="show_section_modal" @submit="addSection"/>
+				</div>
+			</div>
+			<div>
+				<h4>Sections</h4>
+				<div>
+					<toggles>
+						<toggle v-for="section in sections" :name="section.label" :subtext="section.section_type">
+							{{ section }}
+						</toggle>
+					</toggles>
 				</div>
 			</div>
 			<media-modal
@@ -74,14 +109,14 @@
 </template>
 
 <script>
-import {modal, columns, column, shaplaButton} from 'shapla-vue-components'
+import {modal, columns, column, shaplaButton, toggles, toggle} from 'shapla-vue-components'
 import {FeaturedImage, MediaModal} from "@/shapla/shapla-media-uploader";
 import axios from "axios";
 import LayerOptions from "@/components/LayerOptions";
 
 export default {
 	name: "CardCreator",
-	components: {LayerOptions, modal, columns, column, FeaturedImage, MediaModal, shaplaButton},
+	components: {LayerOptions, modal, columns, column, FeaturedImage, MediaModal, shaplaButton, toggles, toggle},
 	props: {
 		active: {type: Boolean, default: true}
 	},
@@ -89,13 +124,17 @@ export default {
 	data() {
 		return {
 			canvas_width: 0,
+			canvas_height: 0,
 			show_image_modal: false,
 			show_section_modal: false,
 			card_size: '',
 			card_width: '',
 			card_height: '',
 			card_sizes: [
-				{value: 'a4', label: 'A4 ( 426mm x 303mm )'}
+				{value: 'a4', width: 426, height: 303, unit: 'mm', label: 'A4 ( 426mm x 303mm )'},
+				{value: 'a5', width: 303, height: 216, unit: 'mm', label: 'A5 ( 303mm x 216mm )'},
+				{value: 'a6', width: 216, height: 154, unit: 'mm', label: 'A6 ( 216mm x 154mm )'},
+				{value: 'square', width: 300, height: 150, unit: 'mm', label: 'Square ( 300mm x 150mm )'},
 			],
 			image: {},
 			images: [],
@@ -117,6 +156,19 @@ export default {
 		},
 		uploadUrl() {
 			return window.DesignerProfile.restRoot + '/designers/' + this.user.id + '/attachment';
+		},
+		canvas_width_mm() {
+			return this.px_to_mm(this.canvas_width);
+		},
+		canvas_height_mm() {
+			return this.px_to_mm(this.canvas_height);
+		},
+		canvas_scale_ration() {
+			let size = this.card_sizes.find(item => item.value === this.card_size);
+			if (typeof size === "object" && size.width) {
+				return size.width / this.canvas_width_mm;
+			}
+			return 1;
 		}
 	},
 	watch: {
@@ -127,13 +179,69 @@ export default {
 		}
 	},
 	methods: {
+		mm_to_px(mm) {
+			return Math.round(mm * 3.7795275591);
+		},
+		px_to_mm(px) {
+			return Math.round(px * 0.2645833333);
+		},
+		points_to_mm(points) {
+			return Math.round(points * 0.352778);
+		},
+		addSection(options) {
+			if (!options.label.length) {
+				options.label = `Section ${this.sections.length + 1}`
+			}
+			this.sections.push(options);
+			this.show_section_modal = false;
+		},
+		sectionClass(section, index) {
+			let classes = [`section-type--${section.section_type}`, `section-index--${index}`]
+			return classes
+		},
+		sectionStyle(section) {
+			let styles = [],
+				top = this.mm_to_px(section.position.top / this.canvas_scale_ration),
+				left = this.mm_to_px(section.position.left / this.canvas_scale_ration);
+			styles.push({left: `${left}px`});
+			styles.push({top: `${top}px`});
+			if (section.section_type === 'static-image' || section.section_type === 'input-image') {
+				if (['center', 'right'].indexOf(section.imageOptions.align) !== -1) {
+					styles.push({width: '100%', left: '0'})
+				}
+				if ('center' === section.imageOptions.align) {
+					styles.push({width: '100%', display: 'flex', justifyContent: 'center'})
+				}
+				if ('right' === section.imageOptions.align) {
+					styles.push({width: '100%', display: 'flex', justifyContent: 'flex-end'})
+				}
+			}
+			if (section.section_type === 'static-text' || section.section_type === 'input-text') {
+				let fontSize = this.mm_to_px(this.points_to_mm(section.textOptions.size) / this.canvas_scale_ration);
+				styles.push({
+					fontFamily: `${section.textOptions.fontFamily}`,
+					fontSize: `${fontSize}px`,
+					textAlign: `${section.textOptions.align}`,
+					color: `${section.textOptions.color}`,
+				})
+				if (['center', 'right'].indexOf(section.textOptions.align) !== -1) {
+					styles.push({width: '100%', left: '0'})
+				}
+			}
+			return styles
+		},
+		sectionImageStyle(section) {
+			let styles = [], width = this.mm_to_px(section.imageOptions.width / this.canvas_scale_ration)
+			styles.push({width: `${width}px`});
+			return styles;
+		},
 		calculate_canvas_width() {
 			let cardCanvas = this.$el.querySelector('.card-canvas');
+			this.canvas_height = cardCanvas.offsetHeight;
 			// 300,150
 			if (this.card_size === 'square') {
 				return cardCanvas.offsetHeight;
 			}
-
 
 			// 303,216
 			if (this.card_size === 'a5') {
@@ -178,21 +286,51 @@ export default {
 		this.getUserUploadedImages();
 		// Test data
 		this.card_size = 'a5';
+		this.sections = [
+			{
+				label: 'Section 1', section_type: 'static-text', position: {top: 10, left: 10},
+				text: 'Hello', textOptions: {fontFamily: 'Arial', size: 96, align: 'center', color: '#00ff00'}
+			},
+			{
+				label: 'Section 2', section_type: 'input-text', position: {top: 50, left: 10}, text: '',
+				placeholder: 'Jone', textOptions: {fontFamily: 'Arial', size: 80, align: 'center', color: '#323232'}
+			},
+			{
+				label: 'Section 3', section_type: 'static-image', position: {top: 100, left: 10},
+				imageOptions: {
+					img: {
+						id: 37494,
+						src: 'https://yousaidit-main.yousaidit.co.uk/bigbasket-logo2.png',
+						width: 139,
+						height: 88
+					},
+					width: 101,
+					height: 'auto',
+					align: 'right'
+				}
+			},
+		];
 	}
 }
 </script>
 
 <style lang="scss">
 .card-canvas {
+	background-image: url("../img/viewport-bg.png");
 	border: 1px dotted rgba(#000, .12);
 	display: flex;
 	height: 100%;
 	position: relative;
+	flex-shrink: 0;
 
 	&__background {
 		position: absolute;
 		width: 100%;
 		height: 100%;
+	}
+
+	&__section {
+		position: absolute;
 	}
 }
 </style>
