@@ -1,5 +1,5 @@
 <template>
-	<modal :active="active" title="Card Design Creator" content-size="full" @close="$emit('close')">
+	<modal :active="active" title="Add Dynamic Card" content-size="full" @close="$emit('close')">
 		<template v-if="!has_card_size">
 			<h1 class="text-center">Card size</h1>
 			<p class="text-center">Choose card size.</p>
@@ -64,12 +64,15 @@
 				</div>
 			</div>
 			<div class="p-4" style="max-width: 320px;min-width: 320px">
-				<div>
+				<div class="mb-2">
+					<shapla-button theme="primary" fullwidth @click="previewCard">Preview PDF</shapla-button>
+				</div>
+				<div class="mb-2">
 					<template v-for="_card_size in card_sizes" v-if="_card_size.value === card_size">
-						{{ _card_size.label }}
+						<strong>{{ _card_size.label }}</strong>
 					</template>
 				</div>
-				<div>
+				<div class="mb-2">
 					<h4 class="font-bold mb-2 mt-0 text-base">Background Image</h4>
 					<featured-image @click:add="show_image_modal = true"/>
 				</div>
@@ -118,9 +121,9 @@ export default {
 	name: "CardCreator",
 	components: {LayerOptions, modal, columns, column, FeaturedImage, MediaModal, shaplaButton, toggles, toggle},
 	props: {
-		active: {type: Boolean, default: true}
+		active: {type: Boolean, default: false}
 	},
-	emits: ['close'],
+	// emits: ['close'],
 	data() {
 		return {
 			canvas_width: 0,
@@ -240,7 +243,7 @@ export default {
 			this.canvas_height = cardCanvas.offsetHeight;
 			// 300,150
 			if (this.card_size === 'square') {
-				return cardCanvas.offsetHeight;
+				return Math.round((300 / 2) / 150 * cardCanvas.offsetHeight);
 			}
 
 			// 303,216
@@ -281,40 +284,68 @@ export default {
 				console.log(errors);
 			});
 		},
+		previewCard() {
+			this.$store.commit('SET_LOADING_STATUS', true);
+			let data = new FormData();
+			data.append('action', 'yousaidit_generate_preview_card');
+			data.append('card_size', this.card_size);
+			data.append('card_background', JSON.stringify(this.image));
+			data.append('card_items', JSON.stringify(this.sections));
+			axios.post(window.StackonetToolkit.ajaxUrl, data).then(response => {
+				this.$store.commit('SET_LOADING_STATUS', false);
+				window.open(response.data.data.redirect, '_blank');
+			}).catch(errors => {
+				this.$store.commit('SET_LOADING_STATUS', false);
+				console.log(errors);
+			});
+		},
+		setTextData() {
+			// this.card_size = 'square';
+			// this.canvas_width = this.calculate_canvas_width();
+			this.sections = [
+				{
+					label: 'Section 1',
+					section_type: 'static-text',
+					position: {top: 30, left: 10},
+					text: 'Hello',
+					textOptions: {fontFamily: 'Indie Flower', size: 96, align: 'center', color: '#00ff00'}
+				},
+				{
+					label: 'Section 2',
+					section_type: 'input-text',
+					position: {top: 50, left: 10},
+					text: '',
+					placeholder: 'Jone',
+					textOptions: {fontFamily: 'Indie Flower', size: 80, align: 'center', color: '#323232'}
+				},
+				{
+					label: 'Section 3', section_type: 'static-image', position: {top: 100, left: 10},
+					imageOptions: {
+						img: {
+							id: 808,
+							src: 'http://yousaidit.test/wp-content/uploads/2017/02/YouSaidIt_logo.png',
+							width: 1030,
+							height: 428
+						},
+						width: 101,
+						height: 'auto',
+						align: 'right'
+					}
+				},
+			];
+		}
 	},
 	mounted() {
 		this.getUserUploadedImages();
 		// Test data
-		this.card_size = 'a5';
-		this.sections = [
-			{
-				label: 'Section 1', section_type: 'static-text', position: {top: 10, left: 10},
-				text: 'Hello', textOptions: {fontFamily: 'Arial', size: 96, align: 'center', color: '#00ff00'}
-			},
-			{
-				label: 'Section 2', section_type: 'input-text', position: {top: 50, left: 10}, text: '',
-				placeholder: 'Jone', textOptions: {fontFamily: 'Arial', size: 80, align: 'center', color: '#323232'}
-			},
-			{
-				label: 'Section 3', section_type: 'static-image', position: {top: 100, left: 10},
-				imageOptions: {
-					img: {
-						id: 37494,
-						src: 'https://yousaidit-main.yousaidit.co.uk/bigbasket-logo2.png',
-						width: 139,
-						height: 88
-					},
-					width: 101,
-					height: 'auto',
-					align: 'right'
-				}
-			},
-		];
+		this.setTextData();
 	}
 }
 </script>
 
 <style lang="scss">
+@import url('https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap');
+
 .card-canvas {
 	background-image: url("../img/viewport-bg.png");
 	border: 1px dotted rgba(#000, .12);
@@ -331,6 +362,7 @@ export default {
 
 	&__section {
 		position: absolute;
+		line-height: 1;
 	}
 }
 </style>

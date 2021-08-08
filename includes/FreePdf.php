@@ -29,6 +29,10 @@ class FreePdf {
 	 * @return array
 	 */
 	public function get_size(): array {
+		if ( empty( $this->size ) ) {
+			$this->size = $this->sizes['square'];
+		}
+
 		return $this->size;
 	}
 
@@ -51,6 +55,7 @@ class FreePdf {
 		$size = $this->get_size();
 
 		$fpd = new tFPDF( 'P', 'mm', [ $size[0] / 2, $size[1] ] );
+		$fpd->AddFont( 'IndieFlower', '', 'IndieFlower-Regular.ttf', true );
 		$fpd->AddPage();
 		foreach ( $items as $item ) {
 			if ( in_array( $item['section_type'], [ 'static-text', 'input-text' ] ) ) {
@@ -75,23 +80,28 @@ class FreePdf {
 			'text'         => '',
 			'placeholder'  => '',
 			'textOptions'  => [
-				'fontFamily' => 'Arial',
-				'size'       => 16,
-				'align'      => 'left',
-				'color'      => '#323232'
+				'fontFamily'  => 'Arial',
+				'size'        => 16,
+				'align'       => 'left',
+				'color'       => '#323232',
+				'marginRight' => 0
 			]
 		] );
 		$x_pos       = intval( $item['position']['left'] );
 		$y_pos       = intval( $item['position']['top'] );
 		$font_size   = intval( $item['textOptions']['size'] );
-		$font_family = strtolower( $item['textOptions']['fontFamily'] );
+		$font_family = str_replace( ' ', '', $item['textOptions']['fontFamily'] );
 		$text_align  = strtolower( $item['textOptions']['align'] );
+		$marginRight = intval( $item['textOptions']['marginRight'] );
 		$text        = ! empty( $item['text'] ) ? sanitize_text_field( $item['text'] ) : $item['placeholder'];
 		list( $red, $green, $blue ) = self::find_rgb_color( $item['textOptions']['color'] );
 		$fpd->SetFont( $font_family, '', $font_size );
 		$fpd->SetTextColor( $red, $green, $blue );
 		if ( 'center' == $text_align ) {
 			$x_pos = $fpd->GetPageWidth() / 2 - $fpd->GetStringWidth( $text ) / 2;
+		}
+		if ( 'right' == $text_align ) {
+			$x_pos = $fpd->GetPageWidth() - ( $fpd->GetStringWidth( $text ) + $marginRight );
 		}
 
 		$fpd->Text( $x_pos, $y_pos, $text );
@@ -104,25 +114,27 @@ class FreePdf {
 	 * @param array $item
 	 */
 	private function add_image( tFPDF $fpd, array $item ) {
-		$item     = wp_parse_args( $item, [
+		$item        = wp_parse_args( $item, [
 			'label'        => 'Section 1',
 			'section_type' => 'static-image',
 			'position'     => [ 'top' => 0, 'left' => 0 ],
 			'imageOptions' => [
-				'img'    => [ 'id' => 0 ],
-				'width'  => 10,
-				'height' => 'auto',
-				'align'  => 'left'
+				'img'         => [ 'id' => 0 ],
+				'width'       => 10,
+				'height'      => 'auto',
+				'align'       => 'left',
+				'marginRight' => 0
 			]
 		] );
-		$x_pos    = intval( $item['position']['left'] );
-		$y_pos    = intval( $item['position']['top'] );
-		$height   = $item['imageOptions']['height'];
-		$height   = 'auto' == $height ? 'auto' : intval( $height );
-		$image_id = intval( $item['imageOptions']['img']['id'] );
-		$width    = intval( $item['imageOptions']['width'] );
-		$align    = intval( $item['imageOptions']['align'] );
-		$src      = wp_get_attachment_image_src( $image_id, 'full' );
+		$x_pos       = intval( $item['position']['left'] );
+		$y_pos       = intval( $item['position']['top'] );
+		$height      = $item['imageOptions']['height'];
+		$height      = 'auto' == $height ? 'auto' : intval( $height );
+		$marginRight = intval( $item['imageOptions']['marginRight'] );
+		$image_id    = intval( $item['imageOptions']['img']['id'] );
+		$width       = intval( $item['imageOptions']['width'] );
+		$align       = intval( $item['imageOptions']['align'] );
+		$src         = wp_get_attachment_image_src( $image_id, 'full' );
 		if ( ! is_array( $src ) ) {
 			return;
 		}
@@ -137,6 +149,9 @@ class FreePdf {
 		}
 		if ( 'center' == $align ) {
 			$x_pos = $fpd->GetPageWidth() / 2 - $width / 2;
+		}
+		if ( 'right' == $align ) {
+			$x_pos = $fpd->GetPageWidth() - ( $width + $marginRight );
 		}
 		$fpd->Image( $image, $x_pos, $y_pos, $width, intval( $height ) );
 	}

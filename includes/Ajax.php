@@ -23,6 +23,8 @@ class Ajax {
 			self::$instance = new self();
 
 			add_action( 'wp_ajax_yousaidit_test', [ self::$instance, 'stackonet_test' ] );
+			add_action( 'wp_ajax_yousaidit_generate_preview_card', [ self::$instance, 'generate_preview_card' ] );
+			add_action( 'wp_ajax_yousaidit_preview_card', [ self::$instance, 'yousaidit_preview_card' ] );
 		}
 
 		return self::$instance;
@@ -63,7 +65,35 @@ class Ajax {
 		];
 
 		$pdf = new FreePdf();
-		$pdf->generate( 'a5', $items );
+		$pdf->generate( 'square', $items );
+		die();
+	}
+
+	public function generate_preview_card() {
+		$card_size       = $_POST['card_size'] ?? 'square';
+		$card_background = $_POST['card_background'] ?? [];
+		if ( is_string( $card_background ) ) {
+			$card_background = json_decode( stripslashes( $card_background ), true );
+		}
+		$card_items = $_POST['card_items'] ?? [];
+		if ( is_string( $card_items ) ) {
+			$card_items = json_decode( stripslashes( $card_items ), true );
+		}
+		$data = [ 'size' => $card_size, 'background' => $card_background, 'items' => $card_items ];
+		set_transient( 'yousaidit_preview_card_options', $data, HOUR_IN_SECONDS );
+		$url = add_query_arg( [ 'action' => 'yousaidit_preview_card' ], admin_url( 'admin-ajax.php' ) );
+		wp_send_json_success( [ 'redirect' => $url, 'request_data' => $data ] );
+	}
+
+	public function yousaidit_preview_card() {
+		$transient = get_transient( 'yousaidit_preview_card_options' );
+		if ( false === $transient ) {
+			die( 'No valid options' );
+		}
+
+
+		$pdf = new FreePdf();
+		$pdf->generate( $transient['size'], $transient['items'] );
 		die();
 	}
 }

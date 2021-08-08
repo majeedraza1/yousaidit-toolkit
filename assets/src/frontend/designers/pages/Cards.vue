@@ -26,9 +26,16 @@
 			<p v-if="!filtered_cards.length && readFromServer" class="card-not-found">No card found.</p>
 		</div>
 		<div class="yousaidit-designer-cards__fab">
-			<shapla-button theme="primary" size="large" fab @click="modalActive = true">
-				<icon-container>+</icon-container>
-			</shapla-button>
+			<dropdown :hoverable="false" direction="up" :right="true">
+				<template v-slot:trigger>
+					<shapla-button theme="primary" size="large" fab>
+						<icon-container>+</icon-container>
+					</shapla-button>
+				</template>
+				<a  href="#/cards" class="shapla-dropdown-item" @click.prevent="modalActive = true">Static Card</a>
+				<span class="shapla-dropdown-divider"></span>
+				<a href="#/cards" class="shapla-dropdown-item" @click.prevent="showDynaCardModal = true">Dynamic Card</a>
+			</dropdown>
 		</div>
 		<card-uploader-modal
 			v-if="total_cards < maximum_allowed_card"
@@ -105,14 +112,14 @@
 			</div>
 		</modal>
 
-		<card-creator/>
+		<card-creator v-if="showDynaCardModal" :active="showDynaCardModal" @close="showDynaCardModal = false"/>
 	</div>
 </template>
 
 <script>
 import axios from "axios";
 import {mapGetters} from 'vuex';
-import {columns, column} from 'shapla-columns';
+import {columns, column, dropdown} from 'shapla-vue-components';
 import shaplaButton from 'shapla-button';
 import iconContainer from 'shapla-icon-container';
 import modal from 'shapla-modal';
@@ -126,12 +133,13 @@ import CardCreator from "@/components/CardCreator";
 export default {
 	name: "Cards",
 	components: {
-		CardCreator,
+		CardCreator, dropdown,
 		CardUploaderModal, CardItem, columns, column, shaplaButton, iconContainer, modal, radioButton, textField
 	},
 	data() {
 		return {
 			readFromServer: false,
+			showDynaCardModal: false,
 			modalActive: false,
 			cards: [],
 			maximum_allowed_card: 0,
