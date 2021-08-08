@@ -91,7 +91,9 @@ class EvaThemeManager {
 		$html .= '</div>';
 
 		$html .= '<button type="submit" class="button btn1 bshadow button--add-inner-message"><span>Add a message</span></button>';
-		$html .= '<span class="inner-message-cost">+ ' . wc_price( $price ) . '</span>';
+		if ( $price > 0 ) {
+			$html .= '<span class="inner-message-cost">+ ' . wc_price( $price ) . '</span>';
+		}
 		echo $html;
 	}
 
