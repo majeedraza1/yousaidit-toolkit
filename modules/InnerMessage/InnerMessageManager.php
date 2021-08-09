@@ -268,11 +268,11 @@ class InnerMessageManager {
 		$data    = wp_parse_args( $data, $default );
 
 		return [
-			'content' => wp_filter_post_kses( $data['content'] ),
-			'font'    => sanitize_text_field( $data['font'] ),
+			'content' => stripslashes( wp_filter_post_kses( $data['content'] ) ),
+			'font'    => sanitize_text_field( stripslashes( $data['font'] ) ),
+			'align'   => sanitize_text_field( stripslashes( $data['align'] ) ),
+			'color'   => sanitize_hex_color( stripslashes( $data['color'] ) ),
 			'size'    => intval( $data['size'] ),
-			'align'   => sanitize_text_field( $data['align'] ),
-			'color'   => sanitize_hex_color( $data['color'] ),
 		];
 	}
 }

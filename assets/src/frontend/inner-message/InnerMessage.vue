@@ -5,8 +5,17 @@
 			<compose :active="showModal" :inner-message="innerMessage" :card-size="card_size"
 					 :btn-text="btnText" @close="closeModal" @submit="submit"/>
 		</modal>
-		<modal v-if="showViewModal" :active="true" type="box" content-size="medium" @close="showViewModal = false">
-			<div v-if="innerMessage.content" :style="innerMessageStyle" v-html="innerMessage.content"/>
+		<modal v-if="showViewModal" :active="true" type="card" title="Preview" content-size="full"
+			   @close="showViewModal = false">
+<!--			<div v-if="innerMessage.content" :class="innerMessageClass" :style="innerMessageStyle"-->
+<!--				 v-html="innerMessage.content"/>-->
+			<div class="editable-content-container">
+				<div class="editable-content" :class="innerMessageClass" :style="`--padding-top: ${paddingTop}`">
+					<div class="editable-content__editor" :style="innerMessageStyle">
+						<div v-html="innerMessage.content"></div>
+					</div>
+				</div>
+			</div>
 		</modal>
 		<confirm-dialog/>
 		<notification :options="notification"/>
@@ -39,15 +48,43 @@ export default {
 	},
 	computed: {
 		...mapState(['loading', 'notification']),
+		paddingTop() {
+			if ('a4' === this.card_size) {
+				return (100 / (426 / 2) * 303) + '%';
+			}
+			if ('a5' === this.card_size) {
+				return (100 / (303 / 2) * 216) + '%';
+			}
+			if ('a6' === this.card_size) {
+				return (100 / (216 / 2) * 154) + '%';
+			}
+			if ('square' === this.card_size) {
+				return (100 / (300 / 2) * 150) + '%';
+			}
+			return '100%';
+		},
+		innerMessageClass() {
+			let classes = ['card-size'];
+			if (this.card_size) {
+				classes.push(`card-size--${this.card_size}`);
+			} else {
+				classes.push('card-size--square');
+			}
+
+			return classes;
+		},
 		innerMessageStyle() {
 			let styles = [];
 			if (!Object.keys(this.innerMessage).length) {
 				return styles;
 			}
-			styles.push({"font-family": this.innerMessage.font});
-			styles.push({"text-align": this.innerMessage.align});
-			styles.push({"color": this.innerMessage.color});
-			styles.push({"font-size": this.innerMessage.size + 'px'});
+			styles.push({
+				// height: '100%',
+				"--font-family": this.innerMessage.font,
+				"--text-align": this.innerMessage.align,
+				"--color": this.innerMessage.color,
+				"--font-size": this.innerMessage.size + 'px'
+			});
 			return styles;
 		},
 		btnText() {
@@ -90,6 +127,11 @@ export default {
 					if (data.mode === 'view') {
 						this.showViewModal = true;
 						this.innerMessage = response.data._inner_message;
+						if (response.data.variation["attribute_pa_size"]) {
+							this.card_size = response.data.variation["attribute_pa_size"];
+						} else {
+							this.card_size = '';
+						}
 					}
 					if (data.mode === 'edit') {
 						this.showModal = true;
@@ -184,7 +226,7 @@ export default {
 				margin-top: 32px;
 				height: calc(100vh - 32px);
 
-				@media screen and (max-width: 782px){
+				@media screen and (max-width: 782px) {
 					margin-top: 46px;
 					height: calc(100vh - 46px);
 				}
