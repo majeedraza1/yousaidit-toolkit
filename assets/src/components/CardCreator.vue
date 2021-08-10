@@ -91,7 +91,8 @@
 				<h4>Sections</h4>
 				<div>
 					<toggles>
-						<toggle v-for="section in sections" :name="section.label" :subtext="section.section_type">
+						<toggle v-for="(section, index) in sections" :key="index" :name="section.label"
+								:subtext="section.section_type">
 							{{ section }}
 						</toggle>
 					</toggles>

@@ -7,8 +7,6 @@
 		</modal>
 		<modal v-if="showViewModal" :active="true" type="card" title="Preview" content-size="full"
 			   @close="showViewModal = false">
-<!--			<div v-if="innerMessage.content" :class="innerMessageClass" :style="innerMessageStyle"-->
-<!--				 v-html="innerMessage.content"/>-->
 			<div class="editable-content-container">
 				<div class="editable-content" :class="innerMessageClass" :style="`--padding-top: ${paddingTop}`">
 					<div class="editable-content__editor" :style="innerMessageStyle">

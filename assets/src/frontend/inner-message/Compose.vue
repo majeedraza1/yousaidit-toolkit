@@ -1,9 +1,9 @@
 <template>
-	<div class="yousaidit-inner-message-compose flex flex-col h-full">
-		<div class="h-full flex flex-wrap">
+	<div class="yousaidit-inner-message-compose flex flex-col h-full -m-4 p-4 sm:bg-gray-100">
+		<div class="h-full flex flex-wrap justify-center">
 			<div class="flex items-center justify-center flex-grow" id="editable-content-container">
 				<editable-content
-					class="shadow-lg sm:mb-4"
+					class="shadow-lg sm:mb-4 sm:bg-white"
 					placeholder="Please click here to write your message"
 					:font-family="font_family"
 					:font-size="font_size"
@@ -16,9 +16,9 @@
 					Oops... your message is too long, please keep inside the box.
 				</div>
 			</div>
-			<div>
+			<div class="sm:mt-4 sm:mb-4">
 				<div class="flex flex-col h-full bg-gray-100 w-80 ml-auto">
-					<tabs>
+					<tabs centred>
 						<tab name="Font" selected>
 							<div class="font-normal px-4 text-center">Choose Font Family</div>
 							<div class="inner-message-font-families">
