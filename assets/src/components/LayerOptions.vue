@@ -1,66 +1,206 @@
 <template>
-	<div class="bg-gray-100 px-2 py-2 rounded">
-		<div class="mb-2">
-			<h4 class="text-base">Section type</h4>
-			<div class="w-full">
-				<select class="mb-0" v-model="options.section_type">
-					<option value="static-text">Static Text</option>
-					<option value="static-image">Static Image</option>
-					<option value="input-text">Text Input</option>
-					<option value="input-image">Image Uploader</option>
-				</select>
+	<div class="layer-options-container">
+		<side-navigation :active="active" @close="cancel" position="right">
+			<div class="layer-options-inside">
+				<columns multiline>
+					<column :tablet="12">
+						<div class="mb-2">
+							<div class="w-full">
+								<select-field label="Section Type" :options="section_types"
+											  v-model="options.section_type"/>
+							</div>
+						</div>
+						<div class="mb-2">
+							<h4 class="text-base">Position</h4>
+							<div class="flex flex-wrap">
+								<div class="w-1/2 p-1">
+									<text-field type="number" label="Left (mm)" v-model="options.position.left"/>
+								</div>
+								<div class="w-1/2 p-1">
+									<text-field type="number" label="Top (mm)" v-model="options.position.top"/>
+								</div>
+							</div>
+						</div>
+					</column>
+					<column :tablet="12">
+						<div class="mb-2" v-if="'static-text' === this.options.section_type">
+							<h4 class="text-base">Content</h4>
+							<text-field label="Text" type="textarea" v-model="options.text" rows="2"/>
+						</div>
+						<div class="mb-2" v-if="'input-text' === this.options.section_type">
+							<h4 class="text-base">Content</h4>
+							<text-field label="Placeholder" type="textarea" v-model="options.placeholder" rows="2"/>
+						</div>
+						<div class="mb-2" v-if="-1 !== ['static-text','input-text'].indexOf(this.options.section_type)">
+							<h4 class="text-base">Text Options</h4>
+							<div class="flex flex-wrap">
+								<div class="w-full p-1">
+									<text-field label="Font Family" v-model="options.textOptions.fontFamily"/>
+								</div>
+								<div class="w-1/2 p-1">
+									<select-field label="Align" v-model="options.textOptions.align"
+												  :options="text_aligns"/>
+								</div>
+								<div class="w-1/2 p-1">
+									<text-field type="number" label="Font Size (pt)"
+												v-model="options.textOptions.size"/>
+								</div>
+								<div class="w-full p-1">
+									<text-field label="Text Color" v-model="options.textOptions.color"/>
+								</div>
+							</div>
+						</div>
+						<div class="mb-2"
+							 v-if="-1 !== ['static-image','input-image'].indexOf(this.options.section_type)">
+							<h4 class="text-base">Image</h4>
+							<div class="flex flex-wrap mb-2">
+								<div class="w-full p-1">
+									<featured-image @click:add="show_image_modal = true" @click:clear="clearImage"
+													:image-url="options.imageOptions.img.src"/>
+								</div>
+							</div>
+							<h4 class="text-base">Image Options</h4>
+							<div class="flex flex-wrap">
+								<div class="w-full p-1">
+									<select-field label="Align" v-model="options.imageOptions.align"
+												  :options="text_aligns"/>
+								</div>
+								<div class="w-1/2 p-1">
+									<text-field type="number" label="Width (mm)" v-model="options.imageOptions.width"/>
+								</div>
+								<div class="w-1/2 p-1">
+									<text-field type="number" label="Height" v-model="options.imageOptions.height"/>
+								</div>
+							</div>
+						</div>
+					</column>
+				</columns>
 			</div>
-		</div>
-		<div class="mb-2">
-			<h4 class="text-base">Position</h4>
-			<div class="flex flex-wrap bg-gray-200 rounded">
-				<div class="w-1/2 p-1">
-					<label class="text-sm">Left (mm)</label>
-					<input type="text" class="w-full p-1" v-model="options.position.left">
-				</div>
-				<div class="w-1/2 p-1">
-					<label class="text-sm">Top (mm)</label>
-					<input type="text" class="w-full p-1" v-model="options.position.top">
-				</div>
-			</div>
-		</div>
-		<div>
-			<shapla-button theme="default" @click="cancel">Cancel</shapla-button>
-			<shapla-button theme="primary" @click="confirm">Confirm</shapla-button>
-		</div>
+
+			<template v-slot:foot>
+				<shapla-button theme="default" @click="cancel">Cancel</shapla-button>
+				<shapla-button theme="primary" :disabled="!canSubmit" @click="confirm">Confirm</shapla-button>
+			</template>
+		</side-navigation>
+		<media-modal
+			v-if="show_image_modal"
+			:active="show_image_modal"
+			@close="show_image_modal = false"
+			:images="images"
+			:url="uploadUrl"
+			@select:image="handleCardLogoImageId"
+			@before:send="addNonceHeader"
+			@success="(file,response)=>refreshMediaList(response,'card-image')"
+		/>
 	</div>
 </template>
 
 <script>
-import {shaplaButton} from 'shapla-vue-components'
+import {modal, shaplaButton, textField, selectField, columns, column, sideNavigation} from 'shapla-vue-components';
+import {FeaturedImage, MediaModal} from "@/shapla/shapla-media-uploader";
 
 const defaultOptions = {
 	label: '',
 	section_type: '',
-	position: {left: '', top: ''}
+	position: {left: '', top: ''},
+	text: '',
+	placeholder: '',
+	textOptions: {
+		fontFamily: '',
+		size: '16',
+		align: 'left',
+		color: '#000000',
+	},
+	imageOptions: {
+		img: {id: '', src: '', width: '', height: ''},
+		width: '',
+		height: 'auto',
+		align: 'left',
+	}
 };
 export default {
 	name: "LayerOptions",
-	components: {shaplaButton},
+	components: {
+		sideNavigation, modal, shaplaButton, textField, selectField, columns, column, FeaturedImage, MediaModal
+	},
+	props: {
+		active: {type: Boolean, default: false},
+		value: {},
+		images: {type: Array, default: () => []},
+	},
 	emits: ['submit'],
 	data() {
 		return {
-			options: defaultOptions
+			options: Object.assign({}, defaultOptions),
+			show_image_modal: false,
+			section_types: [
+				{value: 'static-text', label: 'Static Text'},
+				{value: 'static-image', label: 'Static Image'},
+				{value: 'input-text', label: 'Text Input'},
+				{value: 'input-image', label: 'Image Uploader'},
+			],
+			text_aligns: [
+				{value: 'left', label: 'Left'},
+				{value: 'center', label: 'Center'},
+				{value: 'right', label: 'Right'},
+			],
+		}
+	},
+	computed: {
+		user() {
+			return DesignerProfile.user
+		},
+		uploadUrl() {
+			return window.DesignerProfile.restRoot + '/designers/' + this.user.id + '/attachment';
+		},
+		canSubmit() {
+			if (!this.options.section_type.length) {
+				return false;
+			}
+			if (!(this.options.position.left.length && this.options.position.top.length)) {
+				return false;
+			}
+			return true;
 		}
 	},
 	methods: {
 		confirm() {
 			this.$emit('submit', this.options);
-			this.options = defaultOptions;
+			this.options = Object.assign({}, defaultOptions);
 		},
 		cancel() {
 			this.$emit('cancel');
-			this.options = defaultOptions;
+			this.options = Object.assign({}, defaultOptions);
+		},
+		refreshMediaList(response, type) {
+			this.$emit('upload', response, type);
+		},
+		addNonceHeader(xhr) {
+			xhr.setRequestHeader('X-WP-Nonce', window.DesignerProfile.restNonce);
+		},
+		handleCardLogoImageId(image) {
+			this.options.imageOptions.img = image.full || image.thumbnail;
+			this.options.imageOptions.img['id'] = image.id ?? 0;
+		},
+		clearImage() {
+			this.options.imageOptions.img = {id: '', src: '', width: '', height: ''};
 		}
 	}
 }
 </script>
 
-<style scoped>
+<style lang="scss">
+.layer-options-container {
+	.shapla-sidenav__background,
+	.shapla-sidenav__body {
+		position: fixed;
+	}
+}
 
+.layer-options-inside {
+	.admin-bar & {
+		margin-top: 32px;
+		padding: .5rem;
+	}
+}
 </style>

@@ -1,7 +1,7 @@
 <template>
 	<div class="yousaidit-inner-message">
-		<modal :active="showModal" type="box" content-size="full" @close="closeModal" :show-close-icon="false"
-			   :close-on-background-click="false" class="modal--inner-message-compose">
+		<modal :active="showModal" type="box" content-size="full" @close="closeModal"
+			   :show-close-icon="false" :close-on-background-click="false" class="modal--inner-message-compose">
 			<compose :active="showModal" :inner-message="innerMessage" :card-size="card_size"
 					 :btn-text="btnText" @close="closeModal" @submit="submit"/>
 		</modal>

@@ -81,10 +81,8 @@
 					<p>
 						<shapla-button @click="show_section_modal = true">Add section</shapla-button>
 					</p>
-					<!--					<modal :active="show_section_modal" @close="show_section_modal = false" title="Add Section"-->
-					<!--						   content-size="small">-->
-					<!--					</modal>-->
-					<layer-options v-show="show_section_modal" @submit="addSection"/>
+					<layer-options :active="show_section_modal" @submit="addSection" @upload="refreshMediaList"
+								   @cancel="show_section_modal = false" :images="images"/>
 				</div>
 			</div>
 			<div>
@@ -301,8 +299,8 @@ export default {
 			});
 		},
 		setTextData() {
-			// this.card_size = 'square';
-			// this.canvas_width = this.calculate_canvas_width();
+			this.card_size = 'square';
+			this.canvas_width = this.calculate_canvas_width();
 			this.sections = [
 				{
 					label: 'Section 1',
