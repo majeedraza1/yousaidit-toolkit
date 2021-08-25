@@ -65,7 +65,7 @@
   "dependencies": {
     "axios": "^0.21.1",
     "shapla-css": "^2.0.0",
-    "shapla-vue-components": ">=1.6.1",
+    "shapla-vue-components": "^1.7",
     "v-emoji-picker": "^2.3.3",
     "vue": "^2.6.12",
     "vue-router": "^3.5.1",

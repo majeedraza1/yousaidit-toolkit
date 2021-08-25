@@ -79,21 +79,46 @@
 				<div>
 					<h4 class="font-bold mb-2 mt-0 text-base">Section</h4>
 					<p>
-						<shapla-button @click="show_section_modal = true">Add section</shapla-button>
+						<shapla-button @click.native="show_section_modal = true">Add section</shapla-button>
 					</p>
-					<layer-options :active="show_section_modal" @submit="addSection" @upload="refreshMediaList"
-								   @cancel="show_section_modal = false" :images="images"/>
 				</div>
 			</div>
-			<div>
+			<div class="flex-grow">
 				<h4>Sections</h4>
-				<div>
-					<toggles>
-						<toggle v-for="(section, index) in sections" :key="index" :name="section.label"
-								:subtext="section.section_type">
-							{{ section }}
-						</toggle>
-					</toggles>
+				<div class="w-full">
+					<div v-for="(section, index) in sections" :key="index"
+						 class="border border-solid border-gray-400 w-full p-2 rounded mb-2 flex items-center space-x-2">
+						<icon-container hoverable>
+							<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px"
+								 fill="#000000">
+								<path d="M0 0h24v24H0V0z" fill="none"/>
+								<path
+									d="M11 18c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2zm-2-8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm6 4c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+							</svg>
+						</icon-container>
+						<div class="flex-grow">
+							<div class="font-medium">{{ section.label }}</div>
+							<div class="text-sm">{{ section.section_type }}</div>
+						</div>
+						<div>
+							<icon-container hoverable @click="editSection(section,index)">
+								<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px"
+									 fill="#000000">
+									<path d="M0 0h24v24H0V0z" fill="none"/>
+									<path
+										d="M14.06 9.02l.92.92L5.92 19H5v-.92l9.06-9.06M17.66 3c-.25 0-.51.1-.7.29l-1.83 1.83 3.75 3.75 1.83-1.83c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.2-.2-.45-.29-.71-.29zm-3.6 3.19L3 17.25V21h3.75L17.81 9.94l-3.75-3.75z"/>
+								</svg>
+							</icon-container>
+							<icon-container hoverable @click="deleteSection(section,index)">
+								<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px"
+									 fill="#000000">
+									<path d="M0 0h24v24H0V0z" fill="none"/>
+									<path
+										d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-3.5l-1-1zM18 7H6v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7z"/>
+								</svg>
+							</icon-container>
+						</div>
+					</div>
 				</div>
 			</div>
 			<media-modal
@@ -106,19 +131,39 @@
 				@before:send="addNonceHeader"
 				@success="(file,response)=>refreshMediaList(response,'card-logo')"
 			/>
+			<layer-options
+				:active="show_section_modal"
+				@submit="addSection"
+				@upload="refreshMediaList"
+				@cancel="show_section_modal = false"
+				:images="images"
+			/>
+			<layer-options
+				:active="show_section_edit_modal"
+				:title="`Edit Section: ${active_section.label}`"
+				mode="edit"
+				@submit="updateSection"
+				@upload="refreshMediaList"
+				@cancel="show_section_edit_modal = false"
+				:images="images"
+				:value="active_section"
+			/>
 		</div>
 	</modal>
 </template>
 
 <script>
-import {modal, columns, column, shaplaButton, toggles, toggle} from 'shapla-vue-components'
+import {modal, columns, column, shaplaButton, toggles, toggle, iconContainer} from 'shapla-vue-components'
 import {FeaturedImage, MediaModal} from "@/shapla/shapla-media-uploader";
 import axios from "axios";
 import LayerOptions from "@/components/LayerOptions";
 
 export default {
 	name: "CardCreator",
-	components: {LayerOptions, modal, columns, column, FeaturedImage, MediaModal, shaplaButton, toggles, toggle},
+	components: {
+		LayerOptions, modal, columns, column, FeaturedImage, MediaModal, shaplaButton, toggles, toggle,
+		iconContainer
+	},
 	props: {
 		active: {type: Boolean, default: false}
 	},
@@ -129,6 +174,9 @@ export default {
 			canvas_height: 0,
 			show_image_modal: false,
 			show_section_modal: false,
+			show_section_edit_modal: false,
+			active_section_index: -1,
+			active_section: {},
 			card_size: '',
 			card_width: '',
 			card_height: '',
@@ -196,6 +244,23 @@ export default {
 			}
 			this.sections.push(options);
 			this.show_section_modal = false;
+		},
+		editSection(section, index) {
+			this.active_section = section;
+			this.active_section_index = index;
+			this.show_section_edit_modal = true;
+		},
+		updateSection(sectionData) {
+			this.sections[this.active_section_index] = sectionData;
+			this.show_section_edit_modal = false;
+			this.active_section = {};
+		},
+		deleteSection(section, index) {
+			this.$dialog.confirm('Are you sure to delete the section?').then(confirmed => {
+				if (confirmed) {
+					this.sections.splice(index, 1);
+				}
+			})
 		},
 		sectionClass(section, index) {
 			let classes = [`section-type--${section.section_type}`, `section-index--${index}`]

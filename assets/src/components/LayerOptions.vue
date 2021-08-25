@@ -2,85 +2,94 @@
 	<div class="layer-options-container">
 		<side-navigation :active="active" @close="cancel" position="right">
 			<div class="layer-options-inside">
-				<columns multiline>
-					<column :tablet="12">
-						<div class="mb-2">
-							<div class="w-full">
-								<select-field label="Section Type" :options="section_types"
-											  v-model="options.section_type"/>
-							</div>
-						</div>
-						<div class="mb-2">
-							<h4 class="text-base">Position</h4>
-							<div class="flex flex-wrap">
-								<div class="w-1/2 p-1">
-									<text-field type="number" label="Left (mm)" v-model="options.position.left"/>
-								</div>
-								<div class="w-1/2 p-1">
-									<text-field type="number" label="Top (mm)" v-model="options.position.top"/>
+				<div class="layer-options-head">{{ title }}</div>
+				<div class="layer-options-body">
+					<columns multiline>
+						<column :tablet="12">
+							<div class="mb-2">
+								<div class="w-full">
+									<select-field label="Section Type" :options="section_types"
+												  v-model="options.section_type"/>
 								</div>
 							</div>
-						</div>
-					</column>
-					<column :tablet="12">
-						<div class="mb-2" v-if="'static-text' === this.options.section_type">
-							<h4 class="text-base">Content</h4>
-							<text-field label="Text" type="textarea" v-model="options.text" rows="2"/>
-						</div>
-						<div class="mb-2" v-if="'input-text' === this.options.section_type">
-							<h4 class="text-base">Content</h4>
-							<text-field label="Placeholder" type="textarea" v-model="options.placeholder" rows="2"/>
-						</div>
-						<div class="mb-2" v-if="-1 !== ['static-text','input-text'].indexOf(this.options.section_type)">
-							<h4 class="text-base">Text Options</h4>
-							<div class="flex flex-wrap">
-								<div class="w-full p-1">
-									<text-field label="Font Family" v-model="options.textOptions.fontFamily"/>
-								</div>
-								<div class="w-1/2 p-1">
-									<select-field label="Align" v-model="options.textOptions.align"
-												  :options="text_aligns"/>
-								</div>
-								<div class="w-1/2 p-1">
-									<text-field type="number" label="Font Size (pt)"
-												v-model="options.textOptions.size"/>
-								</div>
-								<div class="w-full p-1">
-									<text-field label="Text Color" v-model="options.textOptions.color"/>
+							<div class="mb-2">
+								<h4 class="text-base">Position</h4>
+								<div class="flex flex-wrap">
+									<div class="w-1/2 p-1">
+										<text-field type="number" label="Left (mm)" v-model="options.position.left"/>
+									</div>
+									<div class="w-1/2 p-1">
+										<text-field type="number" label="Top (mm)" v-model="options.position.top"/>
+									</div>
 								</div>
 							</div>
-						</div>
-						<div class="mb-2"
-							 v-if="-1 !== ['static-image','input-image'].indexOf(this.options.section_type)">
-							<h4 class="text-base">Image</h4>
-							<div class="flex flex-wrap mb-2">
-								<div class="w-full p-1">
-									<featured-image @click:add="show_image_modal = true" @click:clear="clearImage"
-													:image-url="options.imageOptions.img.src"/>
+						</column>
+						<column :tablet="12">
+							<div class="mb-2" v-if="'static-text' === this.options.section_type">
+								<h4 class="text-base">Content</h4>
+								<text-field label="Text" type="textarea" v-model="options.text" rows="2"/>
+							</div>
+							<div class="mb-2" v-if="'input-text' === this.options.section_type">
+								<h4 class="text-base">Content</h4>
+								<text-field label="Placeholder" type="textarea" v-model="options.placeholder" rows="2"/>
+							</div>
+							<div class="mb-2"
+								 v-if="-1 !== ['static-text','input-text'].indexOf(this.options.section_type)">
+								<h4 class="text-base">Text Options</h4>
+								<div class="flex flex-wrap">
+									<div class="w-full p-1">
+										<text-field label="Font Family" v-model="options.textOptions.fontFamily"/>
+									</div>
+									<div class="w-1/2 p-1">
+										<select-field label="Align" v-model="options.textOptions.align"
+													  :options="text_aligns"/>
+									</div>
+									<div class="w-1/2 p-1">
+										<text-field type="number" label="Font Size (pt)"
+													v-model="options.textOptions.size"/>
+									</div>
+									<div class="w-full p-1">
+										<text-field label="Text Color" v-model="options.textOptions.color"/>
+									</div>
 								</div>
 							</div>
-							<h4 class="text-base">Image Options</h4>
-							<div class="flex flex-wrap">
-								<div class="w-full p-1">
-									<select-field label="Align" v-model="options.imageOptions.align"
-												  :options="text_aligns"/>
+							<div class="mb-2"
+								 v-if="-1 !== ['static-image','input-image'].indexOf(this.options.section_type)">
+								<h4 class="text-base">Image</h4>
+								<div class="flex flex-wrap mb-2">
+									<div class="w-full p-1">
+										<featured-image @click:add="show_image_modal = true" @click:clear="clearImage"
+														:image-url="options.imageOptions.img.src"/>
+									</div>
 								</div>
-								<div class="w-1/2 p-1">
-									<text-field type="number" label="Width (mm)" v-model="options.imageOptions.width"/>
-								</div>
-								<div class="w-1/2 p-1">
-									<text-field type="number" label="Height" v-model="options.imageOptions.height"/>
+								<h4 class="text-base">Image Options</h4>
+								<div class="flex flex-wrap">
+									<div class="w-full p-1">
+										<select-field label="Align" v-model="options.imageOptions.align"
+													  :options="text_aligns"/>
+									</div>
+									<div class="w-1/2 p-1">
+										<text-field type="number" label="Width (mm)"
+													v-model="options.imageOptions.width"/>
+									</div>
+									<div class="w-1/2 p-1">
+										<text-field label="Height" v-model="options.imageOptions.height"/>
+									</div>
 								</div>
 							</div>
-						</div>
-					</column>
-				</columns>
+						</column>
+					</columns>
+				</div>
+				<div class="layer-options-footer absolute bottom-0 left-0 w-full flex p-2 space-x-2">
+					<div class="w-1/2">
+						<shapla-button theme="default" @click="cancel" fullwidth>Cancel</shapla-button>
+					</div>
+					<div class="w-1/2">
+						<shapla-button theme="primary" @click="confirm" :disabled="!canSubmit" fullwidth>Confirm
+						</shapla-button>
+					</div>
+				</div>
 			</div>
-
-			<template v-slot:foot>
-				<shapla-button theme="default" @click="cancel">Cancel</shapla-button>
-				<shapla-button theme="primary" :disabled="!canSubmit" @click="confirm">Confirm</shapla-button>
-			</template>
 		</side-navigation>
 		<media-modal
 			v-if="show_image_modal"
@@ -125,13 +134,22 @@ export default {
 	},
 	props: {
 		active: {type: Boolean, default: false},
+		title: {type: String, default: 'Create Card'},
 		value: {},
 		images: {type: Array, default: () => []},
+		mode: {type: String, default: 'create'}
+	},
+	watch: {
+		value(newValue) {
+			if (this.mode === 'edit') {
+				this.options = JSON.parse(JSON.stringify(Object.assign({}, defaultOptions, newValue)));
+			}
+		}
 	},
 	emits: ['submit'],
 	data() {
 		return {
-			options: Object.assign({}, defaultOptions),
+			options: JSON.parse(JSON.stringify(Object.assign({}, defaultOptions))),
 			show_image_modal: false,
 			section_types: [
 				{value: 'static-text', label: 'Static Text'},
@@ -157,7 +175,7 @@ export default {
 			if (!this.options.section_type.length) {
 				return false;
 			}
-			if (!(this.options.position.left.length && this.options.position.top.length)) {
+			if (!(this.options.position.left && this.options.position.top)) {
 				return false;
 			}
 			return true;
@@ -166,11 +184,11 @@ export default {
 	methods: {
 		confirm() {
 			this.$emit('submit', this.options);
-			this.options = Object.assign({}, defaultOptions);
+			this.options = JSON.parse(JSON.stringify(Object.assign({}, defaultOptions)));
 		},
 		cancel() {
 			this.$emit('cancel');
-			this.options = Object.assign({}, defaultOptions);
+			this.options = JSON.parse(JSON.stringify(Object.assign({}, defaultOptions)));
 		},
 		refreshMediaList(response, type) {
 			this.$emit('upload', response, type);
@@ -200,7 +218,17 @@ export default {
 .layer-options-inside {
 	.admin-bar & {
 		margin-top: 32px;
-		padding: .5rem;
 	}
+}
+
+.layer-options-head {
+	font-weight: bold;
+	border-bottom: 1px solid rgba(#000, 0.12);
+}
+
+.layer-options-head,
+.layer-options-body,
+.layer-options-footer {
+	padding: .5rem;
 }
 </style>
