@@ -1,10 +1,15 @@
-@import "~shapla-modal/src/modal";
+@use '~shapla-css/src/index.scss' as shapla;
+
+@include shapla.button;
+@include shapla.modal;
+
 @import "checkbox";
 @import "author-card";
 @import "designer-profile/profile-header";
 @import "designer-profile/designer-profile";
 @import "tailwind";
 @import "single-product";
+
 
 @font-face {
 	font-family: 'moon_flower_boldregular';

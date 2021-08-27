@@ -134,7 +134,7 @@ export default {
 	},
 	props: {
 		active: {type: Boolean, default: false},
-		title: {type: String, default: 'Create Card'},
+		title: {type: String, default: 'Add New Section'},
 		value: {},
 		images: {type: Array, default: () => []},
 		mode: {type: String, default: 'create'}

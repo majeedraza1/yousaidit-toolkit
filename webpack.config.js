@@ -1,6 +1,6 @@
 const path = require('path');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
+const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const TerserPlugin = require('terser-webpack-plugin');
 const BrowserSyncPlugin = require('browser-sync-webpack-plugin');
 const autoprefixer = require('autoprefixer');
@@ -124,7 +124,7 @@ module.exports = (env, argv) => {
 		optimization: {
 			minimizer: [
 				new TerserPlugin(),
-				new OptimizeCSSAssetsPlugin()
+				new CssMinimizerPlugin()
 			],
 		},
 		resolve: {

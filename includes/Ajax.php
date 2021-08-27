@@ -81,7 +81,10 @@ class Ajax {
 		}
 		$data = [ 'size' => $card_size, 'background' => $card_background, 'items' => $card_items ];
 		set_transient( 'yousaidit_preview_card_options', $data, HOUR_IN_SECONDS );
-		$url = add_query_arg( [ 'action' => 'yousaidit_preview_card' ], admin_url( 'admin-ajax.php' ) );
+		$url = add_query_arg( [
+			'action' => 'yousaidit_preview_card',
+			'_token' => md5( serialize( $data ) )
+		], admin_url( 'admin-ajax.php' ) );
 		wp_send_json_success( [ 'redirect' => $url, 'request_data' => $data ] );
 	}
 

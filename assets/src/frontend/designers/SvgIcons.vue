@@ -79,8 +79,6 @@
 				<path id="Path_38" data-name="Path 38" d="M246.429,70.6h-.536V67.378h1.984v1.6h-.536V67.914h-.911Z" transform="translate(-239.25 -65.558)" fill="#7d684a"/>
 			</g>
 		</symbol>
-
-
 	</svg>
 </template>
 
