@@ -43,8 +43,9 @@
 				</column>
 			</columns>
 			<div class="flex h-full relative space-x-4 justify-center" v-show="has_card_size">
-				<layer-canvas
+				<card-preview
 					:card_size="card_size"
+					:card_sizes="card_sizes"
 					:canvas_width="canvas_width"
 					:canvas_scale_ration="canvas_scale_ration"
 					:image="image"
@@ -123,13 +124,13 @@ import axios from "axios";
 import {modal, columns, column, shaplaButton, toggles, toggle, iconContainer} from 'shapla-vue-components'
 import {FeaturedImage, MediaModal} from "@/shapla/shapla-media-uploader";
 import LayerOptions from "@/components/DynamicCardGenerator/LayerOptions";
-import {default as LayerCanvas} from "@/components/DynamicCardGenerator/CardPreview";
+import CardPreview from "@/components/DynamicCardGenerator/CardPreview";
 import SvgIcon from "@/components/DynamicCardGenerator/SvgIcon";
 
 export default {
 	name: "CardCreator",
 	components: {
-		SvgIcon, LayerCanvas, LayerOptions, modal, columns, column, FeaturedImage, MediaModal, shaplaButton,
+		SvgIcon, CardPreview, LayerOptions, modal, columns, column, FeaturedImage, MediaModal, shaplaButton,
 		toggles, toggle, iconContainer
 	},
 	props: {
@@ -160,6 +161,9 @@ export default {
 		}
 	},
 	computed: {
+		font_families() {
+			return DesignerProfile.fonts;
+		},
 		has_card_size() {
 			return ['square', 'a5', 'a6'].indexOf(this.card_size) !== -1;
 		},
@@ -218,9 +222,13 @@ export default {
 			this.show_section_edit_modal = true;
 		},
 		updateSection(sectionData) {
-			this.sections[this.active_section_index] = sectionData;
+			let current_data = JSON.parse(JSON.stringify(this.sections));
+			current_data[this.active_section_index] = sectionData;
+
+			this.sections = current_data;
 			this.show_section_edit_modal = false;
 			this.active_section = {};
+			this.active_section_index = -1;
 		},
 		deleteSection(section, index) {
 			this.$dialog.confirm('Are you sure to delete the section?').then(confirmed => {
@@ -299,7 +307,7 @@ export default {
 					section_type: 'static-text',
 					position: {top: 30, left: 10},
 					text: 'Hello',
-					textOptions: {fontFamily: 'Indie Flower', size: 96, align: 'center', color: '#00ff00'}
+					textOptions: {fontFamily: 'IndieFlower', size: 96, align: 'center', color: '#00ff00'}
 				},
 				{
 					label: 'Section 2',
@@ -307,10 +315,11 @@ export default {
 					position: {top: 50, left: 10},
 					text: '',
 					placeholder: 'Jone',
-					textOptions: {fontFamily: 'Indie Flower', size: 80, align: 'center', color: '#323232'}
+					textOptions: {fontFamily: 'IndieFlower', size: 80, align: 'center', color: '#323232'}
 				},
 				{
-					label: 'Section 3', section_type: 'static-image', position: {top: 100, left: 10},
+					label: 'Section 3', section_type: 'static-image',
+					position: {top: 75, left: 10},
 					imageOptions: {
 						img: {
 							id: 808,
@@ -335,5 +344,4 @@ export default {
 </script>
 
 <style lang="scss">
-@import url('https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap');
 </style>

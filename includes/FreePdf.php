@@ -3,6 +3,7 @@
 namespace YouSaidItCards;
 
 use tFPDF;
+use YouSaidItCards\Modules\InnerMessage\Fonts;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -54,8 +55,22 @@ class FreePdf {
 
 		$size = $this->get_size();
 
-		$fpd = new tFPDF( 'P', 'mm', [ $size[0] / 2, $size[1] ] );
-		$fpd->AddFont( 'IndieFlower', '', 'IndieFlower-Regular.ttf', true );
+		$fpd         = new tFPDF( 'P', 'mm', [ $size[0] / 2, $size[1] ] );
+		$fonts_list  = Fonts::get_list();
+		$added_fonts = [];
+		foreach ( $items as $item ) {
+			if ( ! in_array( $item['section_type'], [ 'static-text', 'input-text' ] ) ) {
+				continue;
+			}
+			$font_family = str_replace( ' ', '', $item['textOptions']['fontFamily'] );
+			if ( in_array( $font_family, $added_fonts ) ) {
+				continue;
+			}
+			$added_fonts[] = $font_family;
+			$font          = $fonts_list[ $font_family ];
+			$fpd->AddFont( $font_family, '', $font['fileName'], true );
+		}
+
 		$fpd->AddPage();
 		foreach ( $items as $item ) {
 			if ( in_array( $item['section_type'], [ 'static-text', 'input-text' ] ) ) {

@@ -127,7 +127,7 @@ class Fonts {
 	 *
 	 * @return array
 	 */
-	public static function get_list() {
+	public static function get_list(): array {
 		$fonts                         = [];
 		$fonts['OpenSans']             = static::get_font_info( 'Open Sans', 'sans-serif' );
 		$fonts['JosefinSlab']          = static::get_font_info( 'Josefin Slab', 'serif' );
@@ -147,6 +147,20 @@ class Fonts {
 	}
 
 	/**
+	 * Get list for the web
+	 *
+	 * @return array
+	 */
+	public static function get_list_for_web(): array {
+		$items = [];
+		foreach ( self::get_list() as $key => $item ) {
+			$items[] = [ 'key' => $key, 'label' => $item['label'], 'fontUrl' => $item['fontUrl'] ];
+		}
+
+		return $items;
+	}
+
+	/**
 	 * Get font info
 	 *
 	 * @param string $fontFamily
@@ -154,7 +168,7 @@ class Fonts {
 	 *
 	 * @return array
 	 */
-	public static function get_font_info( $fontFamily, $group = null ) {
+	public static function get_font_info( $fontFamily, $group = null ): array {
 		$toArray = explode( ",", $fontFamily );
 		if ( count( $toArray ) > 1 ) {
 			$fontFamily = str_replace( [ "'", '"' ], '', $toArray[0] );
@@ -170,6 +184,7 @@ class Fonts {
 		return [
 			"label"        => $fontFamily,
 			"fontFamily"   => sprintf( "'%s', %s", $fontFamily, $group ),
+			"fileName"     => basename( $path ),
 			"fontFilePath" => $path,
 			"fontUrl"      => $url,
 		];
@@ -182,7 +197,7 @@ class Fonts {
 	 *
 	 * @return string
 	 */
-	public static function get_font_path( $fontFamily ) {
+	public static function get_font_path( string $fontFamily ): string {
 		$toArray    = explode( ",", $fontFamily );
 		$fontFamily = str_replace( [ "'", '"' ], '', $toArray[0] );
 		$dir        = str_replace( " ", "_", $fontFamily );

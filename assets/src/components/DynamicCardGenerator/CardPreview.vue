@@ -24,20 +24,42 @@
 
 <script>
 export default {
-	name: "LayerCanvas",
+	name: "CardPreview",
 	props: {
 		card_size: {type: String},
+		card_sizes: {type: Array},
 		canvas_width: {type: [String, Number]},
 		canvas_scale_ration: {type: Number},
 		image: {type: Object},
 		sections: {type: Array},
 	},
 	computed: {
+		font_families() {
+			return window.DesignerProfile.fonts;
+		},
 		canvas_styles() {
 			return {
 				'width': `${this.canvas_width}px`
 			}
 		},
+		card_size_in_mm() {
+			let size = this.card_sizes.find(item => item.value === this.card_size);
+			return {width: size.width / 2, height: size.height};
+		},
+		card_width_in_mm() {
+			return this.card_size_in_mm.width;
+		},
+		card_height_in_mm() {
+			return this.card_size_in_mm.height;
+		}
+	},
+	watch: {
+		sections: {
+			deep: true,
+			handler(newValue) {
+				this.update_fonts_import(newValue);
+			}
+		}
 	},
 	methods: {
 		mm_to_px(mm) {
@@ -54,13 +76,15 @@ export default {
 		},
 		sectionStyle(section) {
 			let styles = [],
-				top = this.mm_to_px(section.position.top / this.canvas_scale_ration),
-				left = this.mm_to_px(section.position.left / this.canvas_scale_ration);
-			styles.push({left: `${left}px`});
-			styles.push({top: `${top}px`});
+				_top = Math.round(100 / this.card_height_in_mm * section.position.top),
+				_left = Math.round(100 / this.card_width_in_mm * section.position.left);
+
+			styles.push({left: `${_left}%`});
+			styles.push({top: `${_top}%`});
+
 			if (section.section_type === 'static-image' || section.section_type === 'input-image') {
 				if (['center', 'right'].indexOf(section.imageOptions.align) !== -1) {
-					styles.push({width: '100%', left: '0'})
+					styles.push({width: '100%', left: '0%'})
 				}
 				if ('center' === section.imageOptions.align) {
 					styles.push({width: '100%', display: 'flex', justifyContent: 'center'})
@@ -70,24 +94,54 @@ export default {
 				}
 			}
 			if (section.section_type === 'static-text' || section.section_type === 'input-text') {
-				let fontSize = this.mm_to_px(this.points_to_mm(section.textOptions.size) / this.canvas_scale_ration);
+				let fontSize = this.mm_to_px(this.points_to_mm(section.textOptions.size) / this.canvas_scale_ration),
+					fontFamily = this.font_families.find(_font => _font.key === section.textOptions.fontFamily);
 				styles.push({
-					fontFamily: `${section.textOptions.fontFamily}`,
+					fontFamily: `"${fontFamily.label}"`,
 					fontSize: `${fontSize}px`,
 					textAlign: `${section.textOptions.align}`,
 					color: `${section.textOptions.color}`,
 				})
 				if (['center', 'right'].indexOf(section.textOptions.align) !== -1) {
-					styles.push({width: '100%', left: '0'})
+					styles.push({width: '100%', left: '0%'})
 				}
 			}
 			return styles
 		},
 		sectionImageStyle(section) {
-			let styles = [], width = this.mm_to_px(section.imageOptions.width / this.canvas_scale_ration)
-			styles.push({width: `${width}px`});
+			let styles = [], width = Math.round(100 / this.card_width_in_mm * section.imageOptions.width);
+			styles.push({width: `${width}%`});
 			return styles;
 		},
+		update_fonts_import(sections) {
+			let string = '';
+			sections.forEach(section => {
+				let is_text = ["static-text", "input-text"].indexOf(section.section_type) !== -1,
+					font = is_text ? this.font_families.find(_font => _font.key === section.textOptions.fontFamily) : false;
+				if (font && is_text) {
+					string += `@font-face {
+					  font-family: '${font.label}';
+					  font-style: normal;
+					  font-weight: normal;
+					  src: url(${font.fontUrl}) format('truetype');
+					}\n`;
+				}
+			});
+			string += '';
+
+			let styleSheet = document.querySelector('#card_preview_dynamic_font_import');
+			if (styleSheet) {
+				styleSheet.innerHTML = string;
+			} else {
+				let styles = document.createElement('style');
+				styles.setAttribute('id', 'card_preview_dynamic_font_import');
+				styles.innerHTML = string;
+				document.head.appendChild(styles);
+			}
+		},
+	},
+	mounted() {
+
 	}
 }
 </script>
@@ -100,6 +154,7 @@ export default {
 	height: 100%;
 	position: relative;
 	flex-shrink: 0;
+	overflow: hidden;
 
 	&__background {
 		position: absolute;

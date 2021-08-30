@@ -38,11 +38,13 @@
 								<h4 class="text-base">Text Options</h4>
 								<div class="flex flex-wrap">
 									<div class="w-full p-1">
-										<text-field label="Font Family" v-model="options.textOptions.fontFamily"/>
+										<select-field label="Font Family" v-model="options.textOptions.fontFamily"
+													  :options="font_families" label-key="label" value-key="key"
+													  :clearable="false"/>
 									</div>
 									<div class="w-1/2 p-1">
 										<select-field label="Align" v-model="options.textOptions.align"
-													  :options="text_aligns"/>
+													  :options="text_aligns" :clearable="false"/>
 									</div>
 									<div class="w-1/2 p-1">
 										<text-field type="number" label="Font Size (pt)"
@@ -170,6 +172,9 @@ export default {
 		},
 		uploadUrl() {
 			return window.DesignerProfile.restRoot + '/designers/' + this.user.id + '/attachment';
+		},
+		font_families() {
+			return DesignerProfile.fonts;
 		},
 		canSubmit() {
 			if (!this.options.section_type.length) {

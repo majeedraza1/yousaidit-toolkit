@@ -31,4 +31,15 @@ class Command extends \WP_CLI_Command {
 		\WP_CLI::line( 'All operation done.' );
 		\WP_CLI::line( '' );
 	}
+
+	/**
+	 * Generate tFPDF unicode fonts
+	 */
+	public function generate_tfpdf_fonts() {
+		$fonts     = Fonts::get_list();
+		$base_path = YOUSAIDIT_TOOLKIT_PATH . '/vendor/setasign/tfpdf/font/unifont/';
+		foreach ( $fonts as $font_key => $font ) {
+			copy( $font['fontFilePath'], $base_path . $font['fileName'] );
+		}
+	}
 }

@@ -9,6 +9,7 @@ use WP_User;
 use YouSaidItCards\Modules\Designers\Admin\Settings;
 use YouSaidItCards\Modules\Designers\Models\CardDesigner;
 use YouSaidItCards\Modules\Designers\Models\DesignerCard;
+use YouSaidItCards\Modules\InnerMessage\Fonts;
 use YouSaidItCards\Session\Session;
 use YouSaidItCards\Utilities\MarketPlace;
 
@@ -274,13 +275,16 @@ class DesignerProfile {
 	/**
 	 * @return string
 	 */
-	public function profile_page() {
+	public function profile_page(): string {
 		$current_user = wp_get_current_user();
 
 		add_action( 'wp_footer', [ $this, 'add_inline_scripts' ], 5 );
 
 		if ( ! $current_user->exists() ) {
-			return '<div id="designer_profile_page_need_login">You need to login to view this page.</div>';
+			$login_url = wp_login_url( get_permalink() );
+			$link      = '<a href="' . $login_url . '">You need to log-in to view this page.</a>';
+
+			return '<div id="designer_profile_page_need_login">' . $link . '</div>';
 		}
 
 
@@ -345,6 +349,7 @@ class DesignerProfile {
 			$data['user_card_categories'] = ( new DesignerCard() )->get_user_cards_categories_ids( $current_user->ID );
 			$data['order_statuses']       = wc_get_order_statuses();
 			$data['marketPlaces']         = MarketPlace::all();
+			$data['fonts']                = Fonts::get_list_for_web();
 		}
 
 		echo '<script type="text/javascript">window.DesignerProfile = ' . wp_json_encode( $data ) . '</script>' . PHP_EOL;
