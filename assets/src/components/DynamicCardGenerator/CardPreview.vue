@@ -94,11 +94,11 @@ export default {
 				}
 			}
 			if (section.section_type === 'static-text' || section.section_type === 'input-text') {
-				let fontSize = this.mm_to_px(this.points_to_mm(section.textOptions.size) / this.canvas_scale_ration),
+				let fontSize = Math.round((section.textOptions.size / this.canvas_scale_ration) * 2),
 					fontFamily = this.font_families.find(_font => _font.key === section.textOptions.fontFamily);
 				styles.push({
 					fontFamily: `"${fontFamily.label}"`,
-					fontSize: `${fontSize}px`,
+					fontSize: `${fontSize}pt`,
 					textAlign: `${section.textOptions.align}`,
 					color: `${section.textOptions.color}`,
 				})

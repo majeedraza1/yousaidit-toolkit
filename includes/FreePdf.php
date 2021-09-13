@@ -102,13 +102,14 @@ class FreePdf {
 				'marginRight' => 0
 			]
 		] );
-		$x_pos       = intval( $item['position']['left'] );
-		$y_pos       = intval( $item['position']['top'] );
 		$font_size   = intval( $item['textOptions']['size'] );
 		$font_family = str_replace( ' ', '', $item['textOptions']['fontFamily'] );
 		$text_align  = strtolower( $item['textOptions']['align'] );
 		$marginRight = intval( $item['textOptions']['marginRight'] );
 		$text        = ! empty( $item['text'] ) ? sanitize_text_field( $item['text'] ) : $item['placeholder'];
+		$x_pos       = intval( $item['position']['left'] );
+		// Fix y-pos as text start from baseline
+		$y_pos       = (int) ( intval( $item['position']['top'] ) + self::points_to_mm( $font_size * 0.75 ) );
 		list( $red, $green, $blue ) = self::find_rgb_color( $item['textOptions']['color'] );
 		$fpd->SetFont( $font_family, '', $font_size );
 		$fpd->SetTextColor( $red, $green, $blue );
