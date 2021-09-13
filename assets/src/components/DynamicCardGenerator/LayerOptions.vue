@@ -71,11 +71,12 @@
 													  :options="text_aligns"/>
 									</div>
 									<div class="w-1/2 p-1">
-										<text-field type="number" label="Width (mm)"
+										<text-field type="number" label="Width (mm)" @input="handleImageWidthUpdate"
 													v-model="options.imageOptions.width"/>
 									</div>
 									<div class="w-1/2 p-1">
-										<text-field label="Height" v-model="options.imageOptions.height"/>
+										<text-field label="Height" @input="handleImageHeightUpdate"
+													v-model="options.imageOptions.height"/>
 									</div>
 								</div>
 							</div>
@@ -125,7 +126,7 @@ const defaultOptions = {
 	imageOptions: {
 		img: {id: '', src: '', width: '', height: ''},
 		width: '',
-		height: 'auto',
+		height: '',
 		align: 'left',
 	}
 };
@@ -207,6 +208,22 @@ export default {
 		},
 		clearImage() {
 			this.options.imageOptions.img = {id: '', src: '', width: '', height: ''};
+		},
+		px_to_mm(px) {
+			return Math.round(px * 0.2645833333);
+		},
+		handleImageWidthUpdate(value) {
+			this.options.imageOptions.height = this.updateImageWidthHeight('width', value);
+		},
+		handleImageHeightUpdate(value) {
+			this.options.imageOptions.width = this.updateImageWidthHeight('height', value);
+		},
+		updateImageWidthHeight(type, value) {
+			let height = this.px_to_mm(this.options.imageOptions.img.height),
+				width = this.px_to_mm(this.options.imageOptions.img.width),
+				newHeight = Math.round(value * (height / width)),
+				newWidth = Math.round(value * (width / height));
+			return type === 'width' ? newHeight : newWidth;
 		}
 	}
 }
