@@ -3,25 +3,25 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const TerserPlugin = require('terser-webpack-plugin');
 const BrowserSyncPlugin = require('browser-sync-webpack-plugin');
-const autoprefixer = require('autoprefixer');
-const VueLoaderPlugin = require('vue-loader/lib/plugin');
+const {VueLoaderPlugin} = require('vue-loader');
+const svgToMiniDataURI = require('mini-svg-data-uri');
 
 const config = require('./config.json');
 
-let plugins = [];
-
-plugins.push(new MiniCssExtractPlugin({
-	filename: "../css/[name].css"
-}));
-
-plugins.push(new BrowserSyncPlugin({
-	proxy: config.proxyURL
-}));
-
-plugins.push(new VueLoaderPlugin());
-
 module.exports = (env, argv) => {
 	let isDev = argv.mode !== 'production';
+
+	let plugins = [];
+
+	plugins.push(new MiniCssExtractPlugin({
+		filename: "../css/[name].css"
+	}));
+
+	plugins.push(new BrowserSyncPlugin({
+		proxy: config.proxyURL
+	}));
+
+	plugins.push(new VueLoaderPlugin());
 
 	return {
 		"entry": config.entryPoints,
@@ -33,11 +33,19 @@ module.exports = (env, argv) => {
 		"module": {
 			"rules": [
 				{
-					"test": /\.js$/i,
-					"use": {
-						"loader": "babel-loader",
-						"options": {
-							presets: ['@babel/preset-env']
+					test: /\.(js|jsx)$/i,
+					use: {
+						loader: "babel-loader",
+						options: {
+							presets: [
+								'@babel/preset-env',
+								'@babel/preset-react'
+							],
+							plugins: [
+								['@babel/plugin-proposal-class-properties'],
+								['@babel/plugin-proposal-private-methods'],
+								['@babel/plugin-proposal-object-rest-spread'],
+							]
 						}
 					}
 				},
@@ -69,8 +77,8 @@ module.exports = (env, argv) => {
 								sourceMap: isDev,
 								postcssOptions: {
 									plugins: [
-										autoprefixer(),
-										['tailwindcss']
+										['postcss-preset-env'],
+										['tailwindcss'],
 									],
 								},
 							},
@@ -85,39 +93,25 @@ module.exports = (env, argv) => {
 				},
 				{
 					test: /\.(eot|ttf|woff|woff2)$/i,
-					use: [
-						{
-							loader: 'file-loader',
-							options: {
-								outputPath: '../fonts',
-							},
-						},
-					],
+					type: 'asset/resource',
+					generator: {
+						filename: '../fonts/[hash][ext]'
+					}
 				},
 				{
 					test: /\.(png|je?pg|gif)$/i,
-					use: [
-						{
-							loader: 'url-loader',
-							options: {
-								limit: 8192, // 8KB
-								outputPath: '../images',
-							},
-						},
-					],
+					type: 'asset',
+					generator: {
+						filename: '../images/[hash][ext]'
+					}
 				},
 				{
 					test: /\.svg$/i,
-					use: [
-						{
-							loader: 'url-loader',
-							options: {
-								limit: 10240, // 10KB
-								outputPath: '../images',
-								generator: (content) => svgToMiniDataURI(content.toString()),
-							},
-						},
-					],
+					type: 'asset',
+					generator: {
+						filename: '../images/[hash][ext]',
+						dataUrl: content => svgToMiniDataURI(content.toString())
+					},
 				}
 			]
 		},

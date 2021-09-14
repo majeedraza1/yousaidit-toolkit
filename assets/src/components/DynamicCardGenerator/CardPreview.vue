@@ -12,7 +12,7 @@
 			<template v-if="section.section_type === 'input-text'">
 				{{ section.placeholder }}
 			</template>
-			<template v-if="section.section_type === 'static-image'">
+			<template v-if="section.section_type === 'static-image' || section.section_type === 'input-image'">
 				<img :src="section.imageOptions.img.src" alt="" :style="sectionImageStyle(section)">
 			</template>
 			<template v-else>

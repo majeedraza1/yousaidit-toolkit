@@ -109,7 +109,7 @@ class FreePdf {
 		$text        = ! empty( $item['text'] ) ? sanitize_text_field( $item['text'] ) : $item['placeholder'];
 		$x_pos       = intval( $item['position']['left'] );
 		// Fix y-pos as text start from baseline
-		$y_pos       = (int) ( intval( $item['position']['top'] ) + self::points_to_mm( $font_size * 0.75 ) );
+		$y_pos = (int) ( intval( $item['position']['top'] ) + self::points_to_mm( $font_size * 0.75 ) );
 		list( $red, $green, $blue ) = self::find_rgb_color( $item['textOptions']['color'] );
 		$fpd->SetFont( $font_family, '', $font_size );
 		$fpd->SetTextColor( $red, $green, $blue );
@@ -130,7 +130,7 @@ class FreePdf {
 	 * @param array $item
 	 */
 	private function add_image( tFPDF $fpd, array $item ) {
-		$item        = wp_parse_args( $item, [
+		$item   = wp_parse_args( $item, [
 			'label'        => 'Section 1',
 			'section_type' => 'static-image',
 			'position'     => [ 'top' => 0, 'left' => 0 ],
@@ -142,10 +142,10 @@ class FreePdf {
 				'marginRight' => 0
 			]
 		] );
-		$x_pos       = intval( $item['position']['left'] );
-		$y_pos       = intval( $item['position']['top'] );
-		$height      = $item['imageOptions']['height'];
-		$height      = 'auto' == $height ? 'auto' : intval( $height );
+		$x_pos  = intval( $item['position']['left'] );
+		$y_pos  = intval( $item['position']['top'] );
+		$height = 'auto'; //$item['imageOptions']['height'];
+//		$height      = 'auto' == $height ? 'auto' : intval( $height );
 		$marginRight = intval( $item['imageOptions']['marginRight'] );
 		$image_id    = intval( $item['imageOptions']['img']['id'] );
 		$width       = intval( $item['imageOptions']['width'] );
