@@ -32,9 +32,10 @@
 						<icon-container>+</icon-container>
 					</shapla-button>
 				</template>
-				<a  href="#/cards" class="shapla-dropdown-item" @click.prevent="modalActive = true">Static Card</a>
+				<a href="#/cards" class="shapla-dropdown-item" @click.prevent="modalActive = true">Static Card</a>
 				<span class="shapla-dropdown-divider"></span>
-				<a href="#/cards" class="shapla-dropdown-item" @click.prevent="showDynaCardModal = true">Dynamic Card</a>
+				<a href="#/cards" class="shapla-dropdown-item" @click.prevent="showDynaCardModal = true">Dynamic
+					Card</a>
 			</dropdown>
 		</div>
 		<card-uploader-modal
@@ -112,7 +113,16 @@
 			</div>
 		</modal>
 
-		<card-creator v-if="showDynaCardModal" :active="showDynaCardModal" @close="showDynaCardModal = false"/>
+		<card-creator
+			v-if="showDynaCardModal"
+			:active="showDynaCardModal"
+			@close="showDynaCardModal = false"
+			:card_sizes_options="card_sizes"
+			:market_places="market_places"
+			:card_categories="card_categories"
+			:card_attributes="card_attributes"
+			:card_tags="card_tags"
+		/>
 	</div>
 </template>
 
@@ -139,7 +149,7 @@ export default {
 	data() {
 		return {
 			readFromServer: false,
-			showDynaCardModal: true,
+			showDynaCardModal: false,
 			modalActive: false,
 			cards: [],
 			maximum_allowed_card: 0,

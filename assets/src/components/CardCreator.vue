@@ -42,7 +42,8 @@
 					</div>
 				</column>
 			</columns>
-			<div class="flex h-full relative space-x-4 justify-center" v-show="has_card_size">
+			<div class="flex h-full relative space-x-4 justify-center"
+				 v-show="has_card_size & !show_section_card_options">
 				<card-preview
 					:card_size="card_size"
 					:card_sizes="card_sizes"
@@ -88,6 +89,18 @@
 				</div>
 			</div>
 
+			<card-options
+				v-if="show_section_card_options"
+				v-model="card"
+				:card_sizes="card_sizes"
+				:market_places="__market_places"
+				:card_categories="card_categories"
+				:card_attributes="card_attributes"
+				:card_tags="card_tags"
+				:has_suggest_tags="has_suggest_tags"
+				:errors="errors"
+			/>
+
 			<media-modal
 				v-if="show_image_modal"
 				:active="show_image_modal"
@@ -115,6 +128,13 @@
 				:images="images"
 				:value="active_section"
 			/>
+
+			<template v-slot:foot>
+				<shapla-button @click="$emit('close')">Cancel</shapla-button>
+				<shapla-button theme="primary" @click="goToNext" v-if="show_section_card_options">Next</shapla-button>
+				<shapla-button theme="primary" @click="handleSubmit" v-if="!show_section_card_options">Save
+				</shapla-button>
+			</template>
 		</modal>
 	</div>
 </template>
@@ -126,15 +146,21 @@ import {FeaturedImage, MediaModal} from "@/shapla/shapla-media-uploader";
 import LayerOptions from "@/components/DynamicCardGenerator/LayerOptions";
 import CardPreview from "@/components/DynamicCardGenerator/CardPreview";
 import SvgIcon from "@/components/DynamicCardGenerator/SvgIcon";
+import CardOptions from "@/components/CardOptions";
 
 export default {
 	name: "CardCreator",
 	components: {
 		SvgIcon, CardPreview, LayerOptions, modal, columns, column, FeaturedImage, MediaModal, shaplaButton,
-		toggles, toggle, iconContainer
+		toggles, toggle, iconContainer, CardOptions,
 	},
 	props: {
-		active: {type: Boolean, default: false}
+		active: {type: Boolean, default: false},
+		card_sizes_options: {type: Array, default: () => []},
+		card_categories: {type: Array, default: () => []},
+		card_tags: {type: Array, default: () => []},
+		card_attributes: {type: Array, default: () => []},
+		market_places: {type: Array, default: () => []},
 	},
 	data() {
 		return {
@@ -143,6 +169,7 @@ export default {
 			show_image_modal: false,
 			show_section_modal: false,
 			show_section_edit_modal: false,
+			show_section_card_options: false,
 			active_section_index: -1,
 			active_section: {},
 			card_size: '',
@@ -157,7 +184,22 @@ export default {
 			image: {},
 			images: [],
 			sections: [],
-			activeSection: {}
+			activeSection: {},
+			has_suggest_tags: 'no',
+			card: {
+				title: '',
+				sizes: [],
+				categories_ids: [],
+				tags_ids: [],
+				attributes: {},
+				image_id: 0,
+				gallery_images_ids: [],
+				market_places: ['yousaidit'],
+				pdf_ids: {},
+				rude_card: 'no',
+				suggest_tags: '',
+			},
+			errors: {}
 		}
 	},
 	computed: {
@@ -190,6 +232,10 @@ export default {
 				return size.width / this.canvas_width_mm;
 			}
 			return 1;
+		},
+		__market_places() {
+			let places = this.market_places.find(place => place.key === 'yousaidit');
+			return [places];
 		}
 	},
 	watch: {
@@ -208,6 +254,17 @@ export default {
 		},
 		points_to_mm(points) {
 			return Math.round(points * 0.352778);
+		},
+		goToNext() {
+			this.show_section_card_options = true;
+		},
+		handleSubmit() {
+			this.$emit('submit', {
+				card_size: this.card_size,
+				background: this.image,
+				sections: this.sections,
+				card: this.card,
+			})
 		},
 		addSection(options) {
 			if (!options.label.length) {
