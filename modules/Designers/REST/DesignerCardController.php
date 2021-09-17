@@ -198,13 +198,20 @@ class DesignerCardController extends ApiController {
 			return $this->respondUnauthorized();
 		}
 
-		$user_id = (int) $request->get_param( 'user_id' );
+		$user_id   = (int) $request->get_param( 'user_id' );
+		$card_type = $request->get_param( 'card_type' );
+		$card_type = in_array( $card_type, [ 'dynamic', 'static' ] ) ? $card_type : 'static';
+		$is_static = 'static' == $card_type;
 
 		if ( $user_id != $current_user->ID && ! current_user_can( 'manage_options' ) ) {
 			return $this->respondUnauthorized();
 		}
 
-		$required_params = [ 'title', 'sizes', 'categories_ids', 'pdf_ids' ];
+		$required_params = [ 'title', 'sizes', 'categories_ids' ];
+
+		if ( $is_static ) {
+			$required_params[] = 'pdf_ids';
+		}
 
 		$errors = [];
 
@@ -270,11 +277,13 @@ class DesignerCardController extends ApiController {
 			}
 		}
 
-		foreach ( $pdf_ids as $size_key => $attachment_ids ) {
-			foreach ( $attachment_ids as $attachment_id ) {
-				$_post = get_post( $attachment_id );
-				if ( ! ( $_post instanceof \WP_Post && $_post->post_type == 'attachment' && intval( $_post->post_author ) == $user_id ) ) {
-					$errors['attachment_ids'][] = 'PDF id ' . $attachment_id . ' is not valid.';
+		if ( $is_static ) {
+			foreach ( $pdf_ids as $size_key => $attachment_ids ) {
+				foreach ( $attachment_ids as $attachment_id ) {
+					$_post = get_post( $attachment_id );
+					if ( ! ( $_post instanceof \WP_Post && $_post->post_type == 'attachment' && intval( $_post->post_author ) == $user_id ) ) {
+						$errors['attachment_ids'][] = 'PDF id ' . $attachment_id . ' is not valid.';
+					}
 				}
 			}
 		}
@@ -303,6 +312,7 @@ class DesignerCardController extends ApiController {
 		$market_places = is_array( $market_places ) ? $market_places : [];
 
 		$data = [
+			'card_type'        => $card_type,
 			'card_title'       => $card_title,
 			'card_sizes'       => $card_sizes,
 			'categories_ids'   => $categories_ids,

@@ -7,7 +7,7 @@
 			</template>
 			<columns v-if="!card_size.length">
 				<column :tablet="6" class="md:flex items-center justify-end">
-					<div @click="card_size = 'square'"
+					<div @click="setCardSize('square')"
 						 class="border border-solid border-gray-200 w-36 h-36 flex items-center justify-center bg-gray-100 cursor-pointer"
 						 :class="{'border-primary':card_size === 'square'}"
 					>
@@ -26,7 +26,7 @@
 			</columns>
 			<columns v-if="card_size === 'a'">
 				<column :tablet="6" class="md:flex items-center justify-end">
-					<div @click="card_size = 'a5'"
+					<div @click="setCardSize('a5')"
 						 class="border border-solid border-gray-200 w-36 h-44 flex flex-col items-center justify-center bg-gray-100 cursor-pointer"
 						 :class="{'border-primary':card_size === 'a5'}"
 					>
@@ -34,7 +34,7 @@
 					</div>
 				</column>
 				<column :tablet="6" class="md:flex items-center justify-start">
-					<div @click="card_size = 'a6'"
+					<div @click="setCardSize('a6')"
 						 class="border border-solid border-gray-200 w-36 h-44 flex flex-col items-center justify-center bg-gray-100 cursor-pointer"
 						 :class="{'border-primary':card_size === 'a6'}"
 					>
@@ -131,8 +131,11 @@
 
 			<template v-slot:foot>
 				<shapla-button @click="$emit('close')">Cancel</shapla-button>
-				<shapla-button theme="primary" @click="goToNext" v-if="show_section_card_options">Next</shapla-button>
-				<shapla-button theme="primary" @click="handleSubmit" v-if="!show_section_card_options">Save
+				<shapla-button theme="primary" @click="goToNext" v-if="!show_section_card_options"
+							   :disabled="!sections">Next
+				</shapla-button>
+				<shapla-button theme="primary" @click="handleSubmit" v-if="show_section_card_options"
+							   :disabled="!can_save_card">Save
 				</shapla-button>
 			</template>
 		</modal>
@@ -187,6 +190,7 @@ export default {
 			activeSection: {},
 			has_suggest_tags: 'no',
 			card: {
+				type: 'dynamic',
 				title: '',
 				sizes: [],
 				categories_ids: [],
@@ -236,6 +240,9 @@ export default {
 		__market_places() {
 			let places = this.market_places.find(place => place.key === 'yousaidit');
 			return [places];
+		},
+		can_save_card() {
+			return !!(this.card.title.length > 1 && this.card.sizes.length && this.card.categories_ids.length);
 		}
 	},
 	watch: {
@@ -254,6 +261,10 @@ export default {
 		},
 		points_to_mm(points) {
 			return Math.round(points * 0.352778);
+		},
+		setCardSize(size) {
+			this.card_size = size;
+			this.card.sizes = [size];
 		},
 		goToNext() {
 			this.show_section_card_options = true;
@@ -357,6 +368,7 @@ export default {
 		},
 		setTextData() {
 			this.card_size = 'square';
+			this.card.sizes = ['square'];
 			this.canvas_width = this.calculate_canvas_width();
 			this.sections = [
 				{

@@ -207,6 +207,23 @@ class DesignerCard extends DatabaseModel {
 		return add_query_arg( [ 'page' => 'designers#/cards/' . $this->get_id() ], admin_url( 'admin.php' ) );
 	}
 
+	/**
+	 * Get card type
+	 *
+	 * @return string
+	 */
+	public function get_card_type(): string {
+		return $this->get( 'card_type', 'static' );
+	}
+
+	/**
+	 * Check if card type dynamic
+	 * @return bool
+	 */
+	public function is_dynamic_card(): bool {
+		return 'dynamic' == $this->get_card_type();
+	}
+
 	public function get_all_sizes_total_sales() {
 		$sales = (array) $this->get( 'total_sale' );
 		$count = 0;
@@ -896,7 +913,17 @@ class DesignerCard extends DatabaseModel {
 		dbDelta( $tables );
 
 		$this->get_table_column();
-		$this->add_foreign_key();
+
+		$option = get_option( $table_name . '-version', '1.0.0' );
+		if ( version_compare( $option, '1.0.1', '<' ) ) {
+			$sql = "ALTER TABLE `{$table_name}` ADD INDEX `designer_user_id` (`designer_user_id`);";
+			$wpdb->query( $sql );
+
+			$sql = "ALTER TABLE `{$table_name}` ADD INDEX `status` (`status`);";
+			$wpdb->query( $sql );
+
+			update_option( 'designer_cards_table_version', '1.0.1' );
+		}
 	}
 
 	/**
@@ -906,36 +933,24 @@ class DesignerCard extends DatabaseModel {
 		global $wpdb;
 		$table_name = $this->get_table_name();
 		$option     = get_option( $table_name . '-version', '1.0.0' );
-		if ( version_compare( $option, '1.0.2', '<' ) ) {
+		if ( version_compare( $option, '1.0.4', '<' ) ) {
 			$sql = "ALTER TABLE {$table_name} ADD `market_places` TEXT NULL DEFAULT NULL AFTER `suggest_tags`;";
 			$wpdb->query( $sql );
 
-			update_option( $table_name . '-version', '1.0.3' );
-		}
-
-		if ( version_compare( $option, '1.0.4', '<' ) ) {
 			$sql = "ALTER TABLE {$table_name} ADD `marketplace_commission` TEXT NULL DEFAULT NULL AFTER `commission_per_sale`;";
 			$wpdb->query( $sql );
 
 			update_option( $table_name . '-version', '1.0.4' );
 		}
-	}
 
-	/**
-	 * Add indexes
-	 */
-	public function add_foreign_key() {
-		global $wpdb;
-		$table_name = $this->get_table_name( $this->table );
-		$option     = get_option( $table_name . '-version', '1.0.0' );
-		if ( version_compare( $option, '1.0.1', '<' ) ) {
-			$sql = "ALTER TABLE `{$table_name}` ADD INDEX `designer_user_id` (`designer_user_id`);";
+		if ( version_compare( $option, '1.1.0', '<' ) ) {
+			$sql = "ALTER TABLE {$table_name} ADD `card_type` VARCHAR(50) NOT NULL DEFAULT 'static' AFTER `id`, ADD INDEX `card_type` (`card_type`);";
 			$wpdb->query( $sql );
 
-			$sql = "ALTER TABLE `{$table_name}` ADD INDEX `status` (`status`);";
+			$sql = "ALTER TABLE {$table_name} ADD `dynamic_card_payload` TEXT NULL DEFAULT NULL AFTER `card_type`;";
 			$wpdb->query( $sql );
 
-			update_option( 'designer_cards_table_version', '1.0.1' );
+			update_option( $table_name . '-version', '1.1.0' );
 		}
 	}
 }
