@@ -150,6 +150,7 @@ import LayerOptions from "@/components/DynamicCardGenerator/LayerOptions";
 import CardPreview from "@/components/DynamicCardGenerator/CardPreview";
 import SvgIcon from "@/components/DynamicCardGenerator/SvgIcon";
 import CardOptions from "@/components/CardOptions";
+import DesignerEventBus from "@/frontend/designers/components/DesignerEventBus";
 
 export default {
 	name: "CardCreator",
@@ -190,7 +191,7 @@ export default {
 			activeSection: {},
 			has_suggest_tags: 'no',
 			card: {
-				type: 'dynamic',
+				card_type: 'dynamic',
 				title: '',
 				sizes: [],
 				categories_ids: [],
@@ -270,12 +271,22 @@ export default {
 			this.show_section_card_options = true;
 		},
 		handleSubmit() {
-			this.$emit('submit', {
-				card_size: this.card_size,
-				background: this.image,
-				sections: this.sections,
-				card: this.card,
-			})
+			let data = {
+				...this.card,
+				dynamic_card_payload: {
+					card_size: this.card_size,
+					background: this.image,
+					sections: this.sections,
+				}
+			};
+			this.$store.commit('SET_LOADING_STATUS', true);
+			axios.post(window.DesignerProfile.restRoot + '/designers/' + this.user.id + '/cards', data).then(response => {
+				this.$store.commit('SET_LOADING_STATUS', false);
+				this.$emit('card:added', response.data.data);
+			}).catch(errors => {
+				this.$store.commit('SET_LOADING_STATUS', false);
+				console.log(errors);
+			});
 		},
 		addSection(options) {
 			if (!options.label.length) {

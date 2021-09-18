@@ -211,6 +211,8 @@ class DesignerCardController extends ApiController {
 
 		if ( $is_static ) {
 			$required_params[] = 'pdf_ids';
+		} else {
+			$required_params[] = 'dynamic_card_payload';
 		}
 
 		$errors = [];
@@ -325,6 +327,10 @@ class DesignerCardController extends ApiController {
 			'suggest_tags'     => sanitize_textarea_field( $request->get_param( 'suggest_tags' ) ),
 			'market_places'    => map_deep( $market_places, 'sanitize_text_field' ),
 		];
+
+		if ( ! $is_static ) {
+			$data['dynamic_card_payload'] = $request->get_param( 'dynamic_card_payload' );
+		}
 
 		$id = ( new DesignerCard() )->create( $data );
 		if ( $id ) {

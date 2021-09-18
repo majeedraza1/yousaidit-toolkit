@@ -122,6 +122,7 @@
 			:card_categories="card_categories"
 			:card_attributes="card_attributes"
 			:card_tags="card_tags"
+			@card:added="showDynaCardModal = false"
 		/>
 	</div>
 </template>
