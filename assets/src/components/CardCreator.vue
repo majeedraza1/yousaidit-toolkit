@@ -53,10 +53,17 @@
 					:sections="sections"
 				/>
 				<div class="flex-grow" style="max-width: 300px;">
-					<div class="mb-2 flex justify-between items-center">
+					<div class="mb-2 text-center text-lg text-primary">
 						<strong v-for="_card_size in card_sizes" v-if="_card_size.value === card_size">
 							{{ _card_size.label }}</strong>
-						<shapla-button size="small" @click="previewCard">Preview PDF</shapla-button>
+					</div>
+					<div class="flex space-x-4">
+						<div class="w-1/2">
+							<shapla-button size="small" fullwidth @click="userViewCard">User View</shapla-button>
+						</div>
+						<div class="w-1/2">
+							<shapla-button size="small" fullwidth @click="previewCard">Preview PDF</shapla-button>
+						</div>
 					</div>
 					<div class="mb-2">
 						<h4 class="font-bold mb-2 mt-0 text-base">Background Image</h4>
@@ -139,6 +146,8 @@
 				</shapla-button>
 			</template>
 		</modal>
+		<card-web-viewer-modal :active="show_user_preview_modal" @close="show_user_preview_modal = false"
+							   :options="dynamic_card_payload"/>
 	</div>
 </template>
 
@@ -150,13 +159,13 @@ import LayerOptions from "@/components/DynamicCardGenerator/LayerOptions";
 import CardPreview from "@/components/DynamicCardGenerator/CardPreview";
 import SvgIcon from "@/components/DynamicCardGenerator/SvgIcon";
 import CardOptions from "@/components/CardOptions";
-import DesignerEventBus from "@/frontend/designers/components/DesignerEventBus";
+import CardWebViewerModal from "@/components/DynamicCardPreview/CardWebViewerModal";
 
 export default {
 	name: "CardCreator",
 	components: {
 		SvgIcon, CardPreview, LayerOptions, modal, columns, column, FeaturedImage, MediaModal, shaplaButton,
-		toggles, toggle, iconContainer, CardOptions,
+		toggles, toggle, iconContainer, CardOptions, CardWebViewerModal,
 	},
 	props: {
 		active: {type: Boolean, default: false},
@@ -174,6 +183,7 @@ export default {
 			show_section_modal: false,
 			show_section_edit_modal: false,
 			show_section_card_options: false,
+			show_user_preview_modal: false,
 			active_section_index: -1,
 			active_section: {},
 			card_size: '',
@@ -244,6 +254,9 @@ export default {
 		},
 		can_save_card() {
 			return !!(this.card.title.length > 1 && this.card.sizes.length && this.card.categories_ids.length);
+		},
+		dynamic_card_payload() {
+			return {card_size: this.card_size, background: this.image, sections: this.sections};
 		}
 	},
 	watch: {
@@ -271,14 +284,7 @@ export default {
 			this.show_section_card_options = true;
 		},
 		handleSubmit() {
-			let data = {
-				...this.card,
-				dynamic_card_payload: {
-					card_size: this.card_size,
-					background: this.image,
-					sections: this.sections,
-				}
-			};
+			let data = {...this.card, dynamic_card_payload: this.dynamic_card_payload};
 			this.$store.commit('SET_LOADING_STATUS', true);
 			axios.post(window.DesignerProfile.restRoot + '/designers/' + this.user.id + '/cards', data).then(response => {
 				this.$store.commit('SET_LOADING_STATUS', false);
@@ -376,6 +382,9 @@ export default {
 				this.$store.commit('SET_LOADING_STATUS', false);
 				console.log(errors);
 			});
+		},
+		userViewCard() {
+			this.show_user_preview_modal = true;
 		},
 		setTextData() {
 			this.card_size = 'square';

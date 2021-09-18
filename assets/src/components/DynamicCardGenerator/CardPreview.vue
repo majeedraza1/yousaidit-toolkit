@@ -1,5 +1,5 @@
 <template>
-	<div :class="`card-canvas card-canvas--${card_size}`" :style="canvas_styles">
+	<div :class="`shadow-lg card-canvas card-canvas--${card_size}`" :style="canvas_styles">
 		<img class="card-canvas__background" v-if="Object.keys(image).length" :src="image.src" alt="">
 		<div v-for="(section,index) in sections"
 			 class="card-canvas__section"
