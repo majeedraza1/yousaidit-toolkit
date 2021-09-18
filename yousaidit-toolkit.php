@@ -68,6 +68,12 @@ final class YousaiditToolkit {
 				return self::$instance;
 			}
 
+			if ( ! self::$instance->is_dependencies_resolved() ) {
+				add_action( 'admin_notices', [ self::$instance, 'plugin_dependencies_notice' ] );
+
+				return self::$instance;
+			}
+
 			// bootstrap main class
 			self::$instance->bootstrap_plugin();
 
@@ -191,6 +197,56 @@ final class YousaiditToolkit {
 	 */
 	private function is_supported_php(): bool {
 		return version_compare( PHP_VERSION, $this->min_php, '>=' );
+	}
+
+	/**
+	 * Get plugin dependencies
+	 *
+	 * @return array
+	 */
+	public function get_plugin_dependencies(): array {
+		$dependencies = [
+			[ 'name' => 'WooCommerce', 'file' => 'woocommerce/woocommerce.php' ]
+		];
+
+		return apply_filters( 'yousaidit_toolkit/dependencies', $dependencies );
+	}
+
+	/**
+	 * Show plugin dependencies notice
+	 */
+	public function plugin_dependencies_notice() {
+		$active_plugins = (array) get_option( 'active_plugins', [] );
+		$missing        = [];
+		foreach ( $this->get_plugin_dependencies() as $dependency ) {
+			if ( ! in_array( $dependency['file'], $active_plugins ) ) {
+				$missing[] = $dependency['name'];
+			}
+		}
+		$error = '<strong>' . __( 'Yousaidit Toolkit', 'yousaidit-toolkit' ) . '</strong><br>';
+		$error .= __( 'The following required plugins are currently inactive or not installed: ', 'yousaidit-toolkit' );
+		$error .= '<strong>' . implode( '</strong>, <strong>', $missing ) . '</strong>';
+		?>
+		<div class="error">
+			<p><?php printf( $error ); ?></p>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Check if plugin dependencies resolved
+	 *
+	 * @return bool
+	 */
+	private function is_dependencies_resolved(): bool {
+		$active_plugins = (array) get_option( 'active_plugins', [] );
+		foreach ( $this->get_plugin_dependencies() as $dependency ) {
+			if ( ! in_array( $dependency['file'], $active_plugins ) ) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 }
 
