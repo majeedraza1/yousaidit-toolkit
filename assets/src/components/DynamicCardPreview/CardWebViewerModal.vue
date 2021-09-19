@@ -1,6 +1,6 @@
 <template>
 	<modal :active="active" @close="$emit('close')" title="Dynamic Card Preview" content-size="full">
-		<card-web-viewer :options="options"/>
+		<card-web-viewer v-if="active" :options="options"/>
 	</modal>
 </template>
 

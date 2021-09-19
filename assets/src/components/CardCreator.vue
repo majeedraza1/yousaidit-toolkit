@@ -183,7 +183,7 @@ export default {
 			show_section_modal: false,
 			show_section_edit_modal: false,
 			show_section_card_options: false,
-			show_user_preview_modal: false,
+			show_user_preview_modal: true,
 			active_section_index: -1,
 			active_section: {},
 			card_size: '',
@@ -407,7 +407,8 @@ export default {
 					textOptions: {fontFamily: 'IndieFlower', size: 80, align: 'center', color: '#323232'}
 				},
 				{
-					label: 'Section 3', section_type: 'static-image',
+					label: 'Section 3',
+					section_type: 'input-image',
 					position: {top: 75, left: 10},
 					imageOptions: {
 						img: {

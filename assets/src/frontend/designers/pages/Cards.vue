@@ -150,7 +150,7 @@ export default {
 	data() {
 		return {
 			readFromServer: false,
-			showDynaCardModal: false,
+			showDynaCardModal: true,
 			modalActive: false,
 			cards: [],
 			maximum_allowed_card: 0,
