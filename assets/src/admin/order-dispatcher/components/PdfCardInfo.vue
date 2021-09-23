@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import Tooltip from "@/shapla/tooltip/Tooltip";
+import Tooltip from "@/shapla/tooltip/index.js";
 
 export default {
 	name: "PdfCardInfo",
@@ -50,5 +50,5 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@/shapla/tooltip/tooltip";
+@import "@/shapla/tooltip/index.scss";
 </style>

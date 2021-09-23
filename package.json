@@ -63,6 +63,7 @@
     "webpack-cli": "^4.8.0"
   },
   "dependencies": {
+    "@popperjs/core": "^2.10.1",
     "axios": "^0.21.4",
     "shapla-css": "^2.1.0",
     "shapla-vue-components": "^1.8",

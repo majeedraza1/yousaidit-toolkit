@@ -1,7 +1,9 @@
 <template>
 	<div>
 		<span class="tooltip-icon">
-			<slot name="icon"><span ref="icon" class="dashicons dashicons-editor-help"></span></slot>
+			<slot name="icon">
+				<span ref="icon" class="dashicons dashicons-editor-help"></span>
+			</slot>
 		</span>
 		<div data-tooltip-content style="display: none">
 			<slot></slot>
@@ -10,7 +12,7 @@
 </template>
 
 <script>
-import Tooltip from "./Tooltip";
+import Tooltip from "./index.js";
 
 export default {
 	name: "vTooltip",
@@ -29,5 +31,5 @@ export default {
 </script>
 
 <style lang="scss">
-@import "tooltip";
+@import "index.scss";
 </style>

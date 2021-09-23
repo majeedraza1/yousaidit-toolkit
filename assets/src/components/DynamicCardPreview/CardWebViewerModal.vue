@@ -1,6 +1,10 @@
 <template>
 	<modal :active="active" @close="$emit('close')" title="Dynamic Card Preview" content-size="full">
-		<card-web-viewer v-if="active" :options="options"/>
+		<card-web-viewer
+			v-if="active"
+			:options="options"
+			@edit:section="handleEditSection"
+		/>
 	</modal>
 </template>
 
@@ -14,6 +18,11 @@ export default {
 	props: {
 		active: {type: Boolean, default: false},
 		options: {type: Object}
+	},
+	methods: {
+		handleEditSection(section) {
+
+		}
 	}
 }
 </script>
