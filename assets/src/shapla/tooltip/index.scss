@@ -13,7 +13,7 @@ $tooltip-padding-x: .5rem !default;
 
 .shapla-tooltip {
 	--shapla-tooltip-background: #{$tooltip-background-color};
-	--shapla-tooltip-text: #{$tooltip-background-color};
+	--shapla-tooltip-text: #{$tooltip-text-color};
 	--shapla-tooltip-arrow: #{$tooltip-arrow-color};
 	position: absolute;
 	z-index: $tooltip-z-index;
@@ -36,7 +36,7 @@ $tooltip-padding-x: .5rem !default;
 		color: var(--shapla-tooltip-text);
 	}
 
-	&.is-theme-light {
+	&--light {
 		--shapla-tooltip-background: #f5f5f5;
 		--shapla-tooltip-arrow: #f5f5f5;
 		--shapla-tooltip-text: #323232;
@@ -56,7 +56,7 @@ $tooltip-padding-x: .5rem !default;
 		}
 	}
 
-	&[data-popper-placement^='top'] {
+	&.is-placement-top {
 		padding: $tooltip-arrow-height 0;
 
 		> .shapla-tooltip__arrow {
@@ -70,7 +70,7 @@ $tooltip-padding-x: .5rem !default;
 		}
 	}
 
-	&[data-popper-placement^='bottom'] {
+	&.is-placement-bottom {
 		padding: $tooltip-arrow-height 0;
 
 		> .shapla-tooltip__arrow {
@@ -84,7 +84,7 @@ $tooltip-padding-x: .5rem !default;
 		}
 	}
 
-	&[data-popper-placement^='left'] {
+	&.is-placement-left {
 		padding: 0 $tooltip-arrow-height;
 
 		> .shapla-tooltip__arrow {
@@ -100,7 +100,7 @@ $tooltip-padding-x: .5rem !default;
 		}
 	}
 
-	&[data-popper-placement^='right'] {
+	&.is-placement-right {
 		padding: 0 $tooltip-arrow-height;
 
 		> .shapla-tooltip__arrow {

@@ -1,41 +1,102 @@
-import {createPopper} from '@popperjs/core'
+import {createPopper} from '@popperjs/core';
 import "./index.scss";
 
-class Tooltip {
+/**
+ * Create element for tooltip or popover
+ *
+ * @param {String} uuid
+ * @param {String} content
+ * @param {Object} args
+ *
+ * @returns {HTMLDivElement}
+ */
+const createElement = (uuid, content, args = {}) => {
+	const defaultArgs = {
+		mainClass: 'shapla-tooltip',
+		title: '',
+		theme: 'dark',
+		container: 'body',
+		uuidAttr: 'data-tooltip-for',
+		role: 'tooltip',
+		headerTagName: 'h3'
+	};
+	const options = Object.assign(defaultArgs, args);
 
-	/**
-	 * Register automatically
-	 */
-	static register(selectors = "[data-tooltip-target], [data-tooltip]") {
-		let elements = document.querySelectorAll(selectors);
-		if (elements.length) {
-			elements.forEach(element => new Tooltip(element));
-		}
+	// Create arrow element, <div class="tooltip__arrow"></div>
+	let arrowElement = document.createElement("div");
+	arrowElement.classList.add(options.mainClass + '__arrow');
+
+	// Create arrow element, <div class="tooltip__body"></div>
+	let bodyElement = document.createElement("div");
+	bodyElement.classList.add(options.mainClass + '__body');
+	bodyElement.innerHTML = content;
+
+	// Create main element, <div class="tooltip"></div>
+	let mainElement = document.createElement("div");
+	mainElement.classList.add(options.mainClass);
+	mainElement.classList.add(`${options.mainClass}--${options.theme}`);
+	mainElement.setAttribute(options.uuidAttr, uuid);
+	mainElement.setAttribute('role', options.role);
+
+	mainElement.appendChild(arrowElement);
+
+	// Create header element, <h3 class="tooltip__header"></h3>
+	if (options.title) {
+		let headerElement = document.createElement(options.headerTagName);
+		headerElement.classList.add(options.mainClass + '__header');
+		headerElement.innerHTML = options.title;
+		mainElement.appendChild(headerElement);
 	}
+
+	mainElement.appendChild(bodyElement);
+
+	let containerElement = document.querySelector(options.container);
+	containerElement.appendChild(mainElement);
+
+	return mainElement;
+}
+
+/**
+ * Create UUID
+ *
+ * @returns {string}
+ */
+const createUUID = () => {
+	const pattern = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx';
+	return pattern.replace(/[xy]/g, (c) => {
+		const r = (Math.random() * 16) | 0;
+		const v = c === 'x' ? r : ((r & 0x3) | 0x8);
+		return v.toString(16);
+	});
+}
+
+
+/**
+ * Register automatically
+ */
+const autoRegister = (selectors = "[aria-describedby='tooltip'], [data-tooltip-target], [data-tooltip]") => {
+	let elements = document.querySelectorAll(selectors);
+	if (elements.length) {
+		elements.forEach(element => new Tooltip(element));
+	}
+}
+
+class Tooltip {
 
 	/**
 	 * @param {HTMLElement} element
 	 * @param {object} options
 	 */
 	constructor(element, options = {}) {
-		this.content = element.getAttribute('data-tooltip') || element.getAttribute('title') || options.content;
-		this.uuid = this.createUUID();
-		this.forElement = this.updateTooltipTargetElement(element);
-		this.element = null;
-		this.options = Object.assign({
-			theme: 'dark',
-			placement: 'auto',
-			content: '',
-			html: true,
-			container: 'body',
-			mainClass: 'shapla-tooltip',
-			activeClass: 'is-active',
-			removeOnClose: false,
-			showEvents: ['mouseenter', 'focus'],
-			hideEvents: ['mouseleave', 'blur'],
-		}, options);
+		this.title = options.title || element.getAttribute('data-tooltip') ||
+			element.getAttribute('title') || element.getAttribute('data-title');
+		this.content = options.content || element.getAttribute('data-content') || this.title;
 
+		this.uuid = createUUID();
+		this.targetElement = this.updateTooltipTargetElement(element);
+		this.options = Object.assign(this.getDefaultOptions(), options);
 		this.popperInstance = null;
+		this.element = null;
 
 		// Initialize instance.
 		this.init();
@@ -45,36 +106,47 @@ class Tooltip {
 	 * Initialize element.
 	 */
 	init() {
-		if (!this.content) {
-			return;
-		}
-		this.options.showEvents.forEach(event => this.forElement.addEventListener(event, () => this.show()));
-		this.options.hideEvents.forEach(event => this.forElement.addEventListener(event, () => this.hide()));
+		this.options.showEvents.forEach(event => this.targetElement.addEventListener(event, () => this.show()));
+		this.options.hideEvents.forEach(event => this.targetElement.addEventListener(event, () => this.hide()));
+	}
+
+	getDefaultOptions() {
+		return {
+			theme: 'dark',
+			placement: 'auto',
+			content: '',
+			html: true,
+			container: 'body',
+			mainClass: 'shapla-tooltip',
+			activeClass: 'is-active',
+			uuidAttr: 'data-tooltip-for',
+			removeOnClose: false,
+			showEvents: ['mouseenter', 'focus'],
+			hideEvents: ['mouseleave', 'blur'],
+		};
 	}
 
 	/**
 	 * Show tooltip
 	 */
 	show() {
+		if (!this.content) {
+			return;
+		}
+
 		this.createTooltipElementIfNotExists();
 
 		this.element.classList.add(this.options.activeClass);
 
-		this.popperInstance = createPopper(this.forElement, this.element, {
+		this.popperInstance = createPopper(this.targetElement, this.element, {
 			placement: this.options.placement,
 			modifiers: [
+				{name: 'offset', options: {offset: [0, 8],},},
+				{name: 'arrow', options: {element: `.${this.options.mainClass}__arrow`}},
 				{
-					name: 'offset',
-					options: {
-						offset: [0, 8],
-					},
-				},
-				{
-					name: 'arrow',
-					options: {
-						element: `.${this.options.mainClass}__arrow`
-					}
-				},
+					name: 'onChange', enabled: true, phase: 'afterWrite',
+					fn: data => this._handlePopperPlacementChange(data)
+				}
 			],
 		});
 
@@ -113,49 +185,34 @@ class Tooltip {
 	}
 
 	/**
-	 * Validate tooltip and tooltip for elements
+	 * Handle popper placement change
+	 *
+	 * @param {Object} popperData
+	 * @private
 	 */
-	createTooltipElementIfNotExists() {
-		this.element = document.querySelector(`[data-tooltip-for="${this.uuid}"]`)
+	_handlePopperPlacementChange(popperData) {
+		const {state} = popperData
 
-		if (!this.element) {
-			this.element = this.createTooltipElement(this.content);
+		if (state) {
+			this.element.classList.add(`is-placement-${state.placement}`);
 		}
 	}
 
 	/**
-	 * Create tooltip element
-	 *
-	 * @param {string} content
-	 * @returns {HTMLDivElement}
+	 * Validate tooltip and tooltip for elements
 	 */
-	createTooltipElement(content) {
-		// Create arrow element, <div class="tooltip__arrow"></div>
-		let arrowElement = document.createElement("div");
-		arrowElement.classList.add(this.options.mainClass + '__arrow');
+	createTooltipElementIfNotExists() {
+		this.element = document.querySelector(`[${this.options.uuidAttr}="${this.uuid}"]`)
 
-		// Create arrow element, <div class="tooltip__inner"></div>
-		let innerElement = document.createElement("div");
-		innerElement.classList.add(this.options.mainClass + '__body');
-		if (this.options.html) {
-			innerElement.innerHTML = content;
-		} else {
-			innerElement.innerText = content;
+		if (!this.element) {
+			this.element = createElement(this.uuid, this.content, {
+				mainClass: this.options.mainClass,
+				title: this.title,
+				theme: this.options.theme,
+				container: this.options.container,
+				uuidAttr: this.options.uuidAttr,
+			});
 		}
-
-		// Create main element, <div class="tooltip"></div>
-		let mainElement = document.createElement("div");
-		mainElement.classList.add(this.options.mainClass);
-		mainElement.classList.add(`is-theme-${this.options.theme}`);
-		mainElement.setAttribute('data-tooltip-for', this.uuid);
-		mainElement.setAttribute('role', 'tooltip');
-		mainElement.appendChild(arrowElement);
-		mainElement.appendChild(innerElement);
-
-		let containerElement = document.querySelector(this.options.container);
-		containerElement.appendChild(mainElement);
-
-		return mainElement;
 	}
 
 	/**
@@ -167,27 +224,16 @@ class Tooltip {
 	updateTooltipTargetElement(targetElement) {
 		targetElement.setAttribute('aria-describedby', 'tooltip');
 		targetElement.setAttribute('data-tooltip-target', this.uuid);
-		targetElement.setAttribute('data-tooltip', this.content);
+		if (this.title) {
+			targetElement.setAttribute('data-title', this.title);
+		}
+		targetElement.setAttribute('data-content', this.content);
 		if (targetElement.hasAttribute('title')) {
 			targetElement.removeAttribute('title');
 		}
 		return targetElement
 	}
-
-	/**
-	 * Create UUID
-	 *
-	 * @returns {string}
-	 */
-	createUUID() {
-		const pattern = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx';
-		return pattern.replace(/[xy]/g, (c) => {
-			const r = (Math.random() * 16) | 0;
-			const v = c === 'x' ? r : ((r & 0x3) | 0x8);
-			return v.toString(16);
-		});
-	}
 }
 
-export {Tooltip}
+export {Tooltip, createElement, createUUID, autoRegister}
 export default Tooltip;
