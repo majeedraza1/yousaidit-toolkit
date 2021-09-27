@@ -12,7 +12,7 @@ $popover-border-color: rgba(#000000, .2) !default;
 $popover-border-radius: .3rem !default;
 $popover-inner-border-radius: subtract($popover-border-radius, $popover-border-width) !default;
 $popover-box-shadow: 0 .5rem 1rem rgba(#000, .15) !default;
-$popover-header-bg: mix(black, $popover-bg, 6%) !default;
+$popover-header-bg: mix(black, $popover-bg, 5%) !default;
 $popover-header-color: null !default;
 $popover-header-padding-y: .5rem !default;
 $popover-header-padding-x: $spacer !default;
@@ -30,7 +30,7 @@ $popover-arrow-outer-color: fade-in($popover-border-color, .05) !default;
 	top: 0;
 	left: 0;
 	z-index: $zindex-popover;
-	display: block;
+	display: none;
 	max-width: $popover-max-width;
 	font-size: $popover-font-size;
 	word-wrap: break-word;
@@ -39,10 +39,9 @@ $popover-arrow-outer-color: fade-in($popover-border-color, .05) !default;
 	border: $popover-border-width solid $popover-border-color;
 	border-radius: $popover-border-radius;
 	box-shadow: $popover-box-shadow;
-	opacity: 0;
 
 	&.is-active {
-		opacity: 1;
+		display: block;
 	}
 
 	&__header {

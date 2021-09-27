@@ -146,8 +146,13 @@
 				</shapla-button>
 			</template>
 		</modal>
-		<card-web-viewer-modal :active="show_user_preview_modal" @close="show_user_preview_modal = false"
-							   :options="dynamic_card_payload"/>
+		<card-web-viewer-modal
+			:active="show_user_preview_modal"
+			:options="dynamic_card_payload"
+			:upload-url="uploadUrl"
+			:images="images"
+			@close="show_user_preview_modal = false"
+		/>
 	</div>
 </template>
 

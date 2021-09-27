@@ -92,7 +92,9 @@ class Tooltip {
 			element.getAttribute('title') || element.getAttribute('data-title');
 		this.content = options.content || element.getAttribute('data-content') || this.title;
 
-		this.uuid = createUUID();
+		let uuid = element.getAttribute('data-tooltip-target') || element.getAttribute('data-target');
+		this.isStaticTooltip = !!uuid;
+		this.uuid = uuid ?? createUUID();
 		this.targetElement = this.updateTooltipTargetElement(element);
 		this.options = Object.assign(this.getDefaultOptions(), options);
 		this.popperInstance = null;
@@ -130,7 +132,7 @@ class Tooltip {
 	 * Show tooltip
 	 */
 	show() {
-		if (!this.content) {
+		if (!(this.content || this.isStaticTooltip)) {
 			return;
 		}
 
@@ -202,7 +204,7 @@ class Tooltip {
 	 * Validate tooltip and tooltip for elements
 	 */
 	createTooltipElementIfNotExists() {
-		this.element = document.querySelector(`[${this.options.uuidAttr}="${this.uuid}"]`)
+		this.element = document.querySelector(`[${this.options.uuidAttr}="${this.uuid}"]`);
 
 		if (!this.element) {
 			this.element = createElement(this.uuid, this.content, {
@@ -222,16 +224,25 @@ class Tooltip {
 	 * @returns {HTMLDivElement}
 	 */
 	updateTooltipTargetElement(targetElement) {
-		targetElement.setAttribute('aria-describedby', 'tooltip');
-		targetElement.setAttribute('data-tooltip-target', this.uuid);
-		if (this.title) {
-			targetElement.setAttribute('data-title', this.title);
-		}
-		targetElement.setAttribute('data-content', this.content);
+		this.setAttributeIfNotSet(targetElement, 'aria-describedby', 'tooltip');
+		this.setAttributeIfNotSet(targetElement, 'data-tooltip-target', this.uuid);
 		if (targetElement.hasAttribute('title')) {
+			targetElement.setAttribute('data-title', targetElement.getAttribute('title'));
 			targetElement.removeAttribute('title');
 		}
 		return targetElement
+	}
+
+	/**
+	 *
+	 * @param {HTMLElement} element
+	 * @param {String} name
+	 * @param {String} value
+	 */
+	setAttributeIfNotSet(element, name, value) {
+		if (!element.hasAttribute(name)) {
+			element.setAttribute(name, value);
+		}
 	}
 }
 

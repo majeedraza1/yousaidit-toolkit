@@ -1,8 +1,10 @@
 <template>
 	<modal :active="active" @close="$emit('close')" title="Dynamic Card Preview" content-size="full">
 		<card-web-viewer
-			v-if="active"
-			:options="options"
+			v-if="active && Object.keys(options).length"
+			:args="options"
+			:upload-url="uploadUrl"
+			:images="images"
 			@edit:section="handleEditSection"
 		/>
 	</modal>
@@ -17,7 +19,9 @@ export default {
 	components: {CardWebViewer, modal},
 	props: {
 		active: {type: Boolean, default: false},
-		options: {type: Object}
+		options: {type: Object},
+		uploadUrl: {type: String, default: ''},
+		images: {type: Array, default: () => []}
 	},
 	methods: {
 		handleEditSection(section) {
