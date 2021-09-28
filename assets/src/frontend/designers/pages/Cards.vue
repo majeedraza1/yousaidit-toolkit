@@ -28,7 +28,7 @@
 		<div class="yousaidit-designer-cards__fab">
 			<dropdown :hoverable="false" direction="up" :right="true">
 				<template v-slot:trigger>
-					<shapla-button theme="primary" size="large" fab>
+					<shapla-button theme="primary" size="large" fab @click="showCardModal = true">
 						<icon-container>+</icon-container>
 					</shapla-button>
 				</template>
@@ -38,6 +38,18 @@
 					Card</a>
 			</dropdown>
 		</div>
+		<modal :active="showCardModal" @close="showCardModal = false" title="Choose Card Type">
+			<div class="space-x-2 flex justify-center">
+				<div @click.prevent="chooseCardType('static')"
+					 class="bg-gray-100 hover:bg-gray-200 cursor-pointer p-4 w-36 h-32 flex justify-center items-center">
+					Static Card
+				</div>
+				<div @click.prevent="chooseCardType('dynamic')"
+					 class="bg-gray-100 hover:bg-gray-200 cursor-pointer p-4 w-36 h-32 flex justify-center items-center">
+					Dynamic Card
+				</div>
+			</div>
+		</modal>
 		<card-uploader-modal
 			v-if="total_cards < maximum_allowed_card"
 			:active="modalActive"
@@ -150,7 +162,8 @@ export default {
 	data() {
 		return {
 			readFromServer: false,
-			showDynaCardModal: true,
+			showCardModal: false,
+			showDynaCardModal: false,
 			modalActive: false,
 			cards: [],
 			maximum_allowed_card: 0,
@@ -206,6 +219,14 @@ export default {
 		},
 	},
 	methods: {
+		chooseCardType(type) {
+			if ('static' === type) {
+				this.modalActive = true
+			} else {
+				this.showDynaCardModal = true;
+			}
+			this.showCardModal = false;
+		},
 		submitLimitExtendRequest() {
 			if (!this.limit_extend_request.up_limit_to) {
 				return this.$store.commit('SET_NOTIFICATION', {

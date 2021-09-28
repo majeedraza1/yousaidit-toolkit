@@ -57,6 +57,9 @@
 						<strong v-for="_card_size in card_sizes" v-if="_card_size.value === card_size">
 							{{ _card_size.label }}</strong>
 					</div>
+					<div class="flex mb-2">
+						<shapla-button size="small" fullwidth @click="setTestSections">Add Sample Sections</shapla-button>
+					</div>
 					<div class="flex space-x-4">
 						<div class="w-1/2">
 							<shapla-button size="small" fullwidth @click="userViewCard">User View</shapla-button>
@@ -188,7 +191,7 @@ export default {
 			show_section_modal: false,
 			show_section_edit_modal: false,
 			show_section_card_options: false,
-			show_user_preview_modal: true,
+			show_user_preview_modal: false,
 			active_section_index: -1,
 			active_section: {},
 			card_size: '',
@@ -395,6 +398,9 @@ export default {
 			this.card_size = 'square';
 			this.card.sizes = ['square'];
 			this.canvas_width = this.calculate_canvas_width();
+			this.setTestSections();
+		},
+		setTestSections() {
 			this.sections = [
 				{
 					label: 'Section 1',
@@ -433,7 +439,7 @@ export default {
 	mounted() {
 		this.getUserUploadedImages();
 		// Test data
-		this.setTextData();
+		// this.setTextData();
 	}
 }
 </script>

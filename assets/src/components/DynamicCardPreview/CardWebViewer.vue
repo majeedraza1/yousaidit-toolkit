@@ -12,7 +12,7 @@
 				{{ section.text }}
 			</template>
 			<div v-if="section.section_type === 'input-text'" class="card-preview-canvas__section-edit is-text-edit">
-				<div class="card-preview-canvas__section-edit-icon" @click="onClickEditSection(section)">
+				<div class="card-preview-canvas__section-edit-icon" @click="onClickEditSection(section,index)">
 					<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px"
 						 data-tooltip-target="show_section_edit_popover">
 						<rect fill="none" height="24" width="24"/>
@@ -26,7 +26,7 @@
 				<img :src="section.imageOptions.img.src" alt="" :style="sectionImageStyle(section)">
 			</template>
 			<div v-if="section.section_type === 'input-image'" class="card-preview-canvas__section-edit is-image-edit">
-				<div class="card-preview-canvas__section-edit-icon" @click="onClickEditSection(section)">
+				<div class="card-preview-canvas__section-edit-icon" @click="onClickEditSection(section,index)">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24px" height="24px"
 						 data-tooltip-target="show_section_edit_popover">
 						<rect fill="none" height="24" width="24"/>
@@ -58,12 +58,12 @@
 					<shapla-button outline size="small" theme="primary" @click="closePopover">Confirm</shapla-button>
 				</template>
 				<template v-if="'input-image' === activeSection.section_type">
-					<shapla-button outline fullwidth @click="showMediaModal = true">Add image</shapla-button>
-					<div class="mt-2" v-if="activeSection.image && activeSection.image.src">
+					<shapla-button theme="primary" outline fullwidth @click="showMediaModal = true">Add image
+					</shapla-button>
+					<div class="relative border border-solid mt-6"
+						 v-if="activeSection.image && activeSection.image.src">
 						<img :src="activeSection.image.src" alt=""/>
-						<shapla-button class="mt-1" outline size="small" fullwidth @click="removeImage">
-							Remove Image
-						</shapla-button>
+						<delete-icon class="absolute -top-2 -right-2" @click="removeImage"/>
 					</div>
 				</template>
 			</div>
@@ -83,12 +83,12 @@
 
 <script>
 import Popover from '@/shapla/popover';
-import {shaplaButton, iconContainer, FileUploader} from "shapla-vue-components";
+import {shaplaButton, iconContainer, FileUploader, deleteIcon} from "shapla-vue-components";
 import {FeaturedImage, MediaModal} from "@/shapla/shapla-media-uploader";
 
 export default {
 	name: "CardWebViewer",
-	components: {shaplaButton, iconContainer, FeaturedImage, FileUploader, MediaModal},
+	components: {shaplaButton, iconContainer, FeaturedImage, FileUploader, MediaModal, deleteIcon},
 	props: {
 		args: {
 			type: Object,
@@ -112,6 +112,7 @@ export default {
 			canvas_width: 0,
 			canvas_height: 0,
 			activeSection: {},
+			activeSectionIndex: -1,
 		}
 	},
 	watch: {
@@ -212,24 +213,25 @@ export default {
 			styles.push({width: `${width}%`});
 			return styles;
 		},
-		onClickEditSection(section) {
-			if (section.section_type === 'input-image') {
-				if (!section.image) {
-					section.image = {}
-				}
+		onClickEditSection(section, index) {
+			if (section.section_type === 'input-image' && !section.image) {
+				section.image = {}
 			}
 			this.activeSection = section;
+			this.activeSectionIndex = index;
 		},
 		removeImage() {
 			if (this.activeSection.image) {
-				this.activeSection.image = {}
+				delete this.activeSection.image;
 			}
+			this.closePopover();
 		},
 		closePopover() {
 			let popover = this.$el.querySelector('#show_section_edit_popover');
 			if (popover.classList.contains('is-active')) {
 				popover.classList.remove('is-active');
 			}
+			this.activeSection = {}
 		}
 	},
 	mounted() {
@@ -248,6 +250,7 @@ export default {
 
 <style lang="scss">
 .card-preview-canvas {
+	background-color: white;
 	border: 1px dotted rgba(#000, .12);
 	display: flex;
 	height: 100%;
