@@ -26,17 +26,9 @@
 			<p v-if="!filtered_cards.length && readFromServer" class="card-not-found">No card found.</p>
 		</div>
 		<div class="yousaidit-designer-cards__fab">
-			<dropdown :hoverable="false" direction="up" :right="true">
-				<template v-slot:trigger>
-					<shapla-button theme="primary" size="large" fab @click="showCardModal = true">
-						<icon-container>+</icon-container>
-					</shapla-button>
-				</template>
-				<a href="#/cards" class="shapla-dropdown-item" @click.prevent="modalActive = true">Static Card</a>
-				<span class="shapla-dropdown-divider"></span>
-				<a href="#/cards" class="shapla-dropdown-item" @click.prevent="showDynaCardModal = true">Dynamic
-					Card</a>
-			</dropdown>
+			<shapla-button theme="primary" size="large" fab @click="showCardModal = true">
+				<icon-container>+</icon-container>
+			</shapla-button>
 		</div>
 		<modal :active="showCardModal" @close="showCardModal = false" title="Choose Card Type">
 			<div class="space-x-2 flex justify-center">
@@ -163,7 +155,7 @@ export default {
 		return {
 			readFromServer: false,
 			showCardModal: false,
-			showDynaCardModal: false,
+			showDynaCardModal: true,
 			modalActive: false,
 			cards: [],
 			maximum_allowed_card: 0,

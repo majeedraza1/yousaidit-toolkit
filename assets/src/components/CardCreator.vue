@@ -50,6 +50,7 @@
 					:canvas_width="canvas_width"
 					:canvas_scale_ration="canvas_scale_ration"
 					:image="image"
+					:background="background"
 					:sections="sections"
 				/>
 				<div class="flex-grow" style="max-width: 300px;">
@@ -58,7 +59,8 @@
 							{{ _card_size.label }}</strong>
 					</div>
 					<div class="flex mb-2">
-						<shapla-button size="small" fullwidth @click="setTestSections">Add Sample Sections</shapla-button>
+						<shapla-button size="small" fullwidth @click="setTestSections">Add Sample Sections
+						</shapla-button>
 					</div>
 					<div class="flex space-x-4">
 						<div class="w-1/2">
@@ -69,9 +71,14 @@
 						</div>
 					</div>
 					<div class="mb-2">
-						<h4 class="font-bold mb-2 mt-0 text-base">Background Image</h4>
-						<featured-image :image-url="image.src" thumb_size="48px" @click:add="show_image_modal = true"
-										@click:clear="image = {}"/>
+						<h4 class="font-bold mb-2 mt-0 text-base">Background</h4>
+						<div class="mb-4">
+							<shapla-radio v-model="background.type" value="color">Color</shapla-radio>
+							<shapla-radio v-model="background.type" value="image">Image</shapla-radio>
+						</div>
+						<text-field v-if="background.type === 'color'" type="color" v-model="background.color.hex"/>
+						<featured-image v-if="background.type==='image'" v :image-url="image.src" thumb_size="48px"
+										@click:add="show_image_modal = true" @click:clear="image = {}"/>
 					</div>
 					<div class="mb-2 flex justify-between items-center">
 						<h4 class="font-bold mb-0 mt-0 text-base">Sections</h4>
@@ -161,7 +168,8 @@
 
 <script>
 import axios from "axios";
-import {modal, columns, column, shaplaButton, toggles, toggle, iconContainer} from 'shapla-vue-components'
+import {modal, columns, column, shaplaButton, toggles, toggle, iconContainer, shaplaRadio, textField}
+	from 'shapla-vue-components'
 import {FeaturedImage, MediaModal} from "@/shapla/shapla-media-uploader";
 import LayerOptions from "@/components/DynamicCardGenerator/LayerOptions";
 import CardPreview from "@/components/DynamicCardGenerator/CardPreview";
@@ -173,7 +181,7 @@ export default {
 	name: "CardCreator",
 	components: {
 		SvgIcon, CardPreview, LayerOptions, modal, columns, column, FeaturedImage, MediaModal, shaplaButton,
-		toggles, toggle, iconContainer, CardOptions, CardWebViewerModal,
+		toggles, toggle, iconContainer, CardOptions, CardWebViewerModal, shaplaRadio, textField
 	},
 	props: {
 		active: {type: Boolean, default: false},
@@ -205,6 +213,13 @@ export default {
 			],
 			image: {},
 			images: [],
+			background: {
+				type: 'color', // Can be 'image' or 'color'
+				color: {
+					hex: '#ffffff'
+				},
+				image: {}
+			},
 			sections: [],
 			activeSection: {},
 			has_suggest_tags: 'no',
@@ -381,6 +396,8 @@ export default {
 			let data = new FormData();
 			data.append('action', 'yousaidit_generate_preview_card');
 			data.append('card_size', this.card_size);
+			data.append('card_bg_type', this.background.type);
+			data.append('card_bg_color', JSON.stringify(this.background.color.hex));
 			data.append('card_background', JSON.stringify(this.image));
 			data.append('card_items', JSON.stringify(this.sections));
 			axios.post(window.StackonetToolkit.ajaxUrl, data).then(response => {
@@ -398,6 +415,12 @@ export default {
 			this.card_size = 'square';
 			this.card.sizes = ['square'];
 			this.canvas_width = this.calculate_canvas_width();
+			this.background = {
+				type: 'color',
+				color: {
+					hex: '#ffffff'
+				}
+			}
 			this.setTestSections();
 		},
 		setTestSections() {
@@ -439,7 +462,7 @@ export default {
 	mounted() {
 		this.getUserUploadedImages();
 		// Test data
-		// this.setTextData();
+		this.setTextData();
 	}
 }
 </script>

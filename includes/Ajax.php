@@ -73,6 +73,8 @@ class Ajax {
 
 	public function generate_preview_card() {
 		$card_size       = $_POST['card_size'] ?? 'square';
+		$card_bg_type    = $_POST['card_bg_type'] ?? 'color';
+		$card_bg_color   = $_POST['card_bg_color'] ?? '#ffffff';
 		$card_background = $_POST['card_background'] ?? [];
 		if ( is_string( $card_background ) ) {
 			$card_background = json_decode( stripslashes( $card_background ), true );
@@ -81,21 +83,32 @@ class Ajax {
 		if ( is_string( $card_items ) ) {
 			$card_items = json_decode( stripslashes( $card_items ), true );
 		}
-		$data = [ 'size' => $card_size, 'background' => $card_background, 'items' => $card_items ];
-		set_transient( 'yousaidit_preview_card_options', $data, HOUR_IN_SECONDS );
+		$data           = [
+			'size'     => $card_size,
+			'bg_type'  => $card_bg_type,
+			'bg_color' => stripslashes( $card_bg_color ),
+			'bg_image' => $card_background,
+			'items'    => $card_items
+		];
+		$token          = md5( serialize( $data ) );
+		$transient_name = sprintf( "yousaidit_preview_card_%s", $token );
+		set_transient( $transient_name, $data, HOUR_IN_SECONDS );
 		$url = add_query_arg( [
 			'action' => 'yousaidit_preview_card',
-			'_token' => md5( serialize( $data ) )
+			'_token' => $token
 		], admin_url( 'admin-ajax.php' ) );
 		wp_send_json_success( [ 'redirect' => $url, 'request_data' => $data ] );
 	}
 
 	public function yousaidit_preview_card() {
-		$transient = get_transient( 'yousaidit_preview_card_options' );
+		if ( ! isset( $_REQUEST['_token'], $_REQUEST['action'] ) ) {
+			die( 'No valid options' );
+		}
+		$transient_name = sprintf( "%s_%s", $_REQUEST['action'], $_REQUEST['_token'] );
+		$transient      = get_transient( $transient_name );
 		if ( false === $transient ) {
 			die( 'No valid options' );
 		}
-
 
 		$pdf = new FreePdf();
 		$pdf->generate( $transient['size'], $transient['items'] );

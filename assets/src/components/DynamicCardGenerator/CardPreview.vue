@@ -1,5 +1,7 @@
 <template>
 	<div :class="`shadow-lg card-canvas card-canvas--${card_size}`" :style="canvas_styles">
+		<div class="card-canvas__background is-type-color" v-if="background_type === 'color'"
+			 :style="`background-color:${background.color.hex}`"></div>
 		<img class="card-canvas__background" v-if="Object.keys(image).length" :src="image.src" alt="">
 		<div v-for="(section,index) in sections"
 			 class="card-canvas__section"
@@ -31,6 +33,7 @@ export default {
 		canvas_width: {type: [String, Number]},
 		canvas_scale_ration: {type: Number},
 		image: {type: Object},
+		background: {type: Object},
 		sections: {type: Array},
 	},
 	computed: {
@@ -51,6 +54,12 @@ export default {
 		},
 		card_height_in_mm() {
 			return this.card_size_in_mm.height;
+		},
+		background_type() {
+			if (!this.background) {
+				return 'color';
+			}
+			return this.background.type;
 		}
 	},
 	watch: {

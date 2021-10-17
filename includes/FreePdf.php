@@ -55,7 +55,9 @@ class FreePdf {
 
 		$size = $this->get_size();
 
-		$fpd         = new tFPDF( 'P', 'mm', [ $size[0] / 2, $size[1] ] );
+		$fpd = new tFPDF( 'P', 'mm', [ $size[0] / 2, $size[1] ] );
+
+		// Add custom fonts
 		$fonts_list  = Fonts::get_list();
 		$added_fonts = [];
 		foreach ( $items as $item ) {
@@ -72,6 +74,12 @@ class FreePdf {
 		}
 
 		$fpd->AddPage();
+
+		// Set PDF background color
+		$fpd->SetFillColor( 255, 0, 0 );
+//		$fpd->Cell( $fpd->GetPageWidth(), $fpd->GetPageHeight(), '', 0, 0, '', true );
+
+		// Add sections
 		foreach ( $items as $item ) {
 			if ( in_array( $item['section_type'], [ 'static-text', 'input-text' ] ) ) {
 				$this->add_text( $fpd, $item );
