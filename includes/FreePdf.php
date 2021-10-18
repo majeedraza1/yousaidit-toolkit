@@ -49,8 +49,9 @@ class FreePdf {
 	/**
 	 * @param string|array $pdf_size
 	 * @param array $items
+	 * @param array $background
 	 */
-	public function generate( $pdf_size, array $items ) {
+	public function generate( $pdf_size, array $items, array $background = [] ) {
 		$this->set_size( $pdf_size );
 
 		$size = $this->get_size();
@@ -76,8 +77,24 @@ class FreePdf {
 		$fpd->AddPage();
 
 		// Set PDF background color
-		$fpd->SetFillColor( 255, 0, 0 );
-//		$fpd->Cell( $fpd->GetPageWidth(), $fpd->GetPageHeight(), '', 0, 0, '', true );
+		$color = $background['color'] ?? '';
+		if ( 'color' == $background['type'] && ! in_array( $color, [ 'white', '#fff', '#ffffff' ], true ) ) {
+			$bg_color_image = add_query_arg( [
+				'action' => 'yousaidit_color_image',
+				'w'      => $size[0] / 2,
+				'h'      => $size[1],
+				'c'      => rawurlencode( $color )
+			], admin_url( 'admin-ajax.php' ) );
+			$fpd->Image( $bg_color_image, 0, 0, $fpd->GetPageWidth(), $fpd->GetPageHeight(), 'png' );
+		}
+
+		if ( 'image' == $background['type'] ) {
+			$image_id = $background['image']['id'] ?? 0;
+			$src      = wp_get_attachment_image_src( $image_id, 'full' );
+			if ( is_array( $src ) ) {
+				$fpd->Image( $src[0], 0, 0, $fpd->GetPageWidth(), $fpd->GetPageHeight(), '' );
+			}
+		}
 
 		// Add sections
 		foreach ( $items as $item ) {

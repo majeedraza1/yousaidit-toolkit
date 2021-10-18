@@ -2,6 +2,10 @@
 
 namespace YouSaidItCards;
 
+use Exception;
+use Imagick;
+use ImagickPixel;
+
 defined( 'ABSPATH' ) || exit;
 
 class Ajax {
@@ -27,6 +31,8 @@ class Ajax {
 			add_action( 'wp_ajax_yousaidit_preview_card', [ self::$instance, 'yousaidit_preview_card' ] );
 			add_action( 'wp_ajax_yousaidit_font_image', [ self::$instance, 'yousaidit_font_image' ] );
 			add_action( 'wp_ajax_nopriv_yousaidit_font_image', [ self::$instance, 'yousaidit_font_image' ] );
+			add_action( 'wp_ajax_yousaidit_color_image', [ self::$instance, 'yousaidit_color_image' ] );
+			add_action( 'wp_ajax_nopriv_yousaidit_color_image', [ self::$instance, 'yousaidit_color_image' ] );
 		}
 
 		return self::$instance;
@@ -110,8 +116,14 @@ class Ajax {
 			die( 'No valid options' );
 		}
 
+		$background = [
+			'type'  => $transient['bg_type'],
+			'color' => str_replace( '"', '', $transient['bg_color'] ),
+			'image' => $transient['bg_image']
+		];
+
 		$pdf = new FreePdf();
-		$pdf->generate( $transient['size'], $transient['items'] );
+		$pdf->generate( $transient['size'], $transient['items'], $background );
 		die();
 	}
 
@@ -159,12 +171,12 @@ class Ajax {
 		$draw->setFontSize( $_font_size );
 		$draw->setStrokeAntialias( true );
 		$draw->setTextAntialias( true );
-		$draw->setFillColor( new \ImagickPixel( $_color ) );
+		$draw->setFillColor( new ImagickPixel( $_color ) );
 
 		// The Imagick constructor
-		$textOnly = new \Imagick();
+		$textOnly = new Imagick();
 		// Set transparent background color
-		$textOnly->setBackgroundColor( new \ImagickPixel( 'white' ) );
+		$textOnly->setBackgroundColor( new ImagickPixel( 'white' ) );
 		// Creates a new image
 		$textOnly->newImage( $width, $height, "white" );
 		// Sets the format of this particular image
@@ -184,7 +196,7 @@ class Ajax {
 //		$textOnly->setImagePage( $textOnly->getimageWidth(), $textOnly->getimageheight(), 0, 0 );
 
 		// Sets the image virtual pixel method
-		$textOnly->setImageVirtualPixelMethod( \Imagick::VIRTUALPIXELMETHOD_TRANSPARENT );
+		$textOnly->setImageVirtualPixelMethod( Imagick::VIRTUALPIXELMETHOD_TRANSPARENT );
 		// Sets the image matte channel
 		$textOnly->setImageMatte( true );
 
@@ -194,5 +206,26 @@ class Ajax {
 		echo $textOnly->getimageblob();
 
 		die();
+	}
+
+	public function yousaidit_color_image() {
+		$width  = $_REQUEST['w'] ? intval( $_REQUEST['w'] ) * 37.795275591 : 0;
+		$height = $_REQUEST['h'] ? intval( $_REQUEST['h'] ) * 37.795275591 : 0;
+		$color  = $_REQUEST['c'] ? rawurldecode( $_REQUEST['c'] ) : 'white';
+
+		try {
+			// The Imagick constructor
+			$textOnly = new Imagick();
+			// Creates a new image
+			$textOnly->newImage( $width, $height, new ImagickPixel( $color ) );
+			// Sets the format of this particular image
+			$textOnly->setImageFormat( 'png' );
+
+			header( "Content-Type: image/png" );
+			// Returns the image sequence as a blob
+			echo $textOnly->getimageblob();
+		} catch ( Exception $e ) {
+		}
+		die;
 	}
 }
