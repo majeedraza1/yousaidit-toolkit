@@ -50,8 +50,9 @@ class FreePdf {
 	 * @param string|array $pdf_size
 	 * @param array $items
 	 * @param array $background
+	 * @param array $args
 	 */
-	public function generate( $pdf_size, array $items, array $background = [] ) {
+	public function generate( $pdf_size, array $items, array $background = [], array $args = [] ) {
 		$this->set_size( $pdf_size );
 
 		$size = $this->get_size();
@@ -105,7 +106,9 @@ class FreePdf {
 				$this->add_image( $fpd, $item );
 			}
 		}
-		$fpd->Output();
+		$dest = $args['dest'] ?? '';
+		$name = $args['name'] ?? '';
+		$fpd->Output( $dest, $name );
 	}
 
 	/**

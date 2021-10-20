@@ -90,7 +90,7 @@ class DesignerCard extends DatabaseModel {
 	 *
 	 * @return array
 	 */
-	public static function get_available_statuses() {
+	public static function get_available_statuses(): array {
 		return apply_filters( 'yousaiditcard_available_card_statuses', [
 			'processing'        => 'Processing',
 			'accepted'          => 'Accepted',
@@ -102,11 +102,11 @@ class DesignerCard extends DatabaseModel {
 	}
 
 	/**
-	 * Get available market places
+	 * Get available marketplaces
 	 *
 	 * @return string[]
 	 */
-	public static function get_available_market_places() {
+	public static function get_available_market_places(): array {
 		return [ 'yousaidit', 'yousaidit-trade', 'etsy', 'amazon', 'ebay' ];
 	}
 
@@ -115,7 +115,7 @@ class DesignerCard extends DatabaseModel {
 	 *
 	 * @return array
 	 */
-	public static function get_valid_statuses() {
+	public static function get_valid_statuses(): array {
 		return array_keys( static::get_available_statuses() );
 	}
 
@@ -124,9 +124,10 @@ class DesignerCard extends DatabaseModel {
 	 *
 	 * @return array
 	 */
-	public function to_array() {
+	public function to_array(): array {
 		$data = [
 			'id'                     => intval( $this->get( 'id' ) ),
+			'card_type'              => $this->get( 'card_type' ),
 			'card_title'             => $this->get( 'card_title' ),
 			'card_sizes'             => $this->get( 'card_sizes' ),
 			'categories'             => $this->get_categories(),
@@ -185,7 +186,7 @@ class DesignerCard extends DatabaseModel {
 	 *
 	 * @return int
 	 */
-	public function get_id() {
+	public function get_id(): int {
 		return intval( $this->get( 'id' ) );
 	}
 
@@ -194,7 +195,7 @@ class DesignerCard extends DatabaseModel {
 	 *
 	 * @return int
 	 */
-	public function get_designer_user_id() {
+	public function get_designer_user_id(): int {
 		return intval( $this->get( $this->created_by ) );
 	}
 
@@ -203,7 +204,7 @@ class DesignerCard extends DatabaseModel {
 	 *
 	 * @return string
 	 */
-	public function get_card_edit_url() {
+	public function get_card_edit_url(): string {
 		return add_query_arg( [ 'page' => 'designers#/cards/' . $this->get_id() ], admin_url( 'admin.php' ) );
 	}
 
@@ -222,6 +223,15 @@ class DesignerCard extends DatabaseModel {
 	 */
 	public function is_dynamic_card(): bool {
 		return 'dynamic' == $this->get_card_type();
+	}
+
+	/**
+	 * Get dynamic card payload
+	 *
+	 * @return mixed|array
+	 */
+	public function get_dynamic_card_payload() {
+		return $this->get( 'dynamic_card_payload' );
 	}
 
 	public function get_all_sizes_total_sales() {
@@ -681,7 +691,7 @@ class DesignerCard extends DatabaseModel {
 	 *
 	 * @param int $id
 	 *
-	 * @return array|self|ArrayObject
+	 * @return self|ArrayObject
 	 */
 	public function find_by_id( $id ) {
 		$item = parent::find_by_id( $id );

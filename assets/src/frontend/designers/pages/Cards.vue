@@ -155,7 +155,7 @@ export default {
 		return {
 			readFromServer: false,
 			showCardModal: false,
-			showDynaCardModal: true,
+			showDynaCardModal: false,
 			modalActive: false,
 			cards: [],
 			maximum_allowed_card: 0,

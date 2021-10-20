@@ -4,21 +4,27 @@
 		<hr class="wp-header-end">
 		<columns>
 			<column :tablet="6">
+				<h4>Type: {{ card.card_type }}</h4>
 				<h4>Status: {{ card.status }}</h4>
 			</column>
 			<column :tablet="6">
 				<div class="yousaiditcard_designer_card__actions-top">
 					<template v-if="'trash' !== card.status">
 						<template v-if="'processing' === card.status">
-							<shapla-button theme="success" size="small" @click="updateStatus('accepted')">Accept</shapla-button>
-							<shapla-button theme="error" size="small" @click="updateStatus('rejected')">Reject</shapla-button>
-						</template>
-						<template v-if="'accepted' === card.status && !card.product_id">
-							<shapla-button theme="primary" size="small" @click="showCreateProductModal = true">Create Product
+							<shapla-button theme="success" size="small" @click="updateStatus('accepted')">Accept
+							</shapla-button>
+							<shapla-button theme="error" size="small" @click="updateStatus('rejected')">Reject
 							</shapla-button>
 						</template>
-						<template v-if="'accepted' === card.status && card.market_place.indexOf('yousaidit-trade') !== -1">
-							<shapla-button theme="primary" size="small" outline @click="createProductOnTradeSite">Create Product on
+						<template v-if="'accepted' === card.status && !card.product_id">
+							<shapla-button theme="primary" size="small" @click="showCreateProductModal = true">Create
+								Product
+							</shapla-button>
+						</template>
+						<template
+							v-if="'accepted' === card.status && card.market_place.indexOf('yousaidit-trade') !== -1">
+							<shapla-button theme="primary" size="small" outline @click="createProductOnTradeSite">Create
+								Product on
 								Trade site
 							</shapla-button>
 						</template>
@@ -30,9 +36,12 @@
 								Product</a>
 						</template>
 						<template v-if="hasCommissionData">
-							<shapla-button theme="secondary" size="small" @click="showEditCommissionModal = true">Change Commission
+							<shapla-button theme="secondary" size="small" @click="showEditCommissionModal = true">Change
+								Commission
 							</shapla-button>
 						</template>
+						<shapla-button theme="secondary" size="small" outline @click="generateImage">Generate Image
+						</shapla-button>
 						<shapla-button theme="error" size="small" @click="trashCard"> Trash Card</shapla-button>
 					</template>
 				</div>
@@ -64,7 +73,7 @@
 						<column :tablet="3"><strong>Card Sizes</strong></column>
 						<column :tablet="9">
 							<shapla-chip v-for="_size in card_sizes" v-if="card.card_sizes.indexOf(_size.value) !== -1"
-													 :key="_size.value"> {{ _size.label }}
+										 :key="_size.value"> {{ _size.label }}
 							</shapla-chip>
 						</column>
 					</columns>
@@ -97,8 +106,8 @@
 						<column :tablet="3"><strong>Card Image</strong></column>
 						<column :tablet="9">
 							<pdf-image-item
-									:is-multiple="false"
-									:images="card.image"
+								:is-multiple="false"
+								:images="card.image"
 							/>
 						</column>
 					</columns>
@@ -106,8 +115,8 @@
 						<column :tablet="3"><strong>Card Gallery Images</strong></column>
 						<column :tablet="9">
 							<pdf-image-item
-									:is-multiple="true"
-									:images="card.gallery_images"
+								:is-multiple="true"
+								:images="card.gallery_images"
 							/>
 						</column>
 					</columns>
@@ -115,10 +124,10 @@
 						<column :tablet="3"><strong>Card PDFs</strong></column>
 						<column :tablet="9">
 							<pdf-card-item
-									v-for="(pdf_data,size_slug) in card.pdf_data"
-									:key="size_slug"
-									:header-text="getHeaderText(size_slug)"
-									:items="pdf_data"
+								v-for="(pdf_data,size_slug) in card.pdf_data"
+								:key="size_slug"
+								:header-text="getHeaderText(size_slug)"
+								:items="pdf_data"
 							/>
 						</column>
 					</columns>
@@ -161,27 +170,27 @@
 			</toggle>
 		</toggles>
 		<modal :active="showRejectConfirmModal" @close="showRejectConfirmModal = false" :show-close-icon="false"
-					 type="box">
+			   type="box">
 			<div style="background: #fff;padding: 1rem;border-radius: 4px;">
 				<columns multiline>
 					<column :tablet="12">
 						<text-field
-								type="textarea"
-								label="Reject Reason"
-								help-text="Describe reason of rejection."
-								v-model="reject_reason"
+							type="textarea"
+							label="Reject Reason"
+							help-text="Describe reason of rejection."
+							v-model="reject_reason"
 						/>
 					</column>
 					<column :tablet="12">
 						<shapla-button theme="primary" :disabled="reject_reason.length < 10"
-													 @click="handleAcceptOrReject('rejected')"> Confirm Reject
+									   @click="handleAcceptOrReject('rejected')"> Confirm Reject
 						</shapla-button>
 					</column>
 				</columns>
 			</div>
 		</modal>
 		<modal :active="showAcceptConfirmModal" @close="showAcceptConfirmModal = false" :show-close-icon="false"
-					 type="box">
+			   type="box">
 			<div style="background: #fff;padding: 1rem;border-radius: 4px;" v-if="Object.keys(card).length">
 				<columns multiline>
 					<column :tablet="12" style="display: none">
@@ -195,22 +204,22 @@
 						<columns>
 							<column v-for="_size in card.card_sizes" :key="_size">
 								<text-field
-										v-model="commission[_size]"
-										:label="`${_size}`"
+									v-model="commission[_size]"
+									:label="`${_size}`"
 								/>
 							</column>
 						</columns>
 					</column>
 					<column :tablet="12">
 						<text-field
-								type="textarea"
-								label="Note to Designer (option)"
-								v-model="note_to_designer"
+							type="textarea"
+							label="Note to Designer (option)"
+							v-model="note_to_designer"
 						/>
 					</column>
 					<column :tablet="12">
 						<shapla-button theme="primary" :disabled="!enableAcceptButton"
-													 @click="handleAcceptOrReject('accepted')">
+									   @click="handleAcceptOrReject('accepted')">
 							Confirm Accept
 						</shapla-button>
 					</column>
@@ -218,7 +227,7 @@
 			</div>
 		</modal>
 		<modal :active="showCreateProductModal" @close="showCreateProductModal = false" :show-close-icon="false"
-					 title="Create New Product">
+			   title="Create New Product">
 			<columns :multiline="true" v-if="card.card_sizes">
 				<template v-for="_size in card_sizes" v-if="card.card_sizes.indexOf(_size.value) !== -1">
 					<column :tablet="3">{{ _size.label }}</column>
@@ -226,14 +235,14 @@
 						<columns>
 							<column :tablet="6">
 								<text-field
-										label="SKU"
-										v-model="product_sku[_size.value]"
+									label="SKU"
+									v-model="product_sku[_size.value]"
 								/>
 							</column>
 							<column :tablet="6">
 								<text-field
-										label="Price"
-										v-model="product_price[_size.value]"
+									label="Price"
+									v-model="product_price[_size.value]"
 								/>
 							</column>
 						</columns>
@@ -251,8 +260,8 @@
 				<columns multiline>
 					<column :tablet="12">
 						<text-field
-								label="Card SKU"
-								v-model="card.card_sku"
+							label="Card SKU"
+							v-model="card.card_sku"
 						/>
 					</column>
 					<column :tablet="12">
@@ -262,15 +271,15 @@
 			</div>
 		</modal>
 		<modal-card-commission
-				v-if="hasCommissionData"
-				:active="showEditCommissionModal"
-				:card_id="card.id"
-				:card_sizes="card.card_sizes"
-				:marketplaces="card.market_place"
-				:value="card.commission.commission_amount"
-				:commissions="card.marketplace_commission"
-				@close="showEditCommissionModal = false"
-				@submit="handleCommissionUpdate"
+			v-if="hasCommissionData"
+			:active="showEditCommissionModal"
+			:card_id="card.id"
+			:card_sizes="card.card_sizes"
+			:marketplaces="card.market_place"
+			:value="card.commission.commission_amount"
+			:commissions="card.marketplace_commission"
+			@close="showEditCommissionModal = false"
+			@submit="handleCommissionUpdate"
 
 		/>
 	</div>
@@ -524,6 +533,17 @@ export default {
 				this.$store.commit('SET_LOADING_STATUS', false);
 				console.log(errors);
 			})
+		},
+		generateImage() {
+			let url = new URL(window.StackonetToolkit.ajaxUrl);
+			url.searchParams.append('action', 'yousaidit_save_dynamic_card');
+			url.searchParams.append('card_id', this.id);
+
+			const a = document.createElement('a');
+			a.href = url.toString();
+			a.target = '_blank'
+			a.click();
+			a.remove();
 		}
 	}
 }

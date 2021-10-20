@@ -191,7 +191,7 @@ class Plugin {
 		ShipStationOrderAddress::create_table();
 		ShipStationOrderItem::create_table();
 		DesignersManager::activation();
-		flush_rewrite_rules();
+//		flush_rewrite_rules();
 	}
 
 	/**
@@ -200,7 +200,7 @@ class Plugin {
 	 * @return void
 	 */
 	public function deactivation_includes() {
-		flush_rewrite_rules();
+//		flush_rewrite_rules();
 	}
 
 	/**

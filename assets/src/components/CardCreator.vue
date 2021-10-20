@@ -279,7 +279,13 @@ export default {
 			return !!(this.card.title.length > 1 && this.card.sizes.length && this.card.categories_ids.length);
 		},
 		dynamic_card_payload() {
-			return {card_size: this.card_size, background: this.image, sections: this.sections};
+			return {
+				card_size: this.card_size,
+				card_bg_type: this.background.type,
+				card_bg_color: this.background.color.hex,
+				card_background: this.image,
+				card_items: this.sections,
+			};
 		}
 	},
 	watch: {
@@ -462,7 +468,7 @@ export default {
 	mounted() {
 		this.getUserUploadedImages();
 		// Test data
-		this.setTextData();
+		// this.setTextData();
 	}
 }
 </script>

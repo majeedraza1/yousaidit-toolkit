@@ -6,6 +6,7 @@ use WC_Data_Exception;
 use WC_Product_Attribute;
 use WC_Product_Simple;
 use WC_Product_Variable;
+use WC_Product_Variation;
 use WP_Error;
 
 defined( 'ABSPATH' ) || exit;
@@ -16,6 +17,7 @@ class CardToProduct {
 	 * @param array $args
 	 *
 	 * @return int|WP_Error
+	 * @throws WC_Data_Exception
 	 */
 	public static function create( $card_id, array $args = [] ) {
 		$args = wp_parse_args( $args, [
@@ -54,8 +56,9 @@ class CardToProduct {
 	 * @param array $args
 	 *
 	 * @return int
+	 * @throws WC_Data_Exception
 	 */
-	private static function create_simple_product( DesignerCard $designer_card, array $args = [] ) {
+	private static function create_simple_product( DesignerCard $designer_card, array $args = [] ): int {
 		$card_sizes = $designer_card->get( 'card_sizes' );
 		$card_size  = $card_sizes[0];
 
@@ -117,13 +120,17 @@ class CardToProduct {
 		$product->set_attributes( $attributes );
 
 		// Add card metadata
-		$product->add_meta_data( '_card_id', $designer_card->get( 'id' ) );
+		$product->add_meta_data( '_card_id', $designer_card->get_id() );
 		$product->add_meta_data( '_card_size', $card_size );
 		$product->add_meta_data( '_card_designer_id', $designer_card->get_designer_user_id() );
 		$commission = $designer_card->get_commission_for_size( $card_size );
 		$product->add_meta_data( '_card_designer_commission', is_numeric( $commission ) ? $commission : 0 );
 		$product->add_meta_data( '_is_rude_card', $designer_card->is_rude_card() ? 'yes' : 'no' );
 		$product->add_meta_data( '_pdf_id', $designer_card->get_pdf_id_for_size( $card_size ) );
+		$product->add_meta_data( '_card_type', $designer_card->get_card_type() );
+		if ( $designer_card->is_dynamic_card() ) {
+			$product->add_meta_data( '_dynamic_card_payload', $designer_card->get_dynamic_card_payload() );
+		}
 		$product->save_meta_data();
 
 		$product_id = $product->save();
@@ -140,7 +147,7 @@ class CardToProduct {
 	 *
 	 * @return int
 	 */
-	private static function create_variable_product( DesignerCard $designer_card, array $args = [] ) {
+	private static function create_variable_product( DesignerCard $designer_card, array $args = [] ): int {
 		$_sku    = is_array( $args['product_sku'] ) ? $args['product_sku'] : [];
 		$_prices = is_array( $args['product_price'] ) ? $args['product_price'] : [];
 
@@ -206,9 +213,13 @@ class CardToProduct {
 		$product->set_attributes( $attributes );
 
 		// Add card metadata
-		$product->add_meta_data( '_card_id', $designer_card->get( 'id' ) );
+		$product->add_meta_data( '_card_id', $designer_card->get_id() );
 		$product->add_meta_data( '_card_designer_id', $designer_card->get_designer_user_id() );
 		$product->add_meta_data( '_is_rude_card', $designer_card->is_rude_card() ? 'yes' : 'no' );
+		$product->add_meta_data( '_card_type', $designer_card->get_card_type() );
+		if ( $designer_card->is_dynamic_card() ) {
+			$product->add_meta_data( '_dynamic_card_payload', $designer_card->get_dynamic_card_payload() );
+		}
 
 		$product->save_meta_data();
 
@@ -218,7 +229,7 @@ class CardToProduct {
 		foreach ( $designer_card->get( 'card_sizes' ) as $size ) {
 			try {
 				$_attrs    = [ $card_size_attr->get_name() => $size ];
-				$variation = new \WC_Product_Variation();
+				$variation = new WC_Product_Variation();
 				$variation->set_parent_id( $product_id );
 				$variation->set_regular_price( isset( $_prices[ $size ] ) ? floatval( $_prices[ $size ] ) : 0 );
 				$variation->set_sku( isset( $_sku[ $size ] ) ? sanitize_text_field( $_sku[ $size ] ) : '' );

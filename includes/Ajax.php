@@ -4,7 +4,10 @@ namespace YouSaidItCards;
 
 use Exception;
 use Imagick;
+use ImagickException;
 use ImagickPixel;
+use Stackonet\WP\Framework\Media\Uploader;
+use YouSaidItCards\Modules\Designers\Models\DesignerCard;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -33,6 +36,7 @@ class Ajax {
 			add_action( 'wp_ajax_nopriv_yousaidit_font_image', [ self::$instance, 'yousaidit_font_image' ] );
 			add_action( 'wp_ajax_yousaidit_color_image', [ self::$instance, 'yousaidit_color_image' ] );
 			add_action( 'wp_ajax_nopriv_yousaidit_color_image', [ self::$instance, 'yousaidit_color_image' ] );
+			add_action( 'wp_ajax_yousaidit_save_dynamic_card', [ self::$instance, 'save_dynamic_card' ] );
 		}
 
 		return self::$instance;
@@ -226,6 +230,39 @@ class Ajax {
 			echo $textOnly->getimageblob();
 		} catch ( Exception $e ) {
 		}
+		die;
+	}
+
+	public function save_dynamic_card() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( 'You cannot perform this action.' );
+		}
+
+		$card_id = $_REQUEST['card_id'] ?? 0;
+		$card    = ( new DesignerCard )->find_by_id( intval( $card_id ) );
+		if ( ! $card instanceof DesignerCard ) {
+			wp_die( 'No card available.' );
+		}
+		$payload = $card->get_dynamic_card_payload();
+
+		$background = [
+			'type'  => $payload['card_bg_type'],
+			'color' => str_replace( '"', '', $payload['card_bg_color'] ),
+			'image' => $payload['card_background']
+		];
+
+		$directory     = rtrim( Uploader::get_upload_dir(), DIRECTORY_SEPARATOR );
+		$filename      = sprintf( "dynamic-card-%s.pdf", $card_id );
+		$new_file_path = $directory . DIRECTORY_SEPARATOR . $filename;
+
+		if ( ! file_exists( $new_file_path ) ) {
+			$pdf = new FreePdf();
+			$pdf->generate( $payload['card_size'], $payload['card_items'], $background, [
+				'dest' => 'F',
+				'name' => $new_file_path,
+			] );
+		}
+
 		die;
 	}
 }

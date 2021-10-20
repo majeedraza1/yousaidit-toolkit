@@ -1,1 +1,6 @@
+@use '~shapla-css/src/index.scss' as shapla;
+
+@include shapla.button;
+@include shapla.modal;
+
 @import "tailwind";
