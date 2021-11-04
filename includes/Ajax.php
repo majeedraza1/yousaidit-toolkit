@@ -7,6 +7,7 @@ use Imagick;
 use ImagickException;
 use ImagickPixel;
 use Stackonet\WP\Framework\Media\Uploader;
+use YouSaidItCards\Modules\Designers\DynamicCard;
 use YouSaidItCards\Modules\Designers\Models\DesignerCard;
 
 defined( 'ABSPATH' ) || exit;
@@ -37,6 +38,7 @@ class Ajax {
 			add_action( 'wp_ajax_yousaidit_color_image', [ self::$instance, 'yousaidit_color_image' ] );
 			add_action( 'wp_ajax_nopriv_yousaidit_color_image', [ self::$instance, 'yousaidit_color_image' ] );
 			add_action( 'wp_ajax_yousaidit_save_dynamic_card', [ self::$instance, 'save_dynamic_card' ] );
+			add_action( 'wp_ajax_nopriv_yousaidit_save_dynamic_card', [ self::$instance, 'save_dynamic_card' ] );
 		}
 
 		return self::$instance;
@@ -243,26 +245,15 @@ class Ajax {
 		if ( ! $card instanceof DesignerCard ) {
 			wp_die( 'No card available.' );
 		}
-		$payload = $card->get_dynamic_card_payload();
 
-		$background = [
-			'type'  => $payload['card_bg_type'],
-			'color' => str_replace( '"', '', $payload['card_bg_color'] ),
-			'image' => $payload['card_background']
-		];
-
-		$directory     = rtrim( Uploader::get_upload_dir(), DIRECTORY_SEPARATOR );
-		$filename      = sprintf( "dynamic-card-%s.pdf", $card_id );
-		$new_file_path = $directory . DIRECTORY_SEPARATOR . $filename;
-
-		if ( ! file_exists( $new_file_path ) ) {
-			$pdf = new FreePdf();
-			$pdf->generate( $payload['card_size'], $payload['card_items'], $background, [
-				'dest' => 'F',
-				'name' => $new_file_path,
-			] );
+		$new_file_path = DynamicCard::create_card_pdf( $card );
+		try {
+			DynamicCard::clone_pdf_to_jpg( $card->get_id(), $new_file_path );
+			$im = DynamicCard::pdf_to_image( $new_file_path );
+			header( 'Content-Type: image/jpeg' );
+			echo $im->getImageBlob();
+		} catch ( ImagickException $e ) {
 		}
-
 		die;
 	}
 }
