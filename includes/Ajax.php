@@ -248,7 +248,7 @@ class Ajax {
 
 		$new_file_path = DynamicCard::create_card_pdf( $card );
 		try {
-			DynamicCard::clone_pdf_to_jpg( $card->get_id(), $new_file_path );
+			DynamicCard::clone_pdf_to_jpg( $card, $new_file_path );
 			$im = DynamicCard::pdf_to_image( $new_file_path );
 			header( 'Content-Type: image/jpeg' );
 			echo $im->getImageBlob();

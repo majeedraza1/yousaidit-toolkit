@@ -60,6 +60,14 @@ class DynamicCard {
 				$post_id = self::add_attachment_metadata( $new_file_path );
 				update_post_meta( $post_id, '_dynamic_card_id_for_pdf', $card->get_id() );
 
+				$sizes   = (array) $card->get( 'card_sizes', [] );
+				$pdf_ids = [];
+				foreach ( $sizes as $size ) {
+					$pdf_ids[ $size ] = [ $post_id ];
+				}
+				$card->set( 'attachment_ids', array_merge( $card->get_attachment_ids(), [ 'pdf_ids' => $pdf_ids ] ) );
+				$card->update();
+
 				return get_attached_file( $post_id );
 			}
 		}
@@ -88,12 +96,13 @@ class DynamicCard {
 	/**
 	 * Clone PDF to JPG
 	 *
-	 * @param int $card_id
+	 * @param DesignerCard $card
 	 * @param string $pdf_file_path
 	 *
 	 * @return string
 	 */
-	public static function clone_pdf_to_jpg( int $card_id, string $pdf_file_path ): string {
+	public static function clone_pdf_to_jpg( DesignerCard $card, string $pdf_file_path ): string {
+		$card_id       = $card->get_id();
 		$image_id      = self::get_pdf_id( $card_id, '_dynamic_card_id_for_image' );
 		$img_file_path = get_attached_file( $image_id );
 		if ( is_string( $img_file_path ) && file_exists( $img_file_path ) ) {
@@ -112,6 +121,9 @@ class DynamicCard {
 
 			$post_id = self::add_attachment_metadata( $new_file );
 			update_post_meta( $post_id, '_dynamic_card_id_for_image', $card_id );
+
+			$card->set( 'attachment_ids', array_merge( $card->get_attachment_ids(), [ 'image_id' => $post_id ] ) );
+			$card->update();
 
 			return get_attached_file( $post_id );
 		} catch ( ImagickException $e ) {

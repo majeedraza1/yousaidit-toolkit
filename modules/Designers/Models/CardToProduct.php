@@ -87,6 +87,11 @@ class CardToProduct {
 		$product->set_category_ids( $designer_card->get( 'categories_ids' ) );
 		$product->set_tag_ids( $designer_card->get( 'tags_ids' ) );
 
+		$image_id = $designer_card->get_image_id();
+		if ( $image_id ) {
+			$product->set_image_id( $image_id );
+		}
+
 		$attributes = [];
 
 		// Add product attribute

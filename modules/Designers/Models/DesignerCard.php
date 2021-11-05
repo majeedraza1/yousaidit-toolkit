@@ -502,8 +502,8 @@ class DesignerCard extends DatabaseModel {
 	 *
 	 * @return array
 	 */
-	public function get_attachment_ids() {
-		return $this->get( 'attachment_ids' );
+	public function get_attachment_ids(): array {
+		return (array) $this->get( 'attachment_ids' );
 	}
 
 	/**
@@ -529,8 +529,8 @@ class DesignerCard extends DatabaseModel {
 	 *
 	 * @return int
 	 */
-	public function get_image_id() {
-		return isset( $this->get_attachment_ids()['image_id'] ) ? $this->get_attachment_ids()['image_id'] : 0;
+	public function get_image_id(): int {
+		return isset( $this->get_attachment_ids()['image_id'] ) ? (int) $this->get_attachment_ids()['image_id'] : 0;
 	}
 
 	/**
