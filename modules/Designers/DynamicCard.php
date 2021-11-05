@@ -56,8 +56,11 @@ class DynamicCard {
 				$stat  = stat( dirname( $new_file_path ) );
 				$perms = $stat['mode'] & 0000666;
 				@chmod( $new_file_path, $perms );
+
 				$post_id = self::add_attachment_metadata( $new_file_path );
 				update_post_meta( $post_id, '_dynamic_card_id_for_pdf', $card->get_id() );
+
+				return get_attached_file( $post_id );
 			}
 		}
 
@@ -72,9 +75,10 @@ class DynamicCard {
 	 * @throws ImagickException
 	 */
 	public static function pdf_to_image( string $pdf_file_path, int $resolution = 72 ): Imagick {
-		$im = new Imagick();
+		$content = file_get_contents( $pdf_file_path );
+		$im      = new Imagick();
 		$im->setResolution( $resolution, $resolution );
-		$im->readImage( $pdf_file_path . '[0]' );    //[0] for the first page
+		$im->readImageBlob( $content . '[0]' );    //[0] for the first page
 		$im->setImageFormat( 'jpg' );
 
 		return $im;
@@ -95,16 +99,21 @@ class DynamicCard {
 		if ( is_string( $img_file_path ) && file_exists( $img_file_path ) ) {
 			return $img_file_path;
 		}
-		$new_file = str_replace( '.pdf', '.jpg', $pdf_file_path );
+
+		$upload_dir = Uploader::get_upload_dir();
+		$new_file   = join( "/", [ $upload_dir, "dynamic-card-$card_id.jpg" ] );
 		try {
 			$im = self::pdf_to_image( $pdf_file_path );
 			$im->writeImage( $new_file );
 
-			self::add_attachment_metadata( $new_file );
-
 			$stat  = stat( dirname( $new_file ) );
 			$perms = $stat['mode'] & 0000666;
 			@chmod( $new_file, $perms );
+
+			$post_id = self::add_attachment_metadata( $new_file );
+			update_post_meta( $post_id, '_dynamic_card_id_for_image', $card_id );
+
+			return get_attached_file( $post_id );
 		} catch ( ImagickException $e ) {
 		}
 

@@ -253,6 +253,7 @@ class Ajax {
 			header( 'Content-Type: image/jpeg' );
 			echo $im->getImageBlob();
 		} catch ( ImagickException $e ) {
+			var_dump( $e );
 		}
 		die;
 	}
