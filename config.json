@@ -19,7 +19,8 @@
       "./assets/src/scss/frontend.scss"
     ],
     "inner-message": [
-      "./assets/src/frontend/inner-message/main.js"
+      "./assets/src/frontend/inner-message/main.js",
+      "./assets/src/frontend/dynamic-card/main.js"
     ]
   }
 }

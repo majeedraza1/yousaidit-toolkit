@@ -94,6 +94,10 @@ class EvaThemeManager {
 		if ( $price > 0 ) {
 			$html .= '<span class="inner-message-cost">+ ' . wc_price( $price ) . '</span>';
 		}
+		$_card_type = $product->get_meta( '_card_type', true );
+		if ( 'dynamic' == $_card_type ) {
+			$html .= '<button type="submit" class="button btn1 bshadow button--customize-dynamic-card"><span>Customize</span></button>';
+		}
 		echo $html;
 	}
 

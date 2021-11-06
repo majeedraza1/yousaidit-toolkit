@@ -29,7 +29,7 @@ module.exports = (env, argv) => {
 			"path": path.resolve(__dirname, 'assets/js'),
 			"filename": '[name].js'
 		},
-		"devtool": isDev ? 'eval-source-map' : false,
+		"devtool": isDev ? 'source-map' : false,
 		"module": {
 			"rules": [
 				{

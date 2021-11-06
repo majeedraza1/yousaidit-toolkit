@@ -15,6 +15,7 @@ use YouSaidItCards\Modules\CardMerger\CardMergerManager;
 use YouSaidItCards\Modules\ColorTheme\ColorThemeManager;
 use YouSaidItCards\Modules\Customer\CustomerManager;
 use YouSaidItCards\Modules\Designers\DesignersManager;
+use YouSaidItCards\Modules\DynamicCard\DynamicCardManager;
 use YouSaidItCards\Modules\EvaTheme\EvaThemeManager;
 use YouSaidItCards\Modules\Faq\FaqManager;
 use YouSaidItCards\Modules\FeaturedProductsFirst\FeaturedProductsFirst;
@@ -136,6 +137,7 @@ class Plugin {
 		$this->container['module_color_theme'] = ColorThemeManager::init();
 
 		$this->container['module_checkout']         = MultistepCheckout::init();
+		$this->container['module_dynamic_card']     = DynamicCardManager::init();
 		$this->container['module_designers']        = DesignersManager::init();
 		$this->container['module_rude_product']     = RudeProductManager::init();
 		$this->container['module_order_dispatcher'] = OrderDispatcherManager::init();
