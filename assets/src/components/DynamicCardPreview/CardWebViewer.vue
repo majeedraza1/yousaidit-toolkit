@@ -1,9 +1,11 @@
 <template>
 	<div :class="`card-preview-canvas card-canvas--${options.card_size}`" :style="canvas_styles">
-		<img class="card-preview-canvas__background" v-if="Object.keys(options.background).length"
-			 :src="options.background.src"
-			 alt="">
-		<div v-for="(section,index) in options.sections"
+		<div class="card-canvas__background is-type-color" v-if="options.card_bg_type === 'color'"
+			 :style="`background-color:${options.card_bg_color}`"></div>
+		<img class="card-canvas__background" v-if="Object.keys(options.card_background).length"
+			 :src="options.card_background.src" alt="">
+
+		<div v-for="(section,index) in options.card_items"
 			 class="card-preview-canvas__section"
 			 :class="sectionClass(section,index)"
 			 :style="sectionStyle(section)"
@@ -86,6 +88,7 @@ import Popover from '@/shapla/popover';
 import {shaplaButton, iconContainer, FileUploader, deleteIcon} from "shapla-vue-components";
 import {FeaturedImage, MediaModal} from "@/shapla/shapla-media-uploader";
 
+const optionArgs = {card_size: '', card_bg_type: '', card_bg_color: '', card_background: {}, card_items: []};
 export default {
 	name: "CardWebViewer",
 	components: {shaplaButton, iconContainer, FeaturedImage, FileUploader, MediaModal, deleteIcon},
@@ -93,7 +96,7 @@ export default {
 		args: {
 			type: Object,
 			default: () => {
-				return {card_size: '', background: {}, sections: []}
+				return optionArgs
 			}
 		},
 		uploadUrl: {type: String, default: ''},
@@ -102,7 +105,7 @@ export default {
 	data() {
 		return {
 			showMediaModal: false,
-			options: {card_size: '', background: {}, sections: []},
+			options: optionArgs,
 			card_sizes: {
 				a4: [426, 303],
 				a5: [303, 216],
@@ -122,7 +125,7 @@ export default {
 	},
 	computed: {
 		font_families() {
-			return window.DesignerProfile.fonts;
+			return window.StackonetToolkit.fonts || window.DesignerProfile.fonts;
 		},
 		card_dimension() {
 			if (Object.keys(this.card_sizes).indexOf(this.options.card_size) === -1) {

@@ -1,23 +1,44 @@
 <template>
-	<div></div>
+	<modal :active="show_dynamic_card_editor" @close="show_dynamic_card_editor = false" title="Customize"
+		   content-size="full">
+		<card-web-viewer
+			v-if="show_dynamic_card_editor && Object.keys(payload).length"
+			:args="payload"
+			:upload-url="uploadUrl"
+			:images="images"
+			@edit:section="handleEditSection"
+		/>
+	</modal>
 </template>
 
 <script>
 import axios from "axios";
+import {modal} from "shapla-vue-components";
+import CardWebViewer from "@/components/DynamicCardPreview/CardWebViewer";
 
 export default {
 	name: "SingleProductDynamicCard",
+	components: {CardWebViewer, modal},
 	data() {
 		return {
 			product_id: 0,
-			show_dynamic_card_editor: false
+			show_dynamic_card_editor: false,
+			payload: {},
+			images: [],
+		}
+	},
+	computed: {
+		uploadUrl() {
+			return '';
 		}
 	},
 	methods: {
+		handleEditSection(section) {
+		},
 		loadCardInfo() {
 			axios.get(StackonetToolkit.restRoot + `/dynamic-cards/${this.product_id}`).then(response => {
-				console.log(response);
-			})
+				this.payload = response.data.data;
+			});
 		}
 	},
 	mounted() {
@@ -34,6 +55,7 @@ export default {
 				this.loadCardInfo();
 			});
 		}
+		console.log('Single Product Dynamic.')
 	}
 }
 </script>

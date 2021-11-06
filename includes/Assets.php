@@ -3,6 +3,8 @@
 namespace YouSaidItCards;
 
 // If this file is called directly, abort.
+use YouSaidItCards\Modules\InnerMessage\Fonts;
+
 defined( 'ABSPATH' ) || exit;
 
 class Assets {
@@ -202,10 +204,12 @@ class Assets {
 		$data = [
 			'homeUrl'          => home_url(),
 			'ajaxUrl'          => admin_url( 'admin-ajax.php' ),
-			'restRoot'         => esc_url_raw( rest_url( 'yousaidit-toolkit/v1' ) ),
+			'restRoot'         => esc_url_raw( rest_url( 'yousaidit/v1' ) ),
 			'isUserLoggedIn'   => $is_user_logged_in,
 			'privacyPolicyUrl' => get_privacy_policy_url(),
 		];
+
+		$data['fonts'] = Fonts::get_list_for_web();
 
 		if ( ! $is_user_logged_in ) {
 			$data['lostPasswordUrl'] = wp_lostpassword_url();
