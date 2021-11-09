@@ -14,7 +14,8 @@
 			<div class="flex flex-col justify-between">
 				<div class="flex flex-col space-y-4">
 					<shapla-button theme="secondary" fullwith>Add a message</shapla-button>
-					<shapla-button theme="primary" fullwith>Add to basket and continue shopping</shapla-button>
+					<shapla-button theme="primary" fullwith @click="handleSubmit">Add to basket and continue shopping
+					</shapla-button>
 				</div>
 				<div>
 					<div><strong>Help tips:</strong></div>
@@ -48,17 +49,20 @@
 
 <script>
 import axios from "axios";
-import {modal, shaplaButton} from "shapla-vue-components";
+import {modal, shaplaButton, iconContainer} from "shapla-vue-components";
 import CardWebViewer from "@/components/DynamicCardPreview/CardWebViewer";
 
 export default {
 	name: "SingleProductDynamicCard",
-	components: {CardWebViewer, modal, shaplaButton},
+	components: {CardWebViewer, modal, shaplaButton, iconContainer},
 	data() {
 		return {
+			loading: false,
 			product_id: 0,
+			card_size: '',
 			show_dynamic_card_editor: false,
 			payload: {},
+			readFromServer: false,
 			images: [],
 		}
 	},
@@ -70,9 +74,32 @@ export default {
 	methods: {
 		handleEditSection(section) {
 		},
+		handleSubmit() {
+			let fieldsContainer = document.querySelector('#_dynamic_card_fields');
+			this.payload.card_items.forEach((item, index) => {
+				let inputId = `#_dynamic_card_input-${index}`
+				if (['static-text', 'input-text'].indexOf(item.section_type) !== -1) {
+					fieldsContainer.querySelector(inputId).value = item.text;
+					console.log(item.text);
+				}
+				if (['static-image', 'input-image'].indexOf(item.section_type) !== -1) {
+					fieldsContainer.querySelector(inputId).value = item.imageOptions.img.id;
+					console.log(item.imageOptions.img.id);
+				}
+			});
+			let variations_form = document.querySelector('form.cart');
+			if (variations_form) {
+				this.loading = true;
+				variations_form.submit();
+			}
+		},
 		loadCardInfo() {
+			if (this.readFromServer) {
+				return;
+			}
 			axios.get(StackonetToolkit.restRoot + `/dynamic-cards/${this.product_id}`).then(response => {
 				this.payload = response.data.data;
+				this.readFromServer = true;
 			});
 		}
 	},
@@ -80,17 +107,21 @@ export default {
 		let el = document.querySelector('#dynamic-card-container');
 		if (el) {
 			this.product_id = parseInt(el.dataset.productId);
+			this.card_size = el.dataset.cardSize;
 		}
+
+		this.loadCardInfo();
 
 		let btn = document.querySelector('.button--customize-dynamic-card');
 		if (btn) {
+			if (btn.hasAttribute('disabled')) {
+				btn.removeAttribute('disabled');
+			}
 			btn.addEventListener('click', event => {
 				event.preventDefault();
 				this.show_dynamic_card_editor = true;
-				this.loadCardInfo();
 			});
 		}
-		console.log('Single Product Dynamic.')
 	}
 }
 </script>

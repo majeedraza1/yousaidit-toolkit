@@ -99,6 +99,7 @@ export default {
 				return optionArgs
 			}
 		},
+		card_size: {type: String, default: ''},
 		uploadUrl: {type: String, default: ''},
 		images: {type: Array, default: () => []}
 	},
@@ -126,6 +127,9 @@ export default {
 	computed: {
 		font_families() {
 			return window.StackonetToolkit.fonts || window.DesignerProfile.fonts;
+		},
+		_card_size() {
+			return this.card_size || this.options.card_size;
 		},
 		card_dimension() {
 			if (Object.keys(this.card_sizes).indexOf(this.options.card_size) === -1) {

@@ -96,7 +96,16 @@ class EvaThemeManager {
 		}
 		$_card_type = $product->get_meta( '_card_type', true );
 		if ( 'dynamic' == $_card_type ) {
-			$html .= '<button type="submit" class="button btn1 bshadow button--customize-dynamic-card"><span>Customize</span></button>';
+			$html .= '<button type="submit" class="button btn1 bshadow button--customize-dynamic-card" disabled><span>Customize</span></button>';
+
+			$payload = $product->get_meta( '_dynamic_card_payload', true );
+			$items   = $payload['card_items'] ?? [];
+			$html    .= '<div id="_dynamic_card_fields" style="visibility: hidden; position: absolute; width: 1px; height: 1px">';
+			foreach ( $items as $index => $item ) {
+				$html .= sprintf( '<input type="text" id="%s" name="_dynamic_card[%s][value]"/>',
+					"_dynamic_card_input-$index", $index );
+			}
+			$html .= '</div>';
 		}
 		echo $html;
 	}
