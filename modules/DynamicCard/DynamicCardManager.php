@@ -24,6 +24,8 @@ class DynamicCardManager {
 			self::$instance = new self();
 			DynamicCardController::init();
 
+			add_action( 'wp_ajax_generate_dynamic_card_pdf', [ self::$instance, 'generate_dynamic_card_pdf' ] );
+
 			// Step 2: Add Customer Data to WooCommerce Cart
 			add_filter( 'woocommerce_add_cart_item_data', [ self::$instance, 'add_cart_item_data' ] );
 			// Step 4: Add Custom Details as Order Line Items
@@ -34,6 +36,11 @@ class DynamicCardManager {
 		}
 
 		return self::$instance;
+	}
+
+	public function generate_dynamic_card_pdf() {
+		$dd = BackgroundDynamicPdfGenerator::generate_for_order_item( 37565, 53161 );
+		die;
 	}
 
 	public function add_editor() {
@@ -78,6 +85,10 @@ class DynamicCardManager {
 		if ( array_key_exists( '_dynamic_card', $values ) ) {
 			$data = is_array( $values['_dynamic_card'] ) ? $values['_dynamic_card'] : [];
 			$item->add_meta_data( '_dynamic_card', self::sanitize_dynamic_card( $data ) );
+			BackgroundDynamicPdfGenerator::init()->push_to_queue( [
+				'order_id'      => $order->get_id(),
+				'order_item_id' => $item->get_id()
+			] );
 		}
 	}
 

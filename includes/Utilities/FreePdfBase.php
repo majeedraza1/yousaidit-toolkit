@@ -8,7 +8,7 @@ class FreePdfBase {
 	 *
 	 * @var array
 	 */
-	protected $sizes = [
+	protected static $sizes = [
 		'square' => [ 300, 150 ],
 		'a4'     => [ 426, 303 ],
 		'a5'     => [ 303, 216 ],
@@ -27,9 +27,16 @@ class FreePdfBase {
 	/**
 	 * @return array
 	 */
+	public static function get_sizes(): array {
+		return self::$sizes;
+	}
+
+	/**
+	 * @return array
+	 */
 	public function get_size(): array {
 		if ( empty( $this->size ) ) {
-			$this->size = $this->sizes['square'];
+			$this->size = self::$sizes['square'];
 		}
 
 		return $this->size;
@@ -41,8 +48,8 @@ class FreePdfBase {
 	 * @param string $size
 	 */
 	public function set_size( string $size ): void {
-		if ( array_key_exists( $size, $this->sizes ) ) {
-			$this->size = $this->sizes[ $size ];
+		if ( array_key_exists( $size, self::$sizes ) ) {
+			$this->size = self::$sizes[ $size ];
 		}
 	}
 
