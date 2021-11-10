@@ -58,6 +58,7 @@ class BackgroundDynamicPdfGenerator extends BackgroundProcess {
 		}
 
 		$item = new OrderItemDynamicCard( $order, $order_item );
+		$item->pdf();
 		var_dump( $item );
 	}
 }

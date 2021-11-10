@@ -2,8 +2,17 @@
 
 namespace YouSaidItCards\Modules\DynamicCard\Models;
 
-use Stackonet\WP\Framework\Abstracts\Data;
+class CardSectionTextOption extends CardSectionBase {
 
-class CardSectionTextOption extends Data {
+	/**
+	 * Get text
+	 *
+	 * @return string
+	 */
+	public function get_text(): string {
+		$placeholder = $this->get( 'placeholder' );
+		$text        = $this->get( 'text' );
 
+		return ! empty( $text ) ? $text : $placeholder;
+	}
 }
