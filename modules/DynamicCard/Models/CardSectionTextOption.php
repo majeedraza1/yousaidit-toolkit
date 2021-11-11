@@ -15,4 +15,24 @@ class CardSectionTextOption extends CardSectionBase {
 
 		return ! empty( $text ) ? $text : $placeholder;
 	}
+
+	/**
+	 * Get text options
+	 *
+	 * @param string $key
+	 *
+	 * @return mixed
+	 */
+	public function get_text_option( string $key ) {
+		$default = [
+			"fontFamily"  => "arial",
+			"size"        => 16,
+			"align"       => "left",
+			"color"       => "#000000",
+			"marginRight" => 10,
+		];
+		$options = wp_parse_args( $this->get( 'textOptions', [] ), $default );
+
+		return $options[ $key ] ?? '';
+	}
 }

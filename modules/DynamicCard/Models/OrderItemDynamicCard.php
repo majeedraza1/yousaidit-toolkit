@@ -5,6 +5,7 @@ namespace YouSaidItCards\Modules\DynamicCard\Models;
 use tFPDF;
 use WC_Order;
 use WC_Order_Item_Product;
+use YouSaidItCards\Modules\InnerMessage\Fonts;
 use YouSaidItCards\Modules\OrderDispatcher\QrCode;
 use YouSaidItCards\Utilities\FreePdfBase;
 
@@ -125,8 +126,13 @@ class OrderItemDynamicCard {
 		return false;
 	}
 
-	public function pdf() {
+	public function pdf( array $args = [] ) {
 		$fpd = new tFPDF( 'L', 'mm', [ $this->card_width, $this->card_height ] );
+
+		// Add custom fonts
+		$this->addCustomFonts( $fpd );
+
+		// Add page
 		$fpd->AddPage();
 
 		// Add company logo
@@ -148,6 +154,7 @@ class OrderItemDynamicCard {
 		$this->addBackground( $fpd );
 
 		// Add sections
+		$this->addSections( $fpd );
 
 		$fpd->Output( $args['dest'] ?? '', $args['name'] ?? '' );
 	}
@@ -231,5 +238,85 @@ class OrderItemDynamicCard {
 	private function addBackground( tFPDF &$fpd ): void {
 		$fpd->Image( $this->background->get_image(), $fpd->GetPageWidth() / 2, 0,
 			$fpd->GetPageWidth() / 2, $fpd->GetPageHeight() );
+	}
+
+	private function addSections( tFPDF &$fpd ) {
+		foreach ( $this->card_sections as $section ) {
+			if ( in_array( $section['section_type'], [ 'static-text', 'input-text' ] ) ) {
+				$this->addTextSection( $fpd, $section );
+			}
+			if ( in_array( $section['section_type'], [ 'static-image', 'input-image' ] ) ) {
+				$this->addImageSection( $fpd, $section );
+			}
+		}
+	}
+
+	private function addTextSection( tFPDF &$fpd, CardSectionTextOption $section ) {
+		list( $red, $green, $blue ) = FreePdfBase::find_rgb_color( $section->get_text_option( 'color' ) );
+		$fpd->SetTextColor( $red, $green, $blue );
+		$fpd->SetFont( $section->get_text_option( 'fontFamily' ), '', $section->get_text_option( 'size' ) );
+
+		$text_width = $fpd->GetStringWidth( $section->get_text() );
+		$y_pos      = + $section->get_position_from_top() + FreePdfBase::points_to_mm( $section->get_text_option( 'size' ) * 0.75 );
+
+		$x_pos = ( $fpd->GetPageWidth() / 2 ) + $section->get_position_from_left();
+		if ( 'center' == $section->get_text_option( 'align' ) ) {
+			$x_pos = ( $fpd->GetPageWidth() / 4 * 3 ) - ( $text_width / 2 );
+		}
+		if ( 'right' == $section->get_text_option( 'align' ) ) {
+			$x_pos = $fpd->GetPageWidth() - ( $text_width + $section->get_text_option( 'marginRight' ) );
+		}
+
+		$fpd->Text( $x_pos, $y_pos, $section->get_text() );
+	}
+
+	private function addImageSection( tFPDF &$fpd, CardSectionImageOption $section ) {
+		$image = $section->get_image();
+		if ( ! is_array( $image ) ) {
+			return;
+		}
+
+		$width        = $section->get_image_option( 'width' );
+		$actual_width = FreePdfBase::px_to_mm( $image['width'] );
+		if ( $actual_width < $width ) {
+			$width = $actual_width;
+		}
+
+		$actual_height = FreePdfBase::px_to_mm( $image['height'] );
+		$height        = $width * ( $actual_height / $actual_width );
+//		if ( 'auto' == $section->get_image_option( 'height' ) || true ) {
+//		}
+
+		$x_pos = ( $fpd->GetPageWidth() / 2 ) + $section->get_position_from_left();
+		if ( 'center' == $section->get_image_option( 'align' ) ) {
+			$x_pos = ( $fpd->GetPageWidth() / 4 * 3 ) - ( $width / 2 );
+		}
+		if ( 'right' == $section->get_image_option( 'align' ) ) {
+			$x_pos = $fpd->GetPageWidth() - ( $width + $section->get_image_option( 'marginRight' ) );
+		}
+
+		$y_pos = $section->get_position_from_top();
+
+		$fpd->Image( $image['path'], $x_pos, $y_pos, $width, $height );
+	}
+
+	/**
+	 * @param tFPDF $fpd
+	 */
+	private function addCustomFonts( tFPDF &$fpd ) {
+		$fonts_list  = Fonts::get_list();
+		$added_fonts = [];
+		foreach ( $this->card_sections as $item ) {
+			if ( ! in_array( $item['section_type'], [ 'static-text', 'input-text' ] ) ) {
+				continue;
+			}
+			$font_family = str_replace( ' ', '', $item['textOptions']['fontFamily'] );
+			if ( in_array( $font_family, $added_fonts ) ) {
+				continue;
+			}
+			$added_fonts[] = $font_family;
+			$font          = $fonts_list[ $font_family ];
+			$fpd->AddFont( $font_family, '', $font['fileName'], true );
+		}
 	}
 }
