@@ -39,8 +39,13 @@ class DynamicCardManager {
 	}
 
 	public function generate_dynamic_card_pdf() {
-		$dd = BackgroundDynamicPdfGenerator::generate_for_order_item( 37565, 53161 );
-		die;
+		$order_id      = $_REQUEST['order_id'] ?? 0;
+		$order_item_id = $_REQUEST['order_item_id'] ?? 0;
+		$filepath      = BackgroundDynamicPdfGenerator::generate_for_order_item( intval( $order_id ), intval( $order_item_id ) );
+		if ( is_wp_error( $filepath ) ) {
+			wp_send_json_error( $filepath );
+		}
+		wp_send_json_success( [ 'path' => $filepath ] );
 	}
 
 	public function add_editor() {

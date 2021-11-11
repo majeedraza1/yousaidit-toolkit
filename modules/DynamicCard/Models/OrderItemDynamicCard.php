@@ -7,6 +7,7 @@ use WC_Order;
 use WC_Order_Item_Product;
 use YouSaidItCards\Modules\InnerMessage\Fonts;
 use YouSaidItCards\Modules\OrderDispatcher\QrCode;
+use YouSaidItCards\ShipStation\Order;
 use YouSaidItCards\Utilities\FreePdfBase;
 
 class OrderItemDynamicCard {
@@ -29,15 +30,44 @@ class OrderItemDynamicCard {
 	protected $card_payload_read = false;
 
 	public function __construct( WC_Order $order, WC_Order_Item_Product $order_item ) {
-		$this->order      = $order;
-		$this->order_item = $order_item;
-		$this->product    = $order_item->get_product();
-		$this->card_id    = (int) $this->product->get_meta( '_card_id', true );
+		$this->order           = $order;
+		$this->order_item      = $order_item;
+		$this->product         = $order_item->get_product();
+		$this->card_id         = (int) $this->product->get_meta( '_card_id', true );
+		$this->ship_station_id = (int) $this->product->get_meta( '_shipstation_order_id', true );
+
 		$this->read_card_payload();
+		$this->read_ship_station_id();
 	}
 
-	public function get_ship_station_order_id(): int {
+	public function get_ship_station_id(): int {
 		return $this->ship_station_id;
+	}
+
+	/**
+	 * @param int $ship_station_id
+	 * @param bool $update_order
+	 */
+	public function set_ship_station_id( int $ship_station_id, bool $update_order = false ) {
+		$this->ship_station_id = $ship_station_id;
+		if ( $update_order ) {
+			$this->order->update_meta_data( '_shipstation_order_id', $ship_station_id );
+			$this->order->save_meta_data();
+		}
+	}
+
+	public function read_ship_station_id() {
+		if ( $this->get_ship_station_id() ) {
+			return;
+		}
+		$shipstation_orders = Order::get_orders( [ 'force' => true ] );
+		/** @var Order $item */
+		foreach ( $shipstation_orders['items'] as $shipstation_order_item ) {
+			if ( $this->order->get_id() != $shipstation_order_item->get_wc_order_id() ) {
+				continue;
+			}
+			$this->set_ship_station_id( $shipstation_order_item->get_id(), true );
+		}
 	}
 
 	/**
@@ -192,7 +222,7 @@ class OrderItemDynamicCard {
 	 * @param tFPDF $fpd
 	 */
 	private function addTotalQty( tFPDF &$fpd ): void {
-		$text = sprintf( "%s - %s", $this->get_total_quantities_in_order(), $this->get_ship_station_order_id() );
+		$text = sprintf( "%s - %s", $this->get_total_quantities_in_order(), $this->get_ship_station_id() );
 		$fpd->Text( 10, $fpd->GetPageHeight() - 10, $text );
 	}
 
@@ -203,7 +233,7 @@ class OrderItemDynamicCard {
 		$qr_size = 10;
 
 		$pdf->Image(
-			QrCode::get_qr_code_file( $this->get_ship_station_order_id() ), // QR file Path
+			QrCode::get_qr_code_file( $this->get_ship_station_id() ), // QR file Path
 			( ( $this->card_width / 2 ) - ( $qr_size + 10 ) ), // x position
 			( $this->card_height - ( $qr_size + 5 ) ), // y position
 			$qr_size, $qr_size, 'jpeg' );

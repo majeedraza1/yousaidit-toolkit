@@ -74,6 +74,7 @@ class Order implements JsonSerializable {
 
 	protected $store_id = 0;
 	protected $store_name = '';
+	protected $wc_order_id = 0;
 
 	/**
 	 * Order constructor.
@@ -460,12 +461,12 @@ class Order implements JsonSerializable {
 	 *
 	 * @param array $args
 	 *
-	 * @return array|mixed|object
+	 * @return array
 	 */
-	public static function get_orders( $args = [] ) {
-		$card_size     = isset( $args['card_size'] ) ? $args['card_size'] : null;
+	public static function get_orders( array $args = [] ): array {
+		$card_size     = $args['card_size'] ?? null;
 		$card_size     = in_array( $card_size, [ 'a4', 'a5', 'a6', 'square' ] ) ? $card_size : 'any';
-		$inner_message = isset( $args['inner_message'] ) ? $args['inner_message'] : null;
+		$inner_message = $args['inner_message'] ?? null;
 		$inner_message = in_array( $inner_message, [ 'yes', 'no' ] ) ? $inner_message : 'any';
 
 		$_orders = ShipStationApi::init()->get_orders( $args );
@@ -505,9 +506,9 @@ class Order implements JsonSerializable {
 
 		return [
 			'items'        => $orders,
-			'total_items'  => isset( $_orders['total'] ) ? $_orders['total'] : 0,
-			'current_page' => isset( $_orders['page'] ) ? $_orders['page'] : 0,
-			'total_pages'  => isset( $_orders['pages'] ) ? $_orders['pages'] : 0,
+			'total_items'  => $_orders['total'] ?? 0,
+			'current_page' => $_orders['page'] ?? 0,
+			'total_pages'  => $_orders['pages'] ?? 0,
 		];
 	}
 
@@ -577,6 +578,7 @@ class Order implements JsonSerializable {
 			if ( $order instanceof \WC_Abstract_Order &&
 			     ( floatval( $order->get_total() ) == floatval( $this->data['orderTotal'] ) ) ) {
 				$this->is_ordered_from_website = true;
+				$this->wc_order_id             = intval( $this->data['orderNumber'] );
 			}
 		}
 	}
@@ -641,5 +643,12 @@ class Order implements JsonSerializable {
 	 */
 	public function get_store_name(): string {
 		return $this->store_name;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function get_wc_order_id(): int {
+		return $this->wc_order_id;
 	}
 }

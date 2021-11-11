@@ -28,7 +28,8 @@ class CardSectionImageOption extends CardSectionBase {
 	 * @return mixed
 	 */
 	public function get_image_option( string $key ) {
-		$options = (array) $this->get( 'imageOptions' );
+		$default = [ "img" => [ "id" => 0 ], "width" => 0, "height" => "auto", "align" => "left", "marginRight" => 10 ];
+		$options = wp_parse_args( (array) $this->get( 'imageOptions' ), $default );
 		if ( 'id' == $key ) {
 			return $options['img']['id'];
 		}

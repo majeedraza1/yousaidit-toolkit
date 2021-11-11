@@ -57,7 +57,7 @@ class ShipStationApi extends RestClient {
 	 *
 	 * @return array|mixed|object
 	 */
-	public function get_orders( $args = [] ) {
+	public function get_orders( array $args = [] ) {
 		$args = wp_parse_args( $args, array(
 			'pageSize'    => 100,
 			'page'        => 1,
