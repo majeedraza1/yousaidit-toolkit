@@ -23,6 +23,7 @@ class DynamicCardManager {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self();
 			DynamicCardController::init();
+			BackgroundDynamicPdfGenerator::init();
 
 			add_action( 'wp_ajax_generate_dynamic_card_pdf', [ self::$instance, 'generate_dynamic_card_pdf' ] );
 

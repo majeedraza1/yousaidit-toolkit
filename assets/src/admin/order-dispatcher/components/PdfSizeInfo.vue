@@ -11,11 +11,15 @@
 						<strong>{{ item.width }}</strong>x<strong>{{ item.height }}</strong>
 						<small>pdf size</small>
 					</div>
-					<div><strong>{{ item.card_size }}</strong> card</div>
+					<div>
+						<strong>{{ item.card_size }}</strong> card
+						<span v-if="item.card_type === 'dynamic'" class="bg-primary text-on-primary">(Dynamic)</span>
+					</div>
 					<div>Total <strong>{{ item.items.length }}</strong> Item(s)</div>
 					<div>{{ item.inner_message ? 'Contain Inner Message' : '&nbsp;' }}</div>
 					<div class="flex-grow"></div>
 					<div class="mt-4 flex space-y-2 flex-wrap">
+						<shapla-button v-if="item.card_type === 'dynamic'">Generate Dynamic Card</shapla-button>
 						<shapla-button v-if="item.inner_message" theme="default" size="small" fullwidth target="_blank"
 									   :href="get_pdf_url(item,'im')">Merge Inner Message
 						</shapla-button>

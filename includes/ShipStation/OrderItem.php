@@ -3,10 +3,11 @@
 namespace YouSaidItCards\ShipStation;
 
 use JsonSerializable;
-use Stackonet\WP\Framework\Abstracts\DatabaseModel;
 use WC_Order_Item_Product;
 use WC_Product;
 use YouSaidItCards\Modules\Designers\Models\DesignerCard;
+use YouSaidItCards\Modules\DynamicCard\BackgroundDynamicPdfGenerator;
+use YouSaidItCards\Utilities\FreePdfBase;
 use YouSaidItCards\Utilities\MarketPlace;
 
 class OrderItem implements JsonSerializable {
@@ -113,6 +114,7 @@ class OrderItem implements JsonSerializable {
 
 	protected $postcard_id = 0;
 	protected $has_postcard = false;
+	protected $card_type = 'static';
 
 	/**
 	 * OrderItem constructor.
@@ -131,10 +133,23 @@ class OrderItem implements JsonSerializable {
 		if ( $this->product_id ) {
 			$this->product = wc_get_product( $this->product_id );
 
-			$pdf_id           = $this->product->get_meta( '_pdf_id', true );
-			$this->pdf_id     = is_numeric( $pdf_id ) ? intval( $pdf_id ) : 0;
-			$this->pdf_width  = (int) get_post_meta( $this->pdf_id, '_pdf_width_millimeter', true );
-			$this->pdf_height = (int) get_post_meta( $this->pdf_id, '_pdf_height_millimeter', true );
+			$card_type       = $this->product->get_meta( '_card_type', true );
+			$this->card_type = in_array( $card_type, [ 'static', 'dynamic' ] ) ? $card_type : 'static';
+			$is_dynamic      = 'dynamic' == $card_type;
+
+			$pdf_id       = $this->product->get_meta( '_pdf_id', true );
+			$this->pdf_id = is_numeric( $pdf_id ) ? intval( $pdf_id ) : 0;
+			if ( $is_dynamic ) {
+				$payload          = (array) $this->product->get_meta( '_dynamic_card_payload', true );
+				$card_size        = $payload['card_size'] ?? '';
+				$sizes            = FreePdfBase::get_sizes();
+				$pdf_size         = array_key_exists( $card_size, $sizes ) ? $sizes[ $card_size ] : [ 0, 0 ];
+				$this->pdf_width  = $pdf_size[0];
+				$this->pdf_height = $pdf_size[1];
+			} else {
+				$this->pdf_width  = (int) get_post_meta( $this->pdf_id, '_pdf_width_millimeter', true );
+				$this->pdf_height = (int) get_post_meta( $this->pdf_id, '_pdf_height_millimeter', true );
+			}
 
 			$this->designer_id = (int) $this->product->get_meta( '_card_designer_id', true );
 			$this->card_id     = (int) $this->product->get_meta( '_card_id', true );
@@ -255,8 +270,13 @@ class OrderItem implements JsonSerializable {
 	 *
 	 * @return string
 	 */
-	public function get_pdf_url() {
-		return wp_get_attachment_url( $this->get_pdf_id() );
+	public function get_pdf_url(): string {
+		$filename = wp_get_attachment_url( $this->get_pdf_id() );
+		if ( $this->is_dynamic_card_type() ) {
+			$filename = $this->get_dynamic_pdf_path();
+		}
+
+		return is_string( $filename ) ? $filename : '';
 	}
 
 	/**
@@ -560,7 +580,7 @@ class OrderItem implements JsonSerializable {
 	 * @return int
 	 */
 	public function get_total_quantities_in_order(): int {
-		return (int) $this->total_quantities_in_order;
+		return $this->total_quantities_in_order;
 	}
 
 	/**
@@ -589,5 +609,64 @@ class OrderItem implements JsonSerializable {
 	 */
 	public function get_postcard_id(): int {
 		return $this->postcard_id;
+	}
+
+	/**
+	 * Get card type
+	 *
+	 * @return string
+	 */
+	public function get_card_type(): string {
+		return $this->card_type;
+	}
+
+	/**
+	 * Is dynamic card type
+	 *
+	 * @return bool
+	 */
+	public function is_dynamic_card_type(): bool {
+		return 'dynamic' == $this->get_card_type();
+	}
+
+	/**
+	 * @return string
+	 */
+	public function get_dynamic_pdf_path(): string {
+		$filename   = '';
+		$order_item = $this->get_wc_order_item();
+		if ( $this->is_dynamic_card_type() && $order_item instanceof WC_Order_Item_Product ) {
+			$upload_dir = wp_upload_dir();
+			$order_dir  = $upload_dir['baseurl'] . '/dynamic-pdf/' . $order_item->get_order_id();
+			$filename   = sprintf( "$order_dir/dc-%s.pdf", $order_item->get_id() );
+		}
+
+		return $filename;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function is_dynamic_pdf_generated(): bool {
+		return file_exists( $this->get_dynamic_pdf_path() );
+	}
+
+	/**
+	 *
+	 */
+	public function generate_dynamic_pdf() {
+		if ( ! $this->is_dynamic_card_type() ) {
+			return;
+		}
+		if ( $this->is_dynamic_pdf_generated() ) {
+			return;
+		}
+
+		$item = $this->get_wc_order_item();
+
+		BackgroundDynamicPdfGenerator::init()->push_to_queue( [
+			'order_id'      => $item->get_order_id(),
+			'order_item_id' => $item->get_id()
+		] );
 	}
 }

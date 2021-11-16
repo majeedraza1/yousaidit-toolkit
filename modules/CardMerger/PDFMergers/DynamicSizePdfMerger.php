@@ -2,11 +2,7 @@
 
 namespace YouSaidItCards\Modules\CardMerger\PDFMergers;
 
-use setasign\Fpdi\PdfParser\CrossReference\CrossReferenceException;
-use setasign\Fpdi\PdfParser\Filter\FilterException;
-use setasign\Fpdi\PdfParser\PdfParserException;
-use setasign\Fpdi\PdfParser\Type\PdfTypeException;
-use setasign\Fpdi\PdfReader\PdfReaderException;
+use Exception;
 use YouSaidItCards\ShipStation\Order;
 use YouSaidItCards\ShipStation\OrderItem;
 
@@ -40,11 +36,7 @@ class DynamicSizePdfMerger extends PDFMerger {
 
 		try {
 			static::add_page_to_pdf( $order_items, $pdf, $args );
-		} catch ( CrossReferenceException $e ) {
-		} catch ( FilterException $e ) {
-		} catch ( PdfTypeException $e ) {
-		} catch ( PdfParserException $e ) {
-		} catch ( PdfReaderException $e ) {
+		} catch ( Exception $e ) {
 		}
 
 		if ( empty( $output_file_name ) ) {

@@ -4,11 +4,10 @@ namespace YouSaidItCards\Modules\DynamicCard;
 
 use Stackonet\WP\Framework\Abstracts\BackgroundProcess;
 use Stackonet\WP\Framework\Media\Uploader;
-use Stackonet\WP\Framework\Supports\UploadedFile;
+use WC_Order;
 use WC_Order_Item_Product;
 use WP_Error;
 use YouSaidItCards\Modules\DynamicCard\Models\OrderItemDynamicCard;
-use YouSaidItCards\ShipStation\Order;
 
 class BackgroundDynamicPdfGenerator extends BackgroundProcess {
 
@@ -56,7 +55,7 @@ class BackgroundDynamicPdfGenerator extends BackgroundProcess {
 
 	public static function generate_for_order_item( int $order_id, int $order_item_id, bool $overwrite = false ) {
 		$order = wc_get_order( $order_id );
-		if ( ! $order instanceof \WC_Order ) {
+		if ( ! $order instanceof WC_Order ) {
 			return new WP_Error( 'order_not_found', 'Order not found for #' . $order_id );
 		}
 

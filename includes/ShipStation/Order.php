@@ -7,7 +7,9 @@ use DateTime;
 use Exception;
 use JsonSerializable;
 use Stackonet\WP\Framework\Supports\Validate;
+use WC_Abstract_Order;
 use WC_Product;
+use WP_Error;
 
 class Order implements JsonSerializable {
 
@@ -81,7 +83,7 @@ class Order implements JsonSerializable {
 	 *
 	 * @param array $data
 	 */
-	public function __construct( $data = [] ) {
+	public function __construct( array $data = [] ) {
 		$this->data          = $data;
 		$this->store_id      = $this->data['advancedOptions']['storeId'] ?
 			intval( $this->data['advancedOptions']['storeId'] ) : 0;
@@ -134,7 +136,7 @@ class Order implements JsonSerializable {
 	/**
 	 * @return bool
 	 */
-	public function has_product() {
+	public function has_product(): bool {
 		return count( $this->products ) > 0;
 	}
 
@@ -147,7 +149,7 @@ class Order implements JsonSerializable {
 	 *
 	 * @return array
 	 */
-	public function get_shop_address() {
+	public function get_shop_address(): array {
 		if ( empty( self::$shop_address ) ) {
 			self::$shop_address = array(
 				'company'   => get_option( 'blogname' ),
@@ -175,7 +177,7 @@ class Order implements JsonSerializable {
 	/**
 	 * @return bool
 	 */
-	public function has_customer_notes() {
+	public function has_customer_notes(): bool {
 		return ! empty( $this->data['customerNotes'] );
 	}
 
@@ -191,9 +193,9 @@ class Order implements JsonSerializable {
 	/**
 	 * Get internal notes
 	 *
-	 * @return mixed|null
+	 * @return bool
 	 */
-	public function has_internal_notes() {
+	public function has_internal_notes(): bool {
 		return ! empty( $this->data['internalNotes'] );
 	}
 
@@ -213,7 +215,7 @@ class Order implements JsonSerializable {
 	 *
 	 * @return string
 	 */
-	public function get_formatted_shop_address( $separator = '<br/>' ) {
+	public function get_formatted_shop_address( string $separator = '<br/>' ): string {
 		$shipping_address = $this->get_shop_address();
 
 		return WC()->countries->get_formatted_address( $shipping_address, $separator );
@@ -233,7 +235,7 @@ class Order implements JsonSerializable {
 	 *
 	 * @return string
 	 */
-	public function get_order_status() {
+	public function get_order_status(): string {
 		return $this->data['orderStatus'];
 	}
 
@@ -243,7 +245,7 @@ class Order implements JsonSerializable {
 	 * @return array
 	 */
 	public function stackonet_custom_info(): array {
-		$data = isset( $this->data['advancedOptions']['customField2'] ) ? $this->data['advancedOptions']['customField2'] : null;
+		$data = $this->data['advancedOptions']['customField2'] ?? null;
 		if ( $data ) {
 			$data = json_decode( $data, true );
 		}
@@ -259,7 +261,7 @@ class Order implements JsonSerializable {
 	public function straight_to_door_delivery(): string {
 		$data = $this->stackonet_custom_info();
 
-		return isset( $data['straight_to_door_delivery'] ) ? $data['straight_to_door_delivery'] : 'No info';
+		return $data['straight_to_door_delivery'] ?? 'No info';
 	}
 
 	/**
@@ -267,7 +269,7 @@ class Order implements JsonSerializable {
 	 *
 	 * @return string
 	 */
-	public function get_customer_full_name() {
+	public function get_customer_full_name(): string {
 		return isset( $this->data['shipTo']['name'] ) ? esc_html( $this->data['shipTo']['name'] ) : '';
 	}
 
@@ -276,7 +278,7 @@ class Order implements JsonSerializable {
 	 *
 	 * @return string
 	 */
-	public function get_customer_phone() {
+	public function get_customer_phone(): string {
 		return isset( $this->data['shipTo']['phone'] ) ? esc_html( $this->data['shipTo']['phone'] ) : '';
 	}
 
@@ -285,7 +287,7 @@ class Order implements JsonSerializable {
 	 *
 	 * @return string
 	 */
-	public function get_customer_email() {
+	public function get_customer_email(): string {
 		return isset( $this->data['customerEmail'] ) ? esc_html( $this->data['customerEmail'] ) : '';
 	}
 
@@ -294,20 +296,20 @@ class Order implements JsonSerializable {
 	 *
 	 * @return array
 	 */
-	public function get_shipping_address() {
+	public function get_shipping_address(): array {
 		if ( empty( $this->shipping_address ) ) {
-			$shipTo = isset( $this->data['shipTo'] ) ? $this->data['shipTo'] : [];
+			$shipTo = $this->data['shipTo'] ?? [];
 
-			$this->shipping_address = array(
-				'last_name' => isset( $shipTo['name'] ) ? $shipTo['name'] : '',
-				'company'   => isset( $shipTo['company'] ) ? $shipTo['company'] : '',
-				'address_1' => isset( $shipTo['street1'] ) ? $shipTo['street1'] : '',
-				'address_2' => isset( $shipTo['street2'] ) ? $shipTo['street2'] : '',
-				'city'      => isset( $shipTo['city'] ) ? $shipTo['city'] : '',
-				'state'     => isset( $shipTo['state'] ) ? $shipTo['state'] : '',
-				'postcode'  => isset( $shipTo['postalCode'] ) ? $shipTo['postalCode'] : '',
-				'country'   => isset( $shipTo['country'] ) ? $shipTo['country'] : '',
-			);
+			$this->shipping_address = [
+				'last_name' => $shipTo['name'] ?? '',
+				'company'   => $shipTo['company'] ?? '',
+				'address_1' => $shipTo['street1'] ?? '',
+				'address_2' => $shipTo['street2'] ?? '',
+				'city'      => $shipTo['city'] ?? '',
+				'state'     => $shipTo['state'] ?? '',
+				'postcode'  => $shipTo['postalCode'] ?? '',
+				'country'   => $shipTo['country'] ?? '',
+			];
 		}
 
 		return $this->shipping_address;
@@ -320,17 +322,17 @@ class Order implements JsonSerializable {
 	 *
 	 * @return string
 	 */
-	public function get_formatted_shipping_address( $separator = '<br/>' ) {
+	public function get_formatted_shipping_address( string $separator = '<br/>' ): string {
 		return WC()->countries->get_formatted_address( $this->get_shipping_address(), $separator );
 	}
 
 	/**
 	 * Order Date
 	 *
-	 * @return string|null
+	 * @return string
 	 */
-	public function get_order_date() {
-		return ! empty( $this->data['orderDate'] ) ? mysql_to_rfc3339( $this->data['orderDate'] ) : null;
+	public function get_order_date(): string {
+		return ! empty( $this->data['orderDate'] ) ? mysql_to_rfc3339( $this->data['orderDate'] ) : '';
 	}
 
 	/**
@@ -339,7 +341,7 @@ class Order implements JsonSerializable {
 	 * @return string
 	 * @throws Exception
 	 */
-	public function get_formatted_date() {
+	public function get_formatted_date(): string {
 		$dateTime = new DateTime( $this->get_order_date() );
 
 		return $dateTime->format( get_option( 'date_format' ) );
@@ -348,10 +350,10 @@ class Order implements JsonSerializable {
 	/**
 	 * Get customer requested shipping service
 	 *
-	 * @return string|null
+	 * @return string
 	 */
-	public function requested_shipping_service() {
-		return ! empty( $this->data['requestedShippingService'] ) ? $this->data['requestedShippingService'] : null;
+	public function requested_shipping_service(): string {
+		return ! empty( $this->data['requestedShippingService'] ) ? $this->data['requestedShippingService'] : '';
 	}
 
 	/**
@@ -370,7 +372,7 @@ class Order implements JsonSerializable {
 	 *
 	 * @return array
 	 */
-	public static function get_order_items_by_card_sizes( $force = false ): array {
+	public static function get_order_items_by_card_sizes( bool $force = false ): array {
 		$transient_name = 'order_items_by_card_sizes';
 		$items          = get_transient( $transient_name );
 		if ( $force ) {
@@ -386,18 +388,24 @@ class Order implements JsonSerializable {
 					if ( ! $order_item->get_pdf_width() || ! $order_item->get_pdf_height() ) {
 						continue;
 					}
-					$key = sprintf( "%sx%sx%s", $order_item->get_pdf_width(), $order_item->get_pdf_height(),
-						$order_item->has_inner_message() ? 'i' : 'b' );
+					$key = sprintf( "%sx%sx%sx%s",
+						$order_item->get_pdf_width(),
+						$order_item->get_pdf_height(),
+						$order_item->has_inner_message() ? 'i' : 'b',
+						$order_item->is_dynamic_card_type() ? 'd' : 's'
+					);
 					$qty = isset( $items[ $key ]['quantity'] ) ? intval( $items[ $key ]['quantity'] ) : 0;
 
 					$items[ $key ]['width']         = $order_item->get_pdf_width();
 					$items[ $key ]['height']        = $order_item->get_pdf_height();
 					$items[ $key ]['inner_message'] = $order_item->has_inner_message();
+					$items[ $key ]['card_type']     = $order_item->get_card_type();
 					$items[ $key ]['card_size']     = $order_item->get_card_size();
 					$items[ $key ]['quantity']      = $order_item->get_quantity() + $qty;
 
 					$items[ $key ]['items'][] = [
 						'shipStation_order_id' => $order->get_id(),
+						'wc_order_id'          => $order->get_wc_order_id(),
 						'has_inner_message'    => $order_item->has_inner_message(),
 						'pdf'                  => $order_item->get_pdf_info(),
 						'inner_message'        => $order_item->get_inner_message_info(),
@@ -418,7 +426,7 @@ class Order implements JsonSerializable {
 	 *
 	 * @return array
 	 */
-	public static function _get_orders( $args = [] ): array {
+	public static function _get_orders( array $args = [] ): array {
 		$orders = ShipStationApi::init()->get_orders( $args );
 		$items  = [];
 		foreach ( $orders['orders'] as $order ) {
@@ -439,7 +447,7 @@ class Order implements JsonSerializable {
 	 *
 	 * @return array|static[]
 	 */
-	public static function get_orders_by_ids( array $ids, $args = [] ) {
+	public static function get_orders_by_ids( array $ids, array $args = [] ): array {
 		// $args['orderIds'] = $ids;
 
 		$items  = ShipStationApi::init()->get_orders( $args );
@@ -489,7 +497,7 @@ class Order implements JsonSerializable {
 
 			if ( 'any' != $inner_message ) {
 				$new_orders = [];
-				foreach ( $orders as $index => $order ) {
+				foreach ( $orders as $order ) {
 					if ( Validate::checked( $inner_message ) ) {
 						if ( $order->has_inner_message() ) {
 							$new_orders[] = $order;
@@ -526,7 +534,7 @@ class Order implements JsonSerializable {
 	/**
 	 * @param array $data
 	 *
-	 * @return array|\WP_Error
+	 * @return array|WP_Error
 	 */
 	public static function mark_as_shipped( array $data ) {
 		$status = ShipStationApi::init()->mark_as_shipped( $data );
@@ -539,7 +547,7 @@ class Order implements JsonSerializable {
 	}
 
 	/**
-	 * @return array|\WP_Error
+	 * @return array|WP_Error
 	 */
 	public static function get_carriers() {
 		return ShipStationApi::init()->get_carriers();
@@ -575,8 +583,8 @@ class Order implements JsonSerializable {
 		if ( isset( $this->data['orderNumber'] ) && is_numeric( $this->data['orderNumber'] ) ) {
 			$order = wc_get_order( intval( $this->data['orderNumber'] ) );
 
-			if ( $order instanceof \WC_Abstract_Order &&
-			     ( floatval( $order->get_total() ) == floatval( $this->data['orderTotal'] ) ) ) {
+			if ( $order instanceof WC_Abstract_Order &&
+			     ( $order->get_total() == floatval( $this->data['orderTotal'] ) ) ) {
 				$this->is_ordered_from_website = true;
 				$this->wc_order_id             = intval( $this->data['orderNumber'] );
 			}
@@ -597,7 +605,7 @@ class Order implements JsonSerializable {
 	 *
 	 * @return bool
 	 */
-	public function has_inner_message() {
+	public function has_inner_message(): bool {
 		return $this->has_inner_message;
 	}
 
@@ -606,28 +614,28 @@ class Order implements JsonSerializable {
 	 *
 	 * @return bool
 	 */
-	public function is_contain_mixed_items() {
+	public function is_contain_mixed_items(): bool {
 		return $this->has_inner_message() && count( $this->order_items_with_inner_message ) < count( $this->order_items );
 	}
 
 	/**
 	 * @return array
 	 */
-	public function get_card_sizes() {
+	public function get_card_sizes(): array {
 		return $this->card_sizes;
 	}
 
 	/**
 	 * @return bool
 	 */
-	protected function is_contain_mixed_card_sizes() {
+	protected function is_contain_mixed_card_sizes(): bool {
 		return count( array_unique( $this->get_card_sizes() ) ) > 1;
 	}
 
 	/**
 	 * @return array
 	 */
-	public function get_original_data() {
+	public function get_original_data(): array {
 		return $this->data;
 	}
 

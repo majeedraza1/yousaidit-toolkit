@@ -154,8 +154,8 @@ class PDFMerger {
 
 		$inner_info = $order_item->get_inner_message_info();
 		$font_size  = isset( $inner_info['size'] ) ? intval( $inner_info['size'] ) : 14;
-		$hex_color  = isset( $inner_info['color'] ) ? $inner_info['color'] : '#000000';
-		$align      = isset( $inner_info['align'] ) ? $inner_info['align'] : 'C';
+		$hex_color  = $inner_info['color'] ?? '#000000';
+		$align      = $inner_info['align'] ?? 'C';
 
 		foreach ( $lines as $index => $line ) {
 			$text      = trim( $line );
@@ -298,6 +298,10 @@ class PDFMerger {
 	 * @throws PdfTypeException
 	 */
 	private static function import_base_card( Fpdi &$pdf, OrderItem $order_item ) {
+		if ( $order_item->is_dynamic_card_type() ) {
+			$order_item->generate_dynamic_pdf();
+		}
+
 		$cardContent = file_get_contents( $order_item->get_pdf_url(), 'rb' );
 		$stream      = StreamReader::createByString( $cardContent );
 		$pdf->addPage();

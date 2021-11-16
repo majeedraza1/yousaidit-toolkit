@@ -267,7 +267,7 @@ class OrderItemDynamicCard {
 	 */
 	private function addBackground( tFPDF &$fpd ): void {
 		$fpd->Image( $this->background->get_image(), $fpd->GetPageWidth() / 2, 0,
-			$fpd->GetPageWidth() / 2, $fpd->GetPageHeight() );
+			$fpd->GetPageWidth() / 2, $fpd->GetPageHeight(), $this->background->get( 'image_ext' ) );
 	}
 
 	private function addSections( tFPDF &$fpd ) {
