@@ -119,15 +119,17 @@ class PDFMerger {
 					// Import card
 					self::import_base_card( $pdf, $order_item );
 
-					// Add qr code
-					self::add_qr_code( $pdf, $order_item->get_ship_station_order_id(),
-						$order_item->get_pdf_width(), $order_item->get_pdf_height() );
-					// Add total quantity
-					$string = sprintf( "%s - %s", $order_item->get_total_quantities_in_order(),
-						$order_item->get_ship_station_order_id() );
-					self::add_total_qty( $pdf, $order_item->get_pdf_height(), $string );
-					// Add designer Logo
-					self::add_designer_logo( $pdf, $order_item );
+					if ( ! $order_item->is_dynamic_card_type() ) {
+						// Add qr code
+						self::add_qr_code( $pdf, $order_item->get_ship_station_order_id(),
+							$order_item->get_pdf_width(), $order_item->get_pdf_height() );
+						// Add total quantity
+						$string = sprintf( "%s - %s", $order_item->get_total_quantities_in_order(),
+							$order_item->get_ship_station_order_id() );
+						self::add_total_qty( $pdf, $order_item->get_pdf_height(), $string );
+						// Add designer Logo
+						self::add_designer_logo( $pdf, $order_item );
+					}
 				}
 
 				if ( in_array( $type, [ 'both', 'im' ] ) ) {

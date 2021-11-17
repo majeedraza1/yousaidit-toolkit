@@ -17,6 +17,14 @@ class BackgroundDynamicPdfGenerator extends BackgroundProcess {
 	private static $instance = null;
 
 	/**
+	 * Action
+	 *
+	 * @var string
+	 * @access protected
+	 */
+	protected $action = 'background_dynamic_pdf_generator';
+
+	/**
 	 * @return self
 	 */
 	public static function init() {
@@ -66,14 +74,15 @@ class BackgroundDynamicPdfGenerator extends BackgroundProcess {
 
 		$order_dir = Uploader::get_upload_dir( 'dynamic-pdf/' . $order_id );
 		$filename  = "$order_dir/dc-$order_item_id.pdf";
+		if ( file_exists( $filename ) && $overwrite == false ) {
+			return $filename;
+		}
 
 		$item = new OrderItemDynamicCard( $order, $order_item );
 		if ( ! $item->get_ship_station_id() ) {
 			return new WP_Error( 'shipstation_id_not_found', 'Shipstation id is not available for order #' . $order_id );
 		}
-		if ( ! file_exists( $filename ) || $overwrite ) {
-			$item->pdf( [ 'dest' => 'F', 'name' => $filename ] );
-		}
+		$item->pdf( [ 'dest' => 'F', 'name' => $filename ] );
 
 		return $filename;
 	}

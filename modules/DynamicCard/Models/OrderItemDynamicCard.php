@@ -210,11 +210,11 @@ class OrderItemDynamicCard {
 	 * @return void
 	 */
 	private function addProductSku( tFPDF &$fpd ) {
-		$fpd->SetFont( 'arial', '', 11 );
+		$fpd->SetFont( 'arial', '', 10 );
 		$fpd->SetTextColor( 0, 0, 0 );
 		$text  = "Code: " . $this->product->get_sku();
 		$x_pos = ( $fpd->GetPageWidth() / 4 ) - ( $fpd->GetStringWidth( $text ) / 2 );
-		$y_pos = $fpd->GetPageHeight() - 10;
+		$y_pos = $fpd->GetPageHeight() - 5;
 		$fpd->Text( $x_pos, $y_pos, $text );
 	}
 

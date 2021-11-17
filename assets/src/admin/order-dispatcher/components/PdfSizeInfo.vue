@@ -6,20 +6,32 @@
 		</div>
 		<div class="md:flex flex-wrap -m-4" v-if="Object.keys(items).length">
 			<div class="p-4 md:w-3/12 lg:w-2/12" v-for="(item, key) in items" :key="key">
-				<div class="shadow p-4 bg-white h-full">
+				<div class="shadow p-4 bg-white h-full flex flex-col">
 					<div>
 						<strong>{{ item.width }}</strong>x<strong>{{ item.height }}</strong>
 						<small>pdf size</small>
 					</div>
 					<div>
 						<strong>{{ item.card_size }}</strong> card
-						<span v-if="item.card_type === 'dynamic'" class="bg-primary text-on-primary">(Dynamic)</span>
+						<template v-if="item.card_type === 'dynamic'">
+							- <span class="text-primary">Dynamic</span>
+						</template>
 					</div>
 					<div>Total <strong>{{ item.items.length }}</strong> Item(s)</div>
 					<div>{{ item.inner_message ? 'Contain Inner Message' : '&nbsp;' }}</div>
 					<div class="flex-grow"></div>
+					<div v-if="item.card_type === 'dynamic' && dynamic_card.generating"
+						 class="text-xs border border-primary border-solid p-1">
+						Generating: {{ dynamic_card.items_to_generate }}<br>
+						<div v-if="dynamic_card.success_items">Success: {{ dynamic_card.success_items }}</div>
+						<div v-if="dynamic_card.error_items">Error: {{ dynamic_card.error_items }}</div>
+					</div>
 					<div class="mt-4 flex space-y-2 flex-wrap">
-						<shapla-button v-if="item.card_type === 'dynamic'">Generate Dynamic Card</shapla-button>
+						<shapla-button v-if="item.card_type === 'dynamic' && item.to_generate.length"
+									   :class="{'is-loading':dynamic_card.generating}" size="small" fullwidth
+									   @click="handleDynamicCardGeneration(item)">
+							Generate Dynamic Card
+						</shapla-button>
 						<shapla-button v-if="item.inner_message" theme="default" size="small" fullwidth target="_blank"
 									   :href="get_pdf_url(item,'im')">Merge Inner Message
 						</shapla-button>
@@ -40,12 +52,20 @@
 import axios from "axios";
 import {shaplaButton} from 'shapla-vue-components'
 
+const dynamicCardDefault = {
+	generating: false,
+	items_to_generate: 0,
+	remaining_items: 0,
+	success_items: 0,
+	error_items: 0,
+}
 export default {
 	name: "PdfSizeInfo",
 	components: {shaplaButton},
 	data() {
 		return {
 			items: {},
+			dynamic_card: JSON.parse(JSON.stringify(dynamicCardDefault))
 		}
 	},
 	methods: {
@@ -78,6 +98,40 @@ export default {
 		},
 		mergePdf(item) {
 			window.open(this.get_pdf_url(item), '_blank');
+		},
+		handleDynamicCardGeneration(item) {
+			this.dynamic_card.generating = true;
+			this.dynamic_card.items_to_generate = item.to_generate.length;
+			this.dynamic_card.remaining_items = item.to_generate.length;
+			item.to_generate.forEach(_item => {
+				this.generate_dynamic_pdf(_item.wc_order_id, _item.wc_order_item_id).then(data => {
+					this.dynamic_card.success_items += 1;
+				}).catch(error => {
+					this.dynamic_card.error_items += 1;
+				}).finally(() => {
+					this.dynamic_card.remaining_items -= 1;
+
+					if (this.dynamic_card.remaining_items < 1) {
+						this.dynamic_card.generating = false;
+						this.dynamic_card = JSON.parse(JSON.stringify(dynamicCardDefault));
+					}
+				});
+			})
+		},
+		generate_dynamic_pdf(wc_order_id, wc_order_item_id) {
+			let _url = new URL(Stackonet.ajaxurl),
+				params = _url.searchParams;
+			params.set('action', 'generate_dynamic_card_pdf');
+			params.set('order_id', wc_order_id);
+			params.set('order_item_id', wc_order_item_id);
+			return new Promise((resolve, reject) => {
+				axios.get(_url.toString()).then(response => {
+					let data = response.data.data;
+					resolve(data);
+				}).catch(error => {
+					resolve(error.response.data);
+				})
+			})
 		}
 	},
 	mounted() {

@@ -405,16 +405,35 @@ class Order implements JsonSerializable {
 
 					$items[ $key ]['items'][] = [
 						'shipStation_order_id' => $order->get_id(),
+						'order_item_id'        => $order_item->get_order_item_id(),
 						'wc_order_id'          => $order->get_wc_order_id(),
+						'wc_order_item_id'     => $order_item->get_wc_order_item_id(),
 						'has_inner_message'    => $order_item->has_inner_message(),
 						'pdf'                  => $order_item->get_pdf_info(),
 						'inner_message'        => $order_item->get_inner_message_info(),
 						'quantity'             => $order_item->get_quantity(),
+						'is_pdf_generated'     => ! $order_item->is_dynamic_card_type() || $order_item->is_dynamic_pdf_generated(),
 					];
 				}
 			}
 
 			asort( $items );
+			$data = [];
+			foreach ( $items as $key => $item ) {
+				$data[ $key ]                = $item;
+				$data[ $key ]['to_generate'] = [];
+				if ( 'dynamic' == $item['card_type'] ) {
+					foreach ( $item['items'] as $order_item ) {
+						if ( $order_item['is_pdf_generated'] === false ) {
+							$data[ $key ]['to_generate'][] = [
+								'wc_order_id'      => $order_item['wc_order_id'],
+								'wc_order_item_id' => $order_item['wc_order_item_id']
+							];
+						}
+					}
+				}
+			}
+			$items = $data;
 			set_transient( $transient_name, $items, MINUTE_IN_SECONDS * 60 );
 		}
 

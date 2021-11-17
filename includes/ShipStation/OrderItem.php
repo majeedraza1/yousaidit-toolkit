@@ -218,12 +218,19 @@ class OrderItem implements JsonSerializable {
 	 * @return array
 	 */
 	public function get_pdf_info(): array {
-		return [
+		$data = [
 			'id'     => $this->get_pdf_id(),
 			'url'    => $this->get_pdf_url(),
 			'width'  => $this->get_pdf_width(),
 			'height' => $this->get_pdf_height(),
 		];
+
+		if ( $this->is_dynamic_card_type() ) {
+			$data['id'] = 0;
+
+		}
+
+		return $data;
 	}
 
 	/**
@@ -273,7 +280,7 @@ class OrderItem implements JsonSerializable {
 	public function get_pdf_url(): string {
 		$filename = wp_get_attachment_url( $this->get_pdf_id() );
 		if ( $this->is_dynamic_card_type() ) {
-			$filename = $this->get_dynamic_pdf_path();
+			$filename = $this->get_dynamic_pdf_url();
 		}
 
 		return is_string( $filename ) ? $filename : '';
@@ -611,6 +618,15 @@ class OrderItem implements JsonSerializable {
 		return $this->postcard_id;
 	}
 
+	public function get_wc_order_item_id(): int {
+		$item = $this->get_wc_order_item();
+		if ( $item instanceof WC_Order_Item_Product ) {
+			return $item->get_id();
+		}
+
+		return 0;
+	}
+
 	/**
 	 * Get card type
 	 *
@@ -637,17 +653,28 @@ class OrderItem implements JsonSerializable {
 		$order_item = $this->get_wc_order_item();
 		if ( $this->is_dynamic_card_type() && $order_item instanceof WC_Order_Item_Product ) {
 			$upload_dir = wp_upload_dir();
-			$order_dir  = $upload_dir['baseurl'] . '/dynamic-pdf/' . $order_item->get_order_id();
+			$order_dir  = $upload_dir['basedir'] . '/dynamic-pdf/' . $order_item->get_order_id();
 			$filename   = sprintf( "$order_dir/dc-%s.pdf", $order_item->get_id() );
 		}
 
 		return $filename;
 	}
 
+	public function get_dynamic_pdf_url() {
+		$upload_dir = wp_upload_dir();
+
+		return str_replace( $upload_dir['basedir'], $upload_dir['baseurl'], $this->get_dynamic_pdf_path() );
+	}
+
 	/**
 	 * @return bool
 	 */
 	public function is_dynamic_pdf_generated(): bool {
+		$order_item = $this->get_wc_order_item();
+		if ( ! $order_item instanceof WC_Order_Item_Product ) {
+			return false;
+		}
+
 		return file_exists( $this->get_dynamic_pdf_path() );
 	}
 
