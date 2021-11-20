@@ -60,7 +60,8 @@
 					<shapla-button outline size="small" theme="primary" @click="closePopover">Confirm</shapla-button>
 				</template>
 				<template v-if="'input-image' === activeSection.section_type">
-					<shapla-button theme="primary" outline fullwidth @click="showMediaModal = true">Add image
+					<shapla-button theme="primary" outline size="small" fullwidth @click="showMediaModal = true">
+						Add image
 					</shapla-button>
 					<div class="relative border border-solid mt-6"
 						 v-if="activeSection.image && activeSection.image.src">

@@ -1,23 +1,44 @@
 <template>
-	<modal :active="show_dynamic_card_editor" @close="show_dynamic_card_editor = false" title="Customize"
-		   content-size="full" :show-card-footer="false">
-		<div class="w-full h-full flex space-x-4">
-			<div>
-				<card-web-viewer
-					v-if="show_dynamic_card_editor && Object.keys(payload).length"
-					:args="payload"
-					:upload-url="uploadUrl"
-					:images="images"
-					@edit:section="handleEditSection"
-				/>
-			</div>
-			<div class="flex flex-col justify-between">
-				<div class="flex flex-col space-y-4">
-					<shapla-button theme="secondary" fullwith>Add a message</shapla-button>
-					<shapla-button theme="primary" fullwith @click="handleSubmit">Add to basket and continue shopping
-					</shapla-button>
+	<modal :active="show_dynamic_card_editor" @close="show_dynamic_card_editor = false" type="box"
+		   content-size="full" :show-card-footer="false" class="modal--single-product-dynamic-card">
+		<div class="w-full h-full flex sm:flex-col md:flex-col lg:flex-row lg:space-x-4">
+			<div class="flex flex-col flex-grow dynamic-card--canvas">
+				<div class="w-full flex dynamic-card--canvas-slider">
+					<swiper-slider v-if="show_dynamic_card_editor && Object.keys(payload).length"
+								   :card_size="card_size" :slide-to="slideTo">
+						<template v-slot:canvas>
+							<card-web-viewer
+								:args="payload"
+								:upload-url="uploadUrl"
+								:images="images"
+								@edit:section="handleEditSection"
+							/>
+						</template>
+						<template v-slot:inner-message>
+							<editable-content
+								placeholder="Please click here to write your message"
+								:font-family="innerMessage.font_family"
+								:font-size="innerMessage.font_size"
+								:text-align="innerMessage.alignment"
+								:color="innerMessage.color"
+								v-model="innerMessage.message"
+								:card-size="card_size"
+							/>
+						</template>
+					</swiper-slider>
 				</div>
-				<div>
+				<div class="swiper-thumbnail mt-4 dynamic-card--canvas-thumb bg-gray-200">
+					<div class="flex space-x-4 p-2 justify-center">
+						<image-container container-width="64px" class="bg-gray-100" @click.native="slideTo = 0"
+										 :class="{'border border-solid border-primary':slideTo === 0}"></image-container>
+						<image-container container-width="64px" class="bg-gray-100" @click.native="slideTo = 1"
+										 :class="{'border border-solid border-primary':slideTo === 1}"></image-container>
+					</div>
+				</div>
+			</div>
+			<div
+				class="flex flex-col justify-between bg-gray-100 p-2 dynamic-card--controls lg:border border-solid border-gray-100">
+				<div v-if="slideTo === 0">
 					<div><strong>Help tips:</strong></div>
 					<div class="flex">
 						Click on icon (
@@ -42,6 +63,14 @@
 						) to customize image.
 					</div>
 				</div>
+				<div v-if="slideTo !== 0">
+					<editor-controls v-model="innerMessage" @change="onChangeEditorControls"/>
+				</div>
+				<div>
+					<shapla-button theme="primary" size="medium" fullwidth @click="handleSubmit">Add to basket and
+						continue shopping
+					</shapla-button>
+				</div>
 			</div>
 		</div>
 	</modal>
@@ -49,19 +78,33 @@
 
 <script>
 import axios from "axios";
-import {modal, shaplaButton, iconContainer} from "shapla-vue-components";
+import {modal, shaplaButton, iconContainer, imageContainer} from "shapla-vue-components";
 import CardWebViewer from "@/components/DynamicCardPreview/CardWebViewer";
+import SwiperSlider from './SwiperSlider';
+import EditableContent from "@/frontend/inner-message/EditableContent";
+import EditorControls from "@/frontend/inner-message/EditorControls";
 
 export default {
 	name: "SingleProductDynamicCard",
-	components: {CardWebViewer, modal, shaplaButton, iconContainer},
+	components: {
+		EditorControls,
+		EditableContent, CardWebViewer, modal, shaplaButton, iconContainer, SwiperSlider, imageContainer
+	},
 	data() {
 		return {
 			loading: false,
+			slideTo: 0,
 			product_id: 0,
 			card_size: '',
-			show_dynamic_card_editor: false,
+			show_dynamic_card_editor: true,
 			payload: {},
+			innerMessage: {
+				message: '',
+				font_family: "'Indie Flower', cursive",
+				font_size: '18',
+				alignment: 'center',
+				color: '#1D1D1B',
+			},
 			readFromServer: false,
 			images: [],
 		}
@@ -72,6 +115,14 @@ export default {
 		}
 	},
 	methods: {
+		onChangeEditorControls(args) {
+			if ('emoji' === args.key) {
+				document.execCommand("insertHtml", false, args.payload);
+			}
+		},
+		onSlideChange(slider) {
+			console.log(slider);
+		},
 		handleEditSection(section) {
 		},
 		handleSubmit() {
@@ -126,6 +177,35 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss">
+.modal--single-product-dynamic-card {
+	.shapla-modal-content {
+		border-radius: 0;
+		height: 100vh;
+		max-height: 100vh;
+		width: 100vw;
+	}
 
+	@media screen and (min-width: 1024px) {
+		.shapla-modal-content {
+			overflow: hidden;
+		}
+		.dynamic-card--canvas {
+			height: calc(100vh - 2rem); // excluding padding of modal box
+			width: calc(100% - 320px);
+
+			&-slider {
+				height: calc(100vh - (2rem + 100px + 1rem)); // excluding padding of modal box
+			}
+
+			&-thumb {
+				height: 100px;
+			}
+		}
+
+		.dynamic-card--controls {
+			width: 320px;
+		}
+	}
+}
 </style>
