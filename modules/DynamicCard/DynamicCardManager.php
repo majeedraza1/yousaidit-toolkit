@@ -5,6 +5,7 @@ namespace YouSaidItCards\Modules\DynamicCard;
 use WC_Order;
 use WC_Order_Item_Product;
 use YouSaidItCards\Modules\DynamicCard\REST\DynamicCardController;
+use YouSaidItCards\Modules\DynamicCard\REST\UserMediaController;
 
 class DynamicCardManager {
 	/**
@@ -23,6 +24,7 @@ class DynamicCardManager {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self();
 			DynamicCardController::init();
+			UserMediaController::init();
 			BackgroundDynamicPdfGenerator::init();
 
 			add_action( 'wp_ajax_generate_dynamic_card_pdf', [ self::$instance, 'generate_dynamic_card_pdf' ] );

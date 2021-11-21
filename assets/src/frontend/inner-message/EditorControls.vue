@@ -77,7 +77,16 @@ export default {
 	name: "EditorControls",
 	components: {tabs, tab, radioButton, EmojiPicker},
 	props: {
-		value: {type: Object}
+		value: {
+			type: Object, default: () => {
+				return {
+					font_family: '',
+					font_size: '',
+					alignment: '',
+					color: '',
+				}
+			}
+		}
 	},
 	data() {
 		return {
@@ -132,6 +141,9 @@ export default {
 		emitChange(type, value) {
 			this.$emit('change', {key: type, payload: value});
 		}
+	},
+	mounted() {
+		this.options = this.value;
 	}
 }
 </script>

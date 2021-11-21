@@ -53,6 +53,10 @@ export default {
 				}
 			}
 		});
+
+		this.swiper.on('slideChange', event => {
+			this.$emit('slideChange', event.activeIndex)
+		})
 	}
 }
 </script>

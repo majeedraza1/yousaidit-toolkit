@@ -18,7 +18,7 @@
 			</div>
 			<div class="sm:mt-4 sm:mb-4">
 				<div class="flex flex-col h-full bg-gray-100 w-80 ml-auto">
-					<editor-controls v-model="$data" @change="onChangeEditorControls"/>
+					<editor-controls v-model="editor_control_data" @change="onChangeEditorControls"/>
 					<div class="flex-grow"></div>
 					<div class="flex space-x-2 p-4 mt-4">
 						<shapla-button theme="primary" outline @click="$emit('close')" class="flex-grow">Cancel
@@ -59,6 +59,14 @@ export default {
 		}
 	},
 	computed: {
+		editor_control_data: {
+			get() {
+				return this._data;
+			},
+			set() {
+
+			}
+		},
 		font_families() {
 			return fontFamilies;
 		},

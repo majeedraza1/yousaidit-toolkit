@@ -1,16 +1,19 @@
 <template>
 	<modal :active="show_dynamic_card_editor" @close="show_dynamic_card_editor = false" type="box"
-		   content-size="full" :show-card-footer="false" class="modal--single-product-dynamic-card">
+		   content-size="full" :show-card-footer="false" class="modal--single-product-dynamic-card"
+		   content-class="modal-dynamic-card-content">
 		<div class="w-full h-full flex sm:flex-col md:flex-col lg:flex-row lg:space-x-4">
 			<div class="flex flex-col flex-grow dynamic-card--canvas">
 				<div class="w-full flex dynamic-card--canvas-slider">
 					<swiper-slider v-if="show_dynamic_card_editor && Object.keys(payload).length"
-								   :card_size="card_size" :slide-to="slideTo">
+								   :card_size="card_size" :slide-to="slideTo" @slideChange="onSlideChange">
 						<template v-slot:canvas>
 							<card-web-viewer
 								:args="payload"
 								:upload-url="uploadUrl"
 								:images="images"
+								:inline-edit="false"
+								:active-item-index="activeSectionIndex"
 								@edit:section="handleEditSection"
 							/>
 						</template>
@@ -38,7 +41,7 @@
 			</div>
 			<div
 				class="flex flex-col justify-between bg-gray-100 p-2 dynamic-card--controls lg:border border-solid border-gray-100">
-				<div v-if="slideTo === 0">
+				<div v-if="activeSectionIndex === -1 && slideTo === 0">
 					<div><strong>Help tips:</strong></div>
 					<div class="flex">
 						Click on icon (
@@ -63,6 +66,31 @@
 						) to customize image.
 					</div>
 				</div>
+				<template v-if="activeSectionIndex >= 0">
+					<div v-if="activeSection.section_type === 'input-text'">
+						<input type="text" v-model="activeSection.text" :placeholder="activeSection.placeholder">
+						<shapla-button outline size="small" @click="activeSection.text = ''">Clear</shapla-button>
+						<shapla-button outline size="small" theme="primary" @click="closeSection">Confirm
+						</shapla-button>
+					</div>
+					<div v-if="activeSection.section_type === 'input-image'">
+						<div v-if="!isUserLoggedIn"
+							 class="border border-dotted border-primary text-primary font-bold mb-4 p-2 text-center">
+							Log-in to save image for later use.
+						</div>
+						<file-uploader
+							:url="uploadUrl"
+							@success="finishedEvent"
+							@before:send="beforeSendEvent"
+						/>
+						<div>{{ images }}</div>
+						<div class="relative border border-solid mt-6"
+							 v-if="activeSection.image && activeSection.image.src">
+							<img :src="activeSection.image.src" alt=""/>
+							<delete-icon class="absolute -top-2 -right-2" @click="removeImage"/>
+						</div>
+					</div>
+				</template>
 				<div v-if="slideTo !== 0">
 					<editor-controls v-model="innerMessage" @change="onChangeEditorControls"/>
 				</div>
@@ -78,7 +106,7 @@
 
 <script>
 import axios from "axios";
-import {modal, shaplaButton, iconContainer, imageContainer} from "shapla-vue-components";
+import {modal, shaplaButton, iconContainer, imageContainer, FileUploader} from "shapla-vue-components";
 import CardWebViewer from "@/components/DynamicCardPreview/CardWebViewer";
 import SwiperSlider from './SwiperSlider';
 import EditableContent from "@/frontend/inner-message/EditableContent";
@@ -87,8 +115,8 @@ import EditorControls from "@/frontend/inner-message/EditorControls";
 export default {
 	name: "SingleProductDynamicCard",
 	components: {
-		EditorControls,
-		EditableContent, CardWebViewer, modal, shaplaButton, iconContainer, SwiperSlider, imageContainer
+		EditableContent, CardWebViewer, modal, shaplaButton, iconContainer, SwiperSlider, imageContainer,
+		EditorControls, FileUploader
 	},
 	data() {
 		return {
@@ -107,23 +135,47 @@ export default {
 			},
 			readFromServer: false,
 			images: [],
+			activeSection: {},
+			activeSectionIndex: -1,
 		}
 	},
 	computed: {
 		uploadUrl() {
-			return '';
+			return StackonetToolkit.restRoot + '/dynamic-cards/media';
+		},
+		isUserLoggedIn() {
+			return window.StackonetToolkit.isUserLoggedIn || false;
+		}
+	},
+	watch: {
+		slideTo() {
+			this.closeSection();
 		}
 	},
 	methods: {
+		closeSection() {
+			this.activeSection = {};
+			this.activeSectionIndex = -1;
+		},
+		removeImage() {
+			if (this.activeSection.image) {
+				delete this.activeSection.image;
+			}
+			this.closeSection();
+		},
 		onChangeEditorControls(args) {
 			if ('emoji' === args.key) {
 				document.execCommand("insertHtml", false, args.payload);
 			}
 		},
-		onSlideChange(slider) {
-			console.log(slider);
+		onSlideChange(activeIndex) {
+			if (activeIndex !== this.slideTo) {
+				this.slideTo = activeIndex;
+			}
 		},
-		handleEditSection(section) {
+		handleEditSection(section, index) {
+			this.activeSectionIndex = index;
+			this.activeSection = section;
 		},
 		handleSubmit() {
 			let fieldsContainer = document.querySelector('#_dynamic_card_fields');
@@ -152,6 +204,21 @@ export default {
 				this.payload = response.data.data;
 				this.readFromServer = true;
 			});
+		},
+		beforeSendEvent(xhr) {
+			if (window.StackonetToolkit.restNonce) {
+				xhr.setRequestHeader('X-WP-Nonce', window.StackonetToolkit.restNonce);
+			}
+		},
+		finishedEvent(fileObject, response) {
+			this.$emit('success', fileObject, response);
+		},
+		fetchImages() {
+			axios.get(this.uploadUrl).then(response => {
+				if (response.data.data) {
+					this.images = response.data.data;
+				}
+			})
 		}
 	},
 	mounted() {
@@ -162,6 +229,7 @@ export default {
 		}
 
 		this.loadCardInfo();
+		this.fetchImages();
 
 		let btn = document.querySelector('.button--customize-dynamic-card');
 		if (btn) {
@@ -179,15 +247,25 @@ export default {
 
 <style lang="scss">
 .modal--single-product-dynamic-card {
-	.shapla-modal-content {
+	.modal-dynamic-card-content {
 		border-radius: 0;
 		height: 100vh;
 		max-height: 100vh;
 		width: 100vw;
+
+		.admin-bar & {
+			margin-top: 32px;
+			height: calc(100vh - 32px);
+
+			@media screen and (max-width: 782px) {
+				margin-top: 46px;
+				height: calc(100vh - 46px);
+			}
+		}
 	}
 
 	@media screen and (min-width: 1024px) {
-		.shapla-modal-content {
+		.modal-dynamic-card-content {
 			overflow: hidden;
 		}
 		.dynamic-card--canvas {
