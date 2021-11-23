@@ -18,24 +18,30 @@
 							/>
 						</template>
 						<template v-slot:inner-message>
-							<editable-content
-								placeholder="Please click here to write your message"
-								:font-family="innerMessage.font_family"
-								:font-size="innerMessage.font_size"
-								:text-align="innerMessage.alignment"
-								:color="innerMessage.color"
-								v-model="innerMessage.message"
-								:card-size="card_size"
-							/>
+							<div class="dynamic-card--editable-content-container">
+								<editable-content
+									placeholder="Please click here to write your message"
+									:font-family="innerMessage.font_family"
+									:font-size="innerMessage.font_size"
+									:text-align="innerMessage.alignment"
+									:color="innerMessage.color"
+									v-model="innerMessage.message"
+									:card-size="card_size"
+								/>
+							</div>
 						</template>
 					</swiper-slider>
 				</div>
 				<div class="swiper-thumbnail mt-4 dynamic-card--canvas-thumb bg-gray-200">
 					<div class="flex space-x-4 p-2 justify-center">
 						<image-container container-width="64px" class="bg-gray-100" @click.native="slideTo = 0"
-										 :class="{'border border-solid border-primary':slideTo === 0}"></image-container>
+										 :class="{'border border-solid border-primary':slideTo === 0}">
+							<img :src="product_thumb" alt="">
+						</image-container>
 						<image-container container-width="64px" class="bg-gray-100" @click.native="slideTo = 1"
-										 :class="{'border border-solid border-primary':slideTo === 1}"></image-container>
+										 :class="{'border border-solid border-primary':slideTo === 1}">
+							<img :src="placeholder_im" alt=""/>
+						</image-container>
 					</div>
 				</div>
 			</div>
@@ -137,6 +143,8 @@ export default {
 			images: [],
 			activeSection: {},
 			activeSectionIndex: -1,
+			product_thumb: '',
+			placeholder_im: '',
 		}
 	},
 	computed: {
@@ -183,13 +191,19 @@ export default {
 				let inputId = `#_dynamic_card_input-${index}`
 				if (['static-text', 'input-text'].indexOf(item.section_type) !== -1) {
 					fieldsContainer.querySelector(inputId).value = item.text;
-					console.log(item.text);
 				}
 				if (['static-image', 'input-image'].indexOf(item.section_type) !== -1) {
 					fieldsContainer.querySelector(inputId).value = item.imageOptions.img.id;
-					console.log(item.imageOptions.img.id);
 				}
 			});
+			let imContainer = document.querySelector('#_inner_message_fields');
+			if (imContainer) {
+				imContainer.querySelector('#_inner_message_content').value = this.innerMessage.message;
+				imContainer.querySelector('#_inner_message_font').value = this.innerMessage.font_family;
+				imContainer.querySelector('#_inner_message_size').value = this.innerMessage.font_size;
+				imContainer.querySelector('#_inner_message_align').value = this.innerMessage.alignment;
+				imContainer.querySelector('#_inner_message_color').value = this.innerMessage.color;
+			}
 			let variations_form = document.querySelector('form.cart');
 			if (variations_form) {
 				this.loading = true;
@@ -201,7 +215,10 @@ export default {
 				return;
 			}
 			axios.get(StackonetToolkit.restRoot + `/dynamic-cards/${this.product_id}`).then(response => {
-				this.payload = response.data.data;
+				let data = response.data.data;
+				this.payload = data.payload;
+				this.product_thumb = data.product_thumb;
+				this.placeholder_im = data.placeholder_im;
 				this.readFromServer = true;
 			});
 		},
@@ -246,7 +263,25 @@ export default {
 </script>
 
 <style lang="scss">
+.dynamic-card--editable-content-container {
+	display: flex;
+	height: 100%;
+	justify-content: center;
+	align-items: center;
+	border: 1px solid #f5f5f5;
+}
+
 .modal--single-product-dynamic-card {
+	box-sizing: border-box;
+
+	*, *:before, *:after {
+		box-sizing: border-box;
+	}
+
+	.card-preview-canvas {
+		border: 1px solid #f5f5f5;
+	}
+
 	.modal-dynamic-card-content {
 		border-radius: 0;
 		height: 100vh;

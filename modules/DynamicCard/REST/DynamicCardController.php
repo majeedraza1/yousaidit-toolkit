@@ -50,7 +50,13 @@ class DynamicCardController extends ApiController {
 		}
 
 		$payload = $product->get_meta( '_dynamic_card_payload', true );
+		$image   = wp_get_attachment_image_src( $product->get_image_id() );
+		$data    = [
+			'payload'        => $payload,
+			'product_thumb'  => is_array( $image ) ? $image[0] : '',
+			'placeholder_im' => YOUSAIDIT_TOOLKIT_ASSETS . '/static-images/placeholder--inner-message.jpg'
+		];
 
-		return $this->respondOK( $payload );
+		return $this->respondOK( $data );
 	}
 }
