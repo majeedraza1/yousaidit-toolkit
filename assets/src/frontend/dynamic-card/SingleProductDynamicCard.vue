@@ -84,12 +84,21 @@
 							 class="border border-dotted border-primary text-primary font-bold mb-4 p-2 text-center">
 							Log-in to save image for later use.
 						</div>
-						<file-uploader
-							:url="uploadUrl"
-							@success="finishedEvent"
-							@before:send="beforeSendEvent"
-						/>
-						<div>{{ images }}</div>
+						<tabs fullwidth centered>
+							<tab name="Upload" selected>
+								<file-uploader :url="uploadUrl" @success="finishedEvent"
+											   @before:send="beforeSendEvent"/>
+							</tab>
+							<tab name="Media">
+								<div class="flex flex-wrap uploade-image-thumbnail-container">
+									<div v-for="_img in images" class="w-1/4 p-1">
+										<img :src="_img.thumbnail.src || _img.full.src" alt=""
+											 @click="handleImageSelect(_img)"
+											 class="border-4 border-solid border-gray-200">
+									</div>
+								</div>
+							</tab>
+						</tabs>
 						<div class="relative border border-solid mt-6"
 							 v-if="activeSection.image && activeSection.image.src">
 							<img :src="activeSection.image.src" alt=""/>
@@ -112,7 +121,7 @@
 
 <script>
 import axios from "axios";
-import {modal, shaplaButton, iconContainer, imageContainer, FileUploader} from "shapla-vue-components";
+import {modal, shaplaButton, iconContainer, imageContainer, FileUploader, tabs, tab} from "shapla-vue-components";
 import CardWebViewer from "@/components/DynamicCardPreview/CardWebViewer";
 import SwiperSlider from './SwiperSlider';
 import EditableContent from "@/frontend/inner-message/EditableContent";
@@ -122,7 +131,7 @@ export default {
 	name: "SingleProductDynamicCard",
 	components: {
 		EditableContent, CardWebViewer, modal, shaplaButton, iconContainer, SwiperSlider, imageContainer,
-		EditorControls, FileUploader
+		EditorControls, FileUploader, tabs, tab
 	},
 	data() {
 		return {
@@ -228,7 +237,9 @@ export default {
 			}
 		},
 		finishedEvent(fileObject, response) {
-			this.$emit('success', fileObject, response);
+			if (response.success) {
+				this.images.push(response.data);
+			}
 		},
 		fetchImages() {
 			axios.get(this.uploadUrl).then(response => {
@@ -236,7 +247,10 @@ export default {
 					this.images = response.data.data;
 				}
 			})
-		}
+		},
+		handleImageSelect(image) {
+			this.activeSection.image = {id: image.id, ...image.full}
+		},
 	},
 	mounted() {
 		let el = document.querySelector('#dynamic-card-container');
@@ -269,6 +283,10 @@ export default {
 	justify-content: center;
 	align-items: center;
 	border: 1px solid #f5f5f5;
+}
+
+.uploade-image-thumbnail-container {
+
 }
 
 .modal--single-product-dynamic-card {

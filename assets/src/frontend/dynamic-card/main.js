@@ -1,5 +1,10 @@
 import Vue from "vue";
-import SingleProductDynamicCard from "@/frontend/dynamic-card/SingleProductDynamicCard.vue";
+import SingleProductDynamicCard from "./SingleProductDynamicCard.vue";
+import axios from "axios";
+
+if (window.StackonetToolkit && window.StackonetToolkit.restNonce) {
+	axios.defaults.headers.common['X-WP-Nonce'] = window.StackonetToolkit.restNonce;
+}
 
 const dynamicCardEl = document.querySelector('#dynamic-card');
 if (dynamicCardEl) {

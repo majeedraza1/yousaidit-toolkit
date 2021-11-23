@@ -73,7 +73,7 @@ class UserMediaController extends ApiController {
 		}
 
 		$args = [
-			'posts_per_page' => 50,
+			'posts_per_page' => 12,
 			'orderby'        => 'date',
 			'order'          => 'DESC',
 			'post_type'      => 'attachment',
