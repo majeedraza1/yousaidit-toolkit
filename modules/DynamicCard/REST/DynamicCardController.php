@@ -2,6 +2,7 @@
 
 namespace YouSaidItCards\Modules\DynamicCard\REST;
 
+use ArrayObject;
 use WC_Product;
 use WP_REST_Server;
 use YouSaidItCards\REST\ApiController;
@@ -50,8 +51,13 @@ class DynamicCardController extends ApiController {
 		}
 
 		$payload = $product->get_meta( '_dynamic_card_payload', true );
-		$image   = wp_get_attachment_image_src( $product->get_image_id() );
-		$data    = [
+		foreach ( $payload['card_items'] as $index => $item ) {
+			if ( "input-image" == $item['section_type'] ) {
+				$payload['card_items'][ $index ]['image'] = new ArrayObject;
+			}
+		}
+		$image = wp_get_attachment_image_src( $product->get_image_id() );
+		$data  = [
 			'payload'        => $payload,
 			'product_thumb'  => is_array( $image ) ? $image[0] : '',
 			'placeholder_im' => YOUSAIDIT_TOOLKIT_ASSETS . '/static-images/placeholder--inner-message.jpg'

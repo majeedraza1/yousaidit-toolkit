@@ -1,12 +1,12 @@
 <template>
 	<modal :active="show_dynamic_card_editor" @close="show_dynamic_card_editor = false" type="box"
-		   content-size="full" :show-card-footer="false" class="modal--single-product-dynamic-card"
-		   content-class="modal-dynamic-card-content">
+	       content-size="full" :show-card-footer="false" class="modal--single-product-dynamic-card"
+	       content-class="modal-dynamic-card-content">
 		<div class="w-full h-full flex sm:flex-col md:flex-col lg:flex-row lg:space-x-4">
 			<div class="flex flex-col flex-grow dynamic-card--canvas">
 				<div class="w-full flex dynamic-card--canvas-slider">
 					<swiper-slider v-if="show_dynamic_card_editor && Object.keys(payload).length"
-								   :card_size="card_size" :slide-to="slideTo" @slideChange="onSlideChange">
+					               :card_size="card_size" :slide-to="slideTo" @slideChange="onSlideChange">
 						<template v-slot:canvas>
 							<card-web-viewer
 								:args="payload"
@@ -35,11 +35,11 @@
 				<div class="swiper-thumbnail mt-4 dynamic-card--canvas-thumb bg-gray-200">
 					<div class="flex space-x-4 p-2 justify-center">
 						<image-container container-width="64px" class="bg-gray-100" @click.native="slideTo = 0"
-										 :class="{'border border-solid border-primary':slideTo === 0}">
+						                 :class="{'border border-solid border-primary':slideTo === 0}">
 							<img :src="product_thumb" alt="">
 						</image-container>
 						<image-container container-width="64px" class="bg-gray-100" @click.native="slideTo = 1"
-										 :class="{'border border-solid border-primary':slideTo === 1}">
+						                 :class="{'border border-solid border-primary':slideTo === 1}">
 							<img :src="placeholder_im" alt=""/>
 						</image-container>
 					</div>
@@ -80,27 +80,34 @@
 						</shapla-button>
 					</div>
 					<div v-if="activeSection.section_type === 'input-image'">
-						<div v-if="!isUserLoggedIn"
-							 class="border border-dotted border-primary text-primary font-bold mb-4 p-2 text-center">
-							Log-in to save image for later use.
-						</div>
-						<tabs fullwidth centered>
-							<tab name="Upload" selected>
-								<file-uploader :url="uploadUrl" @success="finishedEvent"
-											   @before:send="beforeSendEvent"/>
-							</tab>
-							<tab name="Media">
+						<a v-if="!isUserLoggedIn" target="_blank" :href="`${loginUrl}`"
+						   class="border border-dotted border-primary text-primary font-bold mb-4 p-2 text-center w-full block">
+							You need to login to change image. Click here to login
+						</a>
+						<tabs fullwidth centered v-if="isUserLoggedIn">
+							<tab name="Images" selected>
 								<div class="flex flex-wrap uploade-image-thumbnail-container">
-									<div v-for="_img in images" class="w-1/4 p-1">
-										<img :src="_img.thumbnail.src || _img.full.src" alt=""
-											 @click="handleImageSelect(_img)"
-											 class="border-4 border-solid border-gray-200">
-									</div>
+									<template v-if="images.length">
+										<div v-for="_img in images" class="w-1/4 p-1">
+											<img :src="_img.thumbnail.src || _img.full.src" alt=""
+											     @click="handleImageSelect(_img)"
+											     class="border-4 border-solid border-gray-200"
+											     :class="{'border-primary':isImageSelected(_img)}"
+											>
+										</div>
+									</template>
+									<template v-else>
+										You did not add any image yet. Upload some images first.
+									</template>
 								</div>
+							</tab>
+							<tab name="Upload">
+								<file-uploader :url="uploadUrl" @success="finishedEvent"
+								               @before:send="beforeSendEvent"/>
 							</tab>
 						</tabs>
 						<div class="relative border border-solid mt-6"
-							 v-if="activeSection.image && activeSection.image.src">
+						     v-if="activeSection.image && activeSection.image.src">
 							<img :src="activeSection.image.src" alt=""/>
 							<delete-icon class="absolute -top-2 -right-2" @click="removeImage"/>
 						</div>
@@ -121,7 +128,8 @@
 
 <script>
 import axios from "axios";
-import {modal, shaplaButton, iconContainer, imageContainer, FileUploader, tabs, tab} from "shapla-vue-components";
+import {modal, shaplaButton, iconContainer, imageContainer, FileUploader, tabs, tab, deleteIcon}
+	from "shapla-vue-components";
 import CardWebViewer from "@/components/DynamicCardPreview/CardWebViewer";
 import SwiperSlider from './SwiperSlider';
 import EditableContent from "@/frontend/inner-message/EditableContent";
@@ -131,7 +139,7 @@ export default {
 	name: "SingleProductDynamicCard",
 	components: {
 		EditableContent, CardWebViewer, modal, shaplaButton, iconContainer, SwiperSlider, imageContainer,
-		EditorControls, FileUploader, tabs, tab
+		EditorControls, FileUploader, tabs, tab, deleteIcon
 	},
 	data() {
 		return {
@@ -139,7 +147,7 @@ export default {
 			slideTo: 0,
 			product_id: 0,
 			card_size: '',
-			show_dynamic_card_editor: true,
+			show_dynamic_card_editor: false,
 			payload: {},
 			innerMessage: {
 				message: '',
@@ -162,6 +170,9 @@ export default {
 		},
 		isUserLoggedIn() {
 			return window.StackonetToolkit.isUserLoggedIn || false;
+		},
+		loginUrl() {
+			return window.StackonetToolkit.loginUrl ?? '';
 		}
 	},
 	watch: {
@@ -170,13 +181,16 @@ export default {
 		}
 	},
 	methods: {
+		isImageSelected(image) {
+			return this.activeSection.image && image.id === this.activeSection.image.id;
+		},
 		closeSection() {
 			this.activeSection = {};
 			this.activeSectionIndex = -1;
 		},
 		removeImage() {
 			if (this.activeSection.image) {
-				delete this.activeSection.image;
+				this.activeSection.image = {};
 			}
 			this.closeSection();
 		},
@@ -202,7 +216,7 @@ export default {
 					fieldsContainer.querySelector(inputId).value = item.text;
 				}
 				if (['static-image', 'input-image'].indexOf(item.section_type) !== -1) {
-					fieldsContainer.querySelector(inputId).value = item.imageOptions.img.id;
+					fieldsContainer.querySelector(inputId).value = item.image.id || item.imageOptions.img.id;
 				}
 			});
 			let imContainer = document.querySelector('#_inner_message_fields');
@@ -238,7 +252,7 @@ export default {
 		},
 		finishedEvent(fileObject, response) {
 			if (response.success) {
-				this.images.push(response.data);
+				this.images.unshift(response.data);
 			}
 		},
 		fetchImages() {

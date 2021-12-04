@@ -212,6 +212,7 @@ class Assets {
 		$data['fonts'] = Fonts::get_list_for_web();
 
 		if ( ! $is_user_logged_in ) {
+			$data['loginUrl']        = wp_login_url( get_permalink() );
 			$data['lostPasswordUrl'] = wp_lostpassword_url();
 		}
 
