@@ -5,7 +5,7 @@ namespace YouSaidItCards\Modules\CardMerger;
 use Stackonet\WP\Framework\Supports\Validate;
 use WC_Order;
 use YouSaidItCards\Modules\CardMerger\PDFMergers\DynamicSizePdfMerger;
-use YouSaidItCards\Modules\CardMerger\PDFMergers\TestPdfMerger;
+use YouSaidItCards\Modules\DynamicCard\BackgroundDynamicPdfGenerator;
 use YouSaidItCards\Modules\InnerMessage\PdfGenerator;
 use YouSaidItCards\Modules\OrderDispatcher\QtyCode;
 use YouSaidItCards\ShipStation\Order;
@@ -148,8 +148,17 @@ class CardMergerManager {
 		$product_id      = $order_item->get_product_id();
 		$product         = wc_get_product( $product_id );
 		$postcard_pdf_id = (int) $order_item->get_meta( '_postcard_pdf_id', true );
+		$dynamic_card_id = (int) $order_item->get_meta( '_dynamic_card', true );
 		if ( $postcard_pdf_id ) {
 			$url = wp_get_attachment_url( $postcard_pdf_id );
+		} elseif ( $dynamic_card_id ) {
+			$filepath = BackgroundDynamicPdfGenerator::generate_for_order_item( $wc_order_id, $wc_order_item_id );
+			if ( is_wp_error( $filepath ) ) {
+				var_dump( $filepath );
+				die;
+			}
+			$upload_dir = wp_get_upload_dir();
+			$url        = str_replace( $upload_dir['basedir'], $upload_dir['baseurl'], $filepath );
 		} else {
 			$pdf_id = (int) $product->get_meta( '_pdf_id', true );
 			$url    = wp_get_attachment_url( $pdf_id );
