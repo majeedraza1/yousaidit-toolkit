@@ -78,34 +78,17 @@ class EvaThemeManager {
 		$options = (array) get_option( '_stackonet_toolkit' );
 		$price   = isset( $options['inner_message_price'] ) ? floatval( $options['inner_message_price'] ) : 0;
 
-		if ( ! self::should_show_inner_message( $product ) ) {
-			return;
-		}
+		$html = '';
 
-		$html = '<div id="_inner_message_fields" style="visibility: hidden; position: absolute; width: 1px; height: 1px">';
-		$html .= '<textarea id="_inner_message_content" name="_inner_message[content]"></textarea>';
-		$html .= '<input type="text" id="_inner_message_font" name="_inner_message[font]"/>';
-		$html .= '<input type="text" id="_inner_message_size" name="_inner_message[size]"/>';
-		$html .= '<input type="text" id="_inner_message_align" name="_inner_message[align]"/>';
-		$html .= '<input type="text" id="_inner_message_color" name="_inner_message[color]"/>';
-		$html .= '</div>';
-
-		$html .= '<button type="submit" class="button btn1 bshadow button--add-inner-message"><span>Add a message</span></button>';
-		if ( $price > 0 ) {
-			$html .= '<span class="inner-message-cost">+ ' . wc_price( $price ) . '</span>';
-		}
 		$_card_type = $product->get_meta( '_card_type', true );
 		if ( 'dynamic' == $_card_type ) {
-			$html .= '<button type="submit" class="button btn1 bshadow button--customize-dynamic-card" disabled><span>Customize</span></button>';
-
-			$payload = $product->get_meta( '_dynamic_card_payload', true );
-			$items   = $payload['card_items'] ?? [];
-			$html    .= '<div id="_dynamic_card_fields" style="visibility: hidden; position: absolute; width: 1px; height: 1px">';
-			foreach ( $items as $index => $item ) {
-				$html .= sprintf( '<input type="text" id="%s" name="_dynamic_card[%s][value]"/>',
-					"_dynamic_card_input-$index", $index );
-			}
-			$html .= '</div>';
+			$html = $this->get_dynamic_card_html( $product );
+			$html .= $this->get_inner_message_html( false );
+		} else if ( self::should_show_inner_message( $product ) ) {
+			$html .= $this->get_inner_message_html();
+		}
+		if ( $price > 0 ) {
+			$html .= '<span class="inner-message-cost">+ ' . wc_price( $price ) . '</span>';
 		}
 		echo $html;
 	}
@@ -149,5 +132,46 @@ class EvaThemeManager {
 		}
 
 		return $should_show;
+	}
+
+	/**
+	 * @param bool $show_button
+	 *
+	 * @return string
+	 */
+	protected function get_inner_message_html( bool $show_button = true ): string {
+		$html = '<div id="_inner_message_fields" style="visibility: hidden; position: absolute; width: 1px; height: 1px">';
+		$html .= '<textarea id="_inner_message_content" name="_inner_message[content]"></textarea>';
+		$html .= '<input type="text" id="_inner_message_font" name="_inner_message[font]"/>';
+		$html .= '<input type="text" id="_inner_message_size" name="_inner_message[size]"/>';
+		$html .= '<input type="text" id="_inner_message_align" name="_inner_message[align]"/>';
+		$html .= '<input type="text" id="_inner_message_color" name="_inner_message[color]"/>';
+		$html .= '</div>';
+
+		if ( $show_button ) {
+			$html .= '<button type="submit" class="button btn1 bshadow button--add-inner-message"><span>Add a message</span></button>';
+		}
+
+		return $html;
+	}
+
+	/**
+	 * @param $product
+	 *
+	 * @return string
+	 */
+	protected function get_dynamic_card_html( $product ): string {
+		$html = '<button type="submit" class="button btn1 bshadow button--customize-dynamic-card" disabled><span>Customize</span></button>';
+
+		$payload = $product->get_meta( '_dynamic_card_payload', true );
+		$items   = $payload['card_items'] ?? [];
+		$html    .= '<div id="_dynamic_card_fields" style="visibility: hidden; position: absolute; width: 1px; height: 1px">';
+		foreach ( $items as $index => $item ) {
+			$html .= sprintf( '<input type="text" id="%s" name="_dynamic_card[%s][value]"/>',
+				"_dynamic_card_input-$index", $index );
+		}
+		$html .= '</div>';
+
+		return $html;
 	}
 }
