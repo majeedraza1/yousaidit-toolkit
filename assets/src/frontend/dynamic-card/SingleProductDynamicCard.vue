@@ -116,9 +116,13 @@
 				<div v-if="slideTo !== 0">
 					<editor-controls v-model="innerMessage" @change="onChangeEditorControls"/>
 				</div>
-				<div>
-					<shapla-button theme="primary" size="medium" fullwidth @click="handleSubmit">Add to basket and
-						continue shopping
+				<div class="space-y-2">
+					<shapla-button theme="primary" size="small" fullwidth outline
+					               @click="show_dynamic_card_editor = false">
+						Cancel
+					</shapla-button>
+					<shapla-button theme="primary" size="medium" fullwidth @click="handleSubmit">
+						Add to basket
 					</shapla-button>
 				</div>
 			</div>

@@ -1,12 +1,12 @@
 <template>
 	<div class="yousaidit-inner-message">
 		<modal :active="showModal" type="box" content-size="full" @close="closeModal"
-			   :show-close-icon="false" :close-on-background-click="false" class="modal--inner-message-compose">
+		       :show-close-icon="false" :close-on-background-click="false" class="modal--inner-message-compose">
 			<compose :active="showModal" :inner-message="innerMessage" :card-size="card_size"
-					 :btn-text="btnText" @close="closeModal" @submit="submit"/>
+			         :btn-text="btnText" @close="closeModal" @submit="submit"/>
 		</modal>
 		<modal v-if="showViewModal" :active="true" type="card" title="Preview" content-size="full"
-			   @close="showViewModal = false">
+		       @close="showViewModal = false">
 			<div class="editable-content-container">
 				<div class="editable-content" :class="innerMessageClass" :style="`--padding-top: ${paddingTop}`">
 					<div class="editable-content__editor" :style="innerMessageStyle">
@@ -42,6 +42,8 @@ export default {
 			innerMessage: {},
 			page: 'single-product',
 			cartkey: '',
+			canvas_height: 0,
+			canvas_width: 0,
 		}
 	},
 	computed: {

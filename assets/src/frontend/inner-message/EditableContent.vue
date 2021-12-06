@@ -1,11 +1,11 @@
 <template>
-	<div class="editable-content-container">
-		<div class="editable-content" :class="`card-size--${cardSize}`" :style="containerStyle">
+	<div class="editable-content-container" :style="containerStyle">
+		<div class="editable-content">
 			<div class="editable-content__editor"
-				 :style="editorStyle"
-				 contenteditable="true"
-				 @focus="handleFocusEvent"
-				 @input="handleInputEvent"
+			     :style="editorStyle"
+			     contenteditable="true"
+			     @focus="handleFocusEvent"
+			     @input="handleInputEvent"
 			>
 				<div v-html="textLength ? text : placeholder"></div>
 			</div>
@@ -15,6 +15,7 @@
 
 <script>
 import {imageContainer} from 'shapla-vue-components'
+import {calculateElementHeight, calculateFontSizeScale, cardSizeFromName} from '@/utils/helper.js'
 
 export default {
 	name: "EditableContent",
@@ -31,6 +32,9 @@ export default {
 	data() {
 		return {
 			text: '',
+			canvas_height: 0,
+			canvas_width: 0,
+			cardSizes: [],
 		}
 	},
 	computed: {
@@ -38,23 +42,16 @@ export default {
 			return this.text.length;
 		},
 		paddingTop() {
-			if ('a4' === this.cardSize) {
-				return (100 / (426 / 2) * 303) + '%';
+			let sizes = cardSizeFromName(this.cardSize);
+			if (sizes[0] && sizes[1]) {
+				return (100 / (sizes[0] / 2) * sizes[1]) + '%';
 			}
-			if ('a5' === this.cardSize) {
-				return (100 / (303 / 2) * 216) + '%';
-			}
-			if ('a6' === this.cardSize) {
-				return (100 / (216 / 2) * 154) + '%';
-			}
-			if ('square' === this.cardSize) {
-				return (100 / (300 / 2) * 150) + '%';
-			}
+
 			return '100%';
 		},
 		containerStyle() {
 			let styles = [];
-			styles.push({'--padding-top': `${this.paddingTop}`});
+			styles.push({'height': `${this.canvas_height}px`});
 			return styles;
 		},
 		editorStyle() {
@@ -63,7 +60,8 @@ export default {
 				styles.push({'--font-family': this.fontFamily});
 			}
 			if (this.fontSize) {
-				styles.push({'--font-size': `${this.fontSize}px`});
+				let fontSize = calculateFontSizeScale(this.cardSizes[0] / 2, this.canvas_width, this.fontSize);
+				styles.push({'--font-size': `${fontSize}pt`});
 			}
 			if (this.textAlign) {
 				styles.push({'--text-align': this.textAlign});
@@ -77,7 +75,6 @@ export default {
 	watch: {
 		value(newValue) {
 			this.text = newValue;
-			// this.$el.querySelector('.editable-content__editor').innerHTML = newValue;
 		}
 	},
 	methods: {
@@ -90,43 +87,36 @@ export default {
 		handleInputEvent(event) {
 			this.text = event.target.innerHTML;
 			this.$emit('input', this.text);
-		}
+		},
+		calculate_canvas_dimension() {
+			this.cardSizes = cardSizeFromName(this.cardSize);
+			this.canvas_height = calculateElementHeight(this.cardSize, this.$el);
+			this.canvas_width = this.$el.offsetWidth;
+		},
 	},
 	mounted() {
 		document.execCommand("defaultParagraphSeparator", false, "div");
 		this.text = this.value;
+		setTimeout(() => this.calculate_canvas_dimension(), 100);
 	}
 }
 </script>
 
 <style lang="scss">
 .editable-content {
-	border: 1px solid rgba(#000, 0.12);
-	min-height: 300px;
-	display: flex;
 	align-items: center;
+	border: 1px solid rgba(#000, 0.12);
+	display: flex;
+	height: 100%;
 	justify-content: center;
 	position: relative;
-	padding-top: var(--padding-top, 100%);
 
 	&-container {
-		position: relative;
-		max-height: 90vh;
-
-		width: 300px;
-		margin: 0 auto;
 		border: 1px solid rgba(#000, 0.12);
+		margin: 0 auto;
 		padding: 15px;
-
-		@media screen and (min-width: 1024px) {
-			width: 440px;
-		}
-	}
-
-	&.card-size--square {
-	}
-
-	&.card-size--a4 {
+		position: relative;
+		width: 100%;
 	}
 
 	&__editor {

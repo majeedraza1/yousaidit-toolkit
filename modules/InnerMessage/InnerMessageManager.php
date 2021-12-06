@@ -30,6 +30,8 @@ class InnerMessageManager {
 			add_action( 'wp_footer', [ self::$instance, 'add_editor' ], 5 );
 			add_action( 'wp_enqueue_scripts', [ self::$instance, 'load_scripts' ] );
 
+			add_action( 'wp_ajax_inner_message_preview_test', [ self::$instance, 'inner_message_preview_test' ] );
+
 			add_action( 'wp_ajax_get_cart_item_info', [ self::$instance, 'get_cart_item_info' ] );
 			add_action( 'wp_ajax_nopriv_get_cart_item_info', [ self::$instance, 'get_cart_item_info' ] );
 
@@ -274,5 +276,19 @@ class InnerMessageManager {
 			'color'   => sanitize_hex_color( stripslashes( $data['color'] ) ),
 			'size'    => intval( $data['size'] ),
 		];
+	}
+
+	public function inner_message_preview_test() {
+		$pdf = new PdfGeneratorBase();
+		$pdf->set_page_size( 300, 150 );
+		$pdf->set_right_column_bg( '#f1f1f1' );
+		$pdf->set_text_data( [
+			'content' => 'Add a very very long line of text and it should go to.',
+			'font'    => '"Indie Flower", cursive',
+			'align'   => 'center',
+			'color'   => '#000',
+			'size'    => 40,
+		] );
+		$pdf->get_pdf( 'pdf' );
 	}
 }
