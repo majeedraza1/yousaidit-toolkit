@@ -22,6 +22,7 @@ class PdfGeneratorBase {
 
 	public function get_pdf( $mode = 'html', $context = 'view' ) {
 		$dompdf = $this->get_dompdf();
+		// $dompdf->set_option( 'dpi', 200 );
 
 		// Output the generated PDF to Browser
 		if ( 'pdf' == $mode ) {
@@ -99,7 +100,7 @@ class PdfGeneratorBase {
 			body, .card-content-inner {
 				font-family: <?php echo $fontFamily?>;
 				font-weight: normal;
-				font-size: <?php echo intval(static::px_to_points($this->font_size)).'pt'?>;
+				font-size: <?php echo $this->font_size.'pt'?>;
 				color: <?php echo $this->text_color?>;
 				text-align: <?php echo $this->text_align?>;
 			}
@@ -183,7 +184,7 @@ class PdfGeneratorBase {
 	}
 
 	public function set_text_data( array $args ) {
-		$this->font_size   = isset( $args['size'] ) ? self::pt_to_px( intval( $args['size'] ) ) : 16;
+		$this->font_size   = isset( $args['size'] ) ? intval( $args['size'] ) : 16;
 		$this->line_height = $this->font_size * 1.5;
 		$this->text_color  = $args['color'] ?? '#000000';
 		$this->text_align  = $args['align'] ?? 'center';

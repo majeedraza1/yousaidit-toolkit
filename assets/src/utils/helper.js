@@ -10,8 +10,10 @@ const convertMMtoPT = mm => mm * 2.835
  * @param {Number} fontSizeInPT
  */
 const calculateFontSizeScale = (cardWidthInMM, screenWidthInPX, fontSizeInPT) => {
-	let scaleRatio = cardWidthInMM / convertPXtoMM(screenWidthInPX);
-	return Math.round(fontSizeInPT / convertMMtoPT(scaleRatio));
+	let screenWidthInMM = convertPXtoMM(screenWidthInPX);
+	let fontSize = (fontSizeInPT / cardWidthInMM) * screenWidthInMM;
+	window.console.log({cardWidthInMM, screenWidthInPX, screenWidthInMM, fontSizeInPT, fontSize})
+	return Math.round(fontSize);
 }
 
 /**
@@ -42,11 +44,22 @@ const calculateElementHeight = (sizeString, element) => {
 	return Math.round((cardHeight / cardWidth) * elementWidth);
 }
 
+const calculateElementPadding = (cardWidthInMM, screenWidthInPX, paddingInMM = 8) => {
+	let returnPaddingInMM = (paddingInMM / cardWidthInMM) * convertPXtoMM(screenWidthInPX)
+	// If card size 150mm, then padding 8mm
+	// If card size 1mm, then padding 8mm/150mm
+	// Convert element width from px to mm
+	// If element size is 200mm, then padding is {(8mm/150mm) * 200mm}
+	// Convert mm to px
+	return Math.round(convertMMtoPX(returnPaddingInMM));
+}
+
 export {
 	convertPXtoMM,
 	convertPTtoMM,
 	convertMMtoPX,
 	calculateFontSizeScale,
 	cardSizeFromName,
-	calculateElementHeight
+	calculateElementHeight,
+	calculateElementPadding
 }

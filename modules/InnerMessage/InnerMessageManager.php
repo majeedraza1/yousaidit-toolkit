@@ -287,7 +287,7 @@ class InnerMessageManager {
 			'font'    => '"Indie Flower", cursive',
 			'align'   => 'center',
 			'color'   => '#000',
-			'size'    => 40,
+			'size'    => 26,
 		] );
 		$pdf->get_pdf( 'pdf' );
 	}
