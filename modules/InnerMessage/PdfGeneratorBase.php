@@ -171,7 +171,7 @@ class PdfGeneratorBase {
 	 */
 	public function get_message_lines(): array {
 		$client               = new Client( new Ruleset() );
-		$client->imagePathPNG = YOUSAIDIT_TOOLKIT_ASSETS . '/emoji-assets-6.0.0/64/';
+		$client->imagePathPNG = PdfGeneratorBase::get_emoji_assets_url();
 		$message              = str_replace( '<p>', '<div>', $this->message );
 		$message              = str_replace( '</p>', '</div>', $message );
 		$messages             = explode( '<div>', $message );
@@ -224,5 +224,19 @@ class PdfGeneratorBase {
 	 */
 	public function set_right_column_bg( string $right_column_bg ): void {
 		$this->right_column_bg = $right_column_bg;
+	}
+
+	/**
+	 * @return string
+	 */
+	public static function get_emoji_assets_url(): string {
+		$upload_dir = wp_upload_dir();
+		$media_dir  = join( DIRECTORY_SEPARATOR, [ $upload_dir['basedir'], 'emoji-assets-6.0.0/64/' ] );
+		$media_url  = str_replace( $upload_dir['basedir'], $upload_dir['baseurl'], $media_dir );
+		if ( ! file_exists( $media_dir ) ) {
+			return YOUSAIDIT_TOOLKIT_ASSETS . '/emoji-assets-6.0.0/64/';
+		}
+
+		return $media_url;
 	}
 }
