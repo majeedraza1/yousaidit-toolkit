@@ -27,7 +27,11 @@
 									:color="innerMessage.color"
 									v-model="innerMessage.message"
 									:card-size="card_size"
+									@lengthError="onLengthError"
 								/>
+								<div v-if="showLengthError" class="has-error p-2 my-4 absolute bottom-0">
+									Oops... your message is too long, please keep inside the box.
+								</div>
 							</div>
 						</template>
 					</swiper-slider>
@@ -166,6 +170,7 @@ export default {
 			activeSectionIndex: -1,
 			product_thumb: '',
 			placeholder_im: '',
+			showLengthError: false,
 		}
 	},
 	computed: {
@@ -185,6 +190,9 @@ export default {
 		}
 	},
 	methods: {
+		onLengthError(error) {
+			this.showLengthError = error;
+		},
 		isImageSelected(image) {
 			return this.activeSection.image && image.id === this.activeSection.image.id;
 		},

@@ -41,6 +41,9 @@ export default {
 			canvas_width: 0,
 			canvas_padding: 0,
 			cardSizes: [],
+			editableContent: null,
+			editableContentEditor: null,
+			showLengthError: false,
 		}
 	},
 	computed: {
@@ -85,6 +88,9 @@ export default {
 	watch: {
 		value(newValue) {
 			this.text = newValue;
+		},
+		showLengthError(newValue) {
+			this.$emit('lengthError', newValue);
 		}
 	},
 	methods: {
@@ -96,6 +102,7 @@ export default {
 		},
 		handleInputEvent(event) {
 			this.text = event.target.innerHTML;
+			this.showLengthError = this.editableContentEditor.offsetHeight > (0.90 * this.editableContent.offsetHeight);
 			this.$emit('input', this.text);
 		},
 		calculate_canvas_dimension() {
@@ -118,6 +125,9 @@ export default {
 		setTimeout(() => {
 			this.calculate_canvas_dimension();
 			this.calculate_canvas_edge_padding();
+
+			this.editableContent = this.$el.querySelector('.editable-content');
+			this.editableContentEditor = this.$el.querySelector('.editable-content__editor');
 		}, 100);
 	}
 }
