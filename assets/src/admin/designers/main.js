@@ -4,7 +4,7 @@ import App from './App'
 import router from './routers.js';
 import designerStore from './store.js';
 import menuFix from "../utils/admin-menu-fix.js";
-import Dialog from 'shapla-confirm-dialog'
+import {Dialog} from 'shapla-vue-components'
 
 Vue.use(Dialog);
 

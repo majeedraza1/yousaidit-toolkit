@@ -26,25 +26,24 @@
 </template>
 
 <script>
-	import {columns, column} from 'shapla-columns';
-	import shaplaButton from 'shapla-button';
+import {columns, column, shaplaButton} from 'shapla-vue-components';
 
-	export default {
-		name: "Dispatcher",
-		components: {columns, column, shaplaButton},
-		methods: {
-			goToRoute(name) {
-				this.$router.push({name: name});
-			}
+export default {
+	name: "Dispatcher",
+	components: {columns, column, shaplaButton},
+	methods: {
+		goToRoute(name) {
+			this.$router.push({name: name});
 		}
 	}
+}
 </script>
 
 <style lang="scss">
-	.yousaiditcard_admin_order_dispatcher--dispatcher {
-		.button-container {
-			max-width: 700px;
-			margin: 0 auto;
-		}
+.yousaiditcard_admin_order_dispatcher--dispatcher {
+	.button-container {
+		max-width: 700px;
+		margin: 0 auto;
 	}
+}
 </style>

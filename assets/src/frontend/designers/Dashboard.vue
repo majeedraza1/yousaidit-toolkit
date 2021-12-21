@@ -62,11 +62,7 @@
 
 <script>
 import {mapState} from 'vuex';
-import dashboardLayout from 'shapla-dashboard-layout';
-import spinner from 'shapla-spinner';
-import notification from 'shapla-notifications';
-import iconContainer from 'shapla-icon-container';
-import {ConfirmDialog} from 'shapla-confirm-dialog'
+import {dashboardLayout, spinner, notification, iconContainer, ConfirmDialog} from 'shapla-vue-components';
 import {TouchSwipe} from './TouchSwipe'
 import {routeEndpoints} from "./routers";
 import SvgIcons from "./SvgIcons";

@@ -8,27 +8,25 @@
 </template>
 
 <script>
-	import {mapState} from 'vuex';
-	import spinner from 'shapla-spinner';
-	import notification from 'shapla-notifications';
-	import {ConfirmDialog} from 'shapla-confirm-dialog'
+import {mapState} from 'vuex';
+import {spinner, notification, ConfirmDialog} from 'shapla-vue-components';
 
-	export default {
-		name: "App",
-		components: {spinner, notification, ConfirmDialog},
-		computed: {
-			...mapState(['loading', 'notification']),
-		}
+export default {
+	name: "App",
+	components: {spinner, notification, ConfirmDialog},
+	computed: {
+		...mapState(['loading', 'notification']),
 	}
+}
 </script>
 
 <style lang="scss">
-	.repair-art-work-container {
-		position: relative;
-		box-sizing: border-box;
+.repair-art-work-container {
+	position: relative;
+	box-sizing: border-box;
 
-		* {
-			box-sizing: border-box;
-		}
+	* {
+		box-sizing: border-box;
 	}
+}
 </style>

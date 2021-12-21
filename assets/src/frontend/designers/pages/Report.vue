@@ -31,39 +31,39 @@
 </template>
 
 <script>
-	import {columns, column} from 'shapla-columns';
-	import ReportCard from "../components/ReportCard";
-	import {mapState} from 'vuex';
+import {columns, column} from 'shapla-vue-components';
+import ReportCard from "../components/ReportCard";
+import {mapState} from 'vuex';
 
-	export default {
-		name: "Report",
-		components: {ReportCard, columns, column},
-		computed: {
-			...mapState(['designer_id', 'designer', 'cards_statuses', 'total_commission', 'unpaid_commission',
-				'paid_commission', 'total_orders']),
-		},
-		mounted() {
-			let user = DesignerProfile.user;
-			if (!this.designer_id) {
-				this.$store.commit('SET_DESIGNER_ID', user.id);
-			}
-			if (!Object.keys(this.designer).length) {
-				this.$store.dispatch('getDesigner');
-			}
+export default {
+	name: "Report",
+	components: {ReportCard, columns, column},
+	computed: {
+		...mapState(['designer_id', 'designer', 'cards_statuses', 'total_commission', 'unpaid_commission',
+			'paid_commission', 'total_orders']),
+	},
+	mounted() {
+		let user = DesignerProfile.user;
+		if (!this.designer_id) {
+			this.$store.commit('SET_DESIGNER_ID', user.id);
+		}
+		if (!Object.keys(this.designer).length) {
+			this.$store.dispatch('getDesigner');
 		}
 	}
+}
 </script>
 
 <style lang="scss">
-	.yousaidit-designer-dashboard {
-		&__section-title {
-			text-transform: uppercase;
-			font-weight: normal;
-			font-size: 1.5em;
-		}
-
-		.section--revenue {
-			margin-top: 50px;
-		}
+.yousaidit-designer-dashboard {
+	&__section-title {
+		text-transform: uppercase;
+		font-weight: normal;
+		font-size: 1.5em;
 	}
+
+	.section--revenue {
+		margin-top: 50px;
+	}
+}
 </style>

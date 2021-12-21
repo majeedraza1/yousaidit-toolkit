@@ -35,7 +35,7 @@
 import EditableContent from "./EditableContent";
 import fontFamilies from "./font-family";
 import colors from "./colors";
-import shaplaButton from 'shapla-button';
+import {shaplaButton} from 'shapla-vue-components';
 import EmojiPicker from "./EmojiPicker";
 import EditorControls from "./EditorControls";
 

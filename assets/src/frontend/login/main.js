@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import LoginOrRegistration from './LoginOrRegistration'
-import {Dialog} from 'shapla-confirm-dialog';
+import {Dialog} from 'shapla-vue-components';
 import designersAuth from './store.js';
 
 Vue.config.productionTip = false;

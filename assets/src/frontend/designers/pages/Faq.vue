@@ -9,30 +9,30 @@
 </template>
 
 <script>
-	import axios from "axios";
-	import {toggle, toggles} from 'shapla-toggles';
+import axios from "axios";
+import {toggle, toggles} from 'shapla-vue-components';
 
-	export default {
-		name: "Faq",
-		components: {toggles, toggle},
-		data() {
-			return {
-				items: [],
-			}
-		},
-		mounted() {
-			this.getItems();
-		},
-		methods: {
-			getItems() {
-				axios.get(window.DesignerProfile.restRoot + '/designer-faqs').then(response => {
-					this.items = response.data.data;
-				}).catch(errors => {
-					console.log(errors);
-				});
-			}
+export default {
+	name: "Faq",
+	components: {toggles, toggle},
+	data() {
+		return {
+			items: [],
+		}
+	},
+	mounted() {
+		this.getItems();
+	},
+	methods: {
+		getItems() {
+			axios.get(window.DesignerProfile.restRoot + '/designer-faqs').then(response => {
+				this.items = response.data.data;
+			}).catch(errors => {
+				console.log(errors);
+			});
 		}
 	}
+}
 </script>
 
 <style scoped>

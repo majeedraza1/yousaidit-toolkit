@@ -1,8 +1,6 @@
 <?php
 
-
 namespace YouSaidItCards\Modules\ColorTheme;
-
 
 use WP_Customize_Color_Control;
 use WP_Customize_Manager;

@@ -1,7 +1,7 @@
 <template>
 	<div class="yousaidit-designer-profile-card-modal">
 		<modal :active="active" content-size="large" @close="closeModal" :title="modalTitle"
-			   :close-on-background-click="false">
+		       :close-on-background-click="false">
 			<columns multiline v-if="current_step === 1">
 				<column :tablet="12">
 					<div class="w-full text-center">
@@ -11,16 +11,16 @@
 				</column>
 				<column :tablet="6" class="md:flex items-center justify-end">
 					<div @click="card_size = 'square'"
-						 class="border border-solid border-gray-200 w-36 h-36 flex items-center justify-center bg-gray-100 cursor-pointer"
-						 :class="{'border-primary':card_size === 'square'}"
+					     class="border border-solid border-gray-200 w-36 h-36 flex items-center justify-center bg-gray-100 cursor-pointer"
+					     :class="{'border-primary':card_size === 'square'}"
 					>
 						<div class="text-lg">Square</div>
 					</div>
 				</column>
 				<column :tablet="6" class="md:flex items-center justify-start">
 					<div @click="card_size = 'a'"
-						 class="border border-solid border-gray-200 w-36 h-44 flex flex-col items-center justify-center bg-gray-100 cursor-pointer"
-						 :class="{'border-primary':card_size === 'a'}"
+					     class="border border-solid border-gray-200 w-36 h-44 flex flex-col items-center justify-center bg-gray-100 cursor-pointer"
+					     :class="{'border-primary':card_size === 'a'}"
 					>
 						<div class="text-lg">A Size</div>
 						<div class="text-sm">(A6 & A5)</div>
@@ -43,7 +43,7 @@
 				<column :tablet="12">
 					<toggles>
 						<toggle :name="`Upload files for size: ${getHeaderText(size)}`" :key="`upload-${size}`"
-								v-for="(size, index) in card.sizes" :selected="index === 0">
+						        v-for="(size, index) in card.sizes" :selected="index === 0">
 							<file-uploader
 								:url="attachment_upload_url"
 								@before:send="addAdditionalData"
@@ -63,14 +63,14 @@
 				<column :tablet="3"><strong>Card Sizes</strong></column>
 				<column :tablet="9">
 					<shapla-chip v-for="_size in card_sizes" v-if="card.sizes.indexOf(_size.value) !== -1"
-								 :key="_size.value"> {{ _size.label }}
+					             :key="_size.value"> {{ _size.label }}
 					</shapla-chip>
 				</column>
 
 				<column :tablet="3"><strong>Card Categories</strong></column>
 				<column :tablet="9">
 					<shapla-chip v-for="_cat in card_categories"
-								 v-if="card.categories_ids.indexOf(_cat.id.toString()) !== -1" :key="_cat.id">
+					             v-if="card.categories_ids.indexOf(_cat.id.toString()) !== -1" :key="_cat.id">
 						{{ _cat.name }}
 					</shapla-chip>
 				</column>
@@ -78,7 +78,7 @@
 				<column :tablet="3"><strong>Card Tags</strong></column>
 				<column :tablet="9">
 					<shapla-chip v-for="_tag in card_tags" v-if="card.tags_ids.indexOf(_tag.id.toString()) !== -1"
-								 :key="_tag.id"> {{ _tag.name }}
+					             :key="_tag.id"> {{ _tag.name }}
 					</shapla-chip>
 				</column>
 
@@ -86,7 +86,7 @@
 					<column :tablet="3"><strong>{{ _attr.attribute_label }}</strong></column>
 					<column :tablet="9">
 						<shapla-chip v-for="_tag in _attr.options" v-if="isAttributeSelected(_attr,_tag)"
-									 :key="_tag.id"> {{ _tag.name }}
+						             :key="_tag.id"> {{ _tag.name }}
 						</shapla-chip>
 					</column>
 				</template>
@@ -158,7 +158,7 @@
 				<shapla-button v-if="current_step !== 1" @click="current_step--" theme="primary">Previous
 				</shapla-button>
 				<shapla-button v-if="current_step !== 4" @click="current_step++" theme="primary"
-							   :disabled="!can_go_next_step">Next
+				               :disabled="!can_go_next_step">Next
 				</shapla-button>
 				<shapla-button v-if="current_step === 4" theme="primary" @click="handleSubmit">Submit</shapla-button>
 			</template>
@@ -168,11 +168,11 @@
 
 <script>
 import axios from 'axios'
-import {shaplaButton, modal, textField, selectField, toggle, toggles, shaplaSwitch, shaplaChip, column, columns}
-	from "shapla-vue-components";
-import FileUploader from 'shapla-file-uploader';
+import {
+	shaplaButton, modal, textField, selectField, toggle, toggles, shaplaSwitch, shaplaChip, column, columns,
+	imageContainer, FileUploader
+} from "shapla-vue-components";
 import DesignerEventBus from "./DesignerEventBus";
-import imageContainer from 'shapla-image-container';
 import PdfImageItem from "../../../components/PdfImageItem";
 import PdfCardItem from "../../../components/PdfCardItem";
 import CardOptions from "@/components/CardOptions";

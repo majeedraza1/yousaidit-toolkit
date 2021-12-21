@@ -14,9 +14,7 @@
 </template>
 
 <script>
-import deleteIcon from 'shapla-delete';
-import shaplaButton from 'shapla-button'
-import imageContainer from 'shapla-image-container';
+import {deleteIcon, shaplaButton, imageContainer} from 'shapla-vue-components';
 
 export default {
 	name: "FeaturedImage",

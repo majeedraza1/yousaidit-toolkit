@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import {Dialog} from 'shapla-confirm-dialog';
+import {Dialog} from 'shapla-vue-components';
 import innerMessageStore from './store.js';
 import InnerMessage from './InnerMessage';
 

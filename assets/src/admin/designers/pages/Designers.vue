@@ -9,105 +9,106 @@
 			</column>
 			<column :tablet="12">
 				<pagination :current_page="current_page" :per_page="per_page" :total_items="total_items"
-							@pagination="paginate"/>
+				            @pagination="paginate"/>
 			</column>
 			<column :tablet="12">
 				<data-table
-						:items="items"
-						:columns="columns"
-						:show-cb="false"
-						:actions="actions"
-						@action:click="handleActionClick"
+					:items="items"
+					:columns="columns"
+					:show-cb="false"
+					:actions="actions"
+					@action:click="handleActionClick"
 				>
-					<template v-slot:unpaid_commission="data">{{data.row.currency_symbol}}{{data.row.unpaid_commission}}</template>
-					<template v-slot:paid_commission="data">{{data.row.currency_symbol}}{{data.row.paid_commission}}</template>
+					<template v-slot:unpaid_commission="data">
+						{{ data.row.currency_symbol }}{{ data.row.unpaid_commission }}
+					</template>
+					<template v-slot:paid_commission="data">
+						{{ data.row.currency_symbol }}{{ data.row.paid_commission }}
+					</template>
 				</data-table>
 			</column>
 			<column :tablet="12">
 				<pagination :current_page="current_page" :per_page="per_page" :total_items="total_items"
-							@pagination="paginate"/>
+				            @pagination="paginate"/>
 			</column>
 		</columns>
 	</div>
 </template>
 
 <script>
-	import dataTable from 'shapla-data-table';
-	import pagination from 'shapla-data-table-pagination';
-	import searchForm from 'shapla-search-form';
-	import {columns, column} from 'shapla-columns';
-	import axios from 'axios';
+import {dataTable, pagination, searchForm, columns, column} from 'shapla-vue-components';
+import axios from 'axios';
 
-	export default {
-		name: "Designers",
-		components: {dataTable, pagination, columns, column, searchForm},
-		data() {
-			return {
-				items: [],
-				columns: [
-					{key: 'display_name', label: 'Name'},
-					{key: 'email', label: 'Email'},
-					{key: 'total_cards', label: 'Total Cards', numeric: true},
-					{key: 'total_sales', label: 'Total Sales', numeric: true},
-					{key: 'unpaid_commission', label: 'Commission (unpaid)', numeric: true},
-					{key: 'paid_commission', label: 'Commission (paid)', numeric: true},
-				],
-				actions: [
-					{key: 'view', label: 'View'}
-				],
-				current_page: 1,
-				per_page: 20,
-				total_items: 0,
-				search: '',
+export default {
+	name: "Designers",
+	components: {dataTable, pagination, columns, column, searchForm},
+	data() {
+		return {
+			items: [],
+			columns: [
+				{key: 'display_name', label: 'Name'},
+				{key: 'email', label: 'Email'},
+				{key: 'total_cards', label: 'Total Cards', numeric: true},
+				{key: 'total_sales', label: 'Total Sales', numeric: true},
+				{key: 'unpaid_commission', label: 'Commission (unpaid)', numeric: true},
+				{key: 'paid_commission', label: 'Commission (paid)', numeric: true},
+			],
+			actions: [
+				{key: 'view', label: 'View'}
+			],
+			current_page: 1,
+			per_page: 20,
+			total_items: 0,
+			search: '',
+		}
+	},
+	mounted() {
+		this.$store.commit('SET_LOADING_STATUS', false);
+		this.getItems();
+	},
+	methods: {
+		handleSearchInput(search) {
+			if (search.length < 1) {
+				this.handleSearch('');
 			}
 		},
-		mounted() {
-			this.$store.commit('SET_LOADING_STATUS', false);
+		handleSearch(search) {
+			this.search = search;
 			this.getItems();
 		},
-		methods: {
-			handleSearchInput(search) {
-				if (search.length < 1) {
-					this.handleSearch('');
+		paginate(page) {
+			this.current_page = page;
+			this.getItems();
+		},
+		getItems() {
+			this.$store.commit('SET_LOADING_STATUS', true);
+			axios.get(Stackonet.root + '/designers', {
+				params: {
+					page: this.current_page,
+					per_page: this.per_page,
+					search: this.search
 				}
-			},
-			handleSearch(search) {
-				this.search = search;
-				this.getItems();
-			},
-			paginate(page) {
-				this.current_page = page;
-				this.getItems();
-			},
-			getItems() {
-				this.$store.commit('SET_LOADING_STATUS', true);
-				axios.get(Stackonet.root + '/designers', {
-					params: {
-						page: this.current_page,
-						per_page: this.per_page,
-						search: this.search
-					}
-				}).then(response => {
-					let data = response.data.data;
-					this.items = data.items;
-					this.total_items = data.pagination.total_items;
-					this.$store.commit('SET_LOADING_STATUS', false);
-				}).catch(errors => {
-					console.log(errors);
-					this.$store.commit('SET_LOADING_STATUS', false);
-				})
-			},
-			handleActionClick(action, item) {
-				if ('view' === action) {
-					this.$router.push({name: 'Designer', params: {id: item.id}});
-				}
+			}).then(response => {
+				let data = response.data.data;
+				this.items = data.items;
+				this.total_items = data.pagination.total_items;
+				this.$store.commit('SET_LOADING_STATUS', false);
+			}).catch(errors => {
+				console.log(errors);
+				this.$store.commit('SET_LOADING_STATUS', false);
+			})
+		},
+		handleActionClick(action, item) {
+			if ('view' === action) {
+				this.$router.push({name: 'Designer', params: {id: item.id}});
 			}
 		}
 	}
+}
 </script>
 
 <style lang="scss">
-	.yousaidit-admin-designers {
+.yousaidit-admin-designers {
 
-	}
+}
 </style>

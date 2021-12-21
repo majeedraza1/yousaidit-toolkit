@@ -47,7 +47,7 @@
 		<h2 class="title">Card Info</h2>
 		<toggles v-if="cards.length">
 			<toggle :name="`Card #${_card.id}: ${_card.card_title}`" :subtext="`Status: ${_card.status}`"
-					v-for="_card in cards" :key="_card.id"></toggle>
+			        v-for="_card in cards" :key="_card.id"></toggle>
 		</toggles>
 		<p v-else>No card yet.</p>
 		<modal :active="showEditModal" @close="showEditModal = false" content-size="small" title="Edit Profile">
@@ -83,11 +83,7 @@
 
 <script>
 import axios from "axios";
-import {columns, column} from 'shapla-columns';
-import {toggles, toggle} from 'shapla-toggles';
-import shaplaButton from 'shapla-button'
-import modal from 'shapla-modal'
-import textField from 'shapla-text-field'
+import {columns, column, toggles, toggle, shaplaButton, modal, textField} from 'shapla-vue-components';
 
 export default {
 	name: "Designer",

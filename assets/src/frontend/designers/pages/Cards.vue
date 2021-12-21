@@ -33,11 +33,11 @@
 		<modal :active="showCardModal" @close="showCardModal = false" title="Choose Card Type">
 			<div class="space-x-2 flex justify-center">
 				<div @click.prevent="chooseCardType('static')"
-					 class="bg-gray-100 hover:bg-gray-200 cursor-pointer p-4 w-36 h-32 flex justify-center items-center">
+				     class="bg-gray-100 hover:bg-gray-200 cursor-pointer p-4 w-36 h-32 flex justify-center items-center">
 					Static Card
 				</div>
 				<div @click.prevent="chooseCardType('dynamic')"
-					 class="bg-gray-100 hover:bg-gray-200 cursor-pointer p-4 w-36 h-32 flex justify-center items-center">
+				     class="bg-gray-100 hover:bg-gray-200 cursor-pointer p-4 w-36 h-32 flex justify-center items-center">
 					Dynamic Card
 				</div>
 			</div>
@@ -63,11 +63,11 @@
 				<columns>
 					<column :tablet="5">
 						<input type="text" class="w-full" placeholder="Username or Email" readonly
-							   v-model="limit_extend_request.username">
+						       v-model="limit_extend_request.username">
 					</column>
 					<column :tablet="5">
 						<input type="text" class="w-full" placeholder="Up Limit To?"
-							   v-model="limit_extend_request.up_limit_to">
+						       v-model="limit_extend_request.up_limit_to">
 					</column>
 					<column :tablet="2">
 						<shapla-button theme="primary" fullwidth @click="submitLimitExtendRequest">Send</shapla-button>
@@ -83,13 +83,13 @@
 						<columns>
 							<column>
 								<radio-button theme="secondary" fullwidth value="pause"
-											  v-model="card_request.request_for">
+								              v-model="card_request.request_for">
 									Pause
 								</radio-button>
 							</column>
 							<column>
 								<radio-button theme="secondary" fullwidth value="remove"
-											  v-model="card_request.request_for">
+								              v-model="card_request.request_for">
 									Remove
 								</radio-button>
 							</column>
@@ -104,7 +104,7 @@
 					</column>
 					<column :tablet="12">
 						<shapla-button theme="primary" :disabled="!card_request.request_for"
-									   @click="handleSubmitRequest">Submit Request
+						               @click="handleSubmitRequest">Submit Request
 						</shapla-button>
 					</column>
 				</columns>
@@ -134,12 +134,9 @@
 <script>
 import axios from "axios";
 import {mapGetters} from 'vuex';
-import {columns, column, dropdown} from 'shapla-vue-components';
-import shaplaButton from 'shapla-button';
-import iconContainer from 'shapla-icon-container';
-import modal from 'shapla-modal';
-import radioButton from 'shapla-radio-button';
-import textField from 'shapla-text-field';
+import {
+	columns, column, dropdown, shaplaButton, iconContainer, modal, radioButton, textField
+} from 'shapla-vue-components';
 import CardItem from "../components/CardItem";
 import CardUploaderModal from "../components/CardUploaderModal";
 import DesignerEventBus from "../components/DesignerEventBus";

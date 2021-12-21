@@ -24,11 +24,7 @@
 <script>
 import {mapState} from 'vuex';
 import axios from "axios";
-import spinner from 'shapla-spinner';
-import notification from 'shapla-notifications';
-import {ConfirmDialog} from 'shapla-confirm-dialog'
-import modal from 'shapla-modal';
-import shaplaButton from 'shapla-button';
+import {spinner, notification, ConfirmDialog, modal, shaplaButton} from 'shapla-vue-components';
 import Compose from "./Compose";
 
 export default {

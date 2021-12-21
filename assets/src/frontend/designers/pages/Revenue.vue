@@ -29,15 +29,15 @@
 					<column :tablet="12">
 						<div class="yousaidit-designer-revenue__filter">
 							<radio-button v-for="_type in report_types" :key="_type.key" theme="primary"
-										  :rounded="false" v-model="report_type" :value="_type.key"
-										  @change="changeReportTypeChange"
+							              :rounded="false" v-model="report_type" :value="_type.key"
+							              @change="changeReportTypeChange"
 							>{{ _type.label }}
 							</radio-button>
 							<div class="yousaidit-designer-revenue__filter-custom" v-if="report_type==='custom'">
 								<text-field label="From" type="date" v-model="date_from"/>
 								<text-field label="To" type="date" v-model="date_to"/>
 								<shapla-button theme="primary" :disabled="!(date_from && date_to)"
-											   @click="handleCustomFilter">Apply
+								               @click="handleCustomFilter">Apply
 								</shapla-button>
 							</div>
 						</div>
@@ -52,7 +52,7 @@
 						</data-table>
 						<div class="mt-4">
 							<pagination :total_items="total_items" :per_page="per_page"
-										:current_page="revenue_current_page" @pagination="paginate"/>
+							            :current_page="revenue_current_page" @pagination="paginate"/>
 						</div>
 					</column>
 				</columns>
@@ -62,12 +62,9 @@
 </template>
 
 <script>
-import {columns, column} from 'shapla-columns';
-import {tabs, tab} from 'shapla-tabs';
-import dataTable from 'shapla-data-table';
-import radioButton from 'shapla-radio-button';
-import shaplaButton from 'shapla-button';
-import {textField, pagination} from 'shapla-vue-components'
+import {
+	columns, column, tabs, tab, dataTable, radioButton, shaplaButton, pagination, textField
+} from 'shapla-vue-components';
 import ReportCard from "../components/ReportCard";
 import {mapState} from 'vuex';
 

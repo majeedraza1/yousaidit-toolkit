@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import axios from 'axios';
-import {Dialog} from 'shapla-confirm-dialog';
+import {Dialog} from 'shapla-vue-components';
 import router from './routers.js';
 import designersStore from './store.js';
 import Dashboard from './Dashboard';

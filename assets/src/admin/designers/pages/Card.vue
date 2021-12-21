@@ -73,7 +73,7 @@
 						<column :tablet="3"><strong>Card Sizes</strong></column>
 						<column :tablet="9">
 							<shapla-chip v-for="_size in card_sizes" v-if="card.card_sizes.indexOf(_size.value) !== -1"
-										 :key="_size.value"> {{ _size.label }}
+							             :key="_size.value"> {{ _size.label }}
 							</shapla-chip>
 						</column>
 					</columns>
@@ -170,7 +170,7 @@
 			</toggle>
 		</toggles>
 		<modal :active="showRejectConfirmModal" @close="showRejectConfirmModal = false" :show-close-icon="false"
-			   type="box">
+		       type="box">
 			<div style="background: #fff;padding: 1rem;border-radius: 4px;">
 				<columns multiline>
 					<column :tablet="12">
@@ -183,14 +183,14 @@
 					</column>
 					<column :tablet="12">
 						<shapla-button theme="primary" :disabled="reject_reason.length < 10"
-									   @click="handleAcceptOrReject('rejected')"> Confirm Reject
+						               @click="handleAcceptOrReject('rejected')"> Confirm Reject
 						</shapla-button>
 					</column>
 				</columns>
 			</div>
 		</modal>
 		<modal :active="showAcceptConfirmModal" @close="showAcceptConfirmModal = false" :show-close-icon="false"
-			   type="box">
+		       type="box">
 			<div style="background: #fff;padding: 1rem;border-radius: 4px;" v-if="Object.keys(card).length">
 				<columns multiline>
 					<column :tablet="12" style="display: none">
@@ -219,7 +219,7 @@
 					</column>
 					<column :tablet="12">
 						<shapla-button theme="primary" :disabled="!enableAcceptButton"
-									   @click="handleAcceptOrReject('accepted')">
+						               @click="handleAcceptOrReject('accepted')">
 							Confirm Accept
 						</shapla-button>
 					</column>
@@ -227,7 +227,7 @@
 			</div>
 		</modal>
 		<modal :active="showCreateProductModal" @close="showCreateProductModal = false" :show-close-icon="false"
-			   title="Create New Product">
+		       title="Create New Product">
 			<columns :multiline="true" v-if="card.card_sizes">
 				<template v-for="_size in card_sizes" v-if="card.card_sizes.indexOf(_size.value) !== -1">
 					<column :tablet="3">{{ _size.label }}</column>
@@ -287,15 +287,10 @@
 
 <script>
 import axios from "axios";
-import {column, columns} from 'shapla-columns';
-import imageContainer from 'shapla-image-container';
-import iconContainer from 'shapla-icon-container';
-import shaplaButton from 'shapla-button';
-import shaplaChip from 'shapla-chip';
-import textField from 'shapla-text-field';
-import {toggle, toggles} from 'shapla-toggles';
-import modal from 'shapla-modal';
-import radioButton from 'shapla-radio-button';
+import {
+	column, columns, imageContainer, iconContainer, shaplaButton, shaplaChip, textField, toggles, toggle, modal,
+	radioButton
+} from 'shapla-vue-components';
 import PdfCardItem from "../../../components/PdfCardItem";
 import PdfImageItem from "../../../components/PdfImageItem";
 import ModalCardCommission from "../../../components/ModalCardCommission";

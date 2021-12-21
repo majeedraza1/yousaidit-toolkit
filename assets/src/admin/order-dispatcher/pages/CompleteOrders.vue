@@ -23,69 +23,68 @@
 </template>
 
 <script>
-	import Orders from "../components/Orders";
-	import shaplaButton from 'shapla-button';
-	import modal from 'shapla-modal';
-	import OrderInfo from "../components/OrderInfo";
-	import BarcodeSearchForm from "../components/BarcodeSearchForm";
-	import {mapState} from "vuex";
+import Orders from "../components/Orders";
+import {shaplaButton, modal} from 'shapla-vue-components';
+import OrderInfo from "../components/OrderInfo";
+import BarcodeSearchForm from "../components/BarcodeSearchForm";
+import {mapState} from "vuex";
 
-	export default {
-		name: "CompleteOrders",
-		components: {BarcodeSearchForm, OrderInfo, Orders, shaplaButton, modal},
-		data() {
-			return {
-				showModal: false,
-				activeOrder: {},
-				activeOrderFromServer: {},
-				search: '',
-				errorText: '',
+export default {
+	name: "CompleteOrders",
+	components: {BarcodeSearchForm, OrderInfo, Orders, shaplaButton, modal},
+	data() {
+		return {
+			showModal: false,
+			activeOrder: {},
+			activeOrderFromServer: {},
+			search: '',
+			errorText: '',
+		}
+	},
+	computed: {
+		...mapState(['orders']),
+		hasActiveOrder() {
+			return !!Object.keys(this.activeOrder).length
+		},
+	},
+	watch: {
+		showModal() {
+			this.search = '';
+			this.errorText = '';
+			this.activeOrder = {};
+		}
+	},
+	mounted() {
+		this.$store.commit('SET_CURRENT_PAGE', 1);
+		this.$store.commit('SET_ORDER_STATUS', 'shipped');
+		this.$store.dispatch('getOrders', true);
+	},
+	methods: {
+		scanBarcode(search) {
+			this.errorText = '';
+			this.activeOrder = {};
+			let orderId = parseInt(search);
+			if (Number.isNaN(orderId)) {
+				this.errorText = 'Invalid number';
+				return;
 			}
+			let order = this.orders.find(order => order.orderId === orderId);
+			if (!(typeof order === 'object' && Object.keys(order))) {
+				this.errorText = 'No order found.';
+				this.getOrder(orderId);
+				return;
+			}
+			this.activeOrder = order;
 		},
-		computed: {
-			...mapState(['orders']),
-			hasActiveOrder() {
-				return !!Object.keys(this.activeOrder).length
-			},
-		},
-		watch: {
-			showModal() {
-				this.search = '';
+		getOrder(orderId) {
+			this.$store.dispatch('getOrder', orderId).then(data => {
+				this.activeOrderFromServer = data;
+				this.activeOrder = data;
 				this.errorText = '';
-				this.activeOrder = {};
-			}
-		},
-		mounted() {
-			this.$store.commit('SET_CURRENT_PAGE', 1);
-			this.$store.commit('SET_ORDER_STATUS', 'shipped');
-			this.$store.dispatch('getOrders', true);
-		},
-		methods: {
-			scanBarcode(search) {
-				this.errorText = '';
-				this.activeOrder = {};
-				let orderId = parseInt(search);
-				if (Number.isNaN(orderId)) {
-					this.errorText = 'Invalid number';
-					return;
-				}
-				let order = this.orders.find(order => order.orderId === orderId);
-				if (!(typeof order === 'object' && Object.keys(order))) {
-					this.errorText = 'No order found.';
-					this.getOrder(orderId);
-					return;
-				}
-				this.activeOrder = order;
-			},
-			getOrder(orderId) {
-				this.$store.dispatch('getOrder', orderId).then(data => {
-					this.activeOrderFromServer = data;
-					this.activeOrder = data;
-					this.errorText = '';
-				});
-			}
+			});
 		}
 	}
+}
 </script>
 
 <style scoped>

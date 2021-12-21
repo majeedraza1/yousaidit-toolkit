@@ -28,7 +28,7 @@
 								</div>
 								<div class="product-product_options" v-if="data.row.options">
 									<div class="product-product_option" :key="index"
-										 v-for="(_option,index) in data.row.options">
+									     v-for="(_option,index) in data.row.options">
 										<span>{{ _option.name }}: </span>{{ _option.value }}
 									</div>
 								</div>
@@ -83,15 +83,11 @@
 
 <script>
 import {mapState} from 'vuex'
-import shaplaButton from 'shapla-button';
-import imageContainer from 'shapla-image-container';
-import iconContainer from 'shapla-icon-container';
-import dataTable from 'shapla-data-table';
-import modal from 'shapla-modal';
-import selectField from 'shapla-select-field';
-import {column, columns} from 'shapla-columns';
-import textField from 'shapla-text-field';
-import shaplaCheckbox from 'shapla-checkbox';
+import {
+	shaplaButton, imageContainer, iconContainer, dataTable, modal, selectField, column, columns,
+	textField, shaplaCheckbox
+}
+	from 'shapla-vue-components';
 import MarkAsShipped from "./MarkAsShipped";
 
 export default {

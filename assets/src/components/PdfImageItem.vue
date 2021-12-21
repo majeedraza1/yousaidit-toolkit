@@ -20,41 +20,41 @@
 </template>
 
 <script>
-	import imageContainer from 'shapla-image-container';
+import {imageContainer} from 'shapla-vue-components';
 
-	export default {
-		name: "PdfImageItem",
-		components: {imageContainer},
-		props: {
-			isMultiple: {type: Boolean, default: true},
-			images: {type: [Array, Object], default: () => []},
-			urlKey: {type: String, default: 'url'},
-			widthKey: {type: String, default: 'width'},
-			heightKey: {type: String, default: 'height'},
-		}
+export default {
+	name: "PdfImageItem",
+	components: {imageContainer},
+	props: {
+		isMultiple: {type: Boolean, default: true},
+		images: {type: [Array, Object], default: () => []},
+		urlKey: {type: String, default: 'url'},
+		widthKey: {type: String, default: 'width'},
+		heightKey: {type: String, default: 'height'},
 	}
+}
 </script>
 
 <style lang="scss">
-	.pdf-image-item {
+.pdf-image-item {
 
-		&__items {
-			display: flex;
-			flex-wrap: wrap;
-			margin: -5px;
-		}
+	&__items {
+		display: flex;
+		flex-wrap: wrap;
+		margin: -5px;
+	}
 
-		&__item {
-			padding: 5px;
-			width: 150px;
-			display: block;
-			float: left
-		}
+	&__item {
+		padding: 5px;
+		width: 150px;
+		display: block;
+		float: left
+	}
 
-		&:not(.is-multiple) {
-			.pdf-image-item__item {
-				width: 300px;
-			}
+	&:not(.is-multiple) {
+		.pdf-image-item__item {
+			width: 300px;
 		}
 	}
+}
 </style>

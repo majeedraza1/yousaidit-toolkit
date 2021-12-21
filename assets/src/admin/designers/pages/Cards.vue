@@ -21,7 +21,7 @@
 			</column>
 			<column :tablet="4">
 				<pagination :current_page="current_page" :per_page="per_page" :total_items="total_items"
-							@pagination="paginate"/>
+				            @pagination="paginate"/>
 			</column>
 			<column :tablet="12">
 				<data-table
@@ -33,7 +33,7 @@
 				>
 					<template slot="card_sizes" slot-scope="data">
 						<template v-for="(_size,index) in card_sizes"
-								  v-if="data.row.card_sizes.indexOf(_size.value) !== -1">
+						          v-if="data.row.card_sizes.indexOf(_size.value) !== -1">
 							<template v-if="index === 0">{{ _size.label }}</template>
 							<template v-else>, {{ _size.label }}</template>
 						</template>
@@ -52,19 +52,14 @@
 			</column>
 			<column :tablet="12">
 				<pagination :current_page="current_page" :per_page="per_page" :total_items="total_items"
-							@pagination="paginate"/>
+				            @pagination="paginate"/>
 			</column>
 		</columns>
 	</div>
 </template>
 
 <script>
-import dataTable from 'shapla-data-table';
-import pagination from 'shapla-data-table-pagination';
-import searchForm from 'shapla-search-form';
-import selectField from 'shapla-select-field';
-import {column, columns} from 'shapla-columns';
-import statusList from 'shapla-data-table-status';
+import {dataTable, pagination, statusList, searchForm, selectField, column, columns} from 'shapla-vue-components';
 import axios from "axios";
 
 export default {

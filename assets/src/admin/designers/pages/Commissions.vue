@@ -10,7 +10,7 @@
 					<a href="#" @click.prevent="show_filter_sidenav = true">Show Filter</a>
 					<div class="flex-1"></div>
 					<pagination :total_items="total_items" :per_page="per_page" :current_page="page"
-								@pagination="paginate"/>
+					            @pagination="paginate"/>
 				</div>
 				<data-table
 					:show-cb="false"
@@ -26,7 +26,8 @@
 						</span>
 					</template>
 					<template slot="order_id" slot-scope="data">
-						<a v-if="data.row.created_via !== 'shipstation-api'" :href="`/wp-admin/post.php?post=${data.row.order_id}&action=edit`" target="_blank">
+						<a v-if="data.row.created_via !== 'shipstation-api'"
+						   :href="`/wp-admin/post.php?post=${data.row.order_id}&action=edit`" target="_blank">
 							#{{ data.row.order_id }}
 						</a>
 						<span v-else>#{{ data.row.order_id }}</span>
@@ -34,24 +35,24 @@
 				</data-table>
 				<div class="mt-4">
 					<pagination :total_items="total_items" :per_page="per_page" :current_page="page"
-								@pagination="paginate"/>
+					            @pagination="paginate"/>
 				</div>
 			</column>
 		</columns>
 		<side-navigation :active="show_filter_sidenav" nav-width="300px" position="right" :show-overlay="true"
-						 @close="show_filter_sidenav = false">
+		                 @close="show_filter_sidenav = false">
 			<div class="yousaidit-designer-revenue__filter">
 				<h3 class="sidenav-section-title">Filter by date</h3>
 				<radio-button v-for="_type in report_types" :key="_type.key" theme="primary"
-							  :rounded="false" v-model="report_type" :value="_type.key"
-							  @change="changeReportTypeChange"
+				              :rounded="false" v-model="report_type" :value="_type.key"
+				              @change="changeReportTypeChange"
 				>{{ _type.label }}
 				</radio-button>
 				<div class="yousaidit-designer-revenue__filter-custom" v-if="report_type==='custom'">
 					<text-field label="From" type="date" v-model="date_from"/>
 					<text-field label="To" type="date" v-model="date_to"/>
 					<shapla-button theme="primary" :disabled="!(date_from && date_to)"
-								   @click="handleCustomFilter">Apply
+					               @click="handleCustomFilter">Apply
 					</shapla-button>
 				</div>
 
@@ -66,15 +67,15 @@
 
 				<h3 class="sidenav-section-title">Filter by payment status</h3>
 				<radio-button v-for="_status in payment_statuses" :key="_status.key" theme="primary"
-							  :rounded="false" v-model="payment_status" :value="_status.key"
-							  @change="filterByPaymentStatus"
+				              :rounded="false" v-model="payment_status" :value="_status.key"
+				              @change="filterByPaymentStatus"
 				>{{ _status.label }}
 				</radio-button>
 
 				<h3 class="sidenav-section-title">Filter by order status</h3>
 				<radio-button v-for="(_status,key) in order_statuses" :key="`order-status-${key}`" theme="primary"
-							  :rounded="false"
-							  v-model="order_status" :value="key" @change="filterByPaymentStatus">{{ _status }}
+				              :rounded="false"
+				              v-model="order_status" :value="key" @change="filterByPaymentStatus">{{ _status }}
 				</radio-button>
 			</div>
 		</side-navigation>
@@ -83,14 +84,9 @@
 
 <script>
 import axios from "axios";
-import dataTable from 'shapla-data-table';
-import {columns, column} from 'shapla-columns';
-import radioButton from 'shapla-radio-button';
-import shaplaButton from 'shapla-button';
-import textField from 'shapla-text-field'
-import sideNavigation from 'shapla-side-navigation';
-import selectField from 'shapla-select-field';
-import {pagination} from 'shapla-vue-components'
+import {
+	selectField, pagination, dataTable, columns, column, radioButton, shaplaButton, textField, sideNavigation
+} from 'shapla-vue-components';
 
 export default {
 	name: "Commissions",
