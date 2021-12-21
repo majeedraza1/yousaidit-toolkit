@@ -10,7 +10,7 @@
 import axios from 'axios'
 import {mapState} from 'vuex';
 import {column, columns, dataTable, pagination, selectField, shaplaButton} from 'shapla-vue-components'
-import Orders from "../order-dispatcher/components/Orders";
+import Orders from "../../order-dispatcher/components/Orders";
 
 export default {
 	name: "ShipStationOrders",

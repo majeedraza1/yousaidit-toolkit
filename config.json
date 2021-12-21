@@ -4,7 +4,7 @@
     "admin": [
       "./assets/src/admin/order-dispatcher/main.js",
       "./assets/src/admin/designers/main.js",
-      "./assets/src/admin/main.js",
+      "./assets/src/admin/art-work/main.js",
       "./assets/src/scss/admin.scss"
     ],
     "designer-profile": [
