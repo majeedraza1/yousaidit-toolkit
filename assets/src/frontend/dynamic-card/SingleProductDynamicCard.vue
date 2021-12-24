@@ -8,14 +8,22 @@
 					<swiper-slider v-if="show_dynamic_card_editor && Object.keys(payload).length"
 					               :card_size="card_size" :slide-to="slideTo" @slideChange="onSlideChange">
 						<template v-slot:canvas>
-							<card-web-viewer
-								:args="payload"
-								:upload-url="uploadUrl"
-								:images="images"
-								:inline-edit="false"
+<!--							<card-web-viewer-->
+<!--								:args="payload"-->
+<!--								:upload-url="uploadUrl"-->
+<!--								:images="images"-->
+<!--								:inline-edit="false"-->
+<!--								:active-item-index="activeSectionIndex"-->
+<!--								@edit:section="handleEditSection"-->
+<!--							/>-->
+							<dynamic-card-canvas
+								show-edit-icon
+								:options="`${JSON.stringify(payload)}`"
 								:active-item-index="activeSectionIndex"
-								@edit:section="handleEditSection"
-							/>
+								:card-width-mm="card_dimension[0]"
+								:card-height-mm="card_dimension[1]"
+								@edit="(event) => handleEditSection(event.detail.section,event.detail.index)"
+							></dynamic-card-canvas>
 						</template>
 						<template v-slot:inner-message>
 							<div class="dynamic-card--editable-content-container">
@@ -77,13 +85,13 @@
 					</div>
 				</div>
 				<template v-if="activeSectionIndex >= 0">
-					<div v-if="activeSection.section_type === 'input-text'">
+					<div v-if="activeSection.section_type === 'input-text'" class="mb-4">
 						<input type="text" v-model="activeSection.text" :placeholder="activeSection.placeholder">
 						<shapla-button outline size="small" @click="activeSection.text = ''">Clear</shapla-button>
 						<shapla-button outline size="small" theme="primary" @click="closeSection">Confirm
 						</shapla-button>
 					</div>
-					<div v-if="activeSection.section_type === 'input-image'">
+					<div v-if="activeSection.section_type === 'input-image'" class="mb-4">
 						<a v-if="!isUserLoggedIn" target="_blank" :href="`${loginUrl}`"
 						   class="border border-dotted border-primary text-primary font-bold mb-4 p-2 text-center w-full block">
 							You need to login to change image. Click here to login
@@ -182,7 +190,20 @@ export default {
 		},
 		loginUrl() {
 			return window.StackonetToolkit.loginUrl ?? '';
-		}
+		},
+		card_dimension() {
+			const card_sizes = {
+				a4: [426, 303],
+				a5: [303, 216],
+				a6: [216, 154],
+				square: [300, 150],
+			}
+			if (Object.keys(card_sizes).indexOf(this.card_size) === -1) {
+				return [0, 0];
+			}
+			let dimension = card_sizes[this.card_size];
+			return [dimension[0] / 2, dimension[1]];
+		},
 	},
 	watch: {
 		slideTo() {

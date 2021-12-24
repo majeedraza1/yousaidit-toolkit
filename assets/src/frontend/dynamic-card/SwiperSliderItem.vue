@@ -34,26 +34,33 @@ export default {
 		},
 		itemStyles() {
 			return {
-				// height: `${this.height}px`,
 				width: `${this.width}px`,
+				"--item-width": `${this.width}px`,
+				"--item-height": `${this.height}px`,
 			}
 		}
 	},
 	methods: {
-		calculateWidth(height) {
-			let d = this.card_dimension;
-			return Math.round(height * (d[0] / d[1]));
-		},
 		calculateWidthAndHeight() {
-			let element = this.$el.querySelector('.swiper-slide-inner');
-			this.height = element.offsetHeight;
-			this.width = this.calculateWidth(element.offsetHeight);
+			let innerEL = this.$el.querySelector('.swiper-slide-inner');
+			let d = this.card_dimension;
+
+			if (document.body.offsetWidth < 768) {
+				this.width = this.$el.offsetWidth;
+				this.height = Math.round(this.width * (d[1] / d[0]));
+			} else {
+				this.height = innerEL.offsetHeight;
+				this.width = Math.round(innerEL.offsetHeight * (d[0] / d[1]));
+			}
 		}
 	},
 	mounted() {
 		setTimeout(() => {
 			this.calculateWidthAndHeight();
 		});
+		window.addEventListener('resize', () => {
+			this.calculateWidthAndHeight();
+		})
 	}
 }
 </script>

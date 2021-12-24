@@ -1,6 +1,7 @@
 import Vue from "vue";
-import SingleProductDynamicCard from "./SingleProductDynamicCard.vue";
 import axios from "axios";
+import SingleProductDynamicCard from "./SingleProductDynamicCard.vue";
+import '@/web-components/DynamicCardCanvas.js'
 
 if (window.StackonetToolkit && window.StackonetToolkit.restNonce) {
 	axios.defaults.headers.common['X-WP-Nonce'] = window.StackonetToolkit.restNonce;
