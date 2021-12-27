@@ -40,9 +40,13 @@ export class DynamicCardLayer extends LitElement {
 	}
 
 	sectionStyle() {
+		// when card width 150mm, then from top 10mm
+		// when card width 15mm, then from top 10mm/150mm * 15
 		let styles = [],
-			_top = Math.round(100 / this.elementHeightMM * this.section.position.top),
-			_left = Math.round(100 / this.elementWidthMM * this.section.position.left);
+			// _top = Math.round(100 / this.elementHeightMM * this.section.position.top),
+			// _left = Math.round(100 / this.elementWidthMM * this.section.position.left),
+			_top = Math.round(this.elementHeightMM * (this.section.position.top / this.cardHeightMM)),
+			_left = Math.round(this.elementWidthMM * (this.section.position.left / this.cardWidthMM));
 
 		styles.push(`left: ${_left}%`);
 		styles.push(`top: ${_top}%`);

@@ -116,10 +116,26 @@ class Ajax {
 		if ( ! isset( $_REQUEST['_token'], $_REQUEST['action'] ) ) {
 			die( 'No valid options' );
 		}
+		$card_id = $_REQUEST['card_id'] ?? 0;
+
 		$transient_name = sprintf( "%s_%s", $_REQUEST['action'], $_REQUEST['_token'] );
 		$transient      = get_transient( $transient_name );
-		if ( false === $transient ) {
+		if ( empty( $card_id ) && false === $transient ) {
 			die( 'No valid options' );
+		}
+
+		if ( $card_id ) {
+			$card = ( new DesignerCard() )->find_by_id( $card_id );
+			if ( $card instanceof DesignerCard && $card->is_dynamic_card() ) {
+				$payload = $card->get_dynamic_card_payload();
+				$pdf     = new FreePdf();
+				$pdf->generate( $payload['card_size'], $payload['card_items'], [
+					'type'  => $payload['card_bg_type'],
+					'color' => $payload['card_bg_color'],
+					'image' => $payload['card_background']
+				] );
+				die();
+			}
 		}
 
 		$background = [

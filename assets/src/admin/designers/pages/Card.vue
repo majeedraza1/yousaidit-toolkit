@@ -40,6 +40,9 @@
 								Commission
 							</shapla-button>
 						</template>
+						<shapla-button v-if="card.card_type === 'dynamic'" theme="secondary" size="small" outline
+						               @click="previewDynamicCardPDF">Preview PDF
+						</shapla-button>
 						<shapla-button theme="secondary" size="small" outline @click="generateImage">Generate Image
 						</shapla-button>
 						<shapla-button theme="error" size="small" @click="trashCard"> Trash Card</shapla-button>
@@ -528,6 +531,18 @@ export default {
 				this.$store.commit('SET_LOADING_STATUS', false);
 				console.log(errors);
 			})
+		},
+		previewDynamicCardPDF() {
+			let url = new URL(window.StackonetToolkit.ajaxUrl);
+			url.searchParams.append('action', 'yousaidit_preview_card');
+			url.searchParams.append('card_id', this.id);
+			url.searchParams.append('_token', Math.random().toString());
+
+			const a = document.createElement('a');
+			a.href = url.toString();
+			a.target = '_blank'
+			a.click();
+			a.remove();
 		},
 		generateImage() {
 			let url = new URL(window.StackonetToolkit.ajaxUrl);
