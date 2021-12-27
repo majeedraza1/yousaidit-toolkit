@@ -9,7 +9,9 @@ export class DynamicCardLayer extends LitElement {
     	transition: 300ms all ease-in-out;
     }
     .section-edit:hover,
-    .section-edit:.is-active {background-color: var(--shapla-primary-alpha);}
+    .section-edit.is-active {
+    	background-color: var(--shapla-primary-alpha);
+    }
     .section-edit-icon {
     	background-color: white; position: absolute; top: 0; left: 0; width: 32px; height: 32px; overflow: hidden;
 		display: flex; justify-content: center; align-items: center; border: 1px solid var(--shapla-primary);
@@ -21,7 +23,7 @@ export class DynamicCardLayer extends LitElement {
 
 	// Creates a reactive property that triggers rendering
 	static  properties = {
-		active: {type: Boolean},
+		active: {type: String},
 		showEditIcon: {type: Boolean, attribute: 'show-edit-icon'},
 		index: {type: Number},
 		section: {type: Object},

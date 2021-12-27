@@ -2,7 +2,9 @@
 	<div class="swiper">
 		<div class="swiper-wrapper">
 			<swiper-slider-item :card_size="card_size">
-				<slot name="canvas">Design Card canvas</slot>
+				<template v-slot:default="slotProps">
+					<slot name="canvas" v-bind:sizes="slotProps.sizes">Design Card canvas</slot>
+				</template>
 			</swiper-slider-item>
 			<swiper-slider-item :card_size="card_size">
 				<slot name="inner-message">Inner message canvas</slot>

@@ -12,7 +12,6 @@ const convertMMtoPT = mm => mm * 2.835
 const calculateFontSizeScale = (cardWidthInMM, screenWidthInPX, fontSizeInPT) => {
 	let screenWidthInMM = convertPXtoMM(screenWidthInPX);
 	let fontSize = (fontSizeInPT / cardWidthInMM) * screenWidthInMM;
-	window.console.log({cardWidthInMM, screenWidthInPX, screenWidthInMM, fontSizeInPT, fontSize})
 	return Math.round(fontSize);
 }
 

@@ -7,22 +7,24 @@
 				<div class="w-full flex dynamic-card--canvas-slider">
 					<swiper-slider v-if="show_dynamic_card_editor && Object.keys(payload).length"
 					               :card_size="card_size" :slide-to="slideTo" @slideChange="onSlideChange">
-						<template v-slot:canvas>
-<!--							<card-web-viewer-->
-<!--								:args="payload"-->
-<!--								:upload-url="uploadUrl"-->
-<!--								:images="images"-->
-<!--								:inline-edit="false"-->
-<!--								:active-item-index="activeSectionIndex"-->
-<!--								@edit:section="handleEditSection"-->
-<!--							/>-->
+						<template v-slot:canvas="slotProps">
+							<!--							<card-web-viewer-->
+							<!--								:args="payload"-->
+							<!--								:upload-url="uploadUrl"-->
+							<!--								:images="images"-->
+							<!--								:inline-edit="false"-->
+							<!--								:active-item-index="activeSectionIndex"-->
+							<!--								@edit:section="handleEditSection"-->
+							<!--							/>-->
 							<dynamic-card-canvas
 								show-edit-icon
 								:options="`${JSON.stringify(payload)}`"
-								:active-item-index="activeSectionIndex"
+								:active-section-index="activeSectionIndex"
 								:card-width-mm="card_dimension[0]"
 								:card-height-mm="card_dimension[1]"
-								@edit="(event) => handleEditSection(event.detail.section,event.detail.index)"
+								:element-width-mm="`${pxToMm(slotProps.sizes.width)}`"
+								:element-height-mm="`${pxToMm(slotProps.sizes.height)}`"
+								@edit:layer="(event) => handleEditSection(event.detail.section,event.detail.index)"
 							></dynamic-card-canvas>
 						</template>
 						<template v-slot:inner-message>
@@ -211,6 +213,9 @@ export default {
 		}
 	},
 	methods: {
+		pxToMm(px) {
+			return Math.round(px * 0.2645833333);
+		},
 		onLengthError(error) {
 			this.showLengthError = error;
 		},

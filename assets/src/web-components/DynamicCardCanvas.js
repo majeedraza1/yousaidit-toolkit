@@ -31,17 +31,11 @@ export class DynamicCardCanvas extends LitElement {
 	}
 
 	onClickCardLayer(event) {
-		this.dispatchEvent(event);
+		this.dispatchEvent(new CustomEvent('edit:layer', {detail: event.detail}));
 	}
 
 	// Render the component's DOM by returning a Lit template
 	render() {
-		const pxToMM = px => Math.round(parseInt(px.replace('px', '')) * 0.2645833333);
-		let computedWidthPx = getComputedStyle(this).getPropertyValue("--item-width");
-		let computedHeightPx = getComputedStyle(this).getPropertyValue("--item-width");
-		console.log('computed width', this.style.width, this.style.height, computedWidthPx, computedHeightPx)
-		let elementWidthMM = this.elementWidthMM || pxToMM(computedWidthPx);
-		let elementHeightMM = this.elementHeightMM || pxToMM(computedHeightPx);
 		return html`
 			<div class="canvas">
 				<dynamic-card-background options="${JSON.stringify(this.options)}"></dynamic-card-background>
@@ -55,8 +49,8 @@ export class DynamicCardCanvas extends LitElement {
 							show-edit-icon="${this.showEditIcon}"
 							card-width-mm="${this.cardWidthMM}"
 							card-height-mm="${this.cardHeightMM}"
-							element-width-mm="${elementWidthMM}"
-							element-height-mm="${elementHeightMM}"
+							element-width-mm="${this.elementWidthMM}"
+							element-height-mm="${this.elementHeightMM}"
 							@edit="${this.onClickCardLayer}"
 						></dynamic-card-layer>`
 				)}

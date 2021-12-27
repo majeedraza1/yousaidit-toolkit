@@ -1,7 +1,7 @@
 <template>
 	<div class="swiper-slide p-2">
 		<div :style="itemStyles" class="swiper-slide-inner shadow-xl">
-			<slot/>
+			<slot v-bind:sizes="cardSizes"/>
 		</div>
 	</div>
 </template>
@@ -31,6 +31,9 @@ export default {
 			}
 			let dimension = availableCardSizes[this.card_size];
 			return [dimension[0] / 2, dimension[1]];
+		},
+		cardSizes() {
+			return {width: this.width, height: this.height}
 		},
 		itemStyles() {
 			return {
