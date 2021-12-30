@@ -1,9 +1,11 @@
 import {LitElement, html, css} from "lit";
+import {convertMMtoPX} from "@/utils/helper";
 
 export class DynamicCardLayer extends LitElement {
 	// Styles are applied to the shadow root and scoped to this element
 	// :host { position: absolute; width: 100%; height: 100%; }
 	static styles = css`
+    :host, .section, .section *, .section *:before, .section *:after{ box-sizing: border-box }
     .section { position: absolute; line-height: 1; }
     .section-edit { border: 1px dotted rgba(0,0,0, 0.12); position: relative;
     	transition: 300ms all ease-in-out;
@@ -44,32 +46,15 @@ export class DynamicCardLayer extends LitElement {
 		// when card width 15mm, then from top 10mm/150mm * 15
 		let styles = [],
 			// _top = Math.round(100 / this.elementHeightMM * this.section.position.top),
-			// _left = Math.round(100 / this.elementWidthMM * this.section.position.left),
+			// _left = Math.round(100 / this.elementWidthMM * this.section.position.left);
 			_top = Math.round(this.elementHeightMM * (this.section.position.top / this.cardHeightMM)),
 			_left = Math.round(this.elementWidthMM * (this.section.position.left / this.cardWidthMM));
 
-		styles.push(`left: ${_left}%`);
-		styles.push(`top: ${_top}%`);
-
-		if (-1 !== ['static-image', 'input-image'].indexOf(this.section.section_type)) {
-			if (['center', 'right'].indexOf(this.section.imageOptions.align) !== -1) {
-				styles.push('width: 100%');
-				styles.push('left: 0%');
-			}
-			if ('center' === this.section.imageOptions.align) {
-				styles.push('width: 100%');
-				styles.push('display: flex');
-				styles.push('justify-content: center');
-			}
-			if ('right' === this.section.imageOptions.align) {
-				styles.push('width: 100%');
-				styles.push('display: flex');
-				styles.push('justify-content: flex-end');
-			}
-		}
+		styles.push(`left: ${convertMMtoPX(_left)}px`);
+		styles.push(`top: ${convertMMtoPX(_top)}px`);
 
 		if (-1 !== ['static-text', 'input-text'].indexOf(this.section.section_type)) {
-			let fontSize = Math.round((this.section.textOptions.size / (this.cardWidthMM / this.elementWidthMM))),
+			let fontSize = Math.round((this.section.textOptions.size / this.cardWidthMM) * this.elementWidthMM),
 				fontFamily = this.fontFamilies.find(_font => _font.key === this.section.textOptions.fontFamily);
 
 			styles.push(`font-family: ${fontFamily.label}`);
@@ -83,12 +68,38 @@ export class DynamicCardLayer extends LitElement {
 			}
 		}
 
+		if (-1 !== ['static-image', 'input-image'].indexOf(this.section.section_type)) {
+			styles = styles.concat(this.sectionImageStyle())
+		}
+
 		return styles.join(';');
 	}
 
 	sectionImageStyle() {
-		let styles = [], width = Math.round(100 / this.cardWidthMM * this.section.imageOptions.width);
-		styles.push(`width: ${width}%`);
+		let styles = []
+		if (['center', 'right'].indexOf(this.section.imageOptions.align) !== -1) {
+			styles.push('width: 100%');
+			styles.push('left: 0%');
+		}
+		if ('center' === this.section.imageOptions.align) {
+			styles.push('width: 100%');
+			styles.push('display: flex');
+			styles.push('justify-content: center');
+		}
+		if ('right' === this.section.imageOptions.align) {
+			styles.push('width: 100%');
+			styles.push('display: flex');
+			styles.push('justify-content: flex-end');
+		}
+		return styles;
+	}
+
+	imageStyle() {
+		// when card width 150mm, then width 101mm
+		// when card width 15mm, then width 101mm/150mm * 15mm
+		let styles = [],
+			width = Math.round((this.section.imageOptions.width / this.cardWidthMM) * this.elementWidthMM);
+		styles.push(`width: ${convertMMtoPX(width)}px`);
 		return styles.join(';');
 	}
 
@@ -120,7 +131,7 @@ export class DynamicCardLayer extends LitElement {
 			return;
 		}
 		if (this.section.section_type === 'static-image') {
-			return html`<img src="${this.section.imageOptions.img.src}" alt="" style="${this.sectionImageStyle()}">`
+			return html`<img src="${this.section.imageOptions.img.src}" alt="" style="${this.imageStyle()}">`
 		}
 		let showEditIcon = -1 !== [true, 'true', 1, '1', 'yes'].indexOf(this.showEditIcon);
 		let classes = ['section-edit'];
@@ -128,12 +139,12 @@ export class DynamicCardLayer extends LitElement {
 		if (showEditIcon && 'input-image' === this.section.section_type) classes.push('is-image-edit');
 		let imageHtml = ``;
 		if (this.section.image && this.section.image.src) {
-			imageHtml = html`<img src="${this.section.image.src}" style="${this.sectionImageStyle()}">`
+			imageHtml = html`<img src="${this.section.image.src}" style="${this.imageStyle()}">`
 		} else {
-			imageHtml = html`<img src="${this.section.imageOptions.img.src}" style="${this.sectionImageStyle()}">`
+			imageHtml = html`<img src="${this.section.imageOptions.img.src}" style="${this.imageStyle()}">`
 		}
 		return html`
-			<div class="${classes.join(' ')}">
+			<div class="${classes.join(' ')}" style="${this.sectionImageStyle().join(';')}">
 				${showEditIcon ? this.iconTemplate('image') : ''}
 				${imageHtml}
 			</div>`

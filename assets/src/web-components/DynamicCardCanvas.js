@@ -3,6 +3,7 @@ import {LitElement, html, css} from "lit";
 export class DynamicCardCanvas extends LitElement {
 	// Styles are applied to the shadow root and scoped to this element
 	static styles = css`
+	:host, .canvas, .canvas *, .canvas *:before, .canvas *:after { box-sizing: border-box }
 	.canvas {
 		background-color: white; border: 1px dotted rgba(0,0,0,0.12); display: flex; position: relative;
 		height: var(--item-height, 100%); width: var(--item-width, 100%); flex-shrink: 0; overflow: hidden;
