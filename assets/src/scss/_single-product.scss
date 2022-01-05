@@ -56,6 +56,10 @@
 }
 
 .single-product.has-inner-message {
+	.hidden {
+		display: none !important;
+	}
+
 	// Don't hide extra options, as envelop colors is showing from here.
 	.extra-options {
 		//display: none;
