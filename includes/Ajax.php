@@ -149,6 +149,12 @@ class Ajax {
 		die();
 	}
 
+	/**
+	 * @return void
+	 * @throws ImagickException
+	 * @throws \ImagickDrawException
+	 * @throws \ImagickPixelException
+	 */
 	public function yousaidit_font_image() {
 		// ?t[f]=Indie%20Flower&t[s]=96pt&t[c]=rgb(0,%20255,%200)
 		$args = wp_parse_args( $_GET['t'] ?? [], [

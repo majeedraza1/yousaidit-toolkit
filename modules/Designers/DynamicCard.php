@@ -9,6 +9,7 @@ use Stackonet\WP\Framework\Media\Uploader;
 use WP_Error;
 use YouSaidItCards\FreePdf;
 use YouSaidItCards\Modules\Designers\Models\DesignerCard;
+use YouSaidItCards\Modules\DynamicCard\EnvelopeColours;
 
 class DynamicCard {
 
@@ -78,16 +79,36 @@ class DynamicCard {
 	/**
 	 * @param string $pdf_file_path
 	 * @param int $resolution
+	 * @param bool $envelop
 	 *
 	 * @return Imagick
 	 * @throws ImagickException
 	 */
-	public static function pdf_to_image( string $pdf_file_path, int $resolution = 72 ): Imagick {
+	public static function pdf_to_image( string $pdf_file_path, int $resolution = 72, bool $envelop = true ): Imagick {
 		$content = file_get_contents( $pdf_file_path );
 		$im      = new Imagick();
 		$im->setResolution( $resolution, $resolution );
 		$im->readImageBlob( $content . '[0]' );    //[0] for the first page
 		$im->setImageFormat( 'jpg' );
+
+		if ( $envelop ) {
+			$color = EnvelopeColours::get_random_color();
+			if ( is_array( $color ) ) {
+				$envelopImage = new Imagick();
+				$envelopImage->setSize( $color['width'], $color['height'] );
+				$envelopImage->setResolution( $resolution, $resolution );
+				$envelopImage->readImage( $color['path'] );
+				$im->scaleImage( $color['card']['width'], $color['card']['height'] );
+				$envelopImage->compositeImage(
+					$im->getImage(),
+					Imagick::COMPOSITE_COPY,
+					$color['card']['x'],
+					$color['card']['y']
+				);
+
+				return $envelopImage;
+			}
+		}
 
 		return $im;
 
