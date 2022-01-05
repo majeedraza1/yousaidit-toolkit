@@ -56,8 +56,9 @@
 }
 
 .single-product.has-inner-message {
+	// Don't hide extra options, as envelop colors is showing from here.
 	.extra-options {
-		display: none;
+		//display: none;
 	}
 
 	.woocommerce-variation-price {
