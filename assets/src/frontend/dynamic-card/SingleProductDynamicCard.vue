@@ -329,6 +329,17 @@ export default {
 </script>
 
 <style lang="scss">
+body.is-dynamic-card-product {
+	.button--customize-dynamic-card {
+		width: 100%;
+	}
+
+	.quantity,
+	.single_add_to_cart_button {
+		display: none !important;
+	}
+}
+
 .dynamic-card--editable-content-container {
 	display: flex;
 	height: 100%;

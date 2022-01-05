@@ -5,6 +5,7 @@ namespace YouSaidItCards\Modules\EvaTheme;
 
 
 use WC_Product;
+use WP_Post;
 
 class EvaThemeManager {
 	/**
@@ -25,6 +26,7 @@ class EvaThemeManager {
 
 			add_action( 'eva_before_header_left_end', [ self::$instance, 'banner' ] );
 			add_filter( 'wc_get_template', [ self::$instance, 'get_template' ], 10, 3 );
+			add_filter( 'body_class', [ self::$instance, 'body_class' ], 999 );
 
 			// Modify title design
 			add_action( 'woocommerce_after_add_to_cart_quantity', [ self::$instance, 'inner_message' ] );
@@ -33,6 +35,18 @@ class EvaThemeManager {
 		}
 
 		return self::$instance;
+	}
+
+	public function body_class( array $classes ): array {
+		global $post;
+		if ( $post instanceof WP_Post && $post->post_type === 'product' ) {
+			$card_type = get_post_meta( $post->ID, '_card_type', true );
+			if ( 'dynamic' == $card_type ) {
+				$classes[] = 'is-dynamic-card-product';
+			}
+		}
+
+		return $classes;
 	}
 
 	/**
