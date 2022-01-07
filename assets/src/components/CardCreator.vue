@@ -384,11 +384,7 @@ export default {
 		},
 		refreshMediaList(response, type = 'avatar') {
 			let image = response.data.attachment;
-			console.log(image, response)
-			if ('card_image' === type) {
-				// this.update({cover_photo_id: image.id});
-				// this.showChangeCoverModal = false;
-			}
+			this.images.unshift(image);
 		},
 		getUserUploadedImages() {
 			this.$store.commit('SET_LOADING_STATUS', true);

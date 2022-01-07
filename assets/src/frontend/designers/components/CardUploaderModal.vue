@@ -350,6 +350,9 @@ export default {
 			let item = this.card_sizes.find(size => size.value === size_slug);
 			return item.label;
 		}
+	},
+	mounted() {
+		this.chooseCardSize('square');
 	}
 }
 </script>
