@@ -8,16 +8,16 @@
 			<columns v-if="!card_size.length">
 				<column :tablet="6" class="md:flex items-center justify-end">
 					<div @click="setCardSize('square')"
-						 class="border border-solid border-gray-200 w-36 h-36 flex items-center justify-center bg-gray-100 cursor-pointer"
-						 :class="{'border-primary':card_size === 'square'}"
+					     class="border border-solid border-gray-200 w-36 h-36 flex items-center justify-center bg-gray-100 cursor-pointer"
+					     :class="{'border-primary':card_size === 'square'}"
 					>
 						<div class="text-lg">Square</div>
 					</div>
 				</column>
 				<column :tablet="6" class="md:flex items-center justify-start">
 					<div @click="card_size = 'a'"
-						 class="border border-solid border-gray-200 w-36 h-44 flex flex-col items-center justify-center bg-gray-100 cursor-pointer"
-						 :class="{'border-primary':card_size === 'a'}"
+					     class="border border-solid border-gray-200 w-36 h-44 flex flex-col items-center justify-center bg-gray-100 cursor-pointer"
+					     :class="{'border-primary':card_size === 'a'}"
 					>
 						<div class="text-lg">A Size</div>
 						<div class="text-sm">(A6 & A5)</div>
@@ -27,23 +27,23 @@
 			<columns v-if="card_size === 'a'">
 				<column :tablet="6" class="md:flex items-center justify-end">
 					<div @click="setCardSize('a5')"
-						 class="border border-solid border-gray-200 w-36 h-44 flex flex-col items-center justify-center bg-gray-100 cursor-pointer"
-						 :class="{'border-primary':card_size === 'a5'}"
+					     class="border border-solid border-gray-200 w-36 h-44 flex flex-col items-center justify-center bg-gray-100 cursor-pointer"
+					     :class="{'border-primary':card_size === 'a5'}"
 					>
 						<div class="text-lg">A5</div>
 					</div>
 				</column>
 				<column :tablet="6" class="md:flex items-center justify-start">
 					<div @click="setCardSize('a6')"
-						 class="border border-solid border-gray-200 w-36 h-44 flex flex-col items-center justify-center bg-gray-100 cursor-pointer"
-						 :class="{'border-primary':card_size === 'a6'}"
+					     class="border border-solid border-gray-200 w-36 h-44 flex flex-col items-center justify-center bg-gray-100 cursor-pointer"
+					     :class="{'border-primary':card_size === 'a6'}"
 					>
 						<div class="text-lg">A6</div>
 					</div>
 				</column>
 			</columns>
 			<div class="flex h-full relative space-x-4 justify-center"
-				 v-show="has_card_size & !show_section_card_options">
+			     v-show="has_card_size & !show_section_card_options">
 				<card-preview
 					:card_size="card_size"
 					:card_sizes="card_sizes"
@@ -76,9 +76,16 @@
 							<shapla-radio v-model="background.type" value="color">Color</shapla-radio>
 							<shapla-radio v-model="background.type" value="image">Image</shapla-radio>
 						</div>
-						<text-field v-if="background.type === 'color'" type="color" v-model="background.color.hex"/>
+						<div class="flex w-full" v-if="background.type === 'color'">
+							<div class="w-3/4">
+								<text-field label="Background Color" v-model="background.color.hex"/>
+							</div>
+							<div class="w-1/4">
+								<input type="color" v-model="background.color.hex" class="h-full">
+							</div>
+						</div>
 						<featured-image v-if="background.type==='image'" v :image-url="image.src" thumb_size="48px"
-										@click:add="show_image_modal = true" @click:clear="image = {}"/>
+						                @click:add="show_image_modal = true" @click:clear="image = {}"/>
 					</div>
 					<div class="mb-2 flex justify-between items-center">
 						<h4 class="font-bold mb-0 mt-0 text-base">Sections</h4>
@@ -86,7 +93,7 @@
 					</div>
 					<div class="w-full">
 						<div v-for="(section, index) in sections" :key="index"
-							 class="border border-solid border-gray-400 w-full p-2 rounded mb-2 flex items-center space-x-2">
+						     class="border border-solid border-gray-400 w-full p-2 rounded mb-2 flex items-center space-x-2">
 							<svg-icon icon="sort"/>
 							<div class="flex-grow">
 								<div class="font-medium">{{ section.label }}</div>
@@ -98,7 +105,7 @@
 							</div>
 						</div>
 						<shapla-button outline size="small" fullwidth @click.native="show_section_modal = true"
-									   class="border-gray-400">
+						               class="border-gray-400">
 							<svg-icon icon="plus" size="small"/>
 							Add Section
 						</shapla-button>
@@ -149,10 +156,10 @@
 			<template v-slot:foot>
 				<shapla-button @click="$emit('close')">Cancel</shapla-button>
 				<shapla-button theme="primary" @click="goToNext" v-if="!show_section_card_options"
-							   :disabled="!sections">Next
+				               :disabled="!sections">Next
 				</shapla-button>
 				<shapla-button theme="primary" @click="handleSubmit" v-if="show_section_card_options"
-							   :disabled="!can_save_card">Save
+				               :disabled="!can_save_card">Save
 				</shapla-button>
 			</template>
 		</modal>

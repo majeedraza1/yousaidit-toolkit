@@ -50,8 +50,13 @@
 										<text-field type="number" label="Font Size (pt)"
 													v-model="options.textOptions.size"/>
 									</div>
-									<div class="w-full p-1">
-										<text-field label="Text Color" v-model="options.textOptions.color"/>
+									<div class="w-full p-1 flex">
+										<div class="w-3/4">
+											<text-field label="Text Color" v-model="options.textOptions.color"/>
+										</div>
+										<div class="w-1/4">
+											<input type="color" v-model="options.textOptions.color" class="h-full">
+										</div>
 									</div>
 								</div>
 							</div>
