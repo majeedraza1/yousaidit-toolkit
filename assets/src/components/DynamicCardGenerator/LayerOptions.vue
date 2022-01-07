@@ -9,7 +9,7 @@
 							<div class="mb-2">
 								<div class="w-full">
 									<select-field label="Section Type" :options="section_types"
-												  v-model="options.section_type"/>
+									              v-model="options.section_type"/>
 								</div>
 							</div>
 							<div class="mb-2">
@@ -34,54 +34,55 @@
 								<text-field label="Placeholder" type="textarea" v-model="options.placeholder" rows="2"/>
 							</div>
 							<div class="mb-2"
-								 v-if="-1 !== ['static-text','input-text'].indexOf(this.options.section_type)">
+							     v-if="-1 !== ['static-text','input-text'].indexOf(this.options.section_type)">
 								<h4 class="text-base">Text Options</h4>
 								<div class="flex flex-wrap">
 									<div class="w-full p-1">
 										<select-field label="Font Family" v-model="options.textOptions.fontFamily"
-													  :options="font_families" label-key="label" value-key="key"
-													  :clearable="false"/>
+										              :options="font_families" label-key="label" value-key="key"
+										              :clearable="false"/>
 									</div>
 									<div class="w-1/2 p-1">
 										<select-field label="Align" v-model="options.textOptions.align"
-													  :options="text_aligns" :clearable="false"/>
+										              :options="text_aligns" :clearable="false"/>
 									</div>
 									<div class="w-1/2 p-1">
 										<text-field type="number" label="Font Size (pt)"
-													v-model="options.textOptions.size"/>
+										            v-model="options.textOptions.size"/>
 									</div>
 									<div class="w-full p-1 flex">
 										<div class="w-3/4">
 											<text-field label="Text Color" v-model="options.textOptions.color"/>
 										</div>
 										<div class="w-1/4">
-											<input type="color" v-model="options.textOptions.color" class="h-full">
+											<input type="color" v-model="options.textOptions.color"
+											       class="h-full border-l-0">
 										</div>
 									</div>
 								</div>
 							</div>
 							<div class="mb-2"
-								 v-if="-1 !== ['static-image','input-image'].indexOf(this.options.section_type)">
+							     v-if="-1 !== ['static-image','input-image'].indexOf(this.options.section_type)">
 								<h4 class="text-base">Image</h4>
 								<div class="flex flex-wrap mb-2">
 									<div class="w-full p-1">
 										<featured-image @click:add="show_image_modal = true" @click:clear="clearImage"
-														:image-url="options.imageOptions.img.src"/>
+										                :image-url="options.imageOptions.img.src"/>
 									</div>
 								</div>
 								<h4 class="text-base">Image Options</h4>
 								<div class="flex flex-wrap">
 									<div class="w-full p-1">
 										<select-field label="Align" v-model="options.imageOptions.align"
-													  :options="text_aligns"/>
+										              :options="text_aligns"/>
 									</div>
 									<div class="w-1/2 p-1">
 										<text-field type="number" label="Width (mm)" @input="handleImageWidthUpdate"
-													v-model="options.imageOptions.width"/>
+										            v-model="options.imageOptions.width"/>
 									</div>
 									<div class="w-1/2 p-1">
 										<text-field label="Height" @input="handleImageHeightUpdate"
-													v-model="options.imageOptions.height"/>
+										            v-model="options.imageOptions.height"/>
 									</div>
 								</div>
 							</div>

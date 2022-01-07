@@ -17,7 +17,7 @@
 						<div class="text-lg">Square</div>
 					</div>
 				</column>
-				<column :tablet="6" class="md:flex items-center justify-start">
+				<column :tablet="6" class="md:flex items-center justify-start" v-if="false">
 					<div @click="card_size = 'a'"
 					     class="border border-solid border-gray-200 w-36 h-44 flex flex-col items-center justify-center bg-gray-100 cursor-pointer"
 					     :class="{'border-primary':card_size === 'a'}"
@@ -207,12 +207,12 @@ export default {
 				rude_card: 'no',
 				suggest_tags: '',
 			},
-			card_size: '',
+			card_size: 'square',
 			pdf_files: {},
 			card_images: [],
 			card_image: {},
 			errors: {},
-			current_step: 1,
+			current_step: 2,
 			has_suggest_tags: 'no',
 		}
 	},

@@ -81,7 +81,7 @@
 								<text-field label="Background Color" v-model="background.color.hex"/>
 							</div>
 							<div class="w-1/4">
-								<input type="color" v-model="background.color.hex" class="h-full">
+								<input type="color" v-model="background.color.hex" class="h-full border-l-0">
 							</div>
 						</div>
 						<featured-image v-if="background.type==='image'" v :image-url="image.src" thumb_size="48px"
@@ -474,6 +474,7 @@ export default {
 	},
 	mounted() {
 		this.getUserUploadedImages();
+		this.setCardSize('square');
 		// Test data
 		// this.setTextData();
 	}
