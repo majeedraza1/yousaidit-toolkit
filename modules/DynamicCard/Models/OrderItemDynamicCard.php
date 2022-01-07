@@ -214,7 +214,7 @@ class OrderItemDynamicCard {
 		$fpd->SetTextColor( 0, 0, 0 );
 		$text  = "Code: " . $this->product->get_sku();
 		$x_pos = ( $fpd->GetPageWidth() / 4 ) - ( $fpd->GetStringWidth( $text ) / 2 );
-		$y_pos = $fpd->GetPageHeight() - 5;
+		$y_pos = $fpd->GetPageHeight() - 10;
 		$fpd->Text( $x_pos, $y_pos, $text );
 	}
 
