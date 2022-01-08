@@ -6,13 +6,18 @@
 			         :btn-text="btnText" @close="closeModal" @submit="submit"/>
 		</modal>
 		<modal v-if="showViewModal" :active="true" type="card" title="Preview" content-size="full"
-		       @close="showViewModal = false">
-			<div class="editable-content-container">
-				<div class="editable-content" :class="innerMessageClass" :style="`--padding-top: ${paddingTop}`">
-					<div class="editable-content__editor" :style="innerMessageStyle">
-						<div v-html="innerMessage.content"></div>
-					</div>
-				</div>
+		       @close="showViewModal = false" :show-card-footer="false">
+			<div style="max-width: 400px;" class="ml-auto mr-auto">
+				<editable-content
+					:editable="false"
+					class="shadow-lg sm:mb-4 sm:bg-white"
+					:font-family="innerMessage.font"
+					:font-size="innerMessage.size"
+					:text-align="innerMessage.align"
+					:color="innerMessage.color"
+					v-model="innerMessage.content"
+					:card-size="card_size"
+				/>
 			</div>
 		</modal>
 		<confirm-dialog/>
@@ -26,10 +31,11 @@ import {mapState} from 'vuex';
 import axios from "axios";
 import {spinner, notification, ConfirmDialog, modal, shaplaButton} from 'shapla-vue-components';
 import Compose from "./Compose";
+import EditableContent from "@/frontend/inner-message/EditableContent";
 
 export default {
 	name: "InnerMessage",
-	components: {Compose, spinner, notification, ConfirmDialog, modal, shaplaButton},
+	components: {EditableContent, Compose, spinner, notification, ConfirmDialog, modal, shaplaButton},
 	data() {
 		return {
 			showModal: false,
@@ -123,7 +129,9 @@ export default {
 					if (data.mode === 'view') {
 						this.showViewModal = true;
 						this.innerMessage = response.data._inner_message;
-						if (response.data.variation["attribute_pa_size"]) {
+						if (response.data._card_size) {
+							this.card_size = response.data._card_size;
+						} else if (response.data.variation["attribute_pa_size"]) {
 							this.card_size = response.data.variation["attribute_pa_size"];
 						} else {
 							this.card_size = '';
@@ -134,7 +142,9 @@ export default {
 						this.page = 'cart';
 						this.cartkey = response.data.key;
 						this.innerMessage = response.data._inner_message;
-						if (response.data.variation["attribute_pa_size"]) {
+						if (response.data._card_size) {
+							this.card_size = response.data._card_size;
+						} else if (response.data.variation["attribute_pa_size"]) {
 							this.card_size = response.data.variation["attribute_pa_size"];
 						}
 					}

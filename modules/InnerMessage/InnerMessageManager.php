@@ -169,6 +169,12 @@ class InnerMessageManager {
 		$item_key = $_REQUEST['item_key'] ?? '';
 
 		$data = WC()->cart->get_cart_item( $item_key );
+		if ( ! ( is_array( $data ) && isset( $data['product_id'] ) ) ) {
+			wp_send_json( [], 404 );
+		}
+		$product            = wc_get_product( $data['product_id'] );
+		$card_size          = $product->get_meta( '_card_size', true );
+		$data['_card_size'] = $card_size;
 
 		wp_send_json( $data, 200 );
 	}

@@ -3,7 +3,7 @@
 		<div class="editable-content">
 			<div class="editable-content__editor"
 			     :style="editorStyle"
-			     contenteditable="true"
+			     :contenteditable="editable?'true':'false'"
 			     @focus="handleFocusEvent"
 			     @input="handleInputEvent"
 			>
@@ -26,6 +26,7 @@ export default {
 	name: "EditableContent",
 	components: {imageContainer},
 	props: {
+		editable: {type: Boolean, default: true},
 		value: {type: String},
 		placeholder: {type: String, default: ''},
 		cardSize: {type: String, default: 'square'},

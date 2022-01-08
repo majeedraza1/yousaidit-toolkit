@@ -3,7 +3,9 @@
 		<div class="h-full flex flex-wrap justify-center">
 			<div class="flex items-center justify-center flex-grow" id="editable-content-container">
 				<editable-content
-					class="shadow-lg sm:mb-4 sm:bg-white"
+					v-if="active"
+					class="shadow-lg sm:mb-4 sm:bg-white md:ml-auto md:mr-auto"
+					style="max-width: 400px;"
 					placeholder="Please click here to write your message"
 					:font-family="font_family"
 					:font-size="font_size"
@@ -113,9 +115,11 @@ export default {
 		},
 		message() {
 			let content = this.$el.querySelector('.editable-content'),
-				editor = content.querySelector('.editable-content__editor');
+				editor = content ? content.querySelector('.editable-content__editor') : null;
 
-			this.showLengthError = editor.offsetHeight > (0.95 * content.offsetHeight);
+			if (editor && content) {
+				this.showLengthError = editor.offsetHeight > (0.95 * content.offsetHeight);
+			}
 		},
 		active(newValue) {
 			if (newValue) {
@@ -129,7 +133,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~shapla-color-system/src/variables";
+@import "~shapla-css/src/colors";
 @import url('https://fonts.googleapis.com/css2?family=Amatic+SC&family=Caveat&family=Cedarville+Cursive&family=Fontdiner+Swanky&family=Handlee&family=Indie+Flower&family=Josefin+Slab&family=Kranky&family=Lovers+Quarrel&family=Mountains+of+Christmas&family=Prata&family=Sacramento&display=swap');
 
 .inner-message-font-families {
