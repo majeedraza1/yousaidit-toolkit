@@ -8,14 +8,6 @@
 					<swiper-slider v-if="show_dynamic_card_editor && Object.keys(payload).length"
 					               :card_size="card_size" :slide-to="slideTo" @slideChange="onSlideChange">
 						<template v-slot:canvas="slotProps">
-							<!--							<card-web-viewer-->
-							<!--								:args="payload"-->
-							<!--								:upload-url="uploadUrl"-->
-							<!--								:images="images"-->
-							<!--								:inline-edit="false"-->
-							<!--								:active-item-index="activeSectionIndex"-->
-							<!--								@edit:section="handleEditSection"-->
-							<!--							/>-->
 							<dynamic-card-canvas
 								show-edit-icon
 								:options="`${JSON.stringify(payload)}`"
@@ -210,6 +202,14 @@ export default {
 	watch: {
 		slideTo() {
 			this.closeSection();
+		},
+		activeSection: {
+			deep: true,
+			handler(newValue) {
+				if (this.activeSectionIndex >= 0) {
+					this.payload.card_items[this.activeSectionIndex] = newValue;
+				}
+			}
 		}
 	},
 	methods: {
@@ -252,9 +252,11 @@ export default {
 				let inputId = `#_dynamic_card_input-${index}`
 				if (['static-text', 'input-text'].indexOf(item.section_type) !== -1) {
 					fieldsContainer.querySelector(inputId).value = item.text;
+					console.log(item.text)
 				}
 				if (['static-image', 'input-image'].indexOf(item.section_type) !== -1) {
 					fieldsContainer.querySelector(inputId).value = item.image.id || item.imageOptions.img.id;
+					console.log(item.image.id || item.imageOptions.img.id);
 				}
 			});
 			let imContainer = document.querySelector('#_inner_message_fields');

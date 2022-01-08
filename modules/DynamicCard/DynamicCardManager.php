@@ -4,6 +4,7 @@ namespace YouSaidItCards\Modules\DynamicCard;
 
 use WC_Order;
 use WC_Order_Item_Product;
+use YouSaidItCards\Modules\DynamicCard\Models\CardPayload;
 use YouSaidItCards\Modules\DynamicCard\REST\DynamicCardController;
 use YouSaidItCards\Modules\DynamicCard\REST\UserMediaController;
 
@@ -37,9 +38,46 @@ class DynamicCardManager {
 				[ self::$instance, 'create_order_line_item' ], 10, 4 );
 
 			add_action( 'wp_footer', [ self::$instance, 'add_editor' ], 5 );
+
+			add_filter( 'woocommerce_cart_item_thumbnail', [ self::$instance, 'cart_item_thumbnail' ], 10, 2 );
+			add_action( 'wp_ajax_dynamic_card_test', [ self::$instance, 'dynamic_card_test' ] );
 		}
 
 		return self::$instance;
+	}
+
+	public function dynamic_card_test() {
+		$product        = wc_get_product( 37553 );
+		$modified_value = [
+			[ 'value' => 'Hello' ],
+			[ 'value' => '' ],
+			[ 'value' => '37535' ],
+		];
+		$payload        = new CardPayload(
+			$product->get_meta( '_dynamic_card_payload', true ),
+			$modified_value
+		);
+		var_dump( $payload );
+		die;
+	}
+
+	public function cart_item_thumbnail( $image_string, $cart_item ) {
+		if ( isset( $cart_item['_dynamic_card'] ) && is_array( $cart_item['_dynamic_card'] ) ) {
+			/** @var \WC_Product $product */
+			$product = $cart_item['data'];
+			$payload = $product->get_meta( '_dynamic_card_payload', true );
+			$payload = new CardPayload( $payload, $cart_item['_dynamic_card'] );
+			/* @TODO change card size for dynamic value */
+			$image_string = "<div style='width: 150px;height:150px'><dynamic-card-canvas
+			options='" . wp_json_encode( $payload->get_data() ) . "'
+			card-width-mm='150'
+			card-height-mm='150'
+			element-width-mm='40'
+			element-height-mm='40'
+			></dynamic-card-canvas></div>";
+		}
+
+		return $image_string;
 	}
 
 	public function generate_dynamic_card_pdf() {

@@ -43,7 +43,6 @@ export class DynamicCardCanvas extends LitElement {
 				${this.options.card_items.map((section, index) =>
 					html`
 						<dynamic-card-layer
-							show-edit-icon
 							index="${index}"
 							active="${index === this.activeSectionIndex}"
 							section='${JSON.stringify(section)}'

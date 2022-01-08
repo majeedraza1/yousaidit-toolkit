@@ -7,11 +7,11 @@ export class DynamicCardLayer extends LitElement {
 	static styles = css`
     :host, .section, .section *, .section *:before, .section *:after{ box-sizing: border-box }
     .section { position: absolute; line-height: 1; }
-    .section-edit { border: 1px dotted rgba(0,0,0, 0.12); position: relative;
+    .section-edit.is-image-edit { border: 1px dotted rgba(0,0,0, 0.12); position: relative;
     	transition: 300ms all ease-in-out;
     }
-    .section-edit:hover,
-    .section-edit.is-active {
+    .section-edit.is-image-edit:hover,
+    .section-edit.is-image-edit.is-active {
     	background-color: var(--shapla-primary-alpha);
     }
     .section-edit-icon {
@@ -26,7 +26,7 @@ export class DynamicCardLayer extends LitElement {
 	// Creates a reactive property that triggers rendering
 	static  properties = {
 		active: {type: String},
-		showEditIcon: {type: Boolean, attribute: 'show-edit-icon'},
+		showEditIcon: {type: String, attribute: 'show-edit-icon'},
 		index: {type: Number},
 		section: {type: Object},
 		cardWidthMM: {type: Number, attribute: 'card-width-mm'},
