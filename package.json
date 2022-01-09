@@ -64,8 +64,10 @@
   },
   "dependencies": {
     "@popperjs/core": "^2.10.1",
+    "@tensorflow/tfjs": "^3.12.0",
     "axios": "^0.21.4",
     "lit": "^2.0.2",
+    "nsfwjs": "^2.4.1",
     "shapla-css": "^2.1.0",
     "shapla-vue-components": "^1.8",
     "swiper": "^7.2.0",

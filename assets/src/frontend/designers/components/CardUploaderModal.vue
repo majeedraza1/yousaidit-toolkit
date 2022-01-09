@@ -2,31 +2,12 @@
 	<div class="yousaidit-designer-profile-card-modal">
 		<modal :active="active" content-size="large" @close="closeModal" :title="modalTitle"
 		       :close-on-background-click="false">
-			<columns multiline v-if="current_step === 1">
-				<column :tablet="12">
-					<div class="w-full text-center">
-						<h2 class="text-xl">Choose Card size</h2>
-						<p>Please check the correct size of your design</p>
-					</div>
-				</column>
-				<column :tablet="6" class="md:flex items-center justify-end">
-					<div @click="card_size = 'square'"
-					     class="border border-solid border-gray-200 w-36 h-36 flex items-center justify-center bg-gray-100 cursor-pointer"
-					     :class="{'border-primary':card_size === 'square'}"
-					>
-						<div class="text-lg">Square</div>
-					</div>
-				</column>
-				<column :tablet="6" class="md:flex items-center justify-start" v-if="false">
-					<div @click="card_size = 'a'"
-					     class="border border-solid border-gray-200 w-36 h-44 flex flex-col items-center justify-center bg-gray-100 cursor-pointer"
-					     :class="{'border-primary':card_size === 'a'}"
-					>
-						<div class="text-lg">A Size</div>
-						<div class="text-sm">(A6 & A5)</div>
-					</div>
-				</column>
-			</columns>
+			<static-card-uploader
+				v-if="current_step === 1"
+				:image="card_image"
+				:card-size="card_size"
+				@upload="handleCardImageUpload"
+			/>
 			<card-options
 				v-if="current_step === 2"
 				v-model="card"
@@ -176,11 +157,13 @@ import DesignerEventBus from "./DesignerEventBus";
 import PdfImageItem from "../../../components/PdfImageItem";
 import PdfCardItem from "../../../components/PdfCardItem";
 import CardOptions from "@/components/CardOptions";
+import CardSizePicker from "@/components/StaticCardGenerator/CardSizePicker";
+import StaticCardUploader from "@/components/StaticCardGenerator/StaticCardUploader";
 
 export default {
 	name: "CardUploaderModal",
 	components: {
-		CardOptions,
+		StaticCardUploader, CardSizePicker, CardOptions,
 		PdfImageItem, textField, selectField, shaplaButton, modal, columns, column, FileUploader,
 		toggles, toggle, imageContainer, shaplaSwitch, PdfCardItem, shaplaChip
 	},
@@ -212,7 +195,7 @@ export default {
 			card_images: [],
 			card_image: {},
 			errors: {},
-			current_step: 2,
+			current_step: 1,
 			has_suggest_tags: 'no',
 		}
 	},
