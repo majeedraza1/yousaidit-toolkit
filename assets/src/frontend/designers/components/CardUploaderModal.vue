@@ -207,7 +207,7 @@ export default {
 	computed: {
 		can_go_next_step() {
 			if (this.current_step === 1) {
-				return !!this.card_size.length;
+				return !!Object.keys(this.card_image).length;
 			}
 			if (this.current_step === 2) {
 				return !!(this.card.title.length > 1 && this.card.sizes.length && this.card.categories_ids.length);

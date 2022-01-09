@@ -1,11 +1,17 @@
 <template>
 	<div class="flex -m-2">
 		<div class="sm:w-full md:w-1/2 p-2">
-			<file-uploader
-				:url="attachment_upload_url"
-				@before:send="handleBeforeSend"
-				@success="handleImageUpload"
-			/>
+			<image-container v-if="!hasImage">
+				<file-uploader
+					class="static-card-image-uploader"
+					:url="attachment_upload_url"
+					@before:send="handleBeforeSend"
+					@success="handleImageUpload"
+				/>
+			</image-container>
+			<image-container v-if="hasImage">
+				<img :src="previewImage.src"/>
+			</image-container>
 		</div>
 		<div class="sm:w-full md:w-1/2 p-2">
 			<div>
@@ -29,11 +35,11 @@
 </template>
 
 <script>
-import {FileUploader} from "shapla-vue-components";
+import {FileUploader, imageContainer} from "shapla-vue-components";
 
 export default {
 	name: "StaticCardUploader",
-	components: {FileUploader},
+	components: {FileUploader, imageContainer},
 	props: {
 		cardSize: {type: String, default: 'square'},
 		image: {type: Object, default: () => ({})}
@@ -45,6 +51,15 @@ export default {
 		attachment_upload_url() {
 			return DesignerProfile.restRoot + '/designers/' + this.designer_id + '/attachment';
 		},
+		hasImage() {
+			return Object.keys(this.image).length > 0;
+		},
+		previewImage() {
+			if (!this.hasImage) {
+				return {}
+			}
+			return this.image.full || this.image.thumbnail;
+		}
 	},
 	methods: {
 		/**
@@ -62,3 +77,11 @@ export default {
 	}
 }
 </script>
+<style lang="scss">
+.static-card-image-uploader .shapla-file-uploader {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	justify-content: center;
+}
+</style>
