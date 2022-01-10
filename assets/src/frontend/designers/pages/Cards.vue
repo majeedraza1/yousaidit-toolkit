@@ -45,12 +45,13 @@
 		<card-uploader-modal
 			v-if="total_cards < maximum_allowed_card"
 			:active="modalActive"
-			@close="modalActive = false"
 			:card_sizes="card_sizes"
 			:card_categories="card_categories"
 			:card_tags="card_tags"
 			:card_attributes="card_attributes"
 			:market_places="market_places"
+			@close="modalActive = false"
+			@card:added="onCardAdded"
 		/>
 		<modal v-if="total_cards >= maximum_allowed_card" :active="modalActive" @close="modalActive = false" type="box">
 			<div class="m-8">
@@ -139,7 +140,6 @@ import {
 } from 'shapla-vue-components';
 import CardItem from "../components/CardItem";
 import CardUploaderModal from "../components/CardUploaderModal";
-import DesignerEventBus from "../components/DesignerEventBus";
 import CardCreator from "@/components/CardCreator";
 
 export default {
@@ -183,19 +183,6 @@ export default {
 		this.getCards();
 		this.paginateOnScroll();
 
-		DesignerEventBus.$on('notify', notification => {
-			this.$store.commit('SET_NOTIFICATION', notification);
-		});
-
-		DesignerEventBus.$on('loading', loading => {
-			this.$store.commit('SET_LOADING_STATUS', loading);
-		});
-
-		DesignerEventBus.$on('card:added', card => {
-			this.cards.unshift(card);
-			window.location.reload();
-		});
-
 		this.limit_extend_request.username = this.user.display_name;
 	},
 	computed: {
@@ -208,6 +195,10 @@ export default {
 		},
 	},
 	methods: {
+		onCardAdded(card) {
+			this.cards.unshift(card);
+			// window.location.reload();
+		},
 		chooseCardType(type) {
 			if ('static' === type) {
 				this.modalActive = true

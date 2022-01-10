@@ -7,6 +7,7 @@
 				:image="card_image"
 				:card-size="card_size"
 				@upload="handleCardImageUpload"
+				@click:template="handleTemplateDownload"
 			/>
 			<card-options
 				v-if="current_step === 2"
@@ -20,24 +21,8 @@
 				:errors="errors"
 			/>
 
-			<columns multiline v-show="current_step === 3">
-				<column :tablet="12">
-					<toggles>
-						<toggle :name="`Upload files for size: ${getHeaderText(size)}`" :key="`upload-${size}`"
-						        v-for="(size, index) in card.sizes" :selected="index === 0">
-							<file-uploader
-								:url="attachment_upload_url"
-								@before:send="addAdditionalData"
-								:params="{type:'card_pdf',card_size:size}"
-								@success="handlePdfUpload"
-								:input-id="`yousaiditcard-pdf-input-${size}`"
-							/>
-						</toggle>
-					</toggles>
-				</column>
-			</columns>
 
-			<columns multiline v-if="current_step === 4">
+			<columns multiline v-if="current_step === 3">
 				<column :tablet="3"><strong>Title</strong></column>
 				<column :tablet="9">{{ card.title }}</column>
 
@@ -82,66 +67,15 @@
 						/>
 					</column>
 				</template>
-
-				<template v-if="card_images.length">
-					<column :tablet="3"><strong>Card Gallery Images</strong></column>
-					<column :tablet="9">
-						<pdf-image-item
-							:is-multiple="true"
-							:images="get_formatted_card_images"
-						/>
-					</column>
-				</template>
-
-				<column :tablet="12">
-					<columns>
-						<column :tablet="3"><strong>Card PDFs</strong></column>
-						<column :tablet="9">
-							<pdf-card-item
-								v-for="(pdf_data,size_slug) in pdf_files"
-								:key="size_slug"
-								:header-text="getHeaderText(size_slug)"
-								:items="pdf_data"
-								url-key="attachment_url"
-							/>
-						</column>
-					</columns>
-				</column>
-
-			</columns>
-
-			<columns multiline v-show="current_step === 10">
-				<column :tablet="12">
-					<toggles>
-						<toggle name="Card image" selected>
-							<file-uploader
-								:url="attachment_upload_url"
-								@before:send="addAdditionalData"
-								:params="{type:'card_image'}"
-								@success="handleCardImageUpload"
-								input-id="yousaiditcard-image-upload-input"
-							/>
-						</toggle>
-						<toggle name="Card gallery images (optional)">
-							<file-uploader
-								:url="attachment_upload_url"
-								@before:send="addAdditionalData"
-								:params="{type:'card_gallery_images'}"
-								@success="handleCardGalleryImagesUpload"
-								input-id="yousaiditcard-gallery-image-upload-input"
-							/>
-						</toggle>
-					</toggles>
-				</column>
 			</columns>
 
 			<template v-slot:foot>
 				<shapla-button v-if="current_step !== 1" @click="current_step--" theme="primary">Previous
 				</shapla-button>
-				<shapla-button v-if="current_step !== 4" @click="current_step++" theme="primary"
+				<shapla-button v-if="current_step !== 3" @click="current_step++" theme="primary"
 				               :disabled="!can_go_next_step">Next
 				</shapla-button>
-				<shapla-button v-if="current_step === 4" theme="primary" @click="handleSubmit">Submit</shapla-button>
+				<shapla-button v-if="current_step === 3" theme="primary" @click="handleSubmit">Submit</shapla-button>
 			</template>
 		</modal>
 	</div>
@@ -153,7 +87,6 @@ import {
 	shaplaButton, modal, textField, selectField, toggle, toggles, shaplaSwitch, shaplaChip, column, columns,
 	imageContainer, FileUploader
 } from "shapla-vue-components";
-import DesignerEventBus from "./DesignerEventBus";
 import PdfImageItem from "../../../components/PdfImageItem";
 import PdfCardItem from "../../../components/PdfCardItem";
 import CardOptions from "@/components/CardOptions";
@@ -212,17 +145,7 @@ export default {
 			if (this.current_step === 2) {
 				return !!(this.card.title.length > 1 && this.card.sizes.length && this.card.categories_ids.length);
 			}
-			if (this.current_step === 3) {
-				return this.num_of_pdf_files === this.card.sizes.length;
-			}
 			return false;
-		},
-		num_of_pdf_files() {
-			let count = 0;
-			for (let [key, value] of Object.entries(this.pdf_files)) {
-				count += Array.isArray(value) ? 1 : 0;
-			}
-			return count;
 		},
 		designer_id() {
 			return DesignerProfile.user.id;
@@ -232,15 +155,12 @@ export default {
 		},
 		modalTitle() {
 			if (2 === this.current_step) {
-				return 'Add card preview images'
+				return 'Add card detail'
 			}
 			if (3 === this.current_step) {
-				return 'Add card PDF files'
-			}
-			if (4 === this.current_step) {
 				return 'Preview'
 			}
-			return 'Add card detail';
+			return 'Upload card image';
 		},
 		get_formatted_card_images() {
 			if (this.card_images.length < 1) {
@@ -279,11 +199,11 @@ export default {
 		},
 		handleSubmit() {
 			this.errors = {};
-			DesignerEventBus.$emit('loading', true);
+			this.$store.commit('SET_LOADING_STATUS', true);
 			axios.post(DesignerProfile.restRoot + '/designers/' + this.designer_id + '/cards', this.card).then(response => {
 				this.closeModal();
-				DesignerEventBus.$emit('loading', false);
-				DesignerEventBus.$emit('notify', {
+				this.$store.commit('SET_LOADING_STATUS', false);
+				this.$store.commit('SET_NOTIFICATION', {
 					title: 'Success',
 					message: 'Card has been submitted successfully.',
 					type: 'success'
@@ -293,9 +213,9 @@ export default {
 					gallery_images_ids: [], pdf_ids: {}, rude_card: 'no',
 				};
 				this.current_step = 1;
-				DesignerEventBus.$emit('card:added', response.data.data);
+				this.$emit('card:added', response.data.data);
 			}).catch(error => {
-				DesignerEventBus.$emit('loading', false);
+				this.$store.commit('SET_LOADING_STATUS', false);
 				if (error.response.data.errors) {
 					this.errors = error.response.data.errors;
 				}
@@ -332,6 +252,12 @@ export default {
 		getHeaderText(size_slug) {
 			let item = this.card_sizes.find(size => size.value === size_slug);
 			return item.label;
+		},
+		handleTemplateDownload(templateName) {
+			const a = document.createElement('a')
+			a.target = 'blank'
+			a.href = window.DesignerProfile.templates[templateName];
+			a.click();
 		}
 	},
 	mounted() {

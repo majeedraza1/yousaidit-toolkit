@@ -210,7 +210,7 @@ class DesignerCardController extends ApiController {
 		$required_params = [ 'title', 'sizes', 'categories_ids' ];
 
 		if ( $is_static ) {
-			$required_params[] = 'pdf_ids';
+			$required_params[] = 'image_id';
 		} else {
 			$required_params[] = 'dynamic_card_payload';
 		}
@@ -280,7 +280,7 @@ class DesignerCardController extends ApiController {
 		}
 
 		if ( $is_static ) {
-			foreach ( $pdf_ids as $size_key => $attachment_ids ) {
+			foreach ( $pdf_ids as $attachment_ids ) {
 				foreach ( $attachment_ids as $attachment_id ) {
 					$_post = get_post( $attachment_id );
 					if ( ! ( $_post instanceof \WP_Post && $_post->post_type == 'attachment' && intval( $_post->post_author ) == $user_id ) ) {

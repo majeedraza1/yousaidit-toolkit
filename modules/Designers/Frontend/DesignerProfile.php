@@ -350,6 +350,10 @@ class DesignerProfile {
 			$data['order_statuses']       = wc_get_order_statuses();
 			$data['marketPlaces']         = MarketPlace::all();
 			$data['fonts']                = Fonts::get_list_for_web();
+			$data['templates']            = [
+				'ps' => YOUSAIDIT_TOOLKIT_ASSETS . '/static-images/Square Template - You Said It Cards.psd',
+				'ai' => YOUSAIDIT_TOOLKIT_ASSETS . '/static-images/Square Template - You Said It Cards.ai',
+			];
 		}
 
 		echo '<script type="text/javascript">window.DesignerProfile = ' . wp_json_encode( $data ) . '</script>' . PHP_EOL;
