@@ -2,6 +2,7 @@
 
 namespace YouSaidItCards\Modules\Designers\Models;
 
+use Stackonet\WP\Framework\Media\Uploader;
 use WC_Data_Exception;
 use WC_Product_Attribute;
 use WC_Product_Simple;
@@ -131,14 +132,23 @@ class CardToProduct {
 		$commission = $designer_card->get_commission_for_size( $card_size );
 		$product->add_meta_data( '_card_designer_commission', is_numeric( $commission ) ? $commission : 0 );
 		$product->add_meta_data( '_is_rude_card', $designer_card->is_rude_card() ? 'yes' : 'no' );
-		$product->add_meta_data( '_pdf_id', $designer_card->get_pdf_id_for_size( $card_size ) );
 		$product->add_meta_data( '_card_type', $designer_card->get_card_type() );
+		$pdf_id = $designer_card->get_pdf_id_for_size( $card_size );
+		if ( $designer_card->is_static_card() && $pdf_id ) {
+			$product->add_meta_data( '_pdf_id', $pdf_id );
+		}
 		if ( $designer_card->is_dynamic_card() ) {
 			$product->add_meta_data( '_dynamic_card_payload', $designer_card->get_dynamic_card_payload() );
 		}
 		$product->save_meta_data();
 
 		$product_id = $product->save();
+
+		if ( $designer_card->is_static_card() && empty( $pdf_id ) ) {
+			$pdf_id = self::generatePdfFromImage( $designer_card );
+			$product->add_meta_data( '_pdf_id', $pdf_id );
+			$product->save_meta_data();
+		}
 
 		// Update item product id
 		$designer_card->update( [ 'id' => $designer_card->get( 'id' ), 'product_id' => $product_id ] );
@@ -233,17 +243,26 @@ class CardToProduct {
 		// Add variation
 		foreach ( $designer_card->get( 'card_sizes' ) as $size ) {
 			try {
-				$_attrs    = [ $card_size_attr->get_name() => $size ];
-				$variation = new WC_Product_Variation();
+				$variation_sku = isset( $_sku[ $size ] ) ? sanitize_text_field( $_sku[ $size ] ) : '';
+				$_attrs        = [ $card_size_attr->get_name() => $size ];
+				$variation     = new WC_Product_Variation();
 				$variation->set_parent_id( $product_id );
 				$variation->set_regular_price( isset( $_prices[ $size ] ) ? floatval( $_prices[ $size ] ) : 0 );
-				$variation->set_sku( isset( $_sku[ $size ] ) ? sanitize_text_field( $_sku[ $size ] ) : '' );
+				$variation->set_sku( $variation_sku );
 				$variation->set_attributes( $_attrs );
 
 				$commission = $designer_card->get_commission_for_size( $size );
 				$variation->add_meta_data( '_card_size', $size );
 				$variation->add_meta_data( '_card_designer_commission', is_numeric( $commission ) ? $commission : 0 );
-				$variation->add_meta_data( '_pdf_id', $designer_card->get_pdf_id_for_size( $size ) );
+				$pdf_id = $designer_card->get_pdf_id_for_size( $size );
+				if ( $designer_card->is_static_card() ) {
+					if ( $pdf_id ) {
+						$variation->add_meta_data( '_pdf_id', $pdf_id );
+					} else {
+						$pdf_id = self::generatePdfFromImage( $designer_card, $variation_sku );
+						$variation->add_meta_data( '_pdf_id', $pdf_id );
+					}
+				}
 				$variation->save_meta_data();
 
 				$variation->save();
@@ -255,5 +274,36 @@ class CardToProduct {
 		$designer_card->update( [ 'id' => $designer_card->get( 'id' ), 'product_id' => $product_id ] );
 
 		return $product_id;
+	}
+
+	/**
+	 * Generate PDF from Image
+	 *
+	 * @param DesignerCard $designer_card
+	 * @param string|null $sku
+	 *
+	 * @return int
+	 */
+	public static function generatePdfFromImage( DesignerCard $designer_card, ?string $sku = '' ): int {
+		$image = $designer_card->get_image();
+		if ( empty( $image['path'] ) ) {
+			return 0;
+		}
+		$fpd = new StaticCardGenerator();
+		$fpd->set_background_image( $image['url'] );
+		if ( ! empty( $sku ) ) {
+			$fpd->set_product_sku( $sku );
+		}
+
+		$upload_dir = Uploader::get_upload_dir();
+		if ( ! is_wp_error( $upload_dir ) ) {
+			$filename      = wp_unique_filename( $upload_dir, sprintf( "%s.pdf", strtoupper( $sku ) ) );
+			$directory     = rtrim( $upload_dir, DIRECTORY_SEPARATOR );
+			$new_file_path = $directory . DIRECTORY_SEPARATOR . $filename;
+
+			$fpd->pdf( [ 'dest' => 'F', 'name' => $new_file_path ] );
+		}
+
+		return $fpd->get_pdf_id();
 	}
 }

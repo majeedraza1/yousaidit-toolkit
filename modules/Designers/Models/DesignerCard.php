@@ -226,6 +226,14 @@ class DesignerCard extends DatabaseModel {
 	}
 
 	/**
+	 * Check if card type static
+	 * @return bool
+	 */
+	public function is_static_card(): bool {
+		return 'static' == $this->get_card_type();
+	}
+
+	/**
 	 * Get dynamic card payload
 	 *
 	 * @return mixed|array
@@ -553,7 +561,7 @@ class DesignerCard extends DatabaseModel {
 	 *
 	 * @return array|ArrayObject
 	 */
-	public function get_image( $size = 'full' ) {
+	public function get_image( string $size = 'full' ) {
 		$id = $this->get_image_id();
 		if ( empty( $id ) ) {
 			$id = $this->get_product_image_id();
@@ -564,10 +572,13 @@ class DesignerCard extends DatabaseModel {
 			return new ArrayObject();
 		}
 
+		$path = get_attached_file( $id );
+
 		return [
 			'id'     => $id,
 			'title'  => get_the_title( $id ),
 			'url'    => $img[0],
+			'path'   => $path,
 			'width'  => $img[1],
 			'height' => $img[2],
 		];

@@ -43,7 +43,8 @@
 						<shapla-button v-if="card.card_type === 'dynamic'" theme="secondary" size="small" outline
 						               @click="previewDynamicCardPDF">Preview PDF
 						</shapla-button>
-						<shapla-button theme="secondary" size="small" outline @click="generateImage">Generate Image
+						<shapla-button v-if="card.card_type === 'dynamic'" theme="secondary" size="small" outline
+						               @click="generateImage">Generate Image
 						</shapla-button>
 						<shapla-button theme="error" size="small" @click="trashCard"> Trash Card</shapla-button>
 					</template>
