@@ -72,6 +72,8 @@ class SettingPage {
 			'paypal_sandbox_mode'                 => '',
 			'paypal_client_id'                    => '',
 			'paypal_client_secret'                => '',
+			// Google Cloud
+			'google_api_secret_key'               => '',
 			// Trade Site
 			'trade_site_url'                      => '',
 			'trade_site_auth_token'               => '',
@@ -135,6 +137,14 @@ class SettingPage {
 			'title'       => __( 'PayPal Api', 'dialog-contact-form' ),
 			'description' => __( 'PayPal Api settings', 'dialog-contact-form' ),
 			'priority'    => 20,
+		] );
+
+		$setting->set_section( [
+			'id'          => 'section_google_api',
+			'panel'       => 'integrations',
+			'title'       => __( 'Google Api', 'dialog-contact-form' ),
+			'description' => __( 'Google Api settings', 'dialog-contact-form' ),
+			'priority'    => 30,
 		] );
 
 		$setting->set_section( [
@@ -283,6 +293,15 @@ class SettingPage {
 			'priority'          => 45,
 			'sanitize_callback' => 'sanitize_text_field',
 			'section'           => 'section_paypal_api',
+		] );
+		$setting->set_field( [
+			'id'                => 'google_api_secret_key',
+			'type'              => 'text',
+			'title'             => __( 'Google API Secret' ),
+			'default'           => '',
+			'priority'          => 45,
+			'sanitize_callback' => 'sanitize_text_field',
+			'section'           => 'section_google_api',
 		] );
 
 		$setting->set_field( [
