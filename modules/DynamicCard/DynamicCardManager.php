@@ -28,8 +28,10 @@ class DynamicCardManager {
 			UserMediaController::init();
 			BackgroundDynamicPdfGenerator::init();
 
+			add_action( 'admin_notices', [ self::$instance, 'admin_notices' ] );
 			add_action( 'wp_ajax_generate_dynamic_card_pdf', [ self::$instance, 'generate_dynamic_card_pdf' ] );
 			add_action( 'wp_ajax_nopriv_generate_dynamic_card_pdf', [ self::$instance, 'generate_dynamic_card_pdf' ] );
+			add_action( 'wp_ajax_dynamic_card_generate_now', [ self::$instance, 'dynamic_card_generate_now' ] );
 
 			// Step 2: Add Customer Data to WooCommerce Cart
 			add_filter( 'woocommerce_add_cart_item_data', [ self::$instance, 'add_cart_item_data' ] );
@@ -44,6 +46,51 @@ class DynamicCardManager {
 		}
 
 		return self::$instance;
+	}
+
+	public function admin_notices() {
+		$list  = (array) get_option( '_dynamic_card_to_generate', [] );
+		$count = count( $list );
+		if ( $count < 1 ) {
+			return;
+		}
+		$update_url = wp_nonce_url(
+			add_query_arg( [ 'action' => 'dynamic_card_generate_now' ], admin_url( 'admin-ajax.php' ) ),
+			'dynamic_card_generator'
+		);
+		?>
+		<div class="notice notice-info is-dismissible">
+			<p>
+				A background task is running to generate <?php echo $count ?> dynamic card(s). Make sure all orders
+				are sync to ShipStation. Dynamic card won't be generated without ShipStation id.<br>
+				<a class="button button-primary" href="<?php echo esc_url( $update_url ) ?>">Generate Now</a>
+			</p>
+		</div>
+		<?php
+	}
+
+	public function dynamic_card_generate_now() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$nonce       = $_REQUEST['_wpnonce'] ? sanitize_text_field( $_REQUEST['_wpnonce'] ) : null;
+		$is_verified = wp_verify_nonce( $nonce, 'dynamic_card_generator' );
+
+		$message = '<h1>Yousaidit Toolkit</h1>';
+		if ( ! ( current_user_can( 'manage_options' ) && $is_verified ) ) {
+			$message .= '<p>' . __( 'Sorry. This link only for admin to perform upgrade tasks.' ) . '</p>';
+			_default_wp_die_handler( $message, '', [ 'back_link' => true ] );
+		}
+
+		$list = (array) get_option( '_dynamic_card_to_generate', [] );
+		foreach ( $list as $item ) {
+			list( $order_id, $order_item_id ) = explode( '|', $item );
+			BackgroundDynamicPdfGenerator::generate_for_order_item(
+				intval( $order_id ),
+				intval( $order_item_id )
+			);
+		}
+
+		$message .= '<p>' . __( 'Dynamic card has been generated successfully.' ) . '</p>';
+		_default_wp_die_handler( $message, '', [ 'back_link' => true ] );
 	}
 
 	public function dynamic_card_test() {
@@ -136,6 +183,9 @@ class DynamicCardManager {
 				'order_id'      => $order->get_id(),
 				'order_item_id' => $item->get_id()
 			] );
+			$list   = (array) get_option( '_dynamic_card_to_generate', [] );
+			$list[] = sprintf( "%s|%s", $order->get_id(), $item->get_id() );
+			update_option( '_dynamic_card_to_generate', $list, false );
 		}
 	}
 

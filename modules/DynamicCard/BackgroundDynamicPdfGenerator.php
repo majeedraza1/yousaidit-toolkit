@@ -84,6 +84,15 @@ class BackgroundDynamicPdfGenerator extends BackgroundProcess {
 		}
 		$item->pdf( [ 'dest' => 'F', 'name' => $filename ] );
 
+		$list = (array) get_option( '_dynamic_card_to_generate', [] );
+		if ( count( $list ) ) {
+			$index = array_search( sprintf( "%s|%s", $order_id, $order_item_id ), $list );
+			if ( false !== $index ) {
+				unset( $list[ $index ] );
+			}
+			update_option( '_dynamic_card_to_generate', $list );
+		}
+
 		return $filename;
 	}
 }
