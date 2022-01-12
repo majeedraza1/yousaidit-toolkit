@@ -6,6 +6,7 @@ use Stackonet\WP\Framework\Media\UploadedFile;
 use Stackonet\WP\Framework\Media\Uploader;
 use WP_REST_Response;
 use WP_REST_Server;
+use YouSaidItCards\GoogleVisionClient;
 use YouSaidItCards\Modules\Auth\Auth;
 use YouSaidItCards\Modules\Customer\Models\Customer;
 use YouSaidItCards\REST\ApiController;
@@ -128,6 +129,12 @@ class UserProfileController extends ApiController {
 
 		if ( $avatar->getSize() > ( 2 * MB_IN_BYTES ) ) {
 			return $this->respondUnprocessableEntity( 'file_size_too_large', '2MB Maximum file size allowed.' );
+		}
+
+		$is_adult = GoogleVisionClient::is_adult_image( $avatar->getFile() );
+		if ( true !== $is_adult ) {
+			return $this->respondUnprocessableEntity( 'forbidden_adult_content',
+				'Sorry, Adult content is not allowed.' );
 		}
 
 		$ids = Uploader::upload( $avatar );

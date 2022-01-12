@@ -6,6 +6,7 @@ use Stackonet\WP\Framework\Media\UploadedFile;
 use Stackonet\WP\Framework\Media\Uploader;
 use WP_Post;
 use WP_REST_Server;
+use YouSaidItCards\GoogleVisionClient;
 use YouSaidItCards\REST\ApiController;
 
 class UserMediaController extends ApiController {
@@ -112,9 +113,18 @@ class UserMediaController extends ApiController {
 			return $this->respondForbidden();
 		}
 
+		$is_adult = GoogleVisionClient::is_adult_image( $files['file']->getFile() );
+		if ( true !== $is_adult ) {
+			return $this->respondUnprocessableEntity( 'forbidden_adult_content',
+				'Sorry, Adult content is not allowed.' );
+		}
+
 		$attachment_id = Uploader::uploadSingleFile( $files['file'] );
 		if ( is_wp_error( $attachment_id ) ) {
-			return $this->respondUnprocessableEntity( $attachment_id->get_error_code(), $attachment_id->get_error_message() );
+			return $this->respondUnprocessableEntity(
+				$attachment_id->get_error_code(),
+				$attachment_id->get_error_message()
+			);
 		}
 
 		$token = wp_generate_password( 20, false, false );
