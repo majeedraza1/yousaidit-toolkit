@@ -127,7 +127,7 @@ class UserProfileController extends ApiController {
 			return $this->respondUnprocessableEntity( 'unsupported_file_format', 'Please upload a JPG or PNG image file.' );
 		}
 
-		if ( $avatar->getSize() > ( 2 * MB_IN_BYTES ) ) {
+		if ( $avatar->getSize() > ( 10 * MB_IN_BYTES ) ) {
 			return $this->respondUnprocessableEntity( 'file_size_too_large', '2MB Maximum file size allowed.' );
 		}
 

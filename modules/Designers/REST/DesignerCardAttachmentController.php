@@ -142,10 +142,10 @@ class DesignerCardAttachmentController extends ApiController {
 
 		if ( 'card_pdf' == $type ) {
 			$valid_file_types = [ 'application/pdf' ];
-			$accepted_size    = wp_convert_hr_to_bytes( '2MB' );
+			$accepted_size    = wp_convert_hr_to_bytes( '10MB' );
 		} else {
 			$valid_file_types = [ 'image/jpeg', 'image/jpg', 'image/png' ];
-			$accepted_size    = wp_convert_hr_to_bytes( '1MB' );
+			$accepted_size    = wp_convert_hr_to_bytes( '10MB' );
 		}
 
 		if ( $uploadedFile->getSize() > $accepted_size ) {
