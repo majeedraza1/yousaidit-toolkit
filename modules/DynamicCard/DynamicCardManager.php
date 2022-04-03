@@ -69,10 +69,9 @@ class DynamicCardManager {
 	 * @return void
 	 */
 	public function delete_gust_users_media() {
-		$now = time();
 
 		$args = [
-			'posts_per_page' => 1000,
+			'posts_per_page' => 100,
 			'author'         => 0,
 			'orderby'        => 'date',
 			'order'          => 'ASC',
@@ -86,6 +85,8 @@ class DynamicCardManager {
 		];
 
 		$posts_array = get_posts( $args );
+		$now         = time();
+
 		foreach ( $posts_array as $item ) {
 			$_time = get_post_meta( $item->ID, '_should_delete_after_time', true );
 			if ( empty( $_time ) ) {
@@ -232,8 +233,9 @@ class DynamicCardManager {
 	 */
 	public function create_order_line_item( $item, $cart_item_key, $values, $order ) {
 		if ( array_key_exists( '_dynamic_card', $values ) ) {
-			$data = is_array( $values['_dynamic_card'] ) ? $values['_dynamic_card'] : [];
-			$item->add_meta_data( '_dynamic_card', self::sanitize_dynamic_card( $data ) );
+			$data          = is_array( $values['_dynamic_card'] ) ? $values['_dynamic_card'] : [];
+			$_dynamic_card = self::sanitize_dynamic_card( $data );
+			$item->add_meta_data( '_dynamic_card', $_dynamic_card );
 			BackgroundDynamicPdfGenerator::init()->push_to_queue( [
 				'order_id'      => $order->get_id(),
 				'order_item_id' => $item->get_id()
@@ -241,6 +243,15 @@ class DynamicCardManager {
 			$list   = (array) get_option( '_dynamic_card_to_generate', [] );
 			$list[] = sprintf( "%s|%s", $order->get_id(), $item->get_id() );
 			update_option( '_dynamic_card_to_generate', $list, false );
+			foreach ( $_dynamic_card as $value ) {
+				if ( ! is_numeric( $value['value'] ) ) {
+					continue;
+				}
+				$meta = get_post_meta( $value['value'], '_should_delete_after_time', true );
+				if ( is_numeric( $meta ) ) {
+					delete_post_meta( $value['value'], '_should_delete_after_time', $meta );
+				}
+			}
 		}
 	}
 

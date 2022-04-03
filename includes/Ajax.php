@@ -52,34 +52,18 @@ class Ajax {
 			wp_die( __( 'Sorry. This link only for developer to do some testing.', 'yousaidit-toolkit' ) );
 		}
 
-		$items = [
-			[
-				'label'        => 'Section 1',
-				'section_type' => 'static-text',
-				'position'     => [ 'top' => 30, 'left' => 10 ],
-				'text'         => 'Hello',
-				'textOptions'  => [
-					'fontFamily' => 'Arial',
-					'size'       => 96,
-					'align'      => 'center',
-					'color'      => '#00ff00'
-				]
-			],
-			[
-				'label'        => 'Section 1',
-				'section_type' => 'static-image',
-				'position'     => [ 'top' => 80, 'left' => 10 ],
-				'imageOptions' => [
-					'img'    => [ 'id' => 37494 ],
-					'width'  => 101,
-					'height' => 'auto',
-					'align'  => 'center'
-				]
-			]
-		];
+		$sections_values = wc_get_order_item_meta( 53163, '_dynamic_card', true );
+		foreach ( $sections_values as $value ) {
+			if ( ! is_numeric( $value['value'] ) ) {
+				continue;
+			}
+			$meta = get_post_meta( $value['value'], '_should_delete_after_time', true );
+			if ( is_numeric( $meta ) ) {
+				delete_post_meta( $value['value'], '_should_delete_after_time', $meta );
+			}
+		}
+		var_dump( $sections_values );
 
-		$pdf = new FreePdf();
-		$pdf->generate( 'square', $items );
 		die();
 	}
 

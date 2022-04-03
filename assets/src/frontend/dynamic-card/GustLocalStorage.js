@@ -33,8 +33,12 @@ class GustLocalStorage {
 		}
 	}
 
+	static getMedia() {
+		return GustLocalStorage.getItem('media_ids') || [];
+	}
+
 	static appendMedia(id) {
-		const ids = GustLocalStorage.getItem('media_ids');
+		const ids = GustLocalStorage.getItem('media_ids') || [];
 		ids.push(id);
 		GustLocalStorage.setItem('media_ids', ids);
 	}

@@ -87,10 +87,6 @@
 							</shapla-button>
 						</div>
 						<div v-if="activeSection.section_type === 'input-image'" class="mb-4">
-							<a v-if="!isUserLoggedIn" target="_blank" :href="`${loginUrl}`"
-							   class="border border-dotted border-primary text-primary font-bold mb-4 p-2 text-center w-full block">
-								You need to login to change image. Click here to login
-							</a>
 							<tabs fullwidth centered>
 								<tab name="Images" selected>
 									<div class="flex flex-wrap uploade-image-thumbnail-container">
@@ -313,7 +309,11 @@ export default {
 			}
 		},
 		fetchImages() {
-			axios.get(this.uploadUrl).then(response => {
+			let config = {};
+			if (!this.isUserLoggedIn) {
+				config = {params: {images: GustLocalStorage.getMedia()}}
+			}
+			axios.get(this.uploadUrl, config).then(response => {
 				if (response.data.data) {
 					this.images = response.data.data;
 				}
