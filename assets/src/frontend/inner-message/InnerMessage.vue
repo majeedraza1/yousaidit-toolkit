@@ -108,7 +108,7 @@ export default {
 			btnIM.addEventListener('click', event => {
 				event.preventDefault();
 				this.showModal = true;
-				let variations_form = document.querySelector('form.variations_form');
+				let variations_form = document.querySelector('form.variations_form') || document.querySelector('form.cart');
 				if (variations_form) {
 					let form = new FormData(variations_form);
 					for (const [key, value] of form.entries()) {

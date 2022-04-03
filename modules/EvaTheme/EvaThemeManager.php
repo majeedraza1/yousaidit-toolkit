@@ -94,9 +94,15 @@ class EvaThemeManager {
 
 		$html = '';
 
-		$_card_type = $product->get_meta( '_card_type', true );
+		$_card_type        = $product->get_meta( '_card_type', true );
+		$is_simple_product = 'simple' === $product->get_type();
+		if ( $is_simple_product ) {
+			$card_size = $product->get_meta( '_card_size', true );
+			$html      .= '<input type="hidden" name="attribute_pa_size" value="' . esc_attr( $card_size ) . '" />';
+		}
+
 		if ( 'dynamic' == $_card_type ) {
-			$html = $this->get_dynamic_card_html( $product );
+			$html .= $this->get_dynamic_card_html( $product );
 			$html .= $this->get_inner_message_html( false );
 		} else if ( self::should_show_inner_message( $product ) ) {
 			$html .= $this->get_inner_message_html();
