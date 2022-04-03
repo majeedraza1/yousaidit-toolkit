@@ -4,8 +4,10 @@ namespace YouSaidItCards\Modules\DynamicCard\REST;
 
 use Stackonet\WP\Framework\Media\UploadedFile;
 use Stackonet\WP\Framework\Media\Uploader;
+use Stackonet\WP\Framework\Supports\Validate;
 use WP_Post;
 use WP_REST_Server;
+use YouSaidItCards\Admin\SettingPage;
 use YouSaidItCards\GoogleVisionClient;
 use YouSaidItCards\REST\ApiController;
 
@@ -99,8 +101,9 @@ class UserMediaController extends ApiController {
 	 * @inheritDoc
 	 */
 	public function create_item( $request ) {
+		$current_user = wp_get_current_user();
 		if ( ! $this->can_upload_media() ) {
-			return $this->respondUnauthorized();
+			// return $this->respondUnauthorized();
 		}
 
 		$files = UploadedFile::getUploadedFiles();
@@ -113,19 +116,22 @@ class UserMediaController extends ApiController {
 			return $this->respondForbidden();
 		}
 
-		$image_path    = $files['file']->getFile();
-		$content       = base64_encode( file_get_contents( $image_path ) );
-		$vision_client = new GoogleVisionClient();
-		$safe_search   = $vision_client->safe_search( $content );
-		if ( is_wp_error( $safe_search ) ) {
-			return $this->respondUnprocessableEntity( $safe_search->get_error_code(),
-				'Failed to verify adult content. Please contact with admin.' );
-		}
-		$is_adult = $vision_client->is_adult( $safe_search );
+		$should_check_adult_content = SettingPage::get_option( 'enable_adult_content_check', '1' );
 
-		if ( true !== $is_adult ) {
-			return $this->respondUnprocessableEntity( 'forbidden_adult_content',
-				'Sorry, Adult content is not allowed.' );
+		if ( $should_check_adult_content ) {
+			$image_path    = $files['file']->getFile();
+			$content       = base64_encode( file_get_contents( $image_path ) );
+			$vision_client = new GoogleVisionClient();
+			$safe_search   = $vision_client->safe_search( $content );
+			if ( is_wp_error( $safe_search ) ) {
+				return $this->respondUnprocessableEntity( $safe_search->get_error_code(),
+					'Failed to verify adult content. Please contact with admin.' );
+			}
+
+			if ( ! $vision_client->is_adult( $safe_search ) ) {
+				return $this->respondUnprocessableEntity( 'forbidden_adult_content',
+					'Sorry, Adult content is not allowed.' );
+			}
 		}
 
 		$attachment_id = Uploader::uploadSingleFile( $files['file'] );
@@ -138,6 +144,10 @@ class UserMediaController extends ApiController {
 
 		$token = wp_generate_password( 20, false, false );
 		update_post_meta( $attachment_id, '_delete_token', $token );
+
+		if ( ! $current_user->exists() ) {
+			update_post_meta( $attachment_id, '_should_delete_after_time', ( time() + DAY_IN_SECONDS ) );
+		}
 
 		$response = $this->_prepare_item_for_response( $attachment_id );
 

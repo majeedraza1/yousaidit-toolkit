@@ -43,11 +43,66 @@ class DynamicCardManager {
 
 			add_filter( 'woocommerce_cart_item_thumbnail', [ self::$instance, 'cart_item_thumbnail' ], 10, 2 );
 			add_action( 'wp_ajax_dynamic_card_test', [ self::$instance, 'dynamic_card_test' ] );
+
+			add_action( 'yousaidit_toolkit/activation', [ self::$instance, 'schedule_event' ] );
+			add_action( 'wp', [ self::$instance, 'schedule_event' ] );
+			add_action( 'yousaidit_toolkit/delete_gust_users_media', [ self::$instance, 'delete_gust_users_media' ] );
 		}
 
 		return self::$instance;
 	}
 
+	/**
+	 * schedule event to delete gust user media
+	 *
+	 * @return void
+	 */
+	public function schedule_event() {
+		if ( ! wp_next_scheduled( 'yousaidit_toolkit/delete_gust_users_media' ) ) {
+			wp_schedule_event( time(), 'daily', 'yousaidit_toolkit/delete_gust_users_media' );
+		}
+	}
+
+	/**
+	 * Delete gust users media
+	 *
+	 * @return void
+	 */
+	public function delete_gust_users_media() {
+		$now = time();
+
+		$args = [
+			'posts_per_page' => 1000,
+			'author'         => 0,
+			'orderby'        => 'date',
+			'order'          => 'ASC',
+			'post_type'      => 'attachment',
+			'post_status'    => 'inherit',
+			'meta_query'     => [
+				[
+					'key' => '_should_delete_after_time',
+				],
+			],
+		];
+
+		$posts_array = get_posts( $args );
+		foreach ( $posts_array as $item ) {
+			$_time = get_post_meta( $item->ID, '_should_delete_after_time', true );
+			if ( empty( $_time ) ) {
+				continue;
+			}
+
+			if ( $_time > $now ) {
+				wp_delete_attachment( $item, true );
+			}
+		}
+	}
+
+	/**
+	 * Show admin notice
+	 *
+	 * @return void
+	 */
 	public function admin_notices() {
 		$list  = (array) get_option( '_dynamic_card_to_generate', [] );
 		$count = count( $list );

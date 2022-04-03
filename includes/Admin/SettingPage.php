@@ -66,6 +66,8 @@ class SettingPage {
 
 	public static function get_option( $key, $default = '' ) {
 		$default_options = [
+			'enable_adult_content_check'          => '1',
+			// ShipStation API key
 			'ship_station_api_key'                => '',
 			'ship_station_api_secret'             => '',
 			// PayPal Config
@@ -108,6 +110,13 @@ class SettingPage {
 		$setting->set_panel( [ 'id' => 'integrations', 'title' => 'Integrations', 'priority' => 10, ] );
 		$setting->set_panel( [ 'id' => 'trade_site', 'title' => 'Trade Site', 'priority' => 20 ] );
 		$setting->set_panel( [ 'id' => 'market_place', 'title' => 'Market Places', 'priority' => 30 ] );
+
+		$setting->set_section( [
+			'id'       => 'section_general',
+			'title'    => __( 'General Settings' ),
+			'panel'    => 'general',
+			'priority' => 2,
+		] );
 
 		$setting->set_section( [
 			'id'       => 'section_postcard_settings',
@@ -161,6 +170,17 @@ class SettingPage {
 			'description' => __( 'Marketplace settings', 'dialog-contact-form' ),
 			'panel'       => 'market_place',
 			'priority'    => 10,
+		] );
+
+		$setting->set_field( [
+			'id'                => 'enable_adult_content_check',
+			'type'              => 'checkbox',
+			'title'             => __( 'Enable adult content check' ),
+			'description'       => __( 'Enable adult content check on media image' ),
+			'priority'          => 10,
+			'default'           => 'yes',
+			'sanitize_callback' => 'sanitize_text_field',
+			'section'           => 'section_general',
 		] );
 
 		$setting->set_field( [

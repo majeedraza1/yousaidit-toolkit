@@ -91,7 +91,7 @@
 							   class="border border-dotted border-primary text-primary font-bold mb-4 p-2 text-center w-full block">
 								You need to login to change image. Click here to login
 							</a>
-							<tabs fullwidth centered v-if="isUserLoggedIn">
+							<tabs fullwidth centered>
 								<tab name="Images" selected>
 									<div class="flex flex-wrap uploade-image-thumbnail-container">
 										<template v-if="images.length">
@@ -151,6 +151,7 @@ import CardWebViewer from "@/components/DynamicCardPreview/CardWebViewer";
 import SwiperSlider from './SwiperSlider';
 import EditableContent from "@/frontend/inner-message/EditableContent";
 import EditorControls from "@/frontend/inner-message/EditorControls";
+import GustLocalStorage from "@/frontend/dynamic-card/GustLocalStorage";
 
 export default {
 	name: "SingleProductDynamicCard",
@@ -301,6 +302,9 @@ export default {
 		finishedEvent(fileObject, response) {
 			if (response.success) {
 				this.images.unshift(response.data);
+				if (!this.isUserLoggedIn) {
+					GustLocalStorage.appendMedia(response.data.id);
+				}
 			}
 		},
 		handleFileUploadFailed(fileObject, response) {
