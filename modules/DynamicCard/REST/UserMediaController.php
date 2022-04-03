@@ -113,7 +113,16 @@ class UserMediaController extends ApiController {
 			return $this->respondForbidden();
 		}
 
-		$is_adult = GoogleVisionClient::is_adult_image( $files['file']->getFile() );
+		$image_path    = $files['file']->getFile();
+		$content       = base64_encode( file_get_contents( $image_path ) );
+		$vision_client = new GoogleVisionClient();
+		$safe_search   = $vision_client->safe_search( $content );
+		if ( is_wp_error( $safe_search ) ) {
+			return $this->respondUnprocessableEntity( $safe_search->get_error_code(),
+				'Failed to verify adult content. Please contact with admin.' );
+		}
+		$is_adult = $vision_client->is_adult( $safe_search );
+
 		if ( true !== $is_adult ) {
 			return $this->respondUnprocessableEntity( 'forbidden_adult_content',
 				'Sorry, Adult content is not allowed.' );

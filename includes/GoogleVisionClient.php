@@ -17,6 +17,11 @@ class GoogleVisionClient extends RestClient {
 		parent::__construct( 'https://vision.googleapis.com/v1' );
 	}
 
+	/**
+	 * @param string $imageBase64
+	 *
+	 * @return array|WP_Error
+	 */
 	public function safe_search( string $imageBase64 ) {
 		$cache_key = 'safe_search_' . md5( $imageBase64 );
 		$response  = get_transient( $cache_key );
