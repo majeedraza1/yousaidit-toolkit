@@ -233,3 +233,19 @@ body.has-shapla-modal {
 		}
 	}
 }
+
+
+// Extra options
+table.extra-options {
+	tr {
+		display: flex !important;
+	}
+
+	td {
+		@apply flex-grow-0;
+
+		&.label {
+			min-width: 150px !important;
+		}
+	}
+}
