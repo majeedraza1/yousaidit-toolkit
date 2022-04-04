@@ -9,6 +9,7 @@
 				@upload="handleCardImageUpload"
 				@failed="handleCardImageFailed"
 				@click:template="handleTemplateDownload"
+				@click:clear="card_image = {}"
 			/>
 			<card-options
 				v-if="current_step === 2"

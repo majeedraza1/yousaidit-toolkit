@@ -14,7 +14,8 @@
 				<img :src="previewImage.src"/>
 			</image-container>
 			<div class="flex justify-center mt-4">
-				<shapla-button v-if="hasImage" theme="primary" size="small">Remove Image</shapla-button>
+				<shapla-button v-if="hasImage" theme="primary" size="small" @click="removeImage">Remove Image
+				</shapla-button>
 			</div>
 		</div>
 		<div class="sm:w-full md:w-1/2 p-2">
@@ -95,6 +96,9 @@ export default {
 		},
 		downloadTemplate(templateName) {
 			this.$emit('click:template', templateName);
+		},
+		removeImage() {
+			this.$emit('click:clear', this.image);
 		}
 	}
 }
