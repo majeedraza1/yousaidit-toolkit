@@ -58,8 +58,7 @@
 				<div class="w-full text-center mb-4">
 					<h2 class="text-2xl text-primary">We are sorry, you have reached your card limit.</h2>
 					<p class="px-16 mb-8">Please fill in the form bellow for a member of our time to review your account
-						and up your
-						limits.</p>
+						and up your limits.</p>
 				</div>
 				<columns>
 					<column :tablet="5">
@@ -197,7 +196,6 @@ export default {
 	methods: {
 		onCardAdded(card) {
 			this.cards.unshift(card);
-			// window.location.reload();
 		},
 		chooseCardType(type) {
 			if ('static' === type) {

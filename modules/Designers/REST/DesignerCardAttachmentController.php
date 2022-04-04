@@ -158,7 +158,20 @@ class DesignerCardAttachmentController extends ApiController {
 			return $this->respondUnprocessableEntity( 'invalid_media_type', 'File type not valid.' );
 		}
 
-		$attachments = Attachment::upload( $files['file'] );
+		$imagick         = new \Imagick( $uploadedFile->getFile() );
+		$imageResolution = $imagick->getImageResolution();
+
+		if ( $imageResolution['x'] < 300 || $imageResolution['y'] < 300 ) {
+			$resolution = $imageResolution['x'];
+			if ( $imageResolution['y'] !== $resolution ) {
+				$resolution = sprintf( "%sx%s", $resolution, $imageResolution['y'] );
+			}
+			$message = "Minimum image resolution is 300dpi. Your uploaded image resolution is {$resolution} dpi";
+
+			return $this->respondUnprocessableEntity( null, $message );
+		}
+
+		$attachments = Attachment::upload( $uploadedFile );
 		$ids         = wp_list_pluck( $attachments, 'attachment_id' );
 
 		$image_id = $ids[0];

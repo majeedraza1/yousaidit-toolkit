@@ -7,6 +7,7 @@
 				:image="card_image"
 				:card-size="card_size"
 				@upload="handleCardImageUpload"
+				@failed="handleCardImageFailed"
 				@click:template="handleTemplateDownload"
 			/>
 			<card-options
@@ -224,6 +225,15 @@ export default {
 		handleCardImageUpload(fileObject, serverResponse) {
 			this.card.image_id = serverResponse.data.attachment.id;
 			this.card_image = serverResponse.data.attachment;
+		},
+		handleCardImageFailed(fileObject, serverResponse) {
+			if (serverResponse.message) {
+				this.$store.commit('SET_NOTIFICATION', {
+					type: 'error',
+					title: 'Error',
+					message: serverResponse.message
+				})
+			}
 		},
 		handleCardGalleryImagesUpload(fileObject, serverResponse) {
 			this.card.gallery_images_ids.push(serverResponse.data.attachment.id);

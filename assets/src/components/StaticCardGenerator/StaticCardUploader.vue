@@ -7,11 +7,15 @@
 					:url="attachment_upload_url"
 					@before:send="handleBeforeSend"
 					@success="handleImageUpload"
+					@failed="handleImageUploadFailed"
 				/>
 			</image-container>
 			<image-container v-if="hasImage">
 				<img :src="previewImage.src"/>
 			</image-container>
+			<div class="flex justify-center mt-4">
+				<shapla-button v-if="hasImage" theme="primary" size="small">Remove Image</shapla-button>
+			</div>
 		</div>
 		<div class="sm:w-full md:w-1/2 p-2">
 			<div>
@@ -47,11 +51,11 @@
 </template>
 
 <script>
-import {FileUploader, imageContainer, iconContainer} from "shapla-vue-components";
+import {FileUploader, imageContainer, iconContainer, shaplaButton} from "shapla-vue-components";
 
 export default {
 	name: "StaticCardUploader",
-	components: {FileUploader, imageContainer, iconContainer},
+	components: {FileUploader, imageContainer, iconContainer, shaplaButton},
 	props: {
 		cardSize: {type: String, default: 'square'},
 		image: {type: Object, default: () => ({})}
@@ -85,6 +89,9 @@ export default {
 		},
 		handleImageUpload(fileObject, serverResponse) {
 			this.$emit('upload', fileObject, serverResponse)
+		},
+		handleImageUploadFailed(fileObject, serverResponse) {
+			this.$emit('failed', fileObject, serverResponse)
 		},
 		downloadTemplate(templateName) {
 			this.$emit('click:template', templateName);
