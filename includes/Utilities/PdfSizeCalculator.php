@@ -2,15 +2,12 @@
 
 namespace YouSaidItCards\Utilities;
 
+use Exception;
 use setasign\Fpdi\Fpdi;
-use setasign\Fpdi\PdfParser\CrossReference\CrossReferenceException;
-use setasign\Fpdi\PdfParser\Filter\FilterException;
-use setasign\Fpdi\PdfParser\PdfParserException;
 use setasign\Fpdi\PdfParser\StreamReader;
-use setasign\Fpdi\PdfParser\Type\PdfTypeException;
 use setasign\Fpdi\PdfReader\PageBoundaries;
-use setasign\Fpdi\PdfReader\PdfReaderException;
 use Stackonet\WP\Framework\Abstracts\BackgroundProcess;
+use Stackonet\WP\Framework\Supports\Logger;
 
 class PdfSizeCalculator extends BackgroundProcess {
 
@@ -28,6 +25,40 @@ class PdfSizeCalculator extends BackgroundProcess {
 	 * @access protected
 	 */
 	protected $action = 'background_pdf_size_calculator';
+
+	/**
+	 * Calculate pdf width and height
+	 *
+	 * @param int $pdf_id The pdf id.
+	 *
+	 * @return bool
+	 */
+	public static function calculate_pdf_width_and_height( int $pdf_id ): bool {
+		$pdf_url     = wp_get_attachment_url( $pdf_id );
+		$cardContent = file_get_contents( $pdf_url, 'rb' );
+		$stream      = StreamReader::createByString( $cardContent );
+		$pdf         = new Fpdi();
+		try {
+			$totalPagesCount = $pdf->setSourceFile( $stream );
+			$pageId          = $pdf->importPage( $totalPagesCount, PageBoundaries::MEDIA_BOX );
+			list( $card_width, $card_height ) = $pdf->getImportedPageSize( $pageId );
+			update_post_meta( $pdf_id, '_pdf_width_millimeter', round( $card_width ) );
+			update_post_meta( $pdf_id, '_pdf_height_millimeter', round( $card_height ) );
+
+			$total = (int) get_option( '_pdf_size_calculator_total_items', 0 );
+			if ( $total > 0 ) {
+				update_option( '_pdf_size_calculator_total_items', ( $total - 1 ), false );
+			} else {
+				delete_option( '_pdf_size_calculator_total_items' );
+			}
+
+			return true;
+		} catch ( Exception $e ) {
+			Logger::log( $e );
+
+			return false;
+		}
+	}
 
 	/**
 	 * Only one instance of the class can be loaded
@@ -170,33 +201,6 @@ class PdfSizeCalculator extends BackgroundProcess {
 			return false;
 		}
 
-		$pdf_url     = wp_get_attachment_url( $pdf_id );
-		$cardContent = file_get_contents( $pdf_url, 'rb' );
-		$stream      = StreamReader::createByString( $cardContent );
-		$pdf         = new Fpdi();
-		try {
-			$totalPagesCount = $pdf->setSourceFile( $stream );
-			try {
-				$pageId = $pdf->importPage( $totalPagesCount, PageBoundaries::MEDIA_BOX );
-				list( $card_width, $card_height ) = $pdf->getImportedPageSize( $pageId );
-				update_post_meta( $pdf_id, '_pdf_width_millimeter', round( $card_width ) );
-				update_post_meta( $pdf_id, '_pdf_height_millimeter', round( $card_height ) );
-
-				$total = (int) get_option( '_pdf_size_calculator_total_items', 0 );
-				if ( $total > 0 ) {
-					update_option( '_pdf_size_calculator_total_items', ( $total - 1 ), false );
-				} else {
-					delete_option( '_pdf_size_calculator_total_items' );
-				}
-			} catch ( CrossReferenceException $e ) {
-			} catch ( FilterException $e ) {
-			} catch ( PdfTypeException $e ) {
-			} catch ( PdfParserException $e ) {
-			} catch ( PdfReaderException $e ) {
-			}
-		} catch ( PdfParserException $e ) {
-		}
-
-		return false;
+		return self::calculate_pdf_width_and_height( $pdf_id );
 	}
 }

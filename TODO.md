@@ -2,12 +2,12 @@
 
 #### Bug List: Bugs 12-01-22.pdf
 - [x] On the last part of checkout it’s missing the card image. (Bugs 12-01-22.pdf, Issue: 11)
+- [x] I tested the new static card system and when I go to print the cards in admin it’s not showing on the PDF merger
+  page. Under the packing slip part, it’s pulled the order, but it’s unable to connect any PDF. (Bugs 12-01-22.pdf,
+  Issue: 8)
 - [ ] On mobile the inner message text and screen does not load right. You might need to test on mobile to see how it
   loads and shows. The front card image is tiny until you scroll for it to become the correct size.  (Bugs 12-01-22.pdf,
   Issue: 5)
-- [ ] I tested the new static card system and when I go to print the cards in admin it’s not showing on the PDF merger
-  page. Under the packing slip part, it’s pulled the order, but it’s unable to connect any PDF. (Bugs 12-01-22.pdf,
-  Issue: 8)
 - [ ] Can we make sure the dyamic and static cards are the correct artwork sizes needed. So the exported PDF file needs
   to be the bleed size = 306mm x 156mm. The front of the card needs to be 156mm high and only 154mm wide. This gives us
   3mm bleed on the top, right, bottom and also 1mm on the left for creasing in production. These sizes are really

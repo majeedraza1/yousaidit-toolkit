@@ -9,6 +9,7 @@ use YouSaidItCards\Modules\Designers\Models\DesignerCard;
 use YouSaidItCards\Modules\DynamicCard\BackgroundDynamicPdfGenerator;
 use YouSaidItCards\Utilities\FreePdfBase;
 use YouSaidItCards\Utilities\MarketPlace;
+use YouSaidItCards\Utilities\PdfSizeCalculator;
 
 class OrderItem implements JsonSerializable {
 
@@ -149,6 +150,13 @@ class OrderItem implements JsonSerializable {
 			} else {
 				$this->pdf_width  = (int) get_post_meta( $this->pdf_id, '_pdf_width_millimeter', true );
 				$this->pdf_height = (int) get_post_meta( $this->pdf_id, '_pdf_height_millimeter', true );
+
+				if ( ! ( $this->pdf_width && $this->pdf_height ) ) {
+					PdfSizeCalculator::calculate_pdf_width_and_height( $this->pdf_id );
+
+					$this->pdf_width  = (int) get_post_meta( $this->pdf_id, '_pdf_width_millimeter', true );
+					$this->pdf_height = (int) get_post_meta( $this->pdf_id, '_pdf_height_millimeter', true );
+				}
 			}
 
 			$this->designer_id = (int) $this->product->get_meta( '_card_designer_id', true );
