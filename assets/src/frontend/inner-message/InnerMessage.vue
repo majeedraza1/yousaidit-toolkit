@@ -141,6 +141,7 @@ export default {
 						this.showModal = true;
 						this.page = 'cart';
 						this.cartkey = response.data.key;
+						window.console.log(response.data._inner_message);
 						this.innerMessage = response.data._inner_message;
 						if (response.data._card_size) {
 							this.card_size = response.data._card_size;

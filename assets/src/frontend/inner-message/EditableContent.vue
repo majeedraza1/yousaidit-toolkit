@@ -3,12 +3,10 @@
 		<div class="editable-content">
 			<div class="editable-content__editor"
 			     :style="editorStyle"
-			     :contenteditable="editable?'true':'false'"
+			     :contenteditable="isEditable?'true':'false'"
 			     @focus="handleFocusEvent"
 			     @input="handleInputEvent"
-			>
-				<div v-html="textLength ? text : placeholder"></div>
-			</div>
+			/>
 		</div>
 	</div>
 </template>
@@ -45,6 +43,8 @@ export default {
 			editableContent: null,
 			editableContentEditor: null,
 			showLengthError: false,
+			isEditable: false,
+			showPlaceholder: true,
 		}
 	},
 	computed: {
@@ -92,6 +92,9 @@ export default {
 		},
 		showLengthError(newValue) {
 			this.$emit('lengthError', newValue);
+		},
+		editable(newValue) {
+			setTimeout(() => this.isEditable = newValue, 500);
 		}
 	},
 	methods: {
@@ -118,6 +121,27 @@ export default {
 			// If element size is 200mm, then padding is {(8mm/150mm) * 200mm}
 			// Convert mm to px
 			this.canvas_padding = calculateElementPadding(this.cardSizes[0] / 2, this.canvas_width);
+		},
+		updateTextAndPlaceholder() {
+			const lines = this.value
+				// .replace('<div class="editable-content__html">', '')
+				.split('<div>')
+				.map(_text => _text.replace('</div>', ''))
+				.filter(line => typeof line === 'string' && line.length);
+			if (lines.length) {
+				this.showPlaceholder = false;
+				let contentEl = this.$el.querySelector('.editable-content__editor')
+				lines.forEach(line => {
+					let divEl = document.createElement('div');
+					divEl.innerText = line;
+					contentEl.append(divEl);
+				})
+			} else {
+				let contentEl = this.$el.querySelector('.editable-content__editor')
+				let divEl = document.createElement('div');
+				divEl.innerText = this.placeholder;
+				contentEl.append(divEl);
+			}
 		}
 	},
 	mounted() {
@@ -129,6 +153,8 @@ export default {
 
 			this.editableContent = this.$el.querySelector('.editable-content');
 			this.editableContentEditor = this.$el.querySelector('.editable-content__editor');
+			this.isEditable = this.editable;
+			this.updateTextAndPlaceholder();
 		}, 100);
 	}
 }
