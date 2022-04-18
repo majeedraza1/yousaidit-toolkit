@@ -22,12 +22,7 @@ const calculateFontSizeScale = (cardWidthInMM, screenWidthInPX, fontSizeInPT) =>
  * @return {*|number[]}
  */
 const cardSizeFromName = name => {
-	const sizes = {
-		a4: [426, 303],
-		a5: [303, 216],
-		a6: [216, 154],
-		square: [300, 150],
-	};
+	const sizes = window.StackonetToolkit.pdfSizes;
 	return sizes[name] ?? [0, 0];
 }
 

@@ -151,7 +151,7 @@ class PdfGenerator extends PdfGeneratorBase {
 			if ( in_array( $page_size, [ 'a4', 'a5', 'a6' ] ) ) {
 				$this->page_size = $page_size;
 			} else {
-				$this->page_size = [ 300, 150 ];
+				$this->page_size = [ 306, 156 ];
 			}
 		}
 	}

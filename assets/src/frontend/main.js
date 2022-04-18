@@ -86,7 +86,7 @@ widget.each(function (index, element) {
 		let title = $(element).find('.widget-title');
 		$(element).find('.select2-selection__placeholder').html(title.html());
 		$(element).find('.select2-selection__rendered').html(title.html());
-	}, 300);
+	}, 310);
 });
 
 function fixShippingColspanIssue() {
@@ -95,7 +95,7 @@ function fixShippingColspanIssue() {
 	if (shippingTr) {
 		setTimeout(() => {
 			$(shippingTr).attr('colspan', '0')
-		}, 300);
+		}, 310);
 	}
 }
 

@@ -7,12 +7,7 @@
 </template>
 
 <script>
-const availableCardSizes = {
-	a4: [426, 303],
-	a5: [303, 216],
-	a6: [216, 154],
-	square: [300, 150],
-}
+const availableCardSizes = window.StackonetToolkit.pdfSizes
 export default {
 	name: "SwiperSliderItem",
 	props: {

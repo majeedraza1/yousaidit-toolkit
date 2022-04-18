@@ -216,7 +216,7 @@ export default {
 				{value: 'a4', width: 426, height: 303, unit: 'mm', label: 'A4 ( 213mm x 303mm )'},
 				{value: 'a5', width: 303, height: 216, unit: 'mm', label: 'A5 ( 151.5mm x 216mm )'},
 				{value: 'a6', width: 216, height: 154, unit: 'mm', label: 'A6 ( 108mm x 154mm )'},
-				{value: 'square', width: 300, height: 150, unit: 'mm', label: 'Square ( 150mm x 150mm )'},
+				{value: 'square', width: 306, height: 156, unit: 'mm', label: 'Square ( 150mm x 150mm )'},
 			],
 			image: {},
 			images: [],
@@ -363,7 +363,7 @@ export default {
 			this.canvas_height = cardCanvas.offsetHeight;
 			// 300,150
 			if (this.card_size === 'square') {
-				return Math.round((300 / 2) / 150 * cardCanvas.offsetHeight);
+				return Math.round((306 / 2) / 150 * cardCanvas.offsetHeight);
 			}
 
 			// 303,216
@@ -476,6 +476,3 @@ export default {
 	}
 }
 </script>
-
-<style lang="scss">
-</style>

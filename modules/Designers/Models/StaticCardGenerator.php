@@ -2,15 +2,13 @@
 
 namespace YouSaidItCards\Modules\Designers\Models;
 
-use Stackonet\WP\Framework\Media\UploadedFile;
-use Stackonet\WP\Framework\Media\Uploader;
 use Stackonet\WP\Framework\Supports\Validate;
 use tFPDF;
 
 class StaticCardGenerator {
 	protected $orientation = 'L';
 	protected $unit = 'mm';
-	protected $size = [ 300, 150 ];
+	protected $size = [ 306, 156 ];
 	protected $background_image = null;
 	protected $background_image_ext = 'jpeg';
 	protected $qrcode_image = null;

@@ -61,7 +61,7 @@ export default {
 				return (100 / (216 / 2) * 154) + '%';
 			}
 			if ('square' === this.card_size) {
-				return (100 / (300 / 2) * 150) + '%';
+				return (100 / (306 / 2) * 156) + '%';
 			}
 			return '100%';
 		},

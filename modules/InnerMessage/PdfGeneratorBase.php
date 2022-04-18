@@ -7,7 +7,7 @@ use JoyPixels\Client;
 use JoyPixels\Ruleset;
 
 class PdfGeneratorBase {
-	protected $page_size = [ 300, 150 ];
+	protected $page_size = [ 306, 156 ];
 	protected $font_family = 'Arial';
 	protected $text_color = '#000000';
 	protected $left_column_bg = '#ffffff';
@@ -114,8 +114,8 @@ class PdfGeneratorBase {
 			}
 
 			.left-column, .right-column {
-				width: <?php echo ($this->page_size[0] / 2).'mm'?>;
-				height: <?php echo ($this->page_size[1] ).'mm'?>;
+				width: <?php echo intval($this->page_size[0] / 2).'mm'?>;
+				height: <?php echo intval($this->page_size[1] ).'mm'?>;
 			}
 
 			.card-content-inner {

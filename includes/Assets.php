@@ -4,6 +4,7 @@ namespace YouSaidItCards;
 
 // If this file is called directly, abort.
 use YouSaidItCards\Modules\InnerMessage\Fonts;
+use YouSaidItCards\Utilities\FreePdfBase;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -209,7 +210,8 @@ class Assets {
 			'privacyPolicyUrl' => get_privacy_policy_url(),
 		];
 
-		$data['fonts'] = Fonts::get_list_for_web();
+		$data['pdfSizes'] = FreePdfBase::get_sizes();
+		$data['fonts']    = Fonts::get_list_for_web();
 
 		if ( ! $is_user_logged_in ) {
 			$data['loginUrl']        = wp_login_url( get_permalink() );

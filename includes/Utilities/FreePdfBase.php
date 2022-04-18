@@ -9,7 +9,7 @@ class FreePdfBase {
 	 * @var array
 	 */
 	protected static $sizes = [
-		'square' => [ 300, 150 ],
+		'square' => [ 306, 156 ],
 		'a4'     => [ 426, 303 ],
 		'a5'     => [ 303, 216 ],
 		'a6'     => [ 216, 154 ],

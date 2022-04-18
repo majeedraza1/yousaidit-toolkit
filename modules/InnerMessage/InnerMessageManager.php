@@ -286,7 +286,7 @@ class InnerMessageManager {
 
 	public function inner_message_preview_test() {
 		$pdf = new PdfGeneratorBase();
-		$pdf->set_page_size( 300, 150 );
+		$pdf->set_page_size( 306, 156 );
 		$pdf->set_right_column_bg( '#f1f1f1' );
 		$pdf->set_text_data( [
 			'content' => 'Add a very very long line of text and it should go to.',
