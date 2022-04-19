@@ -1,8 +1,15 @@
 <template>
 	<div>
-		<modal :active="show_dynamic_card_editor" @close="show_dynamic_card_editor = false" type="box"
-		       content-size="full" :show-card-footer="false" class="modal--single-product-dynamic-card"
-		       content-class="modal-dynamic-card-content" :show-close-icon="false">
+		<modal
+			:active="show_dynamic_card_editor"
+			@close="show_dynamic_card_editor = false"
+			type="box"
+			content-size="full"
+			:show-card-footer="false"
+			:show-close-icon="false"
+			class="modal--single-product-dynamic-card"
+			content-class="modal-dynamic-card-content"
+		>
 			<div class="w-full h-full flex sm:flex-col md:flex-col lg:flex-row lg:space-x-4">
 				<div class="flex flex-col flex-grow dynamic-card--canvas">
 					<div class="w-full flex dynamic-card--canvas-slider">
