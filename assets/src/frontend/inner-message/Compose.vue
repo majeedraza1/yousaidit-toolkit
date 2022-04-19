@@ -1,7 +1,7 @@
 <template>
 	<div class="yousaidit-inner-message-compose flex flex-col h-full -m-4 p-4 sm:bg-gray-100">
 		<div class="h-full flex flex-wrap justify-center">
-			<div class="flex items-center justify-center flex-grow" id="editable-content-container">
+			<div class="sm:w-full flex items-center justify-center flex-grow" id="editable-content-container">
 				<editable-content
 					v-if="active"
 					class="shadow-lg sm:mb-4 sm:bg-white md:ml-auto md:mr-auto"
@@ -18,7 +18,7 @@
 					Oops... your message is too long, please keep inside the box.
 				</div>
 			</div>
-			<div class="sm:mt-4 sm:mb-4">
+			<div class="sm:w-full sm:mt-4 sm:mb-4">
 				<div class="flex flex-col h-full bg-gray-100 w-80 ml-auto">
 					<editor-controls v-model="editor_control_data" @change="onChangeEditorControls"/>
 					<div class="flex-grow"></div>

@@ -46,7 +46,6 @@ export default {
 			if (document.body.offsetWidth < 768) {
 				this.width = document.body.offsetWidth - 30 || this.$el.offsetWidth;
 				this.height = Math.round(this.width * (d[1] / d[0]));
-				window.console.log('Calculate width', document.body.offsetWidth, this.$el.offsetWidth);
 			} else {
 				this.height = innerEL.offsetHeight;
 				this.width = Math.round(innerEL.offsetHeight * (d[0] / d[1]));
