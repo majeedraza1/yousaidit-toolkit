@@ -11,6 +11,6 @@
   important!! At the moment they’re exporitng the artwork 300mm x 150mm. (Bugs 12-01-22.pdf, Issue: 10)
 - [x] When you want to edit the inner message on the shopping cart page the popup loads ok but when they try to edit the
   text it auto goes to the front of the text and unable to edit the text. (Bugs 12-01-22.pdf, Issue: 11)
-- [ ] On mobile the inner message text and screen does not load right. You might need to test on mobile to see how it
+- [x] On mobile the inner message text and screen does not load right. You might need to test on mobile to see how it
   loads and shows. The front card image is tiny until you scroll for it to become the correct size.  (Bugs 12-01-22.pdf,
   Issue: 5)

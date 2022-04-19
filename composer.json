@@ -6,7 +6,7 @@
     {
       "name": "Yousaidit Services (Pvt.) Ltd.",
       "email": "info@stackonet.com",
-      "homepage": "http://www.stackonet.com"
+      "homepage": "https://stackonet.com"
     },
     {
       "name": "Sayful Islam",
@@ -29,7 +29,7 @@
     "ext-imagick": "*",
     "ext-json": "*",
     "bacon/bacon-qr-code": "^2.0",
-    "dompdf/dompdf": "^0.8.5",
+    "dompdf/dompdf": "^v1.2",
     "firebase/php-jwt": "^5.2",
     "joypixels/emoji-toolkit": "^6.0",
     "khanamiryan/qrcode-detector-decoder": "^1.0",
