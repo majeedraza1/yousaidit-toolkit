@@ -22,7 +22,7 @@ class Payment extends DatabaseModel {
 	/**
 	 * @inheritDoc
 	 */
-	public function to_array() {
+	public function to_array(): array {
 		$data = $this->data;
 
 		$data[ $this->primaryKey ] = intval( $data[ $this->primaryKey ] );

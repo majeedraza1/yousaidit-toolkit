@@ -37,7 +37,7 @@ class DesignerCommission extends DatabaseModel {
 	 *
 	 * @return array
 	 */
-	public function to_array() {
+	public function to_array(): array {
 		$data = $this->data;
 
 		$data['commission_id']    = intval( $this->get( 'commission_id' ) );
