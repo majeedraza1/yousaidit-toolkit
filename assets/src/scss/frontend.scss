@@ -249,3 +249,9 @@ table.extra-options {
 		}
 	}
 }
+
+.woocommerce-cart {
+	.remove {
+		z-index: 1;
+	}
+}

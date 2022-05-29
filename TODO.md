@@ -21,7 +21,7 @@
   - It's just show background image and you need to save it manually.
 - [x] When the 'generate image button' is working we would need this option added to the static
   cards
-- [ ] On mobile the dynamic cards hide the remove from cart button -
+- [x] On mobile the dynamic cards hide the remove from cart button -
 - [ ] On the bottom on the pages it’s showing this for somereason -
 - [ ] The Print Cards part on the site deson   deson’tt seem to work that great, when I click top button
   saying generate now it says it   it’s done so I got back to the print card page and merge the
