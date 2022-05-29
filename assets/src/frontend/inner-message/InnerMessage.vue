@@ -113,9 +113,11 @@ export default {
 					let form = new FormData(variations_form);
 					for (const [key, value] of form.entries()) {
 						if (key === "attribute_pa_size") {
-							this.card_size = value;
+							this.card_size = value.length ? value : 'square';
 						}
 					}
+				} else {
+					this.card_size = 'square';
 				}
 			});
 		}
