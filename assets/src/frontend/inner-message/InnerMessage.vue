@@ -6,7 +6,7 @@
 			         :btn-text="btnText" @close="closeModal" @submit="submit"/>
 		</modal>
 		<modal v-if="showViewModal" :active="true" type="card" title="Preview" content-size="full"
-		       @close="showViewModal = false" :show-card-footer="false">
+		       @close="closeViewModal" :show-card-footer="false">
 			<div style="max-width: 400px;" class="ml-auto mr-auto">
 				<editable-content
 					:editable="false"
@@ -156,6 +156,12 @@ export default {
 		});
 	},
 	methods: {
+		closeViewModal() {
+			this.showViewModal = false;
+			if (document.body.classList.contains('has-shapla-modal')) {
+				document.body.classList.remove('has-shapla-modal');
+			}
+		},
 		closeModal() {
 			this.showModal = false;
 			let checkbox = document.querySelector('#custom_message');

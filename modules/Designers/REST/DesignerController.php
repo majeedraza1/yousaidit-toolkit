@@ -3,6 +3,7 @@
 namespace YouSaidItCards\Modules\Designers\REST;
 
 use Exception;
+use Stackonet\WP\Framework\Supports\Validate;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -154,6 +155,7 @@ class DesignerController extends ApiController {
 			'unique_customers'     => count( $unique_customers ),
 			'total_orders'         => $total_orders,
 			'maximum_allowed_card' => $designer->get_maximum_allowed_card(),
+			'can_add_dynamic_card' => $designer->can_add_dynamic_card(),
 			'total_cards'          => $designer->get_total_cards_count(),
 		] );
 	}
@@ -297,6 +299,9 @@ class DesignerController extends ApiController {
 		$cover_photo_id = $request->get_param( 'cover_photo_id' );
 		if ( is_numeric( $cover_photo_id ) ) {
 			$meta_data['cover_photo_id'] = intval( $cover_photo_id );
+		}
+		if ( $request->has_param( 'can_add_dynamic_card' ) ) {
+			$meta_data['can_add_dynamic_card'] = Validate::checked( $request->get_param( 'can_add_dynamic_card' ) ) ? 'yes' : 'no';
 		}
 
 		if ( ! empty( $meta_data ) ) {

@@ -3,6 +3,7 @@
 namespace YouSaidItCards\Modules\Designers\Models;
 
 use JsonSerializable;
+use Stackonet\WP\Framework\Supports\Validate;
 use WC_Product_Query;
 use WP_Role;
 use WP_User;
@@ -84,6 +85,7 @@ class CardDesigner implements JsonSerializable {
 		'business_name'              => '',
 		'vat_registration_number'    => '',
 		'vat_certificate_issue_date' => '',
+		'can_add_dynamic_card'       => 'no',
 		'avatar_id'                  => 0,
 		'cover_photo_id'             => 0,
 		'card_logo_id'               => 0,
@@ -188,6 +190,7 @@ class CardDesigner implements JsonSerializable {
 			'total_cards'          => $this->get_total_cards_count(),
 			'profile_base_url'     => $this->get_profile_base_url(),
 			'maximum_allowed_card' => $this->get_maximum_allowed_card(),
+			'can_add_dynamic_card' => $this->can_add_dynamic_card(),
 			'total_sales'          => 0,
 		];
 
@@ -249,6 +252,19 @@ class CardDesigner implements JsonSerializable {
 		$paypal_email = get_user_meta( $this->get_user_id(), '_paypal_email', true );
 
 		return is_email( $paypal_email ) ? $paypal_email : '';
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function can_add_dynamic_card(): bool {
+		// Admin user can add dynamic card
+		if ( $this->get_user()->has_cap( 'manage_options' ) ) {
+			return true;
+		}
+		$can_add_dynamic_card = get_user_meta( $this->get_user_id(), '_can_add_dynamic_card', true );
+
+		return Validate::checked( $can_add_dynamic_card );
 	}
 
 	/**

@@ -36,7 +36,7 @@
 				     class="bg-gray-100 hover:bg-gray-200 cursor-pointer p-4 w-36 h-32 flex justify-center items-center">
 					Static Card
 				</div>
-				<div @click.prevent="chooseCardType('dynamic')"
+				<div v-if="can_add_dynamic_card" @click.prevent="chooseCardType('dynamic')"
 				     class="bg-gray-100 hover:bg-gray-200 cursor-pointer p-4 w-36 h-32 flex justify-center items-center">
 					Dynamic Card
 				</div>
@@ -155,6 +155,7 @@ export default {
 			modalActive: false,
 			cards: [],
 			maximum_allowed_card: 0,
+			can_add_dynamic_card: false,
 			total_cards: 0,
 			pagination: {
 				total_items: 0,
@@ -293,6 +294,7 @@ export default {
 				this.statuses = data.statuses;
 				this.pagination = data.pagination;
 				this.maximum_allowed_card = data.maximum_allowed_card;
+				this.can_add_dynamic_card = data.can_add_dynamic_card;
 				this.total_cards = data.total_cards;
 				this.end = (this.cards.length === data.pagination.totalCount);
 				this.pagination_lock = false;

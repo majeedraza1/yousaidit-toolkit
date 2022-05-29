@@ -43,6 +43,20 @@
 					</div>
 				</column>
 			</columns>
+			<columns multiline>
+				<column :tablet="3">Is dynamic card allowed?</column>
+				<column :tablet="9">
+					<div>
+						<div>
+							{{ designer.can_add_dynamic_card ? 'Yes' : 'No' }}
+							<a href="" @click.prevent="toggleDynamicCard">{{
+									designer.can_add_dynamic_card ? 'Disallow' : 'Allow'
+								}}</a>
+						</div>
+						<div><strong>Note:</strong> Dynamic card always allowed for admin user.</div>
+					</div>
+				</column>
+			</columns>
 		</div>
 		<h2 class="title">Card Info</h2>
 		<toggles v-if="cards.length">
@@ -115,6 +129,7 @@ export default {
 				this.designer.unpaid_commission = data.unpaid_commission;
 				this.designer.paid_commission = data.paid_commission;
 				this.designer.maximum_allowed_card = data.maximum_allowed_card;
+				this.designer.can_add_dynamic_card = data.can_add_dynamic_card;
 				this.$store.commit('SET_LOADING_STATUS', false);
 			}).catch(errors => {
 				console.log(errors);
@@ -165,6 +180,23 @@ export default {
 			}).catch(errors => {
 				console.log(errors);
 				this.$store.commit('SET_LOADING_STATUS', false);
+			})
+		},
+		toggleDynamicCard() {
+			this.$dialog.confirm('Are you sure?').then(confirmed => {
+				if (confirmed) {
+					this.$store.commit('SET_LOADING_STATUS', true);
+					axios.post(Stackonet.root + '/admin/designers/', {
+						designer_id: this.designer.id,
+						can_add_dynamic_card: !this.designer.can_add_dynamic_card ? 'yes' : 'no',
+					}).then(() => {
+						this.$store.commit('SET_LOADING_STATUS', false);
+						this.getItem();
+					}).catch(errors => {
+						console.log(errors);
+						this.$store.commit('SET_LOADING_STATUS', false);
+					})
+				}
 			})
 		}
 	}

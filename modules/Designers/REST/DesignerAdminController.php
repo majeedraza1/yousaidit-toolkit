@@ -2,6 +2,7 @@
 
 namespace YouSaidItCards\Modules\Designers\REST;
 
+use Stackonet\WP\Framework\Supports\Validate;
 use WP_REST_Server;
 
 defined( 'ABSPATH' ) || exit;
@@ -46,9 +47,20 @@ class DesignerAdminController extends ApiController {
 		}
 
 		$designer_id = $request->get_param( 'designer_id' );
-		$card_limit  = $request->get_param( 'card_limit' );
 
-		update_user_meta( $designer_id, '_maximum_allowed_card', $card_limit );
+		if ( $request->has_param( 'card_limit' ) ) {
+			$card_limit = $request->get_param( 'card_limit' );
+			update_user_meta( $designer_id, '_maximum_allowed_card', $card_limit );
+		}
+
+		if ( $request->has_param( 'can_add_dynamic_card' ) ) {
+			$can_add_dynamic_card = $request->get_param( 'can_add_dynamic_card' );
+			update_user_meta(
+				$designer_id,
+				'_can_add_dynamic_card',
+				Validate::checked( $can_add_dynamic_card ) ? 'yes' : 'no'
+			);
+		}
 
 		return $this->respondOK();
 	}

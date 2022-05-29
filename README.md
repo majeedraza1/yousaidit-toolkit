@@ -24,3 +24,10 @@ The plugin create and user the following tables to handle it functionality.
 * `designer_commissions`
 * `designer_payments`
 * `designer_payment_items`
+
+
+# Local development setting
+
+User: John's Cards
+Email: kelsojohn10@sky.com
+password: kelsojohn10@sky.com

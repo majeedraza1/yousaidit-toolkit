@@ -135,6 +135,7 @@ class DesignerCardController extends ApiController {
 			'counts'               => $counts,
 			'pagination'           => $pagination,
 			'maximum_allowed_card' => $designer->get_maximum_allowed_card(),
+			'can_add_dynamic_card' => $designer->can_add_dynamic_card(),
 			'total_cards'          => $designer->get_total_cards_count(),
 		];
 

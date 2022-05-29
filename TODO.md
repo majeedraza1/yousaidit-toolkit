@@ -14,7 +14,7 @@
   the spacing and everything the same.
 - [ ] The image uploader on the dyamic inner message system keeps thinking all images are adult
   content but there not.
-- [ ] Can we have the option to disable/enable the dyamic editor on the designer dashboard page
+- [x] Can we have the option to disable/enable the dynamic editor on the designer dashboard page
   please? I only want to enable it for myself and maybe a few others for now.
 - [ ] The generate image button still doesn’t seem to merge the envelope backgrounds yet, I’ve
   asked our admin to add the code which has now been done.
