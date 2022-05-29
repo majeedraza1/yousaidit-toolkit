@@ -136,7 +136,7 @@ export default {
 						} else if (response.data.variation["attribute_pa_size"]) {
 							this.card_size = response.data.variation["attribute_pa_size"];
 						} else {
-							this.card_size = '';
+							this.card_size = 'square';
 						}
 					}
 					if (data.mode === 'edit') {
@@ -168,7 +168,7 @@ export default {
 			if (!data.message.length) {
 				message = "Add some message";
 			}
-			if (data.message.length && data.message.length < 10) {
+			if (data.message.length && data.message.length < 1) {
 				message = "Message too short.";
 			}
 
