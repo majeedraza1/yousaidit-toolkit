@@ -6,6 +6,7 @@ use finfo;
 use Imagick;
 use ImagickException;
 use Stackonet\WP\Framework\Media\Uploader;
+use Stackonet\WP\Framework\Supports\Logger;
 use WP_Error;
 use YouSaidItCards\FreePdf;
 use YouSaidItCards\Modules\Designers\Models\DesignerCard;
@@ -92,22 +93,7 @@ class DynamicCard {
 		$im->setImageFormat( 'jpg' );
 
 		if ( $envelop ) {
-			$color = EnvelopeColours::get_random_color();
-			if ( is_array( $color ) ) {
-				$envelopImage = new Imagick();
-				$envelopImage->setSize( $color['width'], $color['height'] );
-				$envelopImage->setResolution( $resolution, $resolution );
-				$envelopImage->readImage( $color['path'] );
-				$im->scaleImage( $color['card']['width'], $color['card']['height'] );
-				$envelopImage->compositeImage(
-					$im->getImage(),
-					Imagick::COMPOSITE_COPY,
-					$color['card']['x'],
-					$color['card']['y']
-				);
-
-				return $envelopImage;
-			}
+			return EnvelopeColours::generate_thumb( $im, $resolution );
 		}
 
 		return $im;
@@ -148,6 +134,7 @@ class DynamicCard {
 
 			return get_attached_file( $post_id );
 		} catch ( ImagickException $e ) {
+			Logger::log( $e );
 		}
 
 		return $new_file;

@@ -9,6 +9,7 @@ use ImagickPixel;
 use Stackonet\WP\Framework\Media\Uploader;
 use YouSaidItCards\Modules\Designers\DynamicCard;
 use YouSaidItCards\Modules\Designers\Models\DesignerCard;
+use YouSaidItCards\Modules\DynamicCard\EnvelopeColours;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -241,6 +242,24 @@ class Ajax {
 		$card    = ( new DesignerCard )->find_by_id( intval( $card_id ) );
 		if ( ! $card instanceof DesignerCard ) {
 			wp_die( 'No card available.' );
+		}
+
+		if ( $card->is_static_card() ) {
+			$image_id   = $card->get_image_id();
+			$image_path = wp_get_attachment_image_src( $image_id, 'full' );
+			$content    = file_get_contents( $image_path[0] );
+			$im         = new Imagick();
+			try {
+				$im->setResolution( 72, 72 );
+				$im->readImageBlob( $content );
+				$im->setImageFormat( 'jpg' );
+				$imagick = EnvelopeColours::generate_thumb( $im, 72 );
+				header( 'Content-Type: image/jpeg' );
+				echo $imagick->getImageBlob();
+			} catch ( ImagickException $e ) {
+				var_dump( $e );
+			}
+			die;
 		}
 
 		$new_file_path = DynamicCard::create_card_pdf( $card );

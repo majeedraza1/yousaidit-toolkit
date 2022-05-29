@@ -2,7 +2,15 @@
 
 namespace YouSaidItCards\Modules\DynamicCard;
 
+use Imagick;
+use ImagickException;
+
 class EnvelopeColours {
+	/**
+	 * Get base path
+	 *
+	 * @return string
+	 */
 	private static function get_base_path(): string {
 		$upload_dir = wp_get_upload_dir();
 		$base_path  = $upload_dir['basedir'] . '/' . 'envelope-colours';
@@ -14,6 +22,11 @@ class EnvelopeColours {
 		return '';
 	}
 
+	/**
+	 * Get colors
+	 *
+	 * @return array
+	 */
 	private static function get_colors(): array {
 		$default_data = [
 			'width'  => 614,
@@ -50,5 +63,26 @@ class EnvelopeColours {
 		$color_info['path']  = $path;
 
 		return $color_info;
+	}
+
+	/**
+	 * @throws ImagickException
+	 */
+	public static function generate_thumb( Imagick $imagick, int $resolution = 72 ): Imagick {
+		$color = self::get_random_color();
+
+		$envelopImage = new Imagick();
+		$envelopImage->setSize( $color['width'], $color['height'] );
+		$envelopImage->setResolution( $resolution, $resolution );
+		$envelopImage->readImage( $color['path'] );
+		$imagick->scaleImage( $color['card']['width'], $color['card']['height'] );
+		$envelopImage->compositeImage(
+			$imagick->getImage(),
+			Imagick::COMPOSITE_COPY,
+			$color['card']['x'],
+			$color['card']['y']
+		);
+
+		return $envelopImage;
 	}
 }
