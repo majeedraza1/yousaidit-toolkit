@@ -29,7 +29,6 @@
   I done a test order, one dynamic and another static and its merging the dynamic cards with
   the static ones.
   I also have another dynamic order in shipstation and it   it’s merging it art work name - tttret   test (tetetet-22)
+- [x] The image uploader on the dynamic inner message system keeps thinking all images are adult content but there not.
 - [ ] Can the standard inner message system have the same design as the dynamic one please. So
   the spacing and everything the same.
-- [ ] The image uploader on the dynamic inner message system keeps thinking all images are adult content but there not.
-    - Please provide Google (Vision) API Production Secret

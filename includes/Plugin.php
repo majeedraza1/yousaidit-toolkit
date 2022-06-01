@@ -219,7 +219,7 @@ class Plugin {
 			$data = $result->get_data();
 			if ( isset( $data['code'], $data['message'], $data['data']['status'] ) ) {
 				$response_data = [
-					'success' => Validate::between( (int) $result->get_status(), 200, 299 ),
+					'success' => (int) $result->get_status() >= 200 && (int) $result->get_status() <= 299,
 					'code'    => $data['code'],
 					'message' => $data['message'],
 				];
