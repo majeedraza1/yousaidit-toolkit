@@ -38,6 +38,23 @@ class BackgroundDynamicPdfGenerator extends BackgroundProcess {
 	}
 
 	/**
+	 * @param int $order_id
+	 * @param int $order_item_id
+	 *
+	 * @return void
+	 */
+	public static function update_card_to_generate_list( int $order_id, int $order_item_id ): void {
+		$list = (array) get_option( '_dynamic_card_to_generate', [] );
+		if ( count( $list ) ) {
+			$index = array_search( sprintf( "%s|%s", $order_id, $order_item_id ), $list );
+			if ( false !== $index ) {
+				unset( $list[ $index ] );
+			}
+			update_option( '_dynamic_card_to_generate', $list );
+		}
+	}
+
+	/**
 	 * Save and dispatch
 	 */
 	public function save_and_dispatch() {
@@ -64,11 +81,13 @@ class BackgroundDynamicPdfGenerator extends BackgroundProcess {
 	public static function generate_for_order_item( int $order_id, int $order_item_id, bool $overwrite = false ) {
 		$order = wc_get_order( $order_id );
 		if ( ! $order instanceof WC_Order ) {
+			self::update_card_to_generate_list( $order_id, $order_item_id );
 			return new WP_Error( 'order_not_found', 'Order not found for #' . $order_id );
 		}
 
 		$order_item = $order->get_item( $order_item_id );
 		if ( ! $order_item instanceof WC_Order_Item_Product ) {
+			self::update_card_to_generate_list( $order_id, $order_item_id );
 			return new WP_Error( 'order_not_found', 'Order item not found for item #' . $order_item_id );
 		}
 
@@ -84,14 +103,7 @@ class BackgroundDynamicPdfGenerator extends BackgroundProcess {
 		}
 		$item->pdf( [ 'dest' => 'F', 'name' => $filename ] );
 
-		$list = (array) get_option( '_dynamic_card_to_generate', [] );
-		if ( count( $list ) ) {
-			$index = array_search( sprintf( "%s|%s", $order_id, $order_item_id ), $list );
-			if ( false !== $index ) {
-				unset( $list[ $index ] );
-			}
-			update_option( '_dynamic_card_to_generate', $list );
-		}
+		self::update_card_to_generate_list( $order_id, $order_item_id );
 
 		return $filename;
 	}

@@ -23,7 +23,7 @@
 - [x] On the bottom on the pages it’s showing this for somereason -
 - [x] Since we’ve added the 3mm bleed to our merge PDFs, the back of the card info needs to be
   moved to the right by 3mm. These parts
-- [ ] The Print Cards part on the site deson   deson’tt seem to work that great, when I click top button
+- [x] The Print Cards part on the site deson   deson’tt seem to work that great, when I click top button
   saying generate now it says it   it’s done so I got back to the print card page and merge the
   dynamic cards it doesn’tt seem to merge them.
   I done a test order, one dynamic and another static and its merging the dynamic cards with
