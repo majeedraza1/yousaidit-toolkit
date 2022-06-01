@@ -195,11 +195,11 @@ class OrderItemDynamicCard {
 	 * @return void
 	 */
 	private function addCompanyLogo( tFPDF &$fpd ) {
-		$logo_path  = YOUSAIDIT_TOOLKIT_PATH . '/assets/static-images/logo-yousaidit.png';
-		$image_info = getimagesize( $logo_path );
+		$logo_path  = YOUSAIDIT_TOOLKIT_PATH . '/assets/static-images/logo-yousaidit@300ppi.jpg';
+		$image_info = [ 660, 292 ];
 		$width      = ( $fpd->GetPageWidth() / 2 ) / 3;
 		$height     = $image_info[1] / $image_info[0] * $width;
-		$x_pos      = ( $fpd->GetPageWidth() / 4 ) - ( $width / 2 );
+		$x_pos      = ( ( $fpd->GetPageWidth() / 4 ) - ( $width / 2 ) ) + 3; // 3mm bleed
 		$y_pos      = ( $fpd->GetPageHeight() - $height ) - ( 20 );
 		$fpd->Image( $logo_path, $x_pos, $y_pos, $width, $height );
 	}
@@ -213,7 +213,7 @@ class OrderItemDynamicCard {
 		$fpd->SetFont( 'arial', '', 10 );
 		$fpd->SetTextColor( 0, 0, 0 );
 		$text  = "Code: " . $this->product->get_sku();
-		$x_pos = ( $fpd->GetPageWidth() / 4 ) - ( $fpd->GetStringWidth( $text ) / 2 );
+		$x_pos = ( ( $fpd->GetPageWidth() / 4 ) - ( $fpd->GetStringWidth( $text ) / 2 ) ) + 3; // 3mm bleed
 		$y_pos = $fpd->GetPageHeight() - 10;
 		$fpd->Text( $x_pos, $y_pos, $text );
 	}
@@ -222,8 +222,9 @@ class OrderItemDynamicCard {
 	 * @param tFPDF $fpd
 	 */
 	private function addTotalQty( tFPDF &$fpd ): void {
-		$text = sprintf( "%s - %s", $this->get_total_quantities_in_order(), $this->get_ship_station_id() );
-		$fpd->Text( 10, $fpd->GetPageHeight() - 10, $text );
+		$text  = sprintf( "%s - %s", $this->get_total_quantities_in_order(), $this->get_ship_station_id() );
+		$x_pos = 10 + 3; // 3mm bleed
+		$fpd->Text( $x_pos, $fpd->GetPageHeight() - 10, $text );
 	}
 
 	/**
@@ -232,9 +233,11 @@ class OrderItemDynamicCard {
 	private function addQrCode( tFPDF &$pdf ) {
 		$qr_size = 10;
 
+		$x_pos = ( ( ( $this->card_width / 2 ) - ( $qr_size + 10 ) ) ) + 3; // 3mm bleed
+
 		$pdf->Image(
 			QrCode::get_qr_code_file( $this->get_ship_station_id() ), // QR file Path
-			( ( $this->card_width / 2 ) - ( $qr_size + 10 ) ), // x position
+			$x_pos, // x position
 			( $this->card_height - ( $qr_size + 5 ) ), // y position
 			$qr_size, $qr_size, 'jpeg' );
 	}
@@ -250,14 +253,14 @@ class OrderItemDynamicCard {
 
 		$logo_size   = 40;
 		$logo_height = $designer_logo[2] / $designer_logo[1] * $logo_size;
-		$x_position  = ( $fpd->GetPageWidth() / 4 ) - ( $logo_size / 2 );
+		$x_position  = ( ( $fpd->GetPageWidth() / 4 ) - ( $logo_size / 2 ) ) + 3; // 3mm bleed
 		$y_position  = ( $fpd->GetPageHeight() / 4 ) - ( $logo_height / 2 );
 		$fpd->Image( $designer_logo[0], $x_position, $y_position, $logo_size, $logo_height );
 
 		$text = "Designed by";
 		$fpd->SetFont( 'arial', '', 11 );
 		$fpd->SetTextColor( 0, 0, 0 );
-		$x_pos = ( $fpd->GetPageWidth() / 4 ) - ( $fpd->GetStringWidth( $text ) / 2 );
+		$x_pos = ( ( $fpd->GetPageWidth() / 4 ) - ( $fpd->GetStringWidth( $text ) / 2 ) ) + 3; // 3mm bleed
 		$y_pos = $y_position - 5;
 		$fpd->Text( $x_pos, $y_pos, $text );
 	}
@@ -314,8 +317,6 @@ class OrderItemDynamicCard {
 
 		$actual_height = FreePdfBase::px_to_mm( $image['height'] );
 		$height        = $width * ( $actual_height / $actual_width );
-//		if ( 'auto' == $section->get_image_option( 'height' ) || true ) {
-//		}
 
 		$x_pos = ( $fpd->GetPageWidth() / 2 ) + $section->get_position_from_left();
 		if ( 'center' == $section->get_image_option( 'align' ) ) {
@@ -327,7 +328,7 @@ class OrderItemDynamicCard {
 
 		$y_pos = $section->get_position_from_top();
 
-		$fpd->Image( $image['path'], $x_pos, $y_pos, $width, $height );
+		$fpd->Image( $image['url'], $x_pos, $y_pos, $width, $height );
 	}
 
 	/**

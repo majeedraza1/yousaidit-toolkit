@@ -102,11 +102,11 @@ class StaticCardGenerator {
 	 * @param tFPDF $fpd
 	 */
 	private function addCompanyLogo( tFPDF &$fpd ) {
-		$logo_path  = YOUSAIDIT_TOOLKIT_PATH . '/assets/static-images/logo-yousaidit.png';
-		$image_info = [ 342, 142 ];
+		$logo_path  = YOUSAIDIT_TOOLKIT_PATH . '/assets/static-images/logo-yousaidit@300ppi.jpg';
+		$image_info = [ 660, 292 ];
 		$width      = ( $fpd->GetPageWidth() / 2 ) / 3;
 		$height     = $image_info[1] / $image_info[0] * $width;
-		$x_pos      = ( $fpd->GetPageWidth() / 4 ) - ( $width / 2 );
+		$x_pos      = ( ( $fpd->GetPageWidth() / 4 ) - ( $width / 2 ) ) + 3; // 3mm bleed
 		$y_pos      = ( $fpd->GetPageHeight() - $height ) - ( 20 );
 		$fpd->Image( $logo_path, $x_pos, $y_pos, $width, $height );
 	}
@@ -120,7 +120,7 @@ class StaticCardGenerator {
 		$fpd->SetFont( 'arial', '', 10 );
 		$fpd->SetTextColor( 0, 0, 0 );
 		$text  = "Code: " . $this->product_sku;
-		$x_pos = ( $fpd->GetPageWidth() / 4 ) - ( $fpd->GetStringWidth( $text ) / 2 );
+		$x_pos = ( ( $fpd->GetPageWidth() / 4 ) - ( $fpd->GetStringWidth( $text ) / 2 ) ) + 3;// 3mm bleed
 		$y_pos = $fpd->GetPageHeight() - 10;
 		$fpd->Text( $x_pos, $y_pos, $text );
 	}
@@ -165,14 +165,14 @@ class StaticCardGenerator {
 		}
 		$logo_size   = 40;
 		$logo_height = $this->designer_logo_height / $this->designer_logo_width * $logo_size;
-		$x_position  = ( $fpd->GetPageWidth() / 4 ) - ( $logo_size / 2 );
+		$x_position  = ( ( $fpd->GetPageWidth() / 4 ) - ( $logo_size / 2 ) ) + 3; // 3mm bleed
 		$y_position  = ( $fpd->GetPageHeight() / 4 ) - ( $logo_height / 2 );
 		$fpd->Image( $this->designer_logo, $x_position, $y_position, $logo_size, $logo_height, $this->designer_logo_ext );
 
 		$text = "Designed by";
 		$fpd->SetFont( 'arial', '', 11 );
 		$fpd->SetTextColor( 0, 0, 0 );
-		$x_pos = ( $fpd->GetPageWidth() / 4 ) - ( $fpd->GetStringWidth( $text ) / 2 );
+		$x_pos = ( ( $fpd->GetPageWidth() / 4 ) - ( $fpd->GetStringWidth( $text ) / 2 ) ) + 3; // 3mm bleed
 		$y_pos = $y_position - 5;
 		$fpd->Text( $x_pos, $y_pos, $text );
 	}
