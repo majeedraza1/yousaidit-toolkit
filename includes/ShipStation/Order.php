@@ -378,7 +378,7 @@ class Order implements JsonSerializable {
 		if ( $force ) {
 			$items = false;
 		}
-		if ( false == $items ) {
+		if ( false === $items ) {
 			$items  = [];
 			$orders = static::_get_orders( [ 'force' => true ] );
 			/** @var Order $order */

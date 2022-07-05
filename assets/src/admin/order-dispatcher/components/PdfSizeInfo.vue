@@ -21,25 +21,25 @@
 					<div>{{ item.inner_message ? 'Contain Inner Message' : '&nbsp;' }}</div>
 					<div class="flex-grow"></div>
 					<div v-if="item.card_type === 'dynamic' && dynamic_card.generating"
-						 class="text-xs border border-primary border-solid p-1">
+					     class="text-xs border border-primary border-solid p-1">
 						Generating: {{ dynamic_card.items_to_generate }}<br>
 						<div v-if="dynamic_card.success_items">Success: {{ dynamic_card.success_items }}</div>
 						<div v-if="dynamic_card.error_items">Error: {{ dynamic_card.error_items }}</div>
 					</div>
 					<div class="mt-4 flex space-y-2 flex-wrap">
 						<shapla-button v-if="item.card_type === 'dynamic' && item.to_generate.length"
-									   :class="{'is-loading':dynamic_card.generating}" size="small" fullwidth
-									   @click="handleDynamicCardGeneration(item)">
+						               :class="{'is-loading':dynamic_card.generating}" size="small" fullwidth
+						               @click="handleDynamicCardGeneration(item)">
 							Generate Dynamic Card
 						</shapla-button>
 						<shapla-button v-if="item.inner_message" theme="default" size="small" fullwidth target="_blank"
-									   :href="get_pdf_url(item,'im')">Merge Inner Message
+						               :href="get_pdf_url(item,'im')">Merge Inner Message
 						</shapla-button>
 						<shapla-button theme="secondary" outline size="small" fullwidth target="_blank"
-									   :href="get_pdf_url(item,'pdf')">Merge PDF
+						               :href="get_pdf_url(item,'pdf')">Merge PDF
 						</shapla-button>
 						<shapla-button v-if="item.inner_message" theme="primary" size="small" fullwidth target="_blank"
-									   :href="get_pdf_url(item,'both')"> Merge PDF & Inner Message
+						               :href="get_pdf_url(item,'both')"> Merge PDF & Inner Message
 						</shapla-button>
 					</div>
 				</div>
@@ -114,6 +114,7 @@ export default {
 					if (this.dynamic_card.remaining_items < 1) {
 						this.dynamic_card.generating = false;
 						this.dynamic_card = JSON.parse(JSON.stringify(dynamicCardDefault));
+						this.forceRefresh();
 					}
 				});
 			})

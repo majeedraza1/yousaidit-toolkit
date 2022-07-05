@@ -147,9 +147,16 @@ class CommissionCalculator {
 
 			if ( ! empty( $designer_id ) && ! empty( $card_id ) ) {
 				$designer = new CardDesigner( $designer_id );
+				$card     = ( new DesignerCard() )->find_by_id( $card_id );
 				?>
 				<div class="view">
 					<table class="display_meta">
+						<tr>
+							<th>Card Type:</th>
+							<td>
+								<p><?php echo $card->is_dynamic_card() ? 'Dynamic' : 'Static'; ?></p>
+							</td>
+						</tr>
 						<tr>
 							<th>Designer:</th>
 							<td>
