@@ -208,6 +208,7 @@ class Assets {
 			'restRoot'         => esc_url_raw( rest_url( 'yousaidit/v1' ) ),
 			'isUserLoggedIn'   => $is_user_logged_in,
 			'privacyPolicyUrl' => get_privacy_policy_url(),
+			'placeholderUrlIM' => YOUSAIDIT_TOOLKIT_ASSETS . '/static-images/placeholder--inner-message.jpg',
 		];
 
 		$data['pdfSizes'] = FreePdfBase::get_sizes();

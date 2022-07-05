@@ -85,9 +85,6 @@ class OrderItemDynamicCard {
 			}
 			$changed_data[] = is_numeric( $item['value'] ) ? intval( $item['value'] ) : sanitize_text_field( $item['value'] );
 		}
-		if ( count( $changed_data ) < 1 ) {
-			return;
-		}
 
 		$payload               = $this->product->get_meta( '_dynamic_card_payload', true );
 		$this->card_size       = $payload['card_size'];
@@ -269,6 +266,9 @@ class OrderItemDynamicCard {
 	 * @param tFPDF $fpd
 	 */
 	private function addBackground( tFPDF &$fpd ): void {
+		if ( ! $this->background instanceof CardBackgroundOption ) {
+			return;
+		}
 		$fpd->Image( $this->background->get_image(), $fpd->GetPageWidth() / 2, 0,
 			$fpd->GetPageWidth() / 2, $fpd->GetPageHeight(), $this->background->get( 'image_ext' ) );
 	}

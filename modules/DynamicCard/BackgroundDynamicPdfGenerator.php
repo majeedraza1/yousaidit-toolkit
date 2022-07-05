@@ -93,7 +93,7 @@ class BackgroundDynamicPdfGenerator extends BackgroundProcess {
 
 		$order_dir = Uploader::get_upload_dir( 'dynamic-pdf/' . $order_id );
 		$filename  = "$order_dir/dc-$order_item_id.pdf";
-		if ( file_exists( $filename ) && $overwrite == false ) {
+		if ( file_exists( $filename ) && ! $overwrite ) {
 			return $filename;
 		}
 
