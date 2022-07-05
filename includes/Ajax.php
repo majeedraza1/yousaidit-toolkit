@@ -7,6 +7,7 @@ use Imagick;
 use ImagickException;
 use ImagickPixel;
 use Stackonet\WP\Framework\Media\Uploader;
+use WC_Product;
 use YouSaidItCards\Modules\Designers\DynamicCard;
 use YouSaidItCards\Modules\Designers\Models\DesignerCard;
 use YouSaidItCards\Modules\DynamicCard\EnvelopeColours;
@@ -256,6 +257,8 @@ class Ajax {
 				$imagick = EnvelopeColours::generate_thumb( $im, 72 );
 				header( 'Content-Type: image/jpeg' );
 				echo $imagick->getImageBlob();
+
+				$this->replace_product_image( $imagick, $card, true );
 			} catch ( ImagickException $e ) {
 				var_dump( $e );
 			}
@@ -268,9 +271,63 @@ class Ajax {
 			$im = DynamicCard::pdf_to_image( $new_file_path );
 			header( 'Content-Type: image/jpeg' );
 			echo $im->getImageBlob();
+			$this->replace_product_image( $im, $card, true );
 		} catch ( ImagickException $e ) {
 			var_dump( $e );
 		}
 		die;
+	}
+
+	/**
+	 * Replace product image.
+	 */
+	public function replace_product_image( Imagick $imagick, DesignerCard $card, $delete_current = false ) {
+		$upload_dir = Uploader::get_upload_dir();
+		if ( is_wp_error( $upload_dir ) ) {
+			return $upload_dir;
+		}
+
+		$product = wc_get_product( $card->get_product_id() );
+		if ( $product instanceof WC_Product ) {
+			$filename = sanitize_file_name( strtolower( $product->get_slug() ) . '-shop-image.webp' );
+		} else {
+			$filename = sanitize_file_name( strtolower( $card->get( 'card_title' ) ) . '-shop-image.webp' );
+		}
+		$filename      = wp_unique_filename( $upload_dir, $filename );
+		$directory     = rtrim( $upload_dir, DIRECTORY_SEPARATOR );
+		$new_file_path = $directory . DIRECTORY_SEPARATOR . $filename;
+
+		try {
+			$imagick->setImageFormat( "webp" );
+			$imagick->setOption( 'webp:method', '6' );
+			$imagick->writeImage( $new_file_path );
+
+			$upload_dir = wp_upload_dir();
+			$data       = array(
+				'guid'           => str_replace( $upload_dir['basedir'], $upload_dir['baseurl'], $new_file_path ),
+				'post_title'     => preg_replace( '/\.[^.]+$/', '', $filename ),
+				'post_status'    => 'inherit',
+				'post_mime_type' => 'image/webp',
+			);
+
+			$attachment_id = wp_insert_attachment( $data, $new_file_path );
+
+			if ( ! is_wp_error( $attachment_id ) ) {
+				// Make sure that this file is included, as wp_generate_attachment_metadata() depends on it.
+				require_once( ABSPATH . 'wp-admin/includes/image.php' );
+
+				// Generate the metadata for the attachment, and update the database record.
+				$attach_data = wp_generate_attachment_metadata( $attachment_id, $new_file_path );
+				wp_update_attachment_metadata( $attachment_id, $attach_data );
+
+				if ( $delete_current ) {
+					wp_delete_attachment( $product->get_image_id(), true );
+				}
+				set_post_thumbnail( $product->get_id(), $attachment_id );
+			}
+
+			return $attachment_id;
+		} catch ( ImagickException $e ) {
+		}
 	}
 }
