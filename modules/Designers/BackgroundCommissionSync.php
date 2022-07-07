@@ -33,6 +33,10 @@ class BackgroundCommissionSync extends BackgroundProcess {
 	 * @inheritDoc
 	 */
 	protected function task( $item ) {
+		$marketplace = isset( $item['marketplace'] ) ? sanitize_text_field( $item['marketplace'] ) : null;
+		if ( empty( $marketplace ) ) {
+			return false;
+		}
 		$order_id      = isset( $item['order_id'] ) ? intval( $item['order_id'] ) : 0;
 		$order_item_id = isset( $item['order_item_id'] ) ? intval( $item['order_item_id'] ) : 0;
 		$commission    = DesignerCommission::find_for_order( $order_id, $order_item_id );

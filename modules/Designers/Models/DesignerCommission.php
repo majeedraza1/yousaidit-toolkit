@@ -432,6 +432,13 @@ class DesignerCommission extends DatabaseModel {
 		return $cards;
 	}
 
+	public static function remove_commission_without_marketplace() {
+		global $wpdb;
+		$self  = new self();
+		$table = $self->get_table_name();
+		$wpdb->delete( $table, [ 'marketplace' => null ] );
+	}
+
 	/**
 	 * @inheritDoc
 	 */

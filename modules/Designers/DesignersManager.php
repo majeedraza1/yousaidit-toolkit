@@ -47,6 +47,7 @@ class DesignersManager {
 			add_action( 'wp', [ self::$instance, 'schedule_cron_event' ] );
 			add_action( 'sync_commissions_from_shipstation', [ self::$instance, 'sync_commission' ] );
 			add_action( 'wp_ajax_sync_orders_commissions', [ self::$instance, 'sync_commission' ] );
+			add_action( 'wp_ajax_remove_orders_commissions', [ self::$instance, 'remove_commissions' ] );
 
 			CommissionCalculator::init();
 			DesignerCustomerProfile::init();
@@ -117,5 +118,15 @@ class DesignersManager {
 	public function sync_commission() {
 		BackgroundCommissionSync::sync_orders();
 		die();
+	}
+
+	/**
+	 * Remove commissions that do not have marketplace info
+	 *
+	 * @return void
+	 */
+	public function remove_commissions() {
+		DesignerCommission::remove_commission_without_marketplace();
+		die;
 	}
 }
