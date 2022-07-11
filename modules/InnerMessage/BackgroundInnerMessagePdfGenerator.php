@@ -3,6 +3,7 @@
 namespace YouSaidItCards\Modules\InnerMessage;
 
 use Stackonet\WP\Framework\Abstracts\BackgroundProcess;
+use WC_Order;
 use WC_Order_Item_Product;
 
 class BackgroundInnerMessagePdfGenerator extends BackgroundProcess {
@@ -40,10 +41,10 @@ class BackgroundInnerMessagePdfGenerator extends BackgroundProcess {
 	/**
 	 * Generate for order
 	 *
-	 * @param \WC_Order $order
+	 * @param WC_Order $order
 	 * @param bool $immediately
 	 */
-	public static function generate_for_order( \WC_Order $order, $immediately = false ) {
+	public static function generate_for_order( WC_Order $order, $immediately = false ) {
 		foreach ( $order->get_items() as $item ) {
 			if ( ! $item instanceof WC_Order_Item_Product ) {
 				continue;
@@ -77,8 +78,7 @@ class BackgroundInnerMessagePdfGenerator extends BackgroundProcess {
 		$item_id  = isset( $item['item_id'] ) ? intval( $item['item_id'] ) : 0;
 
 		if ( $order_id && $item_id ) {
-			$wc_order   = wc_get_order( $order_id );
-			$order_item = new \WC_Order_Item_Product( $item_id );
+			$order_item = new WC_Order_Item_Product( $item_id );
 			$generator  = new PdfGenerator( $order_item );
 			$generator->save_to_file_system();
 		}

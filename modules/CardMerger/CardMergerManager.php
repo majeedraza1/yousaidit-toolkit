@@ -119,15 +119,11 @@ class CardMergerManager {
 			$order_item = $items[0]->get_wc_order_item();
 		}
 
-		$wc_order = null;
-		if ( $order_id ) {
-			$wc_order = wc_get_order( $order_id );
-		}
-
 		$mode      = isset( $_REQUEST['mode'] ) && in_array( $_REQUEST['mode'], [ 'pdf', 'html' ] ) ?
 			$_REQUEST['mode'] : 'pdf';
 		$generator = new PdfGenerator( $order_item );
 		$generator->get_pdf( $mode );
+//		$generator->_test_fpdf( $mode );
 		die();
 	}
 

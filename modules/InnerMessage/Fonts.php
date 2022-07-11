@@ -142,6 +142,7 @@ class Fonts {
 		$fonts['LoversQuarrel']        = static::get_font_info( 'Lovers Quarrel', 'cursive' );
 		$fonts['MountainsofChristmas'] = static::get_font_info( 'Mountains of Christmas', 'cursive' );
 		$fonts['Sacramento']           = static::get_font_info( 'Sacramento', 'cursive' );
+		$fonts['NotoEmoji']            = static::get_font_info( 'Noto Emoji', 'sans-serif' );
 
 		return $fonts;
 	}

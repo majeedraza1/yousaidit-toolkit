@@ -2,8 +2,12 @@
 
 namespace YouSaidItCards\Modules\InnerMessage;
 
+use JoyPixels\Client;
+use JoyPixels\Ruleset;
 use WC_Order_Item_Product;
+use YouSaidItCards\FreePdf;
 use YouSaidItCards\Utilities\Filesystem;
+use YouSaidItCards\Utilities\FreePdfBase;
 
 class PdfGenerator extends PdfGeneratorBase {
 	protected $order_id = 0;
@@ -91,34 +95,11 @@ class PdfGenerator extends PdfGeneratorBase {
 		return $dir['path'] . '/' . $this->get_filename();
 	}
 
-	private function get_pdf_browser_style() {
-		?>
-		<style>
-			.card-content {
-				width: <?php echo $this->page_size[0] . 'mm'; ?>;
-				height: <?php echo $this->page_size[1] . 'mm'; ?>;
-				margin: 1em;
-				border: 1px solid rgba(0, 0, 0, 0.12);
-				margin-left: auto;
-				margin-right: auto;
-			}
-
-			.left-column, .right-column {
-				width: <?php echo ( $this->page_size[0] / 2 ) . 'mm' ?>;
-				height: <?php echo ( $this->page_size[1] ) . 'mm' ?>;
-			}
-		</style>
-		<?php
-	}
-
 	/**
 	 * @return void
 	 */
 	private function read_from_wc_order_item(): void {
-		$order_item = $this->getOrderItemProduct();
-		if ( ! $order_item instanceof WC_Order_Item_Product ) {
-			return;
-		}
+		$order_item       = $this->getOrderItemProduct();
 		$this->item_id    = $order_item->get_id();
 		$this->order_id   = $order_item->get_order_id();
 		$this->product_id = $order_item->get_product_id();
@@ -139,10 +120,10 @@ class PdfGenerator extends PdfGeneratorBase {
 
 		$this->font_size   = isset( $inner_info['size'] ) ? intval( $inner_info['size'] ) : 14;
 		$this->line_height = $this->font_size * 1.5;
-		$this->text_color  = isset( $inner_info['color'] ) ? $inner_info['color'] : '#000000';
-		$this->text_align  = isset( $inner_info['align'] ) ? $inner_info['align'] : 'center';
-		$this->message     = isset( $inner_info['content'] ) ? $inner_info['content'] : '';
-		$this->font_family = isset( $inner_info['font'] ) ? $inner_info['font'] : 'Arial';;
+		$this->text_color  = $inner_info['color'] ?? '#000000';
+		$this->text_align  = $inner_info['align'] ?? 'center';
+		$this->message     = $inner_info['content'] ?? '';
+		$this->font_family = $inner_info['font'] ?? 'Arial';;
 
 		if ( $width && $height ) {
 			$this->page_size = [ $width, $height ];
@@ -154,5 +135,48 @@ class PdfGenerator extends PdfGeneratorBase {
 				$this->page_size = [ 306, 156 ];
 			}
 		}
+	}
+
+	public function _test_fpdf() {
+		$client = new Client( new Ruleset() );
+
+		$messages = $this->get_message_lines();
+
+		var_dump( $messages );
+		die;
+
+		$fontEmoji = Fonts::get_font_info( 'Noto Emoji' );
+		$font      = Fonts::get_font_info( $this->font_family );
+		$fpd       = new \tFPDF( 'L', 'mm', [ $this->page_size[0], $this->page_size[1] ] );
+
+		// Add font
+		$font_family = str_replace( ' ', '', $font['label'] );
+		$fpd->AddFont( $font_family, '', $font['fileName'], true );
+//		$fpd->AddFont( 'NotoEmoji', '', $fontEmoji['fileName'], true );
+
+		$fpd->AddPage();
+
+		list( $red, $green, $blue ) = FreePdfBase::find_rgb_color( $this->text_color );
+		$fpd->SetTextColor( $red, $green, $blue );
+		$fpd->SetFont( $font_family, '', $this->font_size );
+//		$fpd->SetFont( 'NotoEmoji', '', $this->font_size );
+
+		$line_gap = ( $this->font_size / 3 );
+		$y_pos    = ( $fpd->GetPageHeight() / 2 ) - ( count( $messages ) * $line_gap );
+
+		foreach ( $messages as $index => $message ) {
+			$x_pos = $fpd->GetPageWidth() / 4 * 3 - $fpd->GetStringWidth( $message ) / 2;
+			if ( $index > 0 ) {
+				$y_pos += $line_gap;
+			}
+
+			if ( false !== strpos( '<img', $message ) ) {
+// /(?P<imgTag><img\s.*.src="(?P<imgSrc>\s*.*)"\s?\/>)/mgi
+			}
+			$text_width = $fpd->GetStringWidth( $message );
+			$fpd->Text( $x_pos, $y_pos, $message );
+		}
+
+		$fpd->Output( $args['dest'] ?? '', $args['name'] ?? '' );
 	}
 }
