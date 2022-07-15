@@ -214,8 +214,8 @@ class Ajax {
 	}
 
 	public function yousaidit_color_image() {
-		$width  = $_REQUEST['w'] ? intval( $_REQUEST['w'] ) * 37.795275591 : 0;
-		$height = $_REQUEST['h'] ? intval( $_REQUEST['h'] ) * 37.795275591 : 0;
+		$width  = $_REQUEST['w'] ? intval( $_REQUEST['w'] ) * 11.811391223 : 0;
+		$height = $_REQUEST['h'] ? intval( $_REQUEST['h'] ) * 11.811391223 : 0;
 		$color  = $_REQUEST['c'] ? rawurldecode( $_REQUEST['c'] ) : 'white';
 
 		try {
@@ -223,6 +223,7 @@ class Ajax {
 			$textOnly = new Imagick();
 			// Creates a new image
 			$textOnly->newImage( $width, $height, new ImagickPixel( $color ) );
+			$textOnly->setImageResolution( 300, 300 );
 			// Sets the format of this particular image
 			$textOnly->setImageFormat( 'png' );
 

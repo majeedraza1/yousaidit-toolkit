@@ -177,6 +177,9 @@ class OrderItemDynamicCard {
 		// Add qr code
 		$this->addQrCode( $fpd );
 
+		// Test to mark section
+//		$this->addColorToBackground( $fpd );
+
 		// Add background
 		$this->addBackground( $fpd );
 
@@ -269,8 +272,13 @@ class OrderItemDynamicCard {
 		if ( ! $this->background instanceof CardBackgroundOption ) {
 			return;
 		}
-		$fpd->Image( $this->background->get_image(), $fpd->GetPageWidth() / 2, 0,
-			$fpd->GetPageWidth() / 2, $fpd->GetPageHeight(), $this->background->get( 'image_ext' ) );
+		$image_width  = 150; //$fpd->GetPageWidth() / 2;
+		$image_height = $fpd->GetPageHeight() - 6; // (3mm + 3mm) bleed
+		$x_pos        = $fpd->GetPageWidth() / 2; // $fpd->GetPageWidth() / 2;
+		$y_pos        = 3; // 0;
+		// @TODO check it
+		$fpd->Image( $this->background->get_image(), $x_pos, $y_pos,
+			$image_width, $image_height, $this->background->get( 'image_ext' ) );
 	}
 
 	private function addSections( tFPDF &$fpd ) {
@@ -328,7 +336,13 @@ class OrderItemDynamicCard {
 
 		$y_pos = $section->get_position_from_top();
 
-		$fpd->Image( $image['url'], $x_pos, $y_pos, $width, $height );
+		$fpd->Image(
+			$image['url'],
+			$x_pos + 1,
+			$y_pos + 3,
+			min( $width, 150 ),
+			min( $height, 150 )
+		);
 	}
 
 	/**
@@ -349,5 +363,25 @@ class OrderItemDynamicCard {
 			$font          = $fonts_list[ $font_family ];
 			$fpd->AddFont( $font_family, '', $font['fileName'], true );
 		}
+	}
+
+	/**
+	 * Add color to background for testing purpose
+	 *
+	 * @param tFPDF $fpd
+	 *
+	 * @return void
+	 */
+	private function addColorToBackground( tFPDF &$fpd ) {
+		$width          = 154;
+		$height         = 156;
+		$args           = [
+			'action' => 'yousaidit_color_image',
+			'w'      => $width,
+			'h'      => $height,
+			'c'      => rawurlencode( '#ff0000' )
+		];
+		$bg_color_image = add_query_arg( $args, admin_url( 'admin-ajax.php' ) );
+		$fpd->Image( $bg_color_image, $fpd->GetPageWidth() - $width, 0, $width, $height, 'png' );
 	}
 }

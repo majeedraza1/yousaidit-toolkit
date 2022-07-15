@@ -31,3 +31,13 @@ The plugin create and user the following tables to handle it functionality.
 User: John's Cards
 Email: kelsojohn10@sky.com
 password: kelsojohn10@sky.com
+
+# Testing Single Inner message PDF
+Open the URL in browser replacing `order_id` and `item_id`
+```html
+/wp-admin/admin-ajax.php?
+order_id=37789
+&item_id=53227
+&mode=pdf
+&action=yousaidit_single_im_card
+```
