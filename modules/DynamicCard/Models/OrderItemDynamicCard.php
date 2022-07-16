@@ -272,13 +272,14 @@ class OrderItemDynamicCard {
 		if ( ! $this->background instanceof CardBackgroundOption ) {
 			return;
 		}
-		$image_width  = 150; //$fpd->GetPageWidth() / 2;
-		$image_height = $fpd->GetPageHeight() - 6; // (3mm + 3mm) bleed
-		$x_pos        = $fpd->GetPageWidth() / 2; // $fpd->GetPageWidth() / 2;
-		$y_pos        = 3; // 0;
+
+		$width  = 154;
+		$height = 156;
+		$x_pos  = $fpd->GetPageWidth() - $width;
+		$y_pos  = 0;
 		// @TODO check it
 		$fpd->Image( $this->background->get_image(), $x_pos, $y_pos,
-			$image_width, $image_height, $this->background->get( 'image_ext' ) );
+			$width, $height, $this->background->get( 'image_ext' ) );
 	}
 
 	private function addSections( tFPDF &$fpd ) {
@@ -338,10 +339,10 @@ class OrderItemDynamicCard {
 
 		$fpd->Image(
 			$image['url'],
-			$x_pos + 1,
-			$y_pos + 3,
-			min( $width, 150 ),
-			min( $height, 150 )
+			$x_pos,
+			$y_pos,
+			min( $width, 154 ),
+			min( $height, 156 )
 		);
 	}
 
