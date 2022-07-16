@@ -53,7 +53,7 @@ class PdfGeneratorBase {
 				continue;
 			}
 			if ( in_array( $line, [ '<br>', '<br/>', '<br />' ] ) ) {
-				$html .= "<br>";
+//				$html .= "<br>";
 			} else {
 				$html .= "<div>{$line}</div>";
 			}
