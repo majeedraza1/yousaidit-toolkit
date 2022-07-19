@@ -133,7 +133,11 @@ export default {
 				let contentEl = this.$el.querySelector('.editable-content__editor')
 				lines.forEach(line => {
 					let divEl = document.createElement('div');
-					divEl.innerText = line;
+					if ('<br>' === line) {
+						divEl.append(document.createElement('br'))
+					} else {
+						divEl.innerText = line;
+					}
 					contentEl.append(divEl);
 				})
 			} else {
