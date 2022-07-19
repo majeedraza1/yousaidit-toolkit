@@ -145,7 +145,7 @@ class CardToProduct {
 		$product_id = $product->save();
 
 		if ( $designer_card->is_static_card() && empty( $pdf_id ) ) {
-			$pdf_id = self::generatePdfFromImage( $designer_card );
+			$pdf_id = self::generatePdfFromImage( $designer_card, $sku );
 			$product->add_meta_data( '_pdf_id', $pdf_id );
 			$product->save_meta_data();
 		}
