@@ -37,8 +37,16 @@ class DesignerCardAttachmentController extends ApiController {
 	 */
 	public function register_routes() {
 		register_rest_route( $this->namespace, '/designers/(?P<user_id>\d+)/attachment', [
-			[ 'methods' => WP_REST_Server::READABLE, 'callback' => [ $this, 'get_items' ], ],
-			[ 'methods' => WP_REST_Server::CREATABLE, 'callback' => [ $this, 'create_item' ], ],
+			[
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'get_items' ],
+				'permission_callback' => '__return_true',
+			],
+			[
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => [ $this, 'create_item' ],
+				'permission_callback' => '__return_true',
+			],
 		] );
 	}
 

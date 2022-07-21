@@ -43,24 +43,42 @@ class DesignerCardAdminController extends ApiController {
 	public function register_routes() {
 		register_rest_route( $this->namespace, '/designers-cards', [
 			[
-				'methods'  => WP_REST_Server::READABLE,
-				'callback' => [ $this, 'get_items' ],
-				'args'     => $this->get_collection_params(),
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'get_items' ],
+				'args'                => $this->get_collection_params(),
+				'permission_callback' => '__return_true',
 			],
 		] );
 		register_rest_route( $this->namespace, '/designers-cards/(?P<id>\d+)', [
-			[ 'methods' => WP_REST_Server::READABLE, 'callback' => [ $this, 'get_item' ], ],
-			[ 'methods' => WP_REST_Server::EDITABLE, 'callback' => [ $this, 'update_item' ], ],
-			[ 'methods' => WP_REST_Server::DELETABLE, 'callback' => [ $this, 'delete_item' ], ],
+			[
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'get_item' ],
+				'permission_callback' => '__return_true',
+			],
+			[
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'update_item' ],
+				'permission_callback' => '__return_true',
+			],
+			[
+				'methods'             => WP_REST_Server::DELETABLE,
+				'callback'            => [ $this, 'delete_item' ],
+				'permission_callback' => '__return_true',
+			],
 		] );
 		register_rest_route( $this->namespace, '/designers-cards/(?P<id>\d+)/product', [
-			[ 'methods' => WP_REST_Server::CREATABLE, 'callback' => [ $this, 'create_product' ], ],
+			[
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => [ $this, 'create_product' ],
+				'permission_callback' => '__return_true',
+			],
 		] );
 		register_rest_route( $this->namespace, '/designers-cards/(?P<id>\d+)/commission', [
 			[
-				'methods'  => WP_REST_Server::EDITABLE,
-				'callback' => [ $this, 'update_commission' ],
-				'args'     => [
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'update_commission' ],
+				'permission_callback' => '__return_true',
+				'args'                => [
 					'commission'             => [ 'type' => [ 'array', 'object' ] ],
 					'marketplace_commission' => [ 'type' => [ 'array', 'object' ] ],
 				]

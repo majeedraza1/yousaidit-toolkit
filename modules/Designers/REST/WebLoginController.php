@@ -38,9 +38,10 @@ class WebLoginController extends LegacyApiController {
 	public function register_routes() {
 		register_rest_route( $this->namespace, '/web-login', [
 			[
-				'methods'  => WP_REST_Server::CREATABLE,
-				'callback' => [ $this, 'login' ],
-				'args'     => $this->get_login_params()
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => [ $this, 'login' ],
+				'args'                => $this->get_login_params(),
+				'permission_callback' => '__return_true',
 			],
 		] );
 	}

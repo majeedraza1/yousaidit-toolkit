@@ -39,11 +39,19 @@ class ProductController extends LegacyApiController {
 	 */
 	public function register_routes() {
 		register_rest_route( $this->namespace, '/products', [
-			[ 'methods' => WP_REST_Server::READABLE, 'callback' => [ $this, 'get_items' ] ],
+			[
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'get_items' ],
+				'permission_callback' => '__return_true',
+			],
 		] );
 
 		register_rest_route( $this->namespace, '/products/(?P<id>\d+)', [
-			[ 'methods' => WP_REST_Server::EDITABLE, 'callback' => [ $this, 'update_item' ] ],
+			[
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'update_item' ],
+				'permission_callback' => '__return_true',
+			],
 		] );
 	}
 

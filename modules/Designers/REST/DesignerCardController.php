@@ -72,25 +72,47 @@ class DesignerCardController extends ApiController {
 	public function register_routes() {
 		register_rest_route( $this->namespace, '/designers/(?P<user_id>\d+)/cards', [
 			[
-				'methods'  => WP_REST_Server::READABLE,
-				'callback' => [ $this, 'get_items' ],
-				'args'     => $this->get_collection_params(),
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'get_items' ],
+				'args'                => $this->get_collection_params(),
+				'permission_callback' => '__return_true',
 			],
 			[
-				'methods'  => WP_REST_Server::CREATABLE,
-				'callback' => [ $this, 'create_item' ],
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => [ $this, 'create_item' ],
+				'permission_callback' => '__return_true',
 			],
 		] );
 		register_rest_route( $this->namespace, '/designers/(?P<user_id>\d+)/cards/(?P<id>\d+)', [
-			[ 'methods' => WP_REST_Server::READABLE, 'callback' => [ $this, 'get_item' ], ],
-			[ 'methods' => WP_REST_Server::EDITABLE, 'callback' => [ $this, 'update_item' ], ],
-			[ 'methods' => WP_REST_Server::DELETABLE, 'callback' => [ $this, 'delete_item' ], ],
+			[
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'get_item' ],
+				'permission_callback' => '__return_true',
+			],
+			[
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'update_item' ],
+				'permission_callback' => '__return_true',
+			],
+			[
+				'methods'             => WP_REST_Server::DELETABLE,
+				'callback'            => [ $this, 'delete_item' ],
+				'permission_callback' => '__return_true',
+			],
 		] );
 		register_rest_route( $this->namespace, '/designers/(?P<user_id>\d+)/cards/(?P<id>\d+)/requests', [
-			[ 'methods' => WP_REST_Server::EDITABLE, 'callback' => [ $this, 'update_item_requests' ], ],
+			[
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'update_item_requests' ],
+				'permission_callback' => '__return_true',
+			],
 		] );
 		register_rest_route( $this->namespace, '/designers/(?P<user_id>\d+)/cards/(?P<id>\d+)/comments', [
-			[ 'methods' => WP_REST_Server::READABLE, 'callback' => [ $this, 'get_comments' ], ],
+			[
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'get_comments' ],
+				'permission_callback' => '__return_true',
+			],
 		] );
 	}
 

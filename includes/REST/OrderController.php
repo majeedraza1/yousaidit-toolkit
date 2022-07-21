@@ -38,19 +38,39 @@ class OrderController extends LegacyApiController {
 	 */
 	public function register_routes() {
 		register_rest_route( $this->namespace, '/orders', [
-			[ 'methods' => WP_REST_Server::READABLE, 'callback' => [ $this, 'get_items' ] ],
+			[
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'get_items' ],
+				'permission_callback' => '__return_true',
+			],
 		] );
 		register_rest_route( $this->namespace, '/carriers', [
-			[ 'methods' => WP_REST_Server::READABLE, 'callback' => [ $this, 'get_carriers_items' ] ],
+			[
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'get_carriers_items' ],
+				'permission_callback' => '__return_true',
+			],
 		] );
 		register_rest_route( $this->namespace, '/dispatch', [
-			[ 'methods' => WP_REST_Server::CREATABLE, 'callback' => [ $this, 'update_item' ] ],
+			[
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => [ $this, 'update_item' ],
+				'permission_callback' => '__return_true',
+			],
 		] );
 		register_rest_route( $this->namespace, '/orders/(?P<id>\d+)', [
-			[ 'methods' => WP_REST_Server::READABLE, 'callback' => [ $this, 'get_item' ] ],
+			[
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'get_item' ],
+				'permission_callback' => '__return_true',
+			],
 		] );
 		register_rest_route( $this->namespace, '/orders/card-sizes', [
-			[ 'methods' => WP_REST_Server::READABLE, 'callback' => [ $this, 'get_order_items' ] ],
+			[
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'get_order_items' ],
+				'permission_callback' => '__return_true',
+			],
 		] );
 	}
 

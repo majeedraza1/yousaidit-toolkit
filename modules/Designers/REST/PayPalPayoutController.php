@@ -42,24 +42,28 @@ class PayPalPayoutController extends ApiController {
 	public function register_routes() {
 		register_rest_route( $this->namespace, '/paypal-payouts', [
 			[
-				'methods'  => WP_REST_Server::READABLE,
-				'callback' => [ $this, 'get_items' ],
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'get_items' ],
+				'permission_callback' => '__return_true',
 			],
 			[
-				'methods'  => WP_REST_Server::CREATABLE,
-				'callback' => [ $this, 'create_item' ],
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => [ $this, 'create_item' ],
+				'permission_callback' => '__return_true',
 			],
 		] );
 		register_rest_route( $this->namespace, '/paypal-payouts/(?P<id>\d+)', [
 			[
-				'methods'  => WP_REST_Server::READABLE,
-				'callback' => [ $this, 'get_item' ],
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'get_item' ],
+				'permission_callback' => '__return_true',
 			],
 		] );
 		register_rest_route( $this->namespace, '/paypal-payouts/(?P<id>\d+)/sync', [
 			[
-				'methods'  => WP_REST_Server::CREATABLE,
-				'callback' => [ $this, 'sync_item' ],
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => [ $this, 'sync_item' ],
+				'permission_callback' => '__return_true',
 			],
 		] );
 	}

@@ -36,9 +36,10 @@ class DesignerCommissionController extends ApiController {
 	public function register_routes() {
 		register_rest_route( $this->namespace, '/designers/(?P<id>\d+)/commissions', [
 			[
-				'methods'  => WP_REST_Server::READABLE,
-				'callback' => [ $this, 'get_item' ],
-				'args'     => $this->get_collection_params(),
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'get_item' ],
+				'args'                => $this->get_collection_params(),
+				'permission_callback' => '__return_true',
 			],
 		] );
 	}

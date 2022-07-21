@@ -36,8 +36,16 @@ class SettingController extends ApiController {
 	 */
 	public function register_routes() {
 		register_rest_route( $this->namespace, '/designers-settings', [
-			[ 'methods' => WP_REST_Server::READABLE, 'callback' => [ $this, 'get_settings' ] ],
-			[ 'methods' => WP_REST_Server::EDITABLE, 'callback' => [ $this, 'update_settings' ] ],
+			[
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'get_settings' ],
+				'permission_callback' => '__return_true',
+			],
+			[
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'update_settings' ],
+				'permission_callback' => '__return_true',
+			],
 		] );
 	}
 

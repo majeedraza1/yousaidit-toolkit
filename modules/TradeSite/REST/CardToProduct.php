@@ -36,7 +36,11 @@ class CardToProduct extends LegacyApiController {
 	 */
 	public function register_routes() {
 		register_rest_route( $this->namespace, '/trade-site/(?P<id>\d+)/create-product', [
-			[ 'methods' => WP_REST_Server::CREATABLE, 'callback' => [ $this, 'create_item' ] ],
+			[
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => [ $this, 'create_item' ],
+				'permission_callback' => '__return_true',
+			],
 		] );
 	}
 

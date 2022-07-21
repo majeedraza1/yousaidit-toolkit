@@ -39,9 +39,10 @@ class UserRegistrationController extends ApiController {
 	public function register_routes() {
 		register_rest_route( $this->namespace, '/registration', [
 			[
-				'methods'  => WP_REST_Server::CREATABLE,
-				'callback' => [ $this, 'create_item' ],
-				'args'     => $this->create_item_params(),
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => [ $this, 'create_item' ],
+				'args'                => $this->create_item_params(),
+				'permission_callback' => '__return_true',
 			],
 		] );
 	}
