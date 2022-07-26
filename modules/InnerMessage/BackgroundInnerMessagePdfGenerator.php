@@ -3,6 +3,7 @@
 namespace YouSaidItCards\Modules\InnerMessage;
 
 use Stackonet\WP\Framework\Abstracts\BackgroundProcess;
+use Stackonet\WP\Framework\Supports\Logger;
 use WC_Order;
 use WC_Order_Item_Product;
 
@@ -77,10 +78,20 @@ class BackgroundInnerMessagePdfGenerator extends BackgroundProcess {
 		$order_id = isset( $item['order_id'] ) ? intval( $item['order_id'] ) : 0;
 		$item_id  = isset( $item['item_id'] ) ? intval( $item['item_id'] ) : 0;
 
-		if ( $order_id && $item_id ) {
+		$order = wc_get_order( $order_id );
+		if ( ! $order instanceof WC_Order ) {
+			Logger::log( "Invalid order id # $order_id. Could not generate inner message for the order." );
+
+			return false;
+		}
+
+		try {
 			$order_item = new WC_Order_Item_Product( $item_id );
 			$generator  = new PdfGenerator( $order_item );
 			$generator->save_to_file_system();
+		} catch ( \Exception $exception ) {
+			Logger::log( 'There is a error when generating inner message for order item #' . $item_id );
+			Logger::log( $exception );
 		}
 
 		// Set false to remove task from queue
