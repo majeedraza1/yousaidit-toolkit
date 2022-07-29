@@ -377,6 +377,7 @@ class Order implements JsonSerializable {
 		$items          = get_transient( $transient_name );
 		if ( $force ) {
 			$items = false;
+			delete_transient( $transient_name );
 		}
 		if ( false === $items ) {
 			$items  = [];

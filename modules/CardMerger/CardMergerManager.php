@@ -78,7 +78,7 @@ class CardMergerManager {
 		$ids           = is_string( $ids ) ? explode( ',', $ids ) : [];
 		$ids           = count( $ids ) ? array_map( 'intval', $ids ) : [];
 
-		$orders = Order::get_orders_by_ids( $ids );
+		$orders = Order::get_orders_by_ids( $ids, [ 'force' => true ] );
 		$items  = [];
 		foreach ( $orders as $order ) {
 			$order_items = $order->get_order_items();
