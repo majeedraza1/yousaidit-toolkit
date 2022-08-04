@@ -5,7 +5,6 @@ namespace YouSaidItCards\Modules\InnerMessage;
 use JoyPixels\Client;
 use JoyPixels\Ruleset;
 use WC_Order_Item_Product;
-use YouSaidItCards\FreePdf;
 use YouSaidItCards\Utilities\Filesystem;
 use YouSaidItCards\Utilities\FreePdfBase;
 

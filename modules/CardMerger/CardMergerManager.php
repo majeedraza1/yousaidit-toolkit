@@ -74,6 +74,8 @@ class CardMergerManager {
 		$card_width    = isset( $_GET['card_width'] ) ? intval( $_GET['card_width'] ) : 0;
 		$card_height   = isset( $_GET['card_height'] ) ? intval( $_GET['card_height'] ) : 0;
 		$inner_message = isset( $_GET['inner_message'] ) && Validate::checked( $_GET['inner_message'] );
+		$card_type     = isset( $_GET['card_type'] ) && in_array( $_GET['card_type'], [ 'static', 'dynamic' ] ) ?
+			$_GET['card_type'] : 'static';
 		$ids           = $_GET['ids'] ?? '';
 		$ids           = is_string( $ids ) ? explode( ',', $ids ) : [];
 		$ids           = count( $ids ) ? array_map( 'intval', $ids ) : [];
@@ -83,7 +85,11 @@ class CardMergerManager {
 		foreach ( $orders as $order ) {
 			$order_items = $order->get_order_items();
 			foreach ( $order_items as $order_item ) {
-				if ( $card_width == $order_item->get_pdf_width() && $card_height == $order_item->get_pdf_height() ) {
+				if (
+					$card_width == $order_item->get_pdf_width() &&
+					$card_height == $order_item->get_pdf_height() &&
+					$card_type == $order_item->get_card_type()
+				) {
 					$items[] = $order_item;
 				}
 			}

@@ -93,6 +93,7 @@ export default {
 			params.set('card_width', item.width);
 			params.set('card_height', item.height);
 			params.set('inner_message', item.inner_message);
+			params.set('card_type', item.card_type);
 			params.set('ids', _items.toString());
 			return _url.toString();
 		},
