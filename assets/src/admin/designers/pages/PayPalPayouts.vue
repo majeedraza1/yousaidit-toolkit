@@ -28,8 +28,8 @@
 		<div style="position: fixed;bottom:15px;right:15px;z-index: 100">
 			<shapla-button fab theme="primary" size="large" @click="showModal = true">+</shapla-button>
 		</div>
-		<modal-box :active="showModal" title="New Payout" content-class="shapla-modal-confirm" :show-close-icon="false"
-		           :close-on-background-click="false" content-size="small">
+		<modal :active="showModal" type="box" title="New Payout" content-class="shapla-modal-confirm"
+		       :show-close-icon="false" :close-on-background-click="false" content-size="small">
 			<div class="shapla-modal-confirm__content">
 				<div class="shapla-modal-confirm__icon is-info">
 					<div class="shapla-modal-confirm__icon-content">!</div>
@@ -55,19 +55,18 @@
 					Ok
 				</button>
 			</div>
-		</modal-box>
+		</modal>
 	</div>
 </template>
 
 <script>
 import axios from "axios";
-import {dataTable, columns, column, tabs, tab, shaplaButton, shaplaCheckbox} from 'shapla-vue-components';
-import {ModalBox} from 'shapla-modal';
+import {dataTable, columns, column, tabs, tab, shaplaButton, shaplaCheckbox, modal} from 'shapla-vue-components';
 import ReportCard from "../../../components/ReportCard";
 
 export default {
 	name: "PayPalPayouts",
-	components: {dataTable, columns, column, shaplaButton, tabs, tab, ReportCard, ModalBox, shaplaCheckbox},
+	components: {dataTable, columns, column, shaplaButton, tabs, tab, ReportCard, modal, shaplaCheckbox},
 	data() {
 		return {
 			showModal: false,

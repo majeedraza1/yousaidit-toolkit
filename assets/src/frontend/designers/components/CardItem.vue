@@ -92,8 +92,7 @@
 </template>
 
 <script>
-import {imageContainer, iconContainer, shaplaChip} from 'shapla-vue-components';
-import {dropdownMenu} from 'shapla-dropdown';
+import {imageContainer, iconContainer, shaplaChip, dropdownMenu} from 'shapla-vue-components';
 
 export default {
 	name: "CardItem",

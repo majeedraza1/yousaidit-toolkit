@@ -1,9 +1,4 @@
-@use '~shapla-css/src/index.scss' as shapla;
-
-@include shapla.delete-icon;
-@include shapla.button;
-@include shapla.modal;
-
+@import "shapla-css";
 @import "checkbox";
 @import "author-card";
 @import "designer-profile/profile-header";
