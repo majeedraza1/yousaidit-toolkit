@@ -53,7 +53,7 @@ class PdfGeneratorBase {
 				continue;
 			}
 			if ( in_array( $line, [ '<br>', '<br/>', '<br />' ] ) ) {
-//				$html .= "<br>";
+				$html .= "<br>";
 			} else {
 				$html .= "<div>{$line}</div>";
 			}
@@ -101,6 +101,7 @@ class PdfGeneratorBase {
 				font-family: <?php echo $fontFamily?>;
 				font-weight: normal;
 				font-size: <?php echo $this->font_size.'pt'?>;
+				line-height: <?php echo $this->font_size.'pt'?>;
 				color: <?php echo $this->text_color?>;
 				text-align: <?php echo $this->text_align?>;
 			}
