@@ -40,8 +40,12 @@
     "setasign/tfpdf": "^1.32",
     "stackonet/wp-helpers": "^1.6.0"
   },
+  "require-dev": {
+    "wp-cli/wp-cli-bundle": "*"
+  },
   "scripts": {
-    "make_font_metrics": "wp make_font_metrics generate",
-    "generate_tfpdf_fonts": "wp make_font_metrics generate_tfpdf_fonts"
+    "dompdf_install_font": "wp yousaidit-cli dompdf_install_font",
+    "tfpdf_install_font": "wp yousaidit-cli tfpdf_install_font",
+    "tfpdf_clear_font_cache": "wp yousaidit-cli tfpdf_clear_font_cache"
   }
 }

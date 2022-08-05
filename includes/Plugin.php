@@ -120,7 +120,7 @@ class Plugin {
 		* wp make_font_metrics generate
 		*/
 		if ( class_exists( 'WP_CLI' ) && class_exists( 'WP_CLI_Command' ) ) {
-			\WP_CLI::add_command( 'make_font_metrics', Command::class );
+			\WP_CLI::add_command( 'yousaidit-cli', Command::class );
 		}
 	}
 

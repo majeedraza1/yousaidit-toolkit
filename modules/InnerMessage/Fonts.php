@@ -208,4 +208,30 @@ class Fonts {
 
 		return join( DIRECTORY_SEPARATOR, [ $basePath, $dir, $file ] );
 	}
+
+	public static function tfpdf_clear_fonts_cache() {
+		$base_path       = YOUSAIDIT_TOOLKIT_PATH . '/vendor/setasign/tfpdf/font/unifont/';
+		$files           = scandir( $base_path );
+		$sections_values = [];
+		foreach ( $files as $file ) {
+			if ( false !== strpos( $file, '.mtx.php' ) || false !== strpos( $file, '.cw.dat' ) ) {
+				$sections_values[] = $file;
+				unlink( join( '/', [ $base_path, $file ] ) );
+			}
+		}
+
+		if ( count( $sections_values ) < 1 ) {
+			return 'Fonts cache files are already clean. Nothing to clear';
+		}
+
+		return sprintf(
+			_n(
+				'%s cache file has been cleaned.',
+				'%s cache files have been cleaned.',
+				count( $sections_values ),
+				'yousaidit-toolkit'
+			),
+			number_format_i18n( count( $sections_values ) )
+		);
+	}
 }

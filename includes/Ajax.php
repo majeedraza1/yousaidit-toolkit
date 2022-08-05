@@ -11,6 +11,7 @@ use WC_Product;
 use YouSaidItCards\Modules\Designers\DynamicCard;
 use YouSaidItCards\Modules\Designers\Models\DesignerCard;
 use YouSaidItCards\Modules\DynamicCard\EnvelopeColours;
+use YouSaidItCards\Modules\InnerMessage\Fonts;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -33,6 +34,7 @@ class Ajax {
 			self::$instance = new self();
 
 			add_action( 'wp_ajax_yousaidit_test', [ self::$instance, 'stackonet_test' ] );
+			add_action( 'wp_ajax_yousaidit_clear_tfpdf_fonts_cache', [ self::$instance, 'tfpdf_clear_fonts_cache' ] );
 			add_action( 'wp_ajax_yousaidit_generate_preview_card', [ self::$instance, 'generate_preview_card' ] );
 			add_action( 'wp_ajax_yousaidit_preview_card', [ self::$instance, 'yousaidit_preview_card' ] );
 			add_action( 'wp_ajax_yousaidit_font_image', [ self::$instance, 'yousaidit_font_image' ] );
@@ -58,6 +60,17 @@ class Ajax {
 		var_dump( $sections_values );
 
 		die();
+	}
+
+	/**
+	 * Clear fonts cache
+	 *
+	 * @return void
+	 */
+	public function tfpdf_clear_fonts_cache() {
+		$message = Fonts::tfpdf_clear_fonts_cache();
+		echo $message;
+		die;
 	}
 
 	public function generate_preview_card() {

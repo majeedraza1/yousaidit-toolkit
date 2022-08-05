@@ -110,6 +110,7 @@ class SettingPage {
 		$setting->set_panel( [ 'id' => 'integrations', 'title' => 'Integrations', 'priority' => 10, ] );
 		$setting->set_panel( [ 'id' => 'trade_site', 'title' => 'Trade Site', 'priority' => 20 ] );
 		$setting->set_panel( [ 'id' => 'market_place', 'title' => 'Market Places', 'priority' => 30 ] );
+		$setting->set_panel( [ 'id' => 'help', 'title' => 'Help', 'priority' => 40 ] );
 
 		$setting->set_section( [
 			'id'       => 'section_general',
@@ -407,6 +408,16 @@ class SettingPage {
 			},
 			'section'           => 'section_inner_message_settings',
 			'options'           => self::get_product_categories(),
+		] );
+
+		$action_url = admin_url( 'admin-ajax.php?action=yousaidit_clear_tfpdf_fonts_cache' );
+		$setting->set_field( [
+			'id'       => 'flash_tfpdf_font_cache',
+			'type'     => 'html',
+			'title'    => __( 'Clear tFPDF fonts cache' ),
+			'priority' => 10,
+			'panel'    => 'help',
+			'html'     => sprintf( '<a href="%s" target="_blank">Clear Now</a>', $action_url )
 		] );
 	}
 
