@@ -134,8 +134,6 @@ export default {
 
 <style lang="scss">
 @import "~shapla-css/src/colors";
-@import url('https://fonts.googleapis.com/css2?family=Amatic+SC&family=Caveat&family=Cedarville+Cursive&family=Fontdiner+Swanky&family=Handlee&family=Indie+Flower&family=Josefin+Slab&family=Kranky&family=Lovers+Quarrel&family=Mountains+of+Christmas&family=Prata&family=Sacramento&display=swap');
-
 .inner-message-font-families {
 	max-height: 64vh;
 	overflow-y: auto;

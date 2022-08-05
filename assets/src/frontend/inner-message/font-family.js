@@ -1,4 +1,4 @@
-const fontFamilies = [
+const fontFamilies = window.YousaiditFontsList || [
 	{label: "Josefin Slab", fontFamily: "'Josefin Slab', serif"},
 	{label: "Prata", fontFamily: "'Prata', serif"},
 	{label: "Indie Flower", fontFamily: "'Indie Flower', cursive"},

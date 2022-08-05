@@ -143,6 +143,18 @@ class Fonts {
 		$fonts['MountainsofChristmas'] = static::get_font_info( 'Mountains of Christmas', 'cursive' );
 		$fonts['Sacramento']           = static::get_font_info( 'Sacramento', 'cursive' );
 		$fonts['NotoEmoji']            = static::get_font_info( 'Noto Emoji', 'sans-serif' );
+		$fonts['BigMom']               = static::get_font_info( 'BigMom', 'sans-serif' );
+		$fonts['Dekar']                = static::get_font_info( 'Dekar', 'sans-serif' );
+		$fonts['EllieBellie']          = static::get_font_info( 'EllieBellie', 'cursive' );
+		$fonts['Gagalin']              = static::get_font_info( 'Gagalin', 'sans-serif' );
+		$fonts['Hatton']               = static::get_font_info( 'Hatton', 'sans-serif' );
+		$fonts['JunkDog']              = static::get_font_info( 'JunkDog', 'sans-serif' );
+		$fonts['LovileTypeBold']       = static::get_font_info( 'Lovile Type Bold', 'sans-serif' );
+		$fonts['MoonFlower']           = static::get_font_info( 'Moon Flower', 'sans-serif' );
+		$fonts['MoonFlowerBold']       = static::get_font_info( 'Moon Flower Bold', 'sans-serif' );
+		$fonts['Simplicity']           = static::get_font_info( 'Simplicity', 'sans-serif' );
+		$fonts['Sovereign']            = static::get_font_info( 'Sovereign', 'sans-serif' );
+		$fonts['sunday']               = static::get_font_info( 'sunday', 'serif' );
 
 		return $fonts;
 	}
@@ -205,8 +217,14 @@ class Fonts {
 		$file       = str_replace( " ", "", $fontFamily );
 		$file       = $file . "-Regular.ttf";
 		$basePath   = YOUSAIDIT_TOOLKIT_PATH . '/assets/google-fonts';
+		$basePath2  = YOUSAIDIT_TOOLKIT_PATH . '/assets/web-fonts';
 
-		return join( DIRECTORY_SEPARATOR, [ $basePath, $dir, $file ] );
+		$path = join( DIRECTORY_SEPARATOR, [ $basePath, $dir, $file ] );
+		if ( file_exists( $path ) ) {
+			return $path;
+		}
+
+		return join( DIRECTORY_SEPARATOR, [ $basePath2, $file ] );
 	}
 
 	public static function tfpdf_clear_fonts_cache() {
@@ -233,5 +251,44 @@ class Fonts {
 			),
 			number_format_i18n( count( $sections_values ) )
 		);
+	}
+
+	/**
+	 * Get font face rules
+	 *
+	 * @return string
+	 */
+	public static function get_font_face_rules(): string {
+		$fonts         = self::get_list();
+		$js_fonts_list = [];
+
+		$css = "<style id='yousaidit-inline-font-face-css' type='text/css'>";
+		foreach ( $fonts as $key => $font ) {
+			if ( 'NotoEmoji' === $key ) {
+				continue;
+			}
+
+			$css .= '@font-face {' . PHP_EOL;
+			$css .= sprintf(
+				        "font-family: '%s'; font-style: normal; font-weight: 400;font-display: swap;",
+				        $font['label']
+			        ) . PHP_EOL;
+			$css .= sprintf(
+				        "src: url(%s) format('truetype');",
+				        $font['fontUrl']
+			        ) . PHP_EOL;
+			$css .= '}' . PHP_EOL;
+
+			$js_fonts_list[] = [
+				'label'      => $font['label'],
+				'fontFamily' => $font['fontFamily']
+			];
+		}
+		$css .= '</style>' . PHP_EOL;
+		$css .= "<script id='yousaidit-inline-font-face-js' type='text/javascript'>" . PHP_EOL;
+		$css .= 'window.YousaiditFontsList = ' . wp_json_encode( $js_fonts_list ) . PHP_EOL;
+		$css .= '</script>' . PHP_EOL;
+
+		return $css;
 	}
 }

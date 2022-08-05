@@ -27,7 +27,7 @@ class InnerMessageManager {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self();
 
-			add_action( 'wp_footer', [ self::$instance, 'add_editor' ], 5 );
+			add_action( 'wp_footer', [ self::$instance, 'add_editor' ], 1 );
 			add_action( 'wp_enqueue_scripts', [ self::$instance, 'load_scripts' ] );
 
 			add_action( 'wp_ajax_inner_message_preview_test', [ self::$instance, 'inner_message_preview_test' ] );
@@ -90,6 +90,7 @@ class InnerMessageManager {
 	 */
 	public function add_editor() {
 		echo '<div id="inner-message"></div>';
+		echo Fonts::get_font_face_rules();
 	}
 
 	/**
