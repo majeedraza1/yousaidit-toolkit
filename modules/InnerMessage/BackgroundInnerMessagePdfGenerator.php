@@ -7,6 +7,9 @@ use Stackonet\WP\Framework\Supports\Logger;
 use WC_Order;
 use WC_Order_Item_Product;
 
+/**
+ * BackgroundInnerMessagePdfGenerator class
+ */
 class BackgroundInnerMessagePdfGenerator extends BackgroundProcess {
 
 	/**
@@ -33,10 +36,48 @@ class BackgroundInnerMessagePdfGenerator extends BackgroundProcess {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self;
 
+			add_action( 'admin_notices', [ self::$instance, 'admin_notices' ] );
 			add_action( 'shutdown', [ self::$instance, 'dispatch_data' ] );
 		}
 
 		return self::$instance;
+	}
+
+	/**
+	 * Show admin notice
+	 *
+	 * @return void
+	 */
+	public function admin_notices() {
+		$list  = $this->get_background_task_list();
+		$count = count( $list );
+		if ( $count < 1 ) {
+			return;
+		}
+		$count_text = sprintf( _n( '%s inner message', '%s inner messages', $count ), $count );
+		?>
+		<div class="notice notice-info is-dismissible">
+			<p>
+				A background task is running to generate <?php echo $count_text ?>. Make sure all orders are sync to
+				ShipStation.
+			</p>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Get background task list
+	 *
+	 * @return array
+	 */
+	public function get_background_task_list(): array {
+		global $wpdb;
+		$item = $wpdb->get_row(
+			$wpdb->prepare( "SELECT * FROM $wpdb->options WHERE option_name LIKE %s", '%' . $this->action . '%' ),
+			ARRAY_A
+		);
+
+		return is_array( $item ) ? $item : [];
 	}
 
 	/**
@@ -45,7 +86,7 @@ class BackgroundInnerMessagePdfGenerator extends BackgroundProcess {
 	 * @param WC_Order $order
 	 * @param bool $immediately
 	 */
-	public static function generate_for_order( WC_Order $order, $immediately = false ) {
+	public static function generate_for_order( WC_Order $order, bool $immediately = false ) {
 		foreach ( $order->get_items() as $item ) {
 			if ( ! $item instanceof WC_Order_Item_Product ) {
 				continue;

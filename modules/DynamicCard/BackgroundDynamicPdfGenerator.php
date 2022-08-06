@@ -82,20 +82,34 @@ class BackgroundDynamicPdfGenerator extends BackgroundProcess {
 
 		$message = '<h1>' . esc_html__( 'Yousaidit Toolkit', 'yousaidit-toolkit' ) . '</h1>';
 		if ( ! ( current_user_can( 'manage_options' ) && $is_verified ) ) {
-			$message .= '<p>' . __( 'Sorry. This link only for admin to perform upgrade tasks.' ) . '</p>';
+			$message .= '<p>' . __( 'Sorry. This link only for admin to perform upgrade tasks.', 'yousaidit-toolkit' ) . '</p>';
 			_default_wp_die_handler( $message, '', [ 'back_link' => true ] );
 		}
+
+		$error_messages = [];
 
 		$list = (array) get_option( '_dynamic_card_to_generate', [] );
 		foreach ( $list as $item ) {
 			list( $order_id, $order_item_id ) = explode( '|', $item );
-			BackgroundDynamicPdfGenerator::generate_for_order_item(
+			$file_path = BackgroundDynamicPdfGenerator::generate_for_order_item(
 				intval( $order_id ),
 				intval( $order_item_id )
 			);
+			if ( is_wp_error( $file_path ) ) {
+				$error_messages[] = $file_path->get_error_message();
+			}
 		}
 
-		$message .= '<p>' . __( 'Dynamic card has been generated successfully.' ) . '</p>';
+		if ( count( $error_messages ) ) {
+			$message .= '<p>' . __( 'One or more errors has been generated when running the task.', 'yousaidit-toolkit' ) . '</p>';
+			$message .= '<ul>';
+			foreach ( $error_messages as $error_message ) {
+				$message .= '<li>' . $error_message . '</li>';
+			}
+			$message .= '</ul>';
+		} else {
+			$message .= '<p>' . __( 'Dynamic card has been generated successfully.', 'yousaidit-toolkit' ) . '</p>';
+		}
 		_default_wp_die_handler( $message, '', [ 'back_link' => true ] );
 	}
 
@@ -107,9 +121,11 @@ class BackgroundDynamicPdfGenerator extends BackgroundProcess {
 	public function generate_single_dynamic_card_pdf() {
 		$order_id      = $_REQUEST['order_id'] ?? 0;
 		$order_item_id = $_REQUEST['order_item_id'] ?? 0;
+		$force         = isset( $_REQUEST['force'] );
 		$filepath      = BackgroundDynamicPdfGenerator::generate_for_order_item(
 			intval( $order_id ),
-			intval( $order_item_id )
+			intval( $order_item_id ),
+			$force
 		);
 		if ( is_wp_error( $filepath ) ) {
 			wp_send_json_error( $filepath );
@@ -173,7 +189,7 @@ class BackgroundDynamicPdfGenerator extends BackgroundProcess {
 	 *
 	 * @return string|WP_Error
 	 */
-	public static function generate_for_order_item( int $order_id, int $order_item_id, bool $overwrite = false ) {
+	private static function generate_for_order_item( int $order_id, int $order_item_id, bool $overwrite = false ) {
 		// If PDF is already generated, return the file path
 		$order_dir = Uploader::get_upload_dir( 'dynamic-pdf/' . $order_id );
 		$filename  = "$order_dir/dc-$order_item_id.pdf";

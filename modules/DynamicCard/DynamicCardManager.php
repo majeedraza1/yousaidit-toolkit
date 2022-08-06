@@ -208,10 +208,6 @@ class DynamicCardManager {
 			] );
 			$list   = (array) get_option( '_dynamic_card_to_generate', [] );
 			$list[] = sprintf( "%s|%s", $order->get_id(), $item->get_id() );
-			Logger::log( [
-				'order_id'      => $order->get_id(),
-				'order_item_id' => $item->get_id()
-			] );
 			update_option( '_dynamic_card_to_generate', $list, false );
 		}
 	}

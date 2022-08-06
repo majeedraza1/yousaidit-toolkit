@@ -5,7 +5,7 @@
 			<shapla-button theme="primary" size="small" @click="forceRefresh">Refresh</shapla-button>
 		</div>
 		<div class="md:flex flex-wrap -m-4" v-if="Object.keys(items).length">
-			<div class="p-4 md:w-3/12 lg:w-2/12" v-for="(item, key) in items" :key="key">
+			<div class="p-4 md:w-6/12 lg:w-4/12 xl:w-3/12" v-for="(item, key) in items" :key="key">
 				<div class="shadow p-4 bg-white h-full flex flex-col">
 					<div>
 						<strong>{{ item.width }}</strong>x<strong>{{ item.height }}</strong>
@@ -101,24 +101,32 @@ export default {
 			window.open(this.get_pdf_url(item), '_blank');
 		},
 		handleDynamicCardGeneration(item) {
-			this.dynamic_card.generating = true;
-			this.dynamic_card.items_to_generate = item.to_generate.length;
-			this.dynamic_card.remaining_items = item.to_generate.length;
-			item.to_generate.forEach(_item => {
-				this.generate_dynamic_pdf(_item.wc_order_id, _item.wc_order_item_id).then(data => {
-					this.dynamic_card.success_items += 1;
-				}).catch(error => {
-					this.dynamic_card.error_items += 1;
-				}).finally(() => {
-					this.dynamic_card.remaining_items -= 1;
+			this.$dialog.confirm(
+				'Generating all dynamic card is a CPU resource consuming task.',
+				{title: 'Are you Sure?'}
+			)
+				.then((confirmed) => {
+					if (confirmed) {
+						this.dynamic_card.generating = true;
+						this.dynamic_card.items_to_generate = item.to_generate.length;
+						this.dynamic_card.remaining_items = item.to_generate.length;
+						item.to_generate.forEach(_item => {
+							this.generate_dynamic_pdf(_item.wc_order_id, _item.wc_order_item_id).then(data => {
+								this.dynamic_card.success_items += 1;
+							}).catch(error => {
+								this.dynamic_card.error_items += 1;
+							}).finally(() => {
+								this.dynamic_card.remaining_items -= 1;
 
-					if (this.dynamic_card.remaining_items < 1) {
-						this.dynamic_card.generating = false;
-						this.dynamic_card = JSON.parse(JSON.stringify(dynamicCardDefault));
-						this.forceRefresh();
+								if (this.dynamic_card.remaining_items < 1) {
+									this.dynamic_card.generating = false;
+									this.dynamic_card = JSON.parse(JSON.stringify(dynamicCardDefault));
+									this.forceRefresh();
+								}
+							});
+						})
 					}
-				});
-			})
+				})
 		},
 		generate_dynamic_pdf(wc_order_id, wc_order_item_id) {
 			let _url = new URL(Stackonet.ajaxurl),

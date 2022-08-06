@@ -54,8 +54,9 @@ class InnerMessageManager {
 				[ self::$instance, 'order_item_get_formatted_meta_data' ], 10, 2 );
 
 			BackgroundInnerMessagePdfGenerator::init();
-			add_action( 'woocommerce_checkout_order_processed',
-				[ self::$instance, 'generate_inner_message_pdf' ] );
+			// Step 5: Add background task to generate dynamic card pdf
+			add_action( 'woocommerce_checkout_order_created',
+				[ self::$instance, 'generate_inner_message_pdf' ], 10 );
 
 			add_filter( 'woocommerce_order_actions', [ self::$instance, 'add_custom_order_action' ], 99 );
 			add_action( 'woocommerce_order_action_generate_inner_message_pdf',
@@ -216,13 +217,15 @@ class InnerMessageManager {
 		}
 	}
 
-	public function generate_inner_message_pdf( $order_id ) {
-		try {
-			$order = wc_get_order( $order_id );
-			BackgroundInnerMessagePdfGenerator::generate_for_order( $order );
-		} catch ( \Exception $exception ) {
-			Logger::log( $exception );
-		}
+	/**
+	 * Generate inner message pdf
+	 *
+	 * @param WC_Order $order
+	 *
+	 * @return void
+	 */
+	public function generate_inner_message_pdf( \WC_Order $order ) {
+		BackgroundInnerMessagePdfGenerator::generate_for_order( $order );
 	}
 
 	/**
