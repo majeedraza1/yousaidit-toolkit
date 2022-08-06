@@ -154,13 +154,10 @@ class CardMergerManager {
 		if ( $postcard_pdf_id ) {
 			$url = wp_get_attachment_url( $postcard_pdf_id );
 		} elseif ( $dynamic_card_id ) {
-			$filepath = BackgroundDynamicPdfGenerator::generate_for_order_item( $wc_order_id, $wc_order_item_id );
-			if ( is_wp_error( $filepath ) ) {
-				var_dump( $filepath );
+			$url = BackgroundDynamicPdfGenerator::get_pdf_url( $wc_order_id, $wc_order_item_id );
+			if ( ! Validate::url( $url ) ) {
 				die;
 			}
-			$upload_dir = wp_get_upload_dir();
-			$url        = str_replace( $upload_dir['basedir'], $upload_dir['baseurl'], $filepath );
 		} else {
 			$pdf_id = (int) $product->get_meta( '_pdf_id', true );
 			$url    = wp_get_attachment_url( $pdf_id );

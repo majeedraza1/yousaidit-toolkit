@@ -2,6 +2,7 @@
 
 namespace YouSaidItCards\Modules\DynamicCard;
 
+use Stackonet\WP\Framework\Supports\Logger;
 use WC_Order;
 use WC_Order_Item_Product;
 use YouSaidItCards\Modules\DynamicCard\Models\CardPayload;
@@ -28,16 +29,14 @@ class DynamicCardManager {
 			UserMediaController::init();
 			BackgroundDynamicPdfGenerator::init();
 
-			add_action( 'admin_notices', [ self::$instance, 'admin_notices' ] );
-			add_action( 'wp_ajax_generate_dynamic_card_pdf', [ self::$instance, 'generate_dynamic_card_pdf' ] );
-			add_action( 'wp_ajax_nopriv_generate_dynamic_card_pdf', [ self::$instance, 'generate_dynamic_card_pdf' ] );
-			add_action( 'wp_ajax_dynamic_card_generate_now', [ self::$instance, 'dynamic_card_generate_now' ] );
-
 			// Step 2: Add Customer Data to WooCommerce Cart
 			add_filter( 'woocommerce_add_cart_item_data', [ self::$instance, 'add_cart_item_data' ] );
 			// Step 4: Add Custom Details as Order Line Items
 			add_action( 'woocommerce_checkout_create_order_line_item',
 				[ self::$instance, 'create_order_line_item' ], 10, 4 );
+			// Step 5: Add background task to generate dynamic card pdf
+			add_action( 'woocommerce_checkout_order_created',
+				[ self::$instance, 'set_background_task_for_dynamic_card' ], 10 );
 
 			add_action( 'wp_footer', [ self::$instance, 'add_editor' ], 5 );
 
@@ -99,56 +98,6 @@ class DynamicCardManager {
 		}
 	}
 
-	/**
-	 * Show admin notice
-	 *
-	 * @return void
-	 */
-	public function admin_notices() {
-		$list  = (array) get_option( '_dynamic_card_to_generate', [] );
-		$count = count( $list );
-		if ( $count < 1 ) {
-			return;
-		}
-		$update_url = wp_nonce_url(
-			add_query_arg( [ 'action' => 'dynamic_card_generate_now' ], admin_url( 'admin-ajax.php' ) ),
-			'dynamic_card_generator'
-		);
-		?>
-		<div class="notice notice-info is-dismissible">
-			<p>
-				A background task is running to generate <?php echo $count ?> dynamic card(s). Make sure all orders
-				are sync to ShipStation. Dynamic card won't be generated without ShipStation id.<br>
-				<a class="button button-primary" href="<?php echo esc_url( $update_url ) ?>">Generate Now</a>
-			</p>
-		</div>
-		<?php
-	}
-
-	public function dynamic_card_generate_now() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$nonce       = $_REQUEST['_wpnonce'] ? sanitize_text_field( $_REQUEST['_wpnonce'] ) : null;
-		$is_verified = wp_verify_nonce( $nonce, 'dynamic_card_generator' );
-
-		$message = '<h1>Yousaidit Toolkit</h1>';
-		if ( ! ( current_user_can( 'manage_options' ) && $is_verified ) ) {
-			$message .= '<p>' . __( 'Sorry. This link only for admin to perform upgrade tasks.' ) . '</p>';
-			_default_wp_die_handler( $message, '', [ 'back_link' => true ] );
-		}
-
-		$list = (array) get_option( '_dynamic_card_to_generate', [] );
-		foreach ( $list as $item ) {
-			list( $order_id, $order_item_id ) = explode( '|', $item );
-			BackgroundDynamicPdfGenerator::generate_for_order_item(
-				intval( $order_id ),
-				intval( $order_item_id )
-			);
-		}
-
-		$message .= '<p>' . __( 'Dynamic card has been generated successfully.' ) . '</p>';
-		_default_wp_die_handler( $message, '', [ 'back_link' => true ] );
-	}
-
 	public function dynamic_card_test() {
 		$product        = wc_get_product( 37553 );
 		$modified_value = [
@@ -181,16 +130,6 @@ class DynamicCardManager {
 		}
 
 		return $image_string;
-	}
-
-	public function generate_dynamic_card_pdf() {
-		$order_id      = $_REQUEST['order_id'] ?? 0;
-		$order_item_id = $_REQUEST['order_item_id'] ?? 0;
-		$filepath      = BackgroundDynamicPdfGenerator::generate_for_order_item( intval( $order_id ), intval( $order_item_id ) );
-		if ( is_wp_error( $filepath ) ) {
-			wp_send_json_error( $filepath );
-		}
-		wp_send_json_success( [ 'path' => $filepath ] );
 	}
 
 	public function add_editor() {
@@ -236,13 +175,7 @@ class DynamicCardManager {
 			$data          = is_array( $values['_dynamic_card'] ) ? $values['_dynamic_card'] : [];
 			$_dynamic_card = self::sanitize_dynamic_card( $data );
 			$item->add_meta_data( '_dynamic_card', $_dynamic_card );
-			BackgroundDynamicPdfGenerator::init()->push_to_queue( [
-				'order_id'      => $order->get_id(),
-				'order_item_id' => $item->get_id()
-			] );
-			$list   = (array) get_option( '_dynamic_card_to_generate', [] );
-			$list[] = sprintf( "%s|%s", $order->get_id(), $item->get_id() );
-			update_option( '_dynamic_card_to_generate', $list, false );
+
 			foreach ( $_dynamic_card as $value ) {
 				if ( ! is_numeric( $value['value'] ) ) {
 					continue;
@@ -252,6 +185,34 @@ class DynamicCardManager {
 					delete_post_meta( $value['value'], '_should_delete_after_time', $meta );
 				}
 			}
+		}
+	}
+
+	/**
+	 * Set background task for dynamic card
+	 *
+	 * @param WC_Order $order The order object.
+	 *
+	 * @return void
+	 */
+	public function set_background_task_for_dynamic_card( \WC_Order $order ) {
+		$items = $order->get_items();
+		foreach ( $items as $item ) {
+			if ( ! $item->get_meta( '_dynamic_card' ) ) {
+				continue;
+			}
+
+			BackgroundDynamicPdfGenerator::init()->push_to_queue( [
+				'order_id'      => $order->get_id(),
+				'order_item_id' => $item->get_id()
+			] );
+			$list   = (array) get_option( '_dynamic_card_to_generate', [] );
+			$list[] = sprintf( "%s|%s", $order->get_id(), $item->get_id() );
+			Logger::log( [
+				'order_id'      => $order->get_id(),
+				'order_item_id' => $item->get_id()
+			] );
+			update_option( '_dynamic_card_to_generate', $list, false );
 		}
 	}
 

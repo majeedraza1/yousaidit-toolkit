@@ -32,10 +32,89 @@ class BackgroundDynamicPdfGenerator extends BackgroundProcess {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self;
 
+			add_action( 'admin_notices', [ self::$instance, 'admin_notices' ] );
+			add_action( 'wp_ajax_generate_dynamic_card_pdf', [ self::$instance, 'generate_single_dynamic_card_pdf' ] );
+			add_action( 'wp_ajax_dynamic_card_generate_now', [ self::$instance, 'generate_all_dynamic_card_pdf' ] );
 			add_action( 'shutdown', [ self::$instance, 'save_and_dispatch' ] );
 		}
 
 		return self::$instance;
+	}
+
+	/**
+	 * Show admin notice
+	 *
+	 * @return void
+	 */
+	public function admin_notices() {
+		$list  = (array) get_option( '_dynamic_card_to_generate', [] );
+		$count = count( $list );
+		if ( $count < 1 ) {
+			return;
+		}
+		$update_url = wp_nonce_url(
+			add_query_arg( [ 'action' => 'dynamic_card_generate_now' ], admin_url( 'admin-ajax.php' ) ),
+			'dynamic_card_generator'
+		);
+		$count_text = sprintf( _n( '%s dynamic card', '%s dynamic cards', $count ), $count );
+		?>
+		<div class="notice notice-info is-dismissible">
+			<p>
+				A background task is running to generate <?php echo $count_text ?>. Make sure all orders
+				are sync to ShipStation. Dynamic card won't be generated without ShipStation id.<br>
+				To generate all card now, click "Generate Now" button. Remember, generating all dynamic card is a CPU
+				resource consuming task.<br><br>
+				<a class="button button-primary" href="<?php echo esc_url( $update_url ) ?>">Generate Now</a>
+			</p>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Generate all dynamic card PDF
+	 *
+	 * @return void
+	 */
+	public function generate_all_dynamic_card_pdf() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$nonce       = $_REQUEST['_wpnonce'] ? sanitize_text_field( $_REQUEST['_wpnonce'] ) : null;
+		$is_verified = wp_verify_nonce( $nonce, 'dynamic_card_generator' );
+
+		$message = '<h1>' . esc_html__( 'Yousaidit Toolkit', 'yousaidit-toolkit' ) . '</h1>';
+		if ( ! ( current_user_can( 'manage_options' ) && $is_verified ) ) {
+			$message .= '<p>' . __( 'Sorry. This link only for admin to perform upgrade tasks.' ) . '</p>';
+			_default_wp_die_handler( $message, '', [ 'back_link' => true ] );
+		}
+
+		$list = (array) get_option( '_dynamic_card_to_generate', [] );
+		foreach ( $list as $item ) {
+			list( $order_id, $order_item_id ) = explode( '|', $item );
+			BackgroundDynamicPdfGenerator::generate_for_order_item(
+				intval( $order_id ),
+				intval( $order_item_id )
+			);
+		}
+
+		$message .= '<p>' . __( 'Dynamic card has been generated successfully.' ) . '</p>';
+		_default_wp_die_handler( $message, '', [ 'back_link' => true ] );
+	}
+
+	/**
+	 * Generate dynamic card PDF
+	 *
+	 * @return void
+	 */
+	public function generate_single_dynamic_card_pdf() {
+		$order_id      = $_REQUEST['order_id'] ?? 0;
+		$order_item_id = $_REQUEST['order_item_id'] ?? 0;
+		$filepath      = BackgroundDynamicPdfGenerator::generate_for_order_item(
+			intval( $order_id ),
+			intval( $order_item_id )
+		);
+		if ( is_wp_error( $filepath ) ) {
+			wp_send_json_error( $filepath );
+		}
+		wp_send_json_success( [ 'path' => $filepath ] );
 	}
 
 	/**
@@ -128,17 +207,31 @@ class BackgroundDynamicPdfGenerator extends BackgroundProcess {
 	}
 
 	/**
-	 * Check if file is generated already
+	 * Show PDF url if exists or message to generate PDF
 	 *
 	 * @param int $order_id WooCommerce order id.
 	 * @param int $order_item_id WooCommerce order item id.
 	 *
-	 * @return bool
+	 * @return string|void
 	 */
-	public static function is_generated( int $order_id, int $order_item_id ): bool {
+	public static function get_pdf_url( int $order_id, int $order_item_id ) {
 		$order_dir = Uploader::get_upload_dir( 'dynamic-pdf/' . $order_id );
 		$filename  = "$order_dir/dc-$order_item_id.pdf";
+		if ( file_exists( $filename ) ) {
+			$upload_dir = wp_get_upload_dir();
 
-		return file_exists( $filename );
+			return str_replace( $upload_dir['basedir'], $upload_dir['baseurl'], $filename );
+		}
+
+		$url = add_query_arg( [
+			'action'        => 'generate_dynamic_card_pdf',
+			'order_id'      => $order_id,
+			'order_item_id' => $order_item_id,
+		], admin_url( 'admin-ajax.php' ) );
+
+		$message = '<h1>' . esc_html__( 'Yousaidit Toolkit', 'yousaidit-toolkit' ) . '</h1>';
+		$message .= '<p>' . __( 'Sorry. The card is not ready to view yet. Click the following button to generate now.', 'yousaidit-toolkit' ) . '</p>';
+		$message .= '<p><a target="_blank" href="' . esc_url( $url ) . '">Generate Now</a></p>';
+		_default_wp_die_handler( $message, '', [ 'back_link' => true ] );
 	}
 }
