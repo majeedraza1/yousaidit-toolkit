@@ -419,6 +419,16 @@ class SettingPage {
 			'panel'    => 'help',
 			'html'     => sprintf( '<a href="%s" target="_blank">Clear Now</a>', $action_url )
 		] );
+
+		$action_url = admin_url( 'admin-ajax.php?action=yousaidit_clear_background_task' );
+		$setting->set_field( [
+			'id'       => 'flash_background_task',
+			'type'     => 'html',
+			'title'    => __( 'Clear background task' ),
+			'priority' => 10,
+			'panel'    => 'help',
+			'html'     => sprintf( '<a href="%s" target="_blank">Clear Now</a>', $action_url )
+		] );
 	}
 
 	/**

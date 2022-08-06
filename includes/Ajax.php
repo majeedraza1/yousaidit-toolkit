@@ -43,9 +43,41 @@ class Ajax {
 			add_action( 'wp_ajax_nopriv_yousaidit_color_image', [ self::$instance, 'yousaidit_color_image' ] );
 			add_action( 'wp_ajax_yousaidit_save_dynamic_card', [ self::$instance, 'save_dynamic_card' ] );
 			add_action( 'wp_ajax_nopriv_yousaidit_save_dynamic_card', [ self::$instance, 'save_dynamic_card' ] );
+			add_action( 'wp_ajax_yousaidit_clear_background_task', [ self::$instance, 'clear_background_task' ] );
 		}
 
 		return self::$instance;
+	}
+
+	public function clear_background_task() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( __( 'Sorry. This link only for admin.', 'yousaidit-toolkit' ) );
+		}
+		global $wpdb;
+		$options_name = [
+			'background_dynamic_pdf_generator',
+			'background_im_generator',
+			'sync_ship_station_order',
+			'background_pdf_size_calculator'
+		];
+
+		$sql = "SELECT * FROM $wpdb->options WHERE";
+		foreach ( $options_name as $index => $item ) {
+			if ( $index > 0 ) {
+				$sql .= " OR";
+			}
+			$sql .= " option_name LIKE '%" . esc_sql( $item ) . "%'";
+		}
+
+		$results = $wpdb->get_results( $sql, ARRAY_A );
+		$ids     = wp_list_pluck( $results, 'option_id' );
+		$ids     = count( $ids ) ? array_map( 'intval', $ids ) : [];
+
+		$sql = "DELETE FROM $wpdb->options WHERE option_id IN(" . implode( ',', $ids ) . ")";
+		$wpdb->query( $sql );
+
+		echo count( $ids ) . " background tasks have been deleted.";
+		die;
 	}
 
 	/**
