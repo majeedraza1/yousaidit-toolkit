@@ -38,6 +38,7 @@ class BackgroundInnerMessagePdfGenerator extends BackgroundProcess {
 
 			add_action( 'admin_notices', [ self::$instance, 'admin_notices' ] );
 			add_action( 'shutdown', [ self::$instance, 'dispatch_data' ] );
+			add_action( 'wp_ajax_inner_message_generate_now', [ self::$instance, 'generate_all_inner_message_pdf' ] );
 		}
 
 		return self::$instance;
@@ -54,12 +55,17 @@ class BackgroundInnerMessagePdfGenerator extends BackgroundProcess {
 		if ( $count < 1 ) {
 			return;
 		}
+		$update_url = wp_nonce_url(
+			add_query_arg( [ 'action' => 'inner_message_generate_now' ], admin_url( 'admin-ajax.php' ) ),
+			'inner_message_generate_now'
+		);
 		$count_text = sprintf( _n( '%s inner message', '%s inner messages', $count ), $count );
 		?>
 		<div class="notice notice-info is-dismissible">
 			<p>
 				A background task is running to generate <?php echo $count_text ?>. Make sure all orders are sync to
-				ShipStation.
+				ShipStation.<br><br>
+				<a class="button button-primary" href="<?php echo esc_url( $update_url ) ?>">Generate Now</a>
 			</p>
 		</div>
 		<?php
@@ -71,13 +77,23 @@ class BackgroundInnerMessagePdfGenerator extends BackgroundProcess {
 	 * @return array
 	 */
 	public function get_background_task_list(): array {
+		$identifier = $this->prefix . '_' . $this->action;
 		global $wpdb;
-		$item = $wpdb->get_row(
-			$wpdb->prepare( "SELECT * FROM $wpdb->options WHERE option_name LIKE %s", '%' . $this->action . '%' ),
+		$items = $wpdb->get_results(
+			$wpdb->prepare( "SELECT * FROM $wpdb->options WHERE option_name LIKE %s", $identifier . '%' ),
 			ARRAY_A
 		);
 
-		return is_array( $item ) ? $item : [];
+		$data = [];
+		foreach ( $items as $item ) {
+			$value = maybe_unserialize( $item['option_value'] );
+			if ( ! is_array( $value ) ) {
+				continue;
+			}
+			$data = array_merge( $data, $value );
+		}
+
+		return $data;
 	}
 
 	/**
@@ -129,7 +145,9 @@ class BackgroundInnerMessagePdfGenerator extends BackgroundProcess {
 		try {
 			$order_item = new WC_Order_Item_Product( $item_id );
 			$generator  = new PdfGenerator( $order_item );
-			$generator->save_to_file_system();
+			if ( ! $generator->is_pdf_generated() ) {
+				$generator->save_to_file_system();
+			}
 		} catch ( \Exception $exception ) {
 			Logger::log( 'There is a error when generating inner message for order item #' . $item_id );
 			Logger::log( $exception );
@@ -137,5 +155,49 @@ class BackgroundInnerMessagePdfGenerator extends BackgroundProcess {
 
 		// Set false to remove task from queue
 		return false;
+	}
+
+	/**
+	 * Generate all dynamic card PDF
+	 *
+	 * @return void
+	 */
+	public function generate_all_inner_message_pdf() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$nonce       = $_REQUEST['_wpnonce'] ? sanitize_text_field( $_REQUEST['_wpnonce'] ) : null;
+		$is_verified = wp_verify_nonce( $nonce, 'inner_message_generate_now' );
+
+		$message = '<h1>' . esc_html__( 'Yousaidit Toolkit', 'yousaidit-toolkit' ) . '</h1>';
+		if ( ! ( current_user_can( 'manage_options' ) && $is_verified ) ) {
+			$message .= '<p>' . __( 'Sorry. This link only for admin to perform upgrade tasks.', 'yousaidit-toolkit' ) . '</p>';
+			_default_wp_die_handler( $message, '', [ 'back_link' => true ] );
+		}
+
+		$error_messages = [];
+
+		$lists = self::get_background_task_list();
+		foreach ( $lists as $list ) {
+
+			if ( false !== $this->task( $list ) ) {
+				$error_messages[] = sprintf(
+					'Order #%s, Order Item #%s: could not generate PDF.',
+					$list['order_id'],
+					$list['item_id']
+				);
+			}
+		}
+
+		if ( count( $error_messages ) ) {
+			$message .= '<p>' . __( 'One or more errors has been generated when running the task.', 'yousaidit-toolkit' ) . '</p>';
+			$message .= '<ul>';
+			foreach ( $error_messages as $error_message ) {
+				$message .= '<li>' . $error_message . '</li>';
+			}
+			$message .= '</ul>';
+		} else {
+			$message .= '<p>' . __( 'Inner message PDF has been generated successfully.', 'yousaidit-toolkit' ) . '</p>';
+		}
+		_default_wp_die_handler( $message, '', [ 'back_link' => true ] );
+		die;
 	}
 }

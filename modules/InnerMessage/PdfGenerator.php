@@ -45,6 +45,22 @@ class PdfGenerator extends PdfGeneratorBase {
 		return $file;
 	}
 
+	/**
+	 * Check if PDF is generated
+	 *
+	 * @return bool
+	 */
+	public function is_pdf_generated(): bool {
+		return file_exists( $this->get_filepath() );
+	}
+
+	/**
+	 * Save PDF to filesystem
+	 *
+	 * @param string|null $fileName
+	 *
+	 * @return void
+	 */
 	public function save_to_file_system( ?string $fileName = null ) {
 		if ( empty( $fileName ) ) {
 			$fileName = $this->get_filename();

@@ -49,6 +49,11 @@ class Ajax {
 		return self::$instance;
 	}
 
+	/**
+	 * Clear background task
+	 *
+	 * @return void
+	 */
 	public function clear_background_task() {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( __( 'Sorry. This link only for admin.', 'yousaidit-toolkit' ) );
