@@ -81,13 +81,27 @@ class PdfGeneratorBase {
 	}
 
 	/**
+	 * Get text box height
+	 *
+	 * @return mixed
+	 */
+	public function get_text_height() {
+		$font_info = Fonts::get_font_info( $this->font_family );
+		$box       = imagettfbbox( $this->font_size, 0, $font_info['fontFilePath'], 'I only need height' );
+
+		return $box[3] - $box[5];
+	}
+
+	/**
 	 * Get pdf dynamic style
 	 * @return void
 	 */
 	protected function get_pdf_dynamic_style() {
-		$font_info      = Fonts::get_font_info( $this->font_family );
-		$fontFamily     = str_replace( ' ', '_', strtolower( $font_info['label'] ) );
-		$content_height = static::mm_to_points( $this->page_size[1] ) - static::px_to_points( $this->line_height * count( $this->get_message_lines() ) );
+		$font_info       = Fonts::get_font_info( $this->font_family );
+		$fontFamily      = str_replace( ' ', '_', strtolower( $font_info['label'] ) );
+		$text_height     = $this->get_text_height();
+		$text_box_height = ( $this->padding * 2 ) + static::points_to_mm( $text_height * count( $this->get_message_lines() ) );
+		$content_height  = static::mm_to_points( $this->page_size[1] - $text_box_height );
 		?>
 		<style type="text/css">
 			@font-face {
@@ -120,7 +134,7 @@ class PdfGeneratorBase {
 			}
 
 			.card-content-inner {
-				margin-top: <?php echo intval((static::points_to_mm($content_height) / 2) - $this->padding) .'mm'?>;
+				margin-top: <?php echo intval(static::points_to_mm($content_height) / 2) .'mm'?>;
 			}
 
 			.padding-15 {
@@ -153,7 +167,7 @@ class PdfGeneratorBase {
 			<table class="container">
 				<tr class="no-borders">
 					<td class="no-borders left-column"></td>
-					<td class="no-borders right-column">
+					<td class="no-borders right-column" align="center">
 						<div class="card-content-inner align-center justify-center padding-15">
 							<?php echo $content; ?>
 						</div>
