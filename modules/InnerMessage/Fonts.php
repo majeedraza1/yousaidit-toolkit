@@ -213,7 +213,7 @@ class Fonts {
 		$file       = str_replace( " ", "", $fontFamily );
 		$filename   = sprintf( "%s.ttf", $file );
 
-		$in_content_dir = join( DIRECTORY_SEPARATOR, [ WP_CONTENT_DIR, 'yousaidit-web-fonts', $filename ] );
+		$in_content_dir = join( DIRECTORY_SEPARATOR, [ WP_CONTENT_DIR, 'uploads', 'yousaidit-web-fonts', $filename ] );
 		if ( file_exists( $in_content_dir ) ) {
 			return $in_content_dir;
 		}

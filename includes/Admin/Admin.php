@@ -24,9 +24,35 @@ class Admin {
 
 			add_action( 'admin_menu', [ self::$instance, 'add_menu' ] );
 			add_action( 'admin_enqueue_scripts', [ self::$instance, 'admin_scripts' ] );
+			add_action( 'admin_notices', [ self::$instance, 'admin_notices' ] );
 		}
 
 		return self::$instance;
+	}
+
+	/**
+	 * Show directory error if not available
+	 *
+	 * @return void
+	 */
+	public function admin_notices() {
+		$web_fonts_dir = join( '/', [ WP_CONTENT_DIR, 'uploads', 'yousaidit-web-fonts' ] );
+		$envelop_dir   = join( '/', [ WP_CONTENT_DIR, 'uploads', 'envelope-colours' ] );
+		$emoji_dir     = join( '/', [ WP_CONTENT_DIR, 'uploads', 'emoji-assets-6.0.0' ] );
+
+		$message = '';
+		foreach ( [ $web_fonts_dir, $envelop_dir, $emoji_dir ] as $item ) {
+			if ( ! file_exists( $item ) ) {
+				$message .= sprintf( "<li>%s</li>", $item );
+			}
+		}
+
+		if ( strlen( $message ) ) {
+			echo '<div class="notice notice-error is-dismissible">';
+			echo '<p><strong>The following directories are required to work Yousaidit Toolkit properly.</strong></p>';
+			echo '<ul>' . $message . '</ul>';
+			echo '</div>';
+		}
 	}
 
 	public function admin_scripts() {
