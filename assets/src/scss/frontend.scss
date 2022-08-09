@@ -6,23 +6,6 @@
 @import "tailwind";
 @import "single-product";
 
-
-@font-face {
-	font-family: 'moon_flower_boldregular';
-	src: url('../fonts/moon_flower/moon_flower_bold-webfont.woff2') format('woff2'),
-	url('../fonts/moon_flower/moon_flower_bold-webfont.woff') format('woff');
-	font-weight: normal;
-	font-style: normal;
-}
-
-@font-face {
-	font-family: 'moon_flowerregular';
-	src: url('../fonts/moon_flower/moon_flower-webfont.woff2') format('woff2'),
-	url('../fonts/moon_flower/moon_flower-webfont.woff') format('woff');
-	font-weight: normal;
-	font-style: normal;
-}
-
 .shapla-image-container {
 	display: block;
 	position: relative;
@@ -55,7 +38,7 @@ body.has-shapla-modal {
 
 	.line-1,
 	.line-2 {
-		font-family: moon_flower_boldregular;
+		font-family: 'Moon Flower Bold';
 		font-size: 42px;
 		line-height: 50px;
 		text-align: center;

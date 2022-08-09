@@ -189,10 +189,7 @@ class Fonts {
 		}
 
 		$path = static::get_font_path( $fontFamily );
-		if ( ! file_exists( $path ) ) {
-			$path = str_replace( '-Regular', '', $path );
-		}
-		$url = str_replace( YOUSAIDIT_TOOLKIT_PATH, YOUSAIDIT_TOOLKIT_URL, $path );
+		$url  = str_replace( WP_CONTENT_DIR, WP_CONTENT_URL, $path );
 
 		return [
 			"label"        => $fontFamily,
@@ -214,14 +211,14 @@ class Fonts {
 		$toArray    = explode( ",", $fontFamily );
 		$fontFamily = str_replace( [ "'", '"' ], '', $toArray[0] );
 		$file       = str_replace( " ", "", $fontFamily );
+		$filename   = sprintf( "%s.ttf", $file );
 
-		return join(
-			'/',
-			[
-				YOUSAIDIT_TOOLKIT_PATH . '/assets/web-fonts',
-				sprintf( "%s.ttf", $file )
-			]
-		);
+		$in_content_dir = join( DIRECTORY_SEPARATOR, [ WP_CONTENT_DIR, 'yousaidit-web-fonts', $filename ] );
+		if ( file_exists( $in_content_dir ) ) {
+			return $in_content_dir;
+		}
+
+		return join( '/', [ YOUSAIDIT_TOOLKIT_PATH . '/assets/web-fonts', $filename ] );
 	}
 
 	public static function tfpdf_clear_fonts_cache() {
