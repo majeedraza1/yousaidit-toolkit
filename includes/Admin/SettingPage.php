@@ -410,22 +410,44 @@ class SettingPage {
 			'options'           => self::get_product_categories(),
 		] );
 
-		$action_url = admin_url( 'admin-ajax.php?action=yousaidit_clear_tfpdf_fonts_cache' );
-		$setting->set_field( [
-			'id'       => 'flash_tfpdf_font_cache',
-			'type'     => 'html',
-			'title'    => __( 'Clear tFPDF fonts cache' ),
-			'priority' => 10,
-			'panel'    => 'help',
-			'html'     => sprintf( '<a href="%s" target="_blank">Clear Now</a>', $action_url )
-		] );
-
 		$action_url = admin_url( 'admin-ajax.php?action=yousaidit_clear_background_task' );
 		$setting->set_field( [
 			'id'       => 'flash_background_task',
 			'type'     => 'html',
 			'title'    => __( 'Clear background task' ),
 			'priority' => 10,
+			'panel'    => 'help',
+			'html'     => sprintf( '<a href="%s" target="_blank">Clear Now</a>', $action_url )
+		] );
+
+		$action_url = admin_url( 'admin-ajax.php?action=yousaidit_dompdf_install_font' );
+		$setting->set_field( [
+			'id'          => 'yousaidit_dompdf_install_font',
+			'type'        => 'html',
+			'title'       => __( 'Install Dompdf missing fonts' ),
+			'description' => __( 'Dompdf is required to generate inner message PDF.' ),
+			'priority'    => 20,
+			'panel'       => 'help',
+			'html'        => sprintf( '<a href="%s" target="_blank">Install Now</a>', $action_url )
+		] );
+
+		$action_url = admin_url( 'admin-ajax.php?action=yousaidit_tfpdf_install_font' );
+		$setting->set_field( [
+			'id'          => 'yousaidit_tfpdf_install_font',
+			'type'        => 'html',
+			'title'       => __( 'Install tFPDF missing fonts' ),
+			'description' => __( 'tFPDF is required to generate dynamic card PDF.' ),
+			'priority'    => 30,
+			'panel'       => 'help',
+			'html'        => sprintf( '<a href="%s" target="_blank">Install Now</a>', $action_url )
+		] );
+
+		$action_url = admin_url( 'admin-ajax.php?action=yousaidit_clear_tfpdf_fonts_cache' );
+		$setting->set_field( [
+			'id'       => 'flash_tfpdf_font_cache',
+			'type'     => 'html',
+			'title'    => __( 'Clear tFPDF fonts cache' ),
+			'priority' => 40,
 			'panel'    => 'help',
 			'html'     => sprintf( '<a href="%s" target="_blank">Clear Now</a>', $action_url )
 		] );

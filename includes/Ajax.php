@@ -7,6 +7,7 @@ use Imagick;
 use ImagickException;
 use ImagickPixel;
 use Stackonet\WP\Framework\Media\Uploader;
+use Stackonet\WP\Framework\Supports\Logger;
 use WC_Product;
 use YouSaidItCards\Modules\Designers\DynamicCard;
 use YouSaidItCards\Modules\Designers\Models\DesignerCard;
@@ -34,7 +35,6 @@ class Ajax {
 			self::$instance = new self();
 
 			add_action( 'wp_ajax_yousaidit_test', [ self::$instance, 'stackonet_test' ] );
-			add_action( 'wp_ajax_yousaidit_clear_tfpdf_fonts_cache', [ self::$instance, 'tfpdf_clear_fonts_cache' ] );
 			add_action( 'wp_ajax_yousaidit_generate_preview_card', [ self::$instance, 'generate_preview_card' ] );
 			add_action( 'wp_ajax_yousaidit_preview_card', [ self::$instance, 'yousaidit_preview_card' ] );
 			add_action( 'wp_ajax_yousaidit_font_image', [ self::$instance, 'yousaidit_font_image' ] );
@@ -44,6 +44,9 @@ class Ajax {
 			add_action( 'wp_ajax_yousaidit_save_dynamic_card', [ self::$instance, 'save_dynamic_card' ] );
 			add_action( 'wp_ajax_nopriv_yousaidit_save_dynamic_card', [ self::$instance, 'save_dynamic_card' ] );
 			add_action( 'wp_ajax_yousaidit_clear_background_task', [ self::$instance, 'clear_background_task' ] );
+			add_action( 'wp_ajax_yousaidit_clear_tfpdf_fonts_cache', [ self::$instance, 'tfpdf_clear_fonts_cache' ] );
+			add_action( 'wp_ajax_yousaidit_dompdf_install_font', [ self::$instance, 'dompdf_install_font' ] );
+			add_action( 'wp_ajax_yousaidit_tfpdf_install_font', [ self::$instance, 'tfpdf_install_font' ] );
 		}
 
 		return self::$instance;
@@ -105,6 +108,9 @@ class Ajax {
 	 * @return void
 	 */
 	public function tfpdf_clear_fonts_cache() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( __( 'Sorry. This link only for admin.', 'yousaidit-toolkit' ) );
+		}
 		$message = Fonts::tfpdf_clear_fonts_cache();
 		echo $message;
 		die;
@@ -380,5 +386,64 @@ class Ajax {
 			return $attachment_id;
 		} catch ( ImagickException $e ) {
 		}
+	}
+
+	/**
+	 * Install font for Dompdf
+	 *
+	 * @return void
+	 */
+	public function dompdf_install_font() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( __( 'Sorry. This link only for admin.', 'yousaidit-toolkit' ) );
+		}
+		foreach ( Fonts::get_list() as $item ) {
+			$fontFamily = str_replace( ' ', '_', strtolower( $item['label'] ) );
+			$path       = $item['fontFilePath'];
+			if ( ! file_exists( $path ) ) {
+				echo 'Source file is not available: ' . $item['fontFilePath'];
+				continue;
+			}
+
+			try {
+				echo '<pre><code>';
+				Fonts::install_font_family( $fontFamily, $path, $path, $path, $path );
+				echo '</code>Font file generated successfully for font: ' . $item['label'] . '<code>';
+				echo '</code></pre>';
+			} catch ( Exception $e ) {
+				Logger::log( $e );
+				echo $e->getMessage();
+			}
+		}
+		echo 'Process run successfully. You can close this window.';
+		die;
+	}
+
+	/**
+	 * Install font for tFPDF
+	 *
+	 * @return void
+	 */
+	public function tfpdf_install_font() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( __( 'Sorry. This link only for admin.', 'yousaidit-toolkit' ) );
+		}
+		$fonts     = Fonts::get_list();
+		$base_path = YOUSAIDIT_TOOLKIT_PATH . '/vendor/setasign/tfpdf/font/unifont/';
+		if ( ! is_writable( $base_path ) ) {
+			echo 'Target directory is not writable: ' . $base_path;
+			die;
+		}
+		foreach ( $fonts as $font ) {
+			if ( ! file_exists( $font['fontFilePath'] ) ) {
+				echo 'Source file is not available: ' . $font['fontFilePath'];
+				continue;
+			}
+			if ( ! copy( $font['fontFilePath'], $base_path . $font['fileName'] ) ) {
+				echo 'Fail to copy file: ' . $font['fontFilePath'];
+			}
+		}
+		echo 'Process run successfully. You can close this window.';
+		die;
 	}
 }
