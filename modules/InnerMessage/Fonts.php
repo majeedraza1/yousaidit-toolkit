@@ -213,18 +213,15 @@ class Fonts {
 	public static function get_font_path( string $fontFamily ): string {
 		$toArray    = explode( ",", $fontFamily );
 		$fontFamily = str_replace( [ "'", '"' ], '', $toArray[0] );
-		$dir        = str_replace( " ", "_", $fontFamily );
 		$file       = str_replace( " ", "", $fontFamily );
-		$file       = $file . "-Regular.ttf";
-		$basePath   = YOUSAIDIT_TOOLKIT_PATH . '/assets/google-fonts';
-		$basePath2  = YOUSAIDIT_TOOLKIT_PATH . '/assets/web-fonts';
 
-		$path = join( DIRECTORY_SEPARATOR, [ $basePath, $dir, $file ] );
-		if ( file_exists( $path ) ) {
-			return $path;
-		}
-
-		return join( DIRECTORY_SEPARATOR, [ $basePath2, $file ] );
+		return join(
+			'/',
+			[
+				YOUSAIDIT_TOOLKIT_PATH . '/assets/web-fonts',
+				sprintf( "%s.ttf", $file )
+			]
+		);
 	}
 
 	public static function tfpdf_clear_fonts_cache() {
