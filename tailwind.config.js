@@ -3,10 +3,10 @@ module.exports = {
 	purge: {
 		// enabled: true,
 		content: [
-			'./assets/src/**/*.vue',
-			'./assets/src/**/*.js',
-			'./assets/src/**/*.jsx',
-			'./assets/src/**/*.scss',
+			'./resources/**/*.vue',
+			'./resources/**/*.js',
+			'./resources/**/*.jsx',
+			'./resources/**/*.scss',
 		]
 	},
 	darkMode: false, // or 'media' or 'class'
