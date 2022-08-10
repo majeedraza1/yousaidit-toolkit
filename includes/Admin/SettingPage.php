@@ -451,6 +451,16 @@ class SettingPage {
 			'panel'    => 'help',
 			'html'     => sprintf( '<a href="%s" target="_blank">Clear Now</a>', $action_url )
 		] );
+
+		$action_url = admin_url( 'admin-ajax.php?action=yousaidit_clear_transient_cache' );
+		$setting->set_field( [
+			'id'       => 'flash_transient_cache',
+			'type'     => 'html',
+			'title'    => __( 'Clear all transient cache' ),
+			'priority' => 40,
+			'panel'    => 'help',
+			'html'     => sprintf( '<a href="%s" target="_blank">Clear Now</a>', $action_url )
+		] );
 	}
 
 	/**

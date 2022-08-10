@@ -48,6 +48,7 @@ class Ajax {
 			add_action( 'wp_ajax_yousaidit_clear_tfpdf_fonts_cache', [ self::$instance, 'tfpdf_clear_fonts_cache' ] );
 			add_action( 'wp_ajax_yousaidit_dompdf_install_font', [ self::$instance, 'dompdf_install_font' ] );
 			add_action( 'wp_ajax_yousaidit_tfpdf_install_font', [ self::$instance, 'tfpdf_install_font' ] );
+			add_action( 'wp_ajax_yousaidit_clear_transient_cache', [ self::$instance, 'clear_transient_cache' ] );
 		}
 
 		return self::$instance;
@@ -477,6 +478,53 @@ class Ajax {
 			}
 		}
 		echo 'Process run successfully. You can close this window.';
+		die;
+	}
+
+	/**
+	 * Clear transient cache
+	 *
+	 * @return void
+	 */
+	public function clear_transient_cache() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( __( 'Sorry. This link only for admin.', 'yousaidit-toolkit' ) );
+		}
+		$static_names = [
+			'get_shipstation_stores',
+			'order_items_by_card_sizes',
+			'__jwt_auth_token',
+			'postcard_product',
+			'hide_from_shop_products_ids',
+			'rude_products_ids',
+			'wc_general_data',
+		];
+
+		foreach ( $static_names as $static_name ) {
+			delete_transient( $static_name );
+		}
+
+		echo count( $static_names ) . ' transient deleted.';
+
+
+		$dynamic_names = [
+			'yousaidit_preview_card_',
+			'safe_search_',
+			'ship_station_orders_',
+			'shipstation_order_',
+		];
+
+		global $wpdb;
+		$sql = "DELETE FROM `$wpdb->options` WHERE";
+		foreach ( $dynamic_names as $index => $dynamic_name ) {
+			if ( $index > 0 ) {
+				$sql .= " OR";
+			}
+			$sql .= $wpdb->prepare( " `option_name` LIKE %s", '%' . $dynamic_name . '%' );
+		}
+
+		echo count( $static_names ) . ' dynamic transient deleted.';
+
 		die;
 	}
 }

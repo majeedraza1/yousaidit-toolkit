@@ -86,12 +86,13 @@ class OrderDispatcherManager {
 		$capability = 'manage_options';
 		$slug       = 'order-dispatcher';
 		$hook       = add_menu_page( 'Order Dispatcher', 'Order Dispatcher', $capability, $slug,
-				[ self::$instance, 'menu_page_callback' ], 'dashicons-admin-post', 6 );
+			[ self::$instance, 'menu_page_callback' ], 'dashicons-admin-post', 6 );
 		$menus      = [
-				[ 'title' => __( 'Order Dispatcher' ), 'slug' => '#/' ],
-				[ 'title' => __( 'Print Cards' ), 'slug' => '#/print-cards' ],
-				[ 'title' => __( 'Dispatch Orders' ), 'slug' => '#/dispatch-orders' ],
-				[ 'title' => __( 'Complete Orders' ), 'slug' => '#/complete-orders' ],
+			[ 'title' => __( 'Order Dispatcher' ), 'slug' => '#/' ],
+			[ 'title' => __( 'Print Cards' ), 'slug' => '#/print-cards' ],
+			[ 'title' => __( 'Dispatch Orders' ), 'slug' => '#/dispatch-orders' ],
+			[ 'title' => __( 'Complete Orders' ), 'slug' => '#/complete-orders' ],
+			[ 'title' => __( 'Packing Slip' ), 'slug' => '#/packing-slip' ],
 		];
 		if ( current_user_can( $capability ) ) {
 			foreach ( $menus as $menu ) {

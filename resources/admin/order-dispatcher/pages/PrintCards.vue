@@ -7,8 +7,11 @@
 				<tab name="PDF Merger" selected>
 					<pdf-size-info/>
 				</tab>
-				<tab name="Packing Slip">
-					<orders/>
+				<tab name="Trade Orders">
+					<p>We are working on it.</p>
+				</tab>
+				<tab name="Other Products">
+					<p>We are working on it.</p>
 				</tab>
 			</tabs>
 		</div>
@@ -17,13 +20,12 @@
 
 <script>
 import {shaplaButton, tab, tabs} from 'shapla-vue-components';
-import Orders from "../components/Orders";
 import {mapState} from 'vuex';
 import PdfSizeInfo from "../components/PdfSizeInfo";
 
 export default {
 	name: "PrintCards",
-	components: {PdfSizeInfo, Orders, shaplaButton, tabs, tab},
+	components: {PdfSizeInfo, shaplaButton, tabs, tab},
 	computed: {
 		...mapState(['checked_items']),
 	},
@@ -34,7 +36,3 @@ export default {
 	}
 }
 </script>
-
-<style scoped>
-
-</style>
