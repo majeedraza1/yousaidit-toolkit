@@ -48,7 +48,7 @@ class FreePdf extends FreePdfBase {
 
 		// Set PDF background color
 		$color = $background['color'] ?? '';
-		if ( 'color' == $background['type'] && ! in_array( $color, [ 'white', '#fff', '#ffffff' ], true ) ) {
+		if ( 'color' == $background['type'] ) {
 			$bg_color_image = add_query_arg( [
 				'action' => 'yousaidit_color_image',
 				'w'      => $size[0] / 2,

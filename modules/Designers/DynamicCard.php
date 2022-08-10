@@ -24,17 +24,22 @@ class DynamicCard {
 
 	/**
 	 * @param DesignerCard $card
+	 * @param bool $regenerate
 	 *
-	 * @return false|string
+	 * @return int
 	 */
-	public static function create_card_pdf( DesignerCard $card ) {
+	public static function create_card_pdf( DesignerCard $card, bool $regenerate = false ) {
 		if ( ! $card->is_dynamic_card() ) {
 			return false;
 		}
 		$pdf_id    = self::get_pdf_id( $card->get_id(), '_dynamic_card_id_for_pdf' );
 		$file_path = get_attached_file( $pdf_id );
 		if ( is_string( $file_path ) && file_exists( $file_path ) ) {
-			return $file_path;
+			if ( false === $regenerate ) {
+				return $pdf_id;
+			}
+
+			wp_delete_attachment( $pdf_id, true );
 		}
 		$payload = $card->get_dynamic_card_payload();
 
@@ -45,7 +50,7 @@ class DynamicCard {
 		];
 
 		$directory     = rtrim( Uploader::get_upload_dir(), DIRECTORY_SEPARATOR );
-		$filename      = sprintf( "dynamic-card-%s.pdf", $card->get_id() );
+		$filename      = sprintf( "dynamic-card-%s-%s.pdf", $card->get_id(), uniqid() );
 		$new_file_path = $directory . DIRECTORY_SEPARATOR . $filename;
 
 		if ( ! file_exists( $new_file_path ) ) {
@@ -70,11 +75,11 @@ class DynamicCard {
 				$card->set( 'attachment_ids', array_merge( $card->get_attachment_ids(), [ 'pdf_ids' => $pdf_ids ] ) );
 				$card->update();
 
-				return get_attached_file( $post_id );
+				return $post_id;
 			}
 		}
 
-		return $new_file_path;
+		return 0;
 	}
 
 	/**
@@ -117,7 +122,7 @@ class DynamicCard {
 		}
 
 		$upload_dir = Uploader::get_upload_dir();
-		$new_file   = join( "/", [ $upload_dir, "dynamic-card-$card_id.jpg" ] );
+		$new_file   = join( "/", [ $upload_dir, sprintf( "dynamic-card-%s-%s.jpg", $card_id, uniqid() ) ] );
 		try {
 			$im = self::pdf_to_image( $pdf_file_path );
 			$im->writeImage( $new_file );

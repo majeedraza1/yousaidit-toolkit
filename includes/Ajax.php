@@ -37,6 +37,7 @@ class Ajax {
 			add_action( 'wp_ajax_yousaidit_test', [ self::$instance, 'stackonet_test' ] );
 			add_action( 'wp_ajax_yousaidit_generate_preview_card', [ self::$instance, 'generate_preview_card' ] );
 			add_action( 'wp_ajax_yousaidit_preview_card', [ self::$instance, 'yousaidit_preview_card' ] );
+			add_action( 'wp_ajax_generate_dynamic_card_pdf', [ self::$instance, 'generate_dynamic_card_pdf' ] );
 			add_action( 'wp_ajax_yousaidit_font_image', [ self::$instance, 'yousaidit_font_image' ] );
 			add_action( 'wp_ajax_nopriv_yousaidit_font_image', [ self::$instance, 'yousaidit_font_image' ] );
 			add_action( 'wp_ajax_yousaidit_color_image', [ self::$instance, 'yousaidit_color_image' ] );
@@ -291,6 +292,37 @@ class Ajax {
 		die;
 	}
 
+	public function generate_dynamic_card_pdf() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( 'You cannot perform this action.' );
+		}
+
+		$card_id = $_REQUEST['card_id'] ?? 0;
+		$card    = ( new DesignerCard )->find_by_id( intval( $card_id ) );
+		if ( ! $card instanceof DesignerCard ) {
+			wp_die( 'No card available.' );
+		}
+
+		$pdf_id        = DynamicCard::create_card_pdf( $card );
+		$pdf_file_path = wp_get_attachment_url( $pdf_id );
+
+		try {
+			$content = file_get_contents( $pdf_file_path );
+			$im      = new Imagick();
+			$im->setResolution( 72, 72 );
+			$im->readImageBlob( $content . '[0]' );    //[0] for the first page
+			$im->setImageFormat( 'jpg' );
+
+			$envelopImage = EnvelopeColours::generate_thumb( $im, 72 );
+
+			header( "Content-Type: image/jpeg" );
+			echo $envelopImage->getImageBlob();
+		} catch ( ImagickException $e ) {
+			echo 'Sorry, Could not generate dynamic pdf card.';
+		}
+		die();
+	}
+
 	public function save_dynamic_card() {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( 'You cannot perform this action.' );
@@ -322,8 +354,9 @@ class Ajax {
 			die;
 		}
 
-		$new_file_path = DynamicCard::create_card_pdf( $card );
+		$pdf_id = DynamicCard::create_card_pdf( $card );
 		try {
+			$new_file_path = get_attached_file( $pdf_id );
 			DynamicCard::clone_pdf_to_jpg( $card, $new_file_path );
 			$im = DynamicCard::pdf_to_image( $new_file_path );
 			header( 'Content-Type: image/jpeg' );
