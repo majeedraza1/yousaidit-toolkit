@@ -76,6 +76,22 @@ class Assets {
 	}
 
 	/**
+	 * Get assets path
+	 *
+	 * @param string $path Get assets path
+	 *
+	 * @return string
+	 */
+	public static function get_asset_path( string $path = '' ): string {
+		$base_path = rtrim( YOUSAIDIT_TOOLKIT_PATH, '/' ) . '/assets';
+		if ( ! empty( $path ) ) {
+			return join( '/', [ $base_path, ltrim( $path, '/' ) ] );
+		}
+
+		return $base_path;
+	}
+
+	/**
 	 * Get assets URL
 	 *
 	 * @param string $path
@@ -208,7 +224,7 @@ class Assets {
 			'restRoot'         => esc_url_raw( rest_url( 'yousaidit/v1' ) ),
 			'isUserLoggedIn'   => $is_user_logged_in,
 			'privacyPolicyUrl' => get_privacy_policy_url(),
-			'placeholderUrlIM' => YOUSAIDIT_TOOLKIT_ASSETS . '/static-images/placeholder--inner-message.jpg',
+			'placeholderUrlIM' => self::get_assets_url( 'static-images/placeholder--inner-message.jpg' ),
 		];
 
 		$data['pdfSizes'] = FreePdfBase::get_sizes();

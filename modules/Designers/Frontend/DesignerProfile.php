@@ -6,6 +6,7 @@ use WC_Product;
 use WP_Post;
 use WP_Term;
 use WP_User;
+use YouSaidItCards\Assets;
 use YouSaidItCards\Modules\Designers\Admin\Settings;
 use YouSaidItCards\Modules\Designers\Models\CardDesigner;
 use YouSaidItCards\Modules\Designers\Models\DesignerCard;
@@ -351,8 +352,8 @@ class DesignerProfile {
 			$data['marketPlaces']         = MarketPlace::all();
 			$data['fonts']                = Fonts::get_list_for_web();
 			$data['templates']            = [
-				'ps' => YOUSAIDIT_TOOLKIT_ASSETS . '/static-images/Square Template - You Said It Cards.psd',
-				'ai' => YOUSAIDIT_TOOLKIT_ASSETS . '/static-images/Square Template - You Said It Cards.ai',
+				'ps' => Assets::get_assets_url( 'static-images/Square Template - You Said It Cards.psd' ),
+				'ai' => Assets::get_assets_url( 'static-images/Square Template - You Said It Cards.ai' ),
 			];
 		}
 

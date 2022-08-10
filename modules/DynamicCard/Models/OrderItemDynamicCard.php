@@ -5,6 +5,7 @@ namespace YouSaidItCards\Modules\DynamicCard\Models;
 use tFPDF;
 use WC_Order;
 use WC_Order_Item_Product;
+use YouSaidItCards\Assets;
 use YouSaidItCards\Modules\InnerMessage\Fonts;
 use YouSaidItCards\Modules\OrderDispatcher\QrCode;
 use YouSaidItCards\ShipStation\Order;
@@ -195,7 +196,7 @@ class OrderItemDynamicCard {
 	 * @return void
 	 */
 	private function addCompanyLogo( tFPDF &$fpd ) {
-		$logo_path  = YOUSAIDIT_TOOLKIT_PATH . '/assets/static-images/logo-yousaidit@300ppi.jpg';
+		$logo_path  = Assets::get_asset_path( 'static-images/logo-yousaidit@300ppi.jpg' );
 		$image_info = [ 660, 292 ];
 		$width      = ( $fpd->GetPageWidth() / 2 ) / 3;
 		$height     = $image_info[1] / $image_info[0] * $width;

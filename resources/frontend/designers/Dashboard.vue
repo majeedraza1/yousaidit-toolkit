@@ -41,8 +41,18 @@
 				</div>
 			</template>
 
+			<template v-slot:navbar-start>
+				<ul class="nav-menu hidden lg:flex ml-4 my-0">
+					<template v-for="menu in routeEndpoints">
+						<li class="sidenav-list__item" v-if="!menu.hideSidenav">
+							<a class="sidenav-list__link" :class="{'is-active':$route.name === menu.name}"
+							   :href="`#${menu.path}`" @click.prevent="toRoute(menu)">{{ menu.title }}</a>
+						</li>
+					</template>
+				</ul>
+			</template>
 			<template v-slot:navbar-end>
-				<ul class="nav-menu desktop-only">
+				<ul class="nav-menu hidden md:flex m-0">
 					<li><a target="_blank" :href="current_user.author_posts_url">View Profile</a></li>
 					<li><a href="#/faq">FAQs</a></li>
 					<li><a href="#/contact">Contact Us</a></li>
@@ -118,6 +128,10 @@ export default {
 @import "~shapla-color-system/src/variables";
 @import "../../scss/tailwind";
 
+.shapla-dashboard-header__burger {
+	@apply lg:hidden;
+}
+
 body.designer-profile-page {
 	header.site-header {
 		z-index: -1;
@@ -146,8 +160,6 @@ body.designer-profile-page {
 
 .nav-menu {
 	list-style-type: none;
-	margin: 0;
-	display: flex;
 
 	a {
 		font-size: 16px;
@@ -159,10 +171,6 @@ body.designer-profile-page {
 		margin-bottom: 5px;
 		margin-top: 5px;
 		line-height: 1;
-
-		&:last-child a {
-			padding-right: 0;
-		}
 	}
 }
 

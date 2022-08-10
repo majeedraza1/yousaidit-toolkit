@@ -5,6 +5,7 @@ namespace YouSaidItCards\Modules\DynamicCard\REST;
 use ArrayObject;
 use WC_Product;
 use WP_REST_Server;
+use YouSaidItCards\Assets;
 use YouSaidItCards\REST\ApiController;
 
 class DynamicCardController extends ApiController {
@@ -61,7 +62,7 @@ class DynamicCardController extends ApiController {
 		$data  = [
 			'payload'        => $payload,
 			'product_thumb'  => is_array( $image ) ? $image[0] : '',
-			'placeholder_im' => YOUSAIDIT_TOOLKIT_ASSETS . '/static-images/placeholder--inner-message.jpg'
+			'placeholder_im' => Assets::get_assets_url( 'static-images/placeholder--inner-message.jpg' ),
 		];
 
 		return $this->respondOK( $data );
