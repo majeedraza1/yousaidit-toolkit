@@ -704,4 +704,11 @@ class OrderItem implements JsonSerializable {
 			'order_item_id' => $item->get_id()
 		] );
 	}
+
+	/**
+	 * @return int|mixed
+	 */
+	public function get_store_id() {
+		return $this->store_id;
+	}
 }

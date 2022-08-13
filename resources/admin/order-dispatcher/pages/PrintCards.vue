@@ -5,10 +5,10 @@
 		<div>
 			<tabs>
 				<tab name="PDF Merger" selected>
-					<pdf-size-info/>
+					<pdf-size-info marketplace="main"/>
 				</tab>
 				<tab name="Trade Orders">
-					<p>We are working on it.</p>
+					<pdf-size-info marketplace="trade"/>
 				</tab>
 				<tab name="Other Products">
 					<p>We are working on it.</p>

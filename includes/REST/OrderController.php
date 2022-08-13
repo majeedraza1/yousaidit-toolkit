@@ -7,6 +7,7 @@ use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
+use YouSaidItCards\Admin\SettingPage;
 use YouSaidItCards\ShipStation\Order;
 
 class OrderController extends LegacyApiController {
@@ -84,8 +85,18 @@ class OrderController extends LegacyApiController {
 	public function get_order_items( $request ) {
 		$force = Validate::checked( $request->get_param( 'force' ) );
 		$items = Order::get_order_items_by_card_sizes( $force );
+		$data  = [];
+		foreach ( $items as $item ) {
+			$item['is_trade_order'] = $item['store_id'] === (int) SettingPage::get_option( 'shipstation_yousaidit_trade_store_id' );
+			$data[]                 = $item;
+		}
 
-		return $this->respondOK( [ 'items' => $items ] );
+		$marketplaces = [
+			'main'  => (int) SettingPage::get_option( 'shipstation_yousaidit_store_id' ),
+			'trade' => (int) SettingPage::get_option( 'shipstation_yousaidit_trade_store_id' ),
+		];
+
+		return $this->respondOK( [ 'items' => $data, 'marketplaces' => $marketplaces ] );
 	}
 
 	/**

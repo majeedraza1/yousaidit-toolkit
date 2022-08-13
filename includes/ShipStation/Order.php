@@ -397,6 +397,7 @@ class Order implements JsonSerializable {
 					);
 					$qty = isset( $items[ $key ]['quantity'] ) ? intval( $items[ $key ]['quantity'] ) : 0;
 
+					$items[ $key ]['store_id']      = $order_item->get_store_id();
 					$items[ $key ]['width']         = $order_item->get_pdf_width();
 					$items[ $key ]['height']        = $order_item->get_pdf_height();
 					$items[ $key ]['inner_message'] = $order_item->has_inner_message();

@@ -34,6 +34,7 @@
     "firebase/php-jwt": "^v5.5.1",
     "joypixels/emoji-toolkit": "^6.6.0",
     "paypal/paypal-payouts-sdk": "^1.0.1",
+    "setasign/fpdf": "^1.8",
     "setasign/fpdi": "^2.3",
     "setasign/tfpdf": "^1.32",
     "stackonet/wp-helpers": "^1.6.0"

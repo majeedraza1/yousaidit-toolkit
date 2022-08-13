@@ -13,6 +13,7 @@ use YouSaidItCards\Modules\Designers\DynamicCard;
 use YouSaidItCards\Modules\Designers\Models\DesignerCard;
 use YouSaidItCards\Modules\DynamicCard\EnvelopeColours;
 use YouSaidItCards\Modules\InnerMessage\Fonts;
+use YouSaidItCards\ShipStation\Order;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -55,6 +56,20 @@ class Ajax {
 	}
 
 	/**
+	 * A AJAX method just to test some data
+	 */
+	public function stackonet_test() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( __( 'Sorry. This link only for developer to do some testing.', 'yousaidit-toolkit' ) );
+		}
+
+		$sections_values = [];
+		var_dump( $sections_values );
+
+		die();
+	}
+
+	/**
 	 * Clear background task
 	 *
 	 * @return void
@@ -88,20 +103,6 @@ class Ajax {
 
 		echo count( $ids ) . " background tasks have been deleted.";
 		die;
-	}
-
-	/**
-	 * A AJAX method just to test some data
-	 */
-	public function stackonet_test() {
-		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( __( 'Sorry. This link only for developer to do some testing.', 'yousaidit-toolkit' ) );
-		}
-
-		$sections_values = [];
-		var_dump( $sections_values );
-
-		die();
 	}
 
 	/**
