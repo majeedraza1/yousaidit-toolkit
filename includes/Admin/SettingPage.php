@@ -36,6 +36,7 @@ class SettingPage {
 
 	public function load_script( $hook ) {
 		if ( "settings_page_stackonet-toolkit" == $hook ) {
+			wp_enqueue_script( 'stackonet-toolkit-admin' );
 			wp_enqueue_script( 'selectWoo' );
 			wp_enqueue_style( 'select2' );
 		}
@@ -48,6 +49,8 @@ class SettingPage {
 				'_transient_ship_station_orders_',
 				'_transient_timeout_order_items_by_card_sizes',
 				'_transient_order_items_by_card_sizes',
+				'_transient_timeout_other_products_tab_categories',
+				'_transient_other_products_tab_categories',
 			];
 			global $wpdb;
 			$sql = "DELETE FROM {$wpdb->options} WHERE 1 = 1 AND";
@@ -86,11 +89,54 @@ class SettingPage {
 			// Inner message
 			'inner_message_price'                 => '',
 			'inner_message_visible_on_cat'        => '',
+			// Order Dispatcher
+			'other_products_tab_categories'       => '',
 		];
 		$_options        = (array) get_option( '_stackonet_toolkit', [] );
 		$options         = wp_parse_args( $_options, $default_options );
 
 		return $options[ $key ] ?? $default;
+	}
+
+	/**
+	 * Get order products ids
+	 *
+	 * @return array
+	 */
+	public static function get_other_products_ids(): array {
+		$categories_ids = get_transient( 'other_products_tab_categories' );
+		if ( is_array( $categories_ids ) ) {
+			return $categories_ids;
+		}
+		$categories_ids = SettingPage::get_option( 'other_products_tab_categories' );
+		$categories_ids = is_array( $categories_ids ) ? array_filter( array_map( 'intval', $categories_ids ) ) : [];
+
+		$children = [];
+		foreach ( $categories_ids as $categories_id ) {
+			$children = array_merge( $children, get_term_children( $categories_id, 'product_cat' ) );
+		}
+
+		$terms_ids = array_merge( $categories_ids, $children );
+
+		$terms        = get_terms(
+			[
+				'taxonomy' => 'product_cat',
+				'include'  => $terms_ids,
+			]
+		);
+		$slugs        = is_array( $terms ) ? wp_list_pluck( $terms, 'slug' ) : [];
+		$products_ids = [];
+		if ( count( $slugs ) ) {
+			$products_ids = wc_get_products( [
+				'category' => $slugs,
+				'limit'    => - 1,
+				'return'   => 'ids',
+			] );
+
+			set_transient( 'other_products_tab_categories', $products_ids, HOUR_IN_SECONDS );
+		}
+
+		return $products_ids;
 	}
 
 	/**
@@ -112,66 +158,68 @@ class SettingPage {
 		$setting->set_panel( [ 'id' => 'market_place', 'title' => 'Market Places', 'priority' => 30 ] );
 		$setting->set_panel( [ 'id' => 'help', 'title' => 'Help', 'priority' => 40 ] );
 
-		$setting->set_section( [
-			'id'       => 'section_general',
-			'title'    => __( 'General Settings' ),
-			'panel'    => 'general',
-			'priority' => 2,
-		] );
-
-		$setting->set_section( [
-			'id'       => 'section_postcard_settings',
-			'title'    => __( 'Postcard Settings' ),
-			'panel'    => 'general',
-			'priority' => 5,
-		] );
-
-		$setting->set_section( [
-			'id'       => 'section_inner_message_settings',
-			'title'    => __( 'Inner Message Settings' ),
-			'panel'    => 'general',
-			'priority' => 6,
-		] );
-
-		$setting->set_section( [
-			'id'          => 'section_ship_station_api',
-			'title'       => __( 'ShipStation Api', 'dialog-contact-form' ),
-			'description' => __( 'ShipStation Api settings', 'dialog-contact-form' ),
-			'panel'       => 'integrations',
-			'priority'    => 10,
-		] );
-
-		$setting->set_section( [
-			'id'          => 'section_paypal_api',
-			'panel'       => 'integrations',
-			'title'       => __( 'PayPal Api', 'dialog-contact-form' ),
-			'description' => __( 'PayPal Api settings', 'dialog-contact-form' ),
-			'priority'    => 20,
-		] );
-
-		$setting->set_section( [
-			'id'          => 'section_google_api',
-			'panel'       => 'integrations',
-			'title'       => __( 'Google Api', 'dialog-contact-form' ),
-			'description' => __( 'Google Api settings', 'dialog-contact-form' ),
-			'priority'    => 30,
-		] );
-
-		$setting->set_section( [
-			'id'          => 'section_trade_site_auth',
-			'title'       => __( 'Auth', 'dialog-contact-form' ),
-			'description' => __( 'Auth settings', 'dialog-contact-form' ),
-			'panel'       => 'trade_site',
-			'priority'    => 10,
-		] );
-
-		$setting->set_section( [
-			'id'          => 'section_marketplace',
-			'title'       => __( 'Marketplace', 'dialog-contact-form' ),
-			'description' => __( 'Marketplace settings', 'dialog-contact-form' ),
-			'panel'       => 'market_place',
-			'priority'    => 10,
-		] );
+		$sections = [
+			[
+				'id'       => 'section_general',
+				'title'    => __( 'General Settings' ),
+				'panel'    => 'general',
+				'priority' => 2,
+			],
+			[
+				'id'       => 'section_postcard_settings',
+				'title'    => __( 'Postcard Settings' ),
+				'panel'    => 'general',
+				'priority' => 5,
+			],
+			[
+				'id'       => 'section_inner_message_settings',
+				'title'    => __( 'Inner Message Settings' ),
+				'panel'    => 'general',
+				'priority' => 6,
+			],
+			[
+				'id'       => 'section_order_dispatcher',
+				'title'    => __( 'Order Dispatcher Settings' ),
+				'panel'    => 'general',
+				'priority' => 7,
+			],
+			[
+				'id'          => 'section_ship_station_api',
+				'title'       => __( 'ShipStation Api', 'dialog-contact-form' ),
+				'description' => __( 'ShipStation Api settings', 'dialog-contact-form' ),
+				'panel'       => 'integrations',
+				'priority'    => 10,
+			],
+			[
+				'id'          => 'section_paypal_api',
+				'panel'       => 'integrations',
+				'title'       => __( 'PayPal Api', 'dialog-contact-form' ),
+				'description' => __( 'PayPal Api settings', 'dialog-contact-form' ),
+				'priority'    => 20,
+			],
+			[
+				'id'          => 'section_google_api',
+				'panel'       => 'integrations',
+				'title'       => __( 'Google Api', 'dialog-contact-form' ),
+				'description' => __( 'Google Api settings', 'dialog-contact-form' ),
+				'priority'    => 30,
+			],
+			[
+				'id'          => 'section_trade_site_auth',
+				'title'       => __( 'Auth', 'dialog-contact-form' ),
+				'description' => __( 'Auth settings', 'dialog-contact-form' ),
+				'panel'       => 'trade_site',
+				'priority'    => 10,
+			],
+			[
+				'id'          => 'section_marketplace',
+				'title'       => __( 'Marketplace', 'dialog-contact-form' ),
+				'description' => __( 'Marketplace settings', 'dialog-contact-form' ),
+				'panel'       => 'market_place',
+				'priority'    => 10,
+			]
+		];
+		$setting->set_sections( $sections );
 
 		$setting->set_field( [
 			'id'                => 'enable_adult_content_check',
@@ -460,6 +508,21 @@ class SettingPage {
 			'priority' => 40,
 			'panel'    => 'help',
 			'html'     => sprintf( '<a href="%s" target="_blank">Clear Now</a>', $action_url )
+		] );
+
+		$setting->set_field( [
+			'id'                => 'other_products_tab_categories',
+			'type'              => 'select',
+			'title'             => __( 'Print Cards categories for Other Products' ),
+			'description'       => __( 'Set product categories for: Order Dispatcher ==> Print Cards ==> Other Products. Only choose parent categories.' ),
+			'default'           => '',
+			'priority'          => 20,
+			'multiple'          => true,
+			'sanitize_callback' => function ( $value ) {
+				return $value ? array_map( 'intval', $value ) : '';
+			},
+			'section'           => 'section_order_dispatcher',
+			'options'           => self::get_product_categories(),
 		] );
 	}
 

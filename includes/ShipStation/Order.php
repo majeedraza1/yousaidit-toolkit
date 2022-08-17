@@ -397,13 +397,15 @@ class Order implements JsonSerializable {
 					);
 					$qty = isset( $items[ $key ]['quantity'] ) ? intval( $items[ $key ]['quantity'] ) : 0;
 
-					$items[ $key ]['store_id']      = $order_item->get_store_id();
-					$items[ $key ]['width']         = $order_item->get_pdf_width();
-					$items[ $key ]['height']        = $order_item->get_pdf_height();
-					$items[ $key ]['inner_message'] = $order_item->has_inner_message();
-					$items[ $key ]['card_type']     = $order_item->get_card_type();
-					$items[ $key ]['card_size']     = $order_item->get_card_size();
-					$items[ $key ]['quantity']      = $order_item->get_quantity() + $qty;
+					$items[ $key ]['store_id']       = $order_item->get_store_id();
+					$items[ $key ]['width']          = $order_item->get_pdf_width();
+					$items[ $key ]['height']         = $order_item->get_pdf_height();
+					$items[ $key ]['inner_message']  = $order_item->has_inner_message();
+					$items[ $key ]['card_type']      = $order_item->get_card_type();
+					$items[ $key ]['card_size']      = $order_item->get_card_size();
+					$items[ $key ]['product_parent'] = $order_item->get_product()->get_parent_id();
+					$items[ $key ]['product_id']     = $order_item->get_product()->get_id();
+					$items[ $key ]['quantity']       = $order_item->get_quantity() + $qty;
 
 					$items[ $key ]['items'][] = [
 						'shipStation_order_id' => $order->get_id(),

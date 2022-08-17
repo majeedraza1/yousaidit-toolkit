@@ -83,12 +83,15 @@ class OrderController extends LegacyApiController {
 	 * @return WP_REST_Response
 	 */
 	public function get_order_items( $request ) {
-		$force = Validate::checked( $request->get_param( 'force' ) );
-		$items = Order::get_order_items_by_card_sizes( $force );
-		$data  = [];
+		$force          = Validate::checked( $request->get_param( 'force' ) );
+		$items          = Order::get_order_items_by_card_sizes( $force );
+		$other_products = SettingPage::get_other_products_ids();
+		$data           = [];
 		foreach ( $items as $item ) {
-			$item['is_trade_order'] = $item['store_id'] === (int) SettingPage::get_option( 'shipstation_yousaidit_trade_store_id' );
-			$data[]                 = $item;
+			$item['is_trade_order']    = $item['store_id'] === (int) SettingPage::get_option( 'shipstation_yousaidit_trade_store_id' );
+			$item['is_other_products'] = in_array( $item['product_id'], $other_products, true ) ||
+			                             in_array( $item['product_parent'], $other_products, true );
+			$data[]                    = $item;
 		}
 
 		$marketplaces = [

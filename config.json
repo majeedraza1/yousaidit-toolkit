@@ -5,6 +5,7 @@
       "./resources/admin/order-dispatcher/main.js",
       "./resources/admin/designers/main.js",
       "./resources/admin/art-work/main.js",
+      "./resources/admin/common.js",
       "./resources/scss/admin.scss"
     ],
     "designer-profile": [
