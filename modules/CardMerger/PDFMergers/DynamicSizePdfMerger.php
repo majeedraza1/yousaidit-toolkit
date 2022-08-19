@@ -9,6 +9,22 @@ use YouSaidItCards\ShipStation\OrderItem;
 class DynamicSizePdfMerger extends PDFMerger {
 
 	/**
+	 * Get orientation from card size
+	 *
+	 * @param int $card_width
+	 * @param int $card_height
+	 *
+	 * @return string
+	 */
+	public static function get_orientation_from_size( int $card_width, int $card_height ): string {
+		if ( $card_width < $card_height ) {
+			return 'portrait';
+		}
+
+		return 'landscape';
+	}
+
+	/**
 	 * @param OrderItem[] $order_items
 	 * @param int $card_width Card width in mm
 	 * @param int $card_height Card height in mm
@@ -19,7 +35,7 @@ class DynamicSizePdfMerger extends PDFMerger {
 		static::$print_inner_message = $inner_message;
 
 		$pdf_merger = new PDFMerger();
-		$pdf_merger->set_orientation( 'l' );
+		$pdf_merger->set_orientation( self::get_orientation_from_size( $card_width, $card_height ) );
 		$pdf_merger->set_unit( 'mm' );
 		$pdf_merger->set_card_width( $card_width );
 		$pdf_merger->set_card_height( $card_height );

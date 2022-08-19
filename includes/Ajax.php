@@ -320,6 +320,7 @@ class Ajax {
 			header( "Content-Type: image/jpeg" );
 			echo $envelopImage->getImageBlob();
 		} catch ( ImagickException $e ) {
+			Logger::log( $e );
 			echo 'Sorry, Could not generate dynamic pdf card.';
 		}
 		die();

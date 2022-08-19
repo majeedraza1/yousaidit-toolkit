@@ -11,6 +11,7 @@ use setasign\Fpdi\PdfParser\Type\PdfTypeException;
 use setasign\Fpdi\PdfReader\PageBoundaries;
 use setasign\Fpdi\PdfReader\PdfReaderException;
 use WC_Order_Item_Product;
+use YouSaidItCards\Admin\SettingPage;
 use YouSaidItCards\Modules\InnerMessage\PdfGenerator;
 use YouSaidItCards\Modules\OrderDispatcher\QrCode;
 use YouSaidItCards\Modules\OrderDispatcher\QtyCode;
@@ -100,6 +101,8 @@ class PDFMerger {
 		$im   = isset( $args['inner_message'] ) && $args['inner_message'] == true;
 		$type = isset( $args['type'] ) && in_array( $args['type'], [ 'both', 'pdf', 'im' ] ) ? $args['type'] : 'both';
 
+		$other_products_ids = SettingPage::get_other_products_ids();
+
 		foreach ( $order_items as $order_item ) {
 			if ( ! filter_var( $order_item->get_pdf_url(), FILTER_VALIDATE_URL ) ) {
 				continue;
@@ -119,7 +122,10 @@ class PDFMerger {
 					// Import card
 					self::import_base_card( $pdf, $order_item );
 
-					if ( ! $order_item->is_dynamic_card_type() ) {
+					$is_in_other_products = in_array( $order_item->get_product()->get_id(), $other_products_ids, true ) ||
+					                        in_array( $order_item->get_product()->get_parent_id(), $other_products_ids, true );
+
+					if ( ! $order_item->is_dynamic_card_type() && ! $is_in_other_products ) {
 						// Add qr code
 						self::add_qr_code( $pdf, $order_item->get_ship_station_order_id(),
 							$order_item->get_pdf_width(), $order_item->get_pdf_height() );
