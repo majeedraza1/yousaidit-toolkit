@@ -363,7 +363,7 @@ export default {
 			this.canvas_height = cardCanvas.offsetHeight;
 			// 300,150
 			if (this.card_size === 'square') {
-				return Math.round((306 / 2) / 150 * cardCanvas.offsetHeight);
+				return Math.round(((306 / 2) + 1) / 156 * cardCanvas.offsetHeight);
 			}
 
 			// 303,216

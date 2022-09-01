@@ -18,9 +18,37 @@ class FreePdfBase {
 	protected $layer_types = [ 'static-text', 'input-text', 'static-image', 'input-image' ];
 
 	/**
+	 * Card options
+	 *
+	 * @var \int[][]
+	 */
+	protected static $card_options = [
+		'square' => [
+			'width'         => 306,
+			'height'        => 156,
+			'front_width'   => 154,
+			'back_width'    => 152,
+			'top_margin'    => 3,
+			'right_margin'  => 3,
+			'bottom_margin' => 3,
+			'left_margin'   => 1,
+		]
+	];
+
+	/**
+	 * First element is width, second is height
+	 *
 	 * @var array
 	 */
 	protected $size = [];
+
+	/**
+	 * Size name. e.g. square
+	 *
+	 * @var string
+	 */
+	protected $size_string = 'square';
+
 	protected $background = [];
 	protected $layers = [];
 
@@ -36,20 +64,33 @@ class FreePdfBase {
 	 */
 	public function get_size(): array {
 		if ( empty( $this->size ) ) {
-			$this->size = self::$sizes['square'];
+			$this->size = self::$sizes[ $this->size_string ];
 		}
 
 		return $this->size;
 	}
 
 	/**
+	 * Get card options
+	 *
+	 * @return int[]
+	 */
+	public function get_option(): array {
+		return self::$card_options[ $this->size_string ];
+	}
+
+	/**
 	 * Set size
 	 *
-	 * @param string $size
+	 * @param string|array $size
 	 */
-	public function set_size( string $size ): void {
-		if ( array_key_exists( $size, self::$sizes ) ) {
-			$this->size = self::$sizes[ $size ];
+	public function set_size( $size ): void {
+		if ( is_string( $size ) && array_key_exists( $size, self::$sizes ) ) {
+			$this->size_string = $size;
+			$this->size        = self::$sizes[ $size ];
+		}
+		if ( is_array( $size ) ) {
+			$this->size = $size;
 		}
 	}
 

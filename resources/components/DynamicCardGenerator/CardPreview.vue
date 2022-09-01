@@ -1,12 +1,12 @@
 <template>
 	<div :class="`shadow-lg card-canvas card-canvas--${card_size}`" :style="canvas_styles">
 		<div class="card-canvas__background is-type-color" v-if="background_type === 'color'"
-			 :style="`background-color:${background.color.hex}`"></div>
+		     :style="`background-color:${background.color.hex}`"></div>
 		<img class="card-canvas__background" v-if="Object.keys(image).length" :src="image.src" alt="">
 		<div v-for="(section,index) in sections"
-			 class="card-canvas__section"
-			 :class="sectionClass(section,index)"
-			 :style="sectionStyle(section)"
+		     class="card-canvas__section"
+		     :class="sectionClass(section,index)"
+		     :style="sectionStyle(section)"
 		>
 			<template v-if="section.section_type === 'static-text'">
 				{{ section.text }}
@@ -47,7 +47,7 @@ export default {
 		},
 		card_size_in_mm() {
 			let size = this.card_sizes.find(item => item.value === this.card_size);
-			return {width: size.width / 2, height: size.height};
+			return {width: (size.width / 2) + 1, height: size.height};
 		},
 		card_width_in_mm() {
 			return this.card_size_in_mm.width;

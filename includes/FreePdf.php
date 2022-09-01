@@ -24,9 +24,10 @@ class FreePdf extends FreePdfBase {
 		$items      = $this->get_layers();
 		$background = $this->get_background();
 
-		$size = $this->get_size();
+		$size   = $this->get_size();
+		$option = $this->get_option();
 
-		$fpd = new tFPDF( 'P', 'mm', [ $size[0] / 2, $size[1] ] );
+		$fpd = new tFPDF( 'P', 'mm', [ $option['front_width'], $option['height'] ] );
 
 		// Add custom fonts
 		$fonts_list  = Fonts::get_list();
@@ -84,15 +85,16 @@ class FreePdf extends FreePdfBase {
 	 * @param array $item
 	 */
 	public function add_text( tFPDF &$fpd, array $item ) {
-		$font_size   = intval( $item['textOptions']['size'] );
-		$font_family = str_replace( ' ', '', $item['textOptions']['fontFamily'] );
-		$text_align  = strtolower( $item['textOptions']['align'] );
-		$marginRight = intval( $item['textOptions']['marginRight'] );
+		$textOptions = $item['textOptions'] ?? [];
+		$font_size   = intval( $textOptions['size'] );
+		$font_family = str_replace( ' ', '', $textOptions['fontFamily'] );
+		$text_align  = strtolower( $textOptions['align'] );
+		$marginRight = isset( $textOptions['marginRight'] ) ? intval( $textOptions['marginRight'] ) : 0;
 		$text        = ! empty( $item['text'] ) ? sanitize_text_field( $item['text'] ) : $item['placeholder'];
 		$x_pos       = intval( $item['position']['left'] );
 		// Fix y-pos as text start from baseline
 		$y_pos = (int) ( intval( $item['position']['top'] ) + self::points_to_mm( $font_size * 0.75 ) );
-		list( $red, $green, $blue ) = self::find_rgb_color( $item['textOptions']['color'] );
+		list( $red, $green, $blue ) = self::find_rgb_color( $textOptions['color'] );
 		$fpd->SetFont( $font_family, '', $font_size );
 		$fpd->SetTextColor( $red, $green, $blue );
 		if ( 'center' == $text_align ) {
@@ -112,15 +114,17 @@ class FreePdf extends FreePdfBase {
 	 * @param array $item
 	 */
 	private function add_image( tFPDF $fpd, array $item ) {
-		$x_pos  = intval( $item['position']['left'] );
-		$y_pos  = intval( $item['position']['top'] );
+		$option = $this->get_option();
+		$x_pos  = intval( $item['position']['left'] ); // + $option['left_margin']
+		$y_pos  = intval( $item['position']['top'] ); //  + $option['top_margin']
 		$height = 'auto'; //$item['imageOptions']['height'];
 //		$height      = 'auto' == $height ? 'auto' : intval( $height );
-		$marginRight = intval( $item['imageOptions']['marginRight'] );
-		$image_id    = intval( $item['imageOptions']['img']['id'] );
-		$width       = intval( $item['imageOptions']['width'] );
-		$align       = intval( $item['imageOptions']['align'] );
-		$src         = wp_get_attachment_image_src( $image_id, 'full' );
+		$imageOptions = $item['imageOptions'] ?? [];
+		$marginRight  = isset( $imageOptions['marginRight'] ) ? intval( $imageOptions['marginRight'] ) : 0;
+		$image_id     = intval( $imageOptions['img']['id'] );
+		$width        = intval( $imageOptions['width'] );
+		$align        = intval( $imageOptions['align'] );
+		$src          = wp_get_attachment_image_src( $image_id, 'full' );
 		if ( ! is_array( $src ) ) {
 			return;
 		}
@@ -139,6 +143,6 @@ class FreePdf extends FreePdfBase {
 		if ( 'right' == $align ) {
 			$x_pos = $fpd->GetPageWidth() - ( $width + $marginRight );
 		}
-		$fpd->Image( $image, $x_pos, $y_pos, $width, intval( $height ) );
+		$fpd->Image( $src[0], $x_pos, $y_pos, $width, intval( $height ) );
 	}
 }
