@@ -53,7 +53,7 @@
 			:show-edit-icon="true"
 			:active="(index === activeItemIndex || index === activeSectionIndex)"
 			:section='`${JSON.stringify(section)}`'
-			:card-width-mm="card_dimension[1]"
+			:card-width-mm="card_dimension[0]"
 			:card-height-mm="card_dimension[1]"
 			:element-width-mm="canvas_width_mm"
 			:element-height-mm="card_height_in_mm"
@@ -136,7 +136,7 @@ export default {
 				a4: [426, 303],
 				a5: [303, 216],
 				a6: [216, 154],
-				square: [300, 150],
+				square: [306, 156],
 			},
 			canvas_width: 0,
 			canvas_height: 0,
@@ -164,7 +164,7 @@ export default {
 				return [0, 0];
 			}
 			let dimension = this.card_sizes[this.options.card_size];
-			return [dimension[0] / 2, dimension[1]];
+			return [(dimension[0] / 2) + 1, dimension[1]];
 		},
 		canvas_width_mm() {
 			return this.px_to_mm(this.canvas_width);

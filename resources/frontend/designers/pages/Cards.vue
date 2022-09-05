@@ -287,10 +287,14 @@ export default {
 				}
 			});
 		},
-		getCards() {
+		getCards(merge = true) {
 			this.pagination_lock = true;
 			this.getItems().then(data => {
-				this.cards = this.cards.concat(data.items);
+				if (false === merge) {
+					this.cards = data.items;
+				} else {
+					this.cards = this.cards.concat(data.items);
+				}
 				this.statuses = data.statuses;
 				this.pagination = data.pagination;
 				this.maximum_allowed_card = data.maximum_allowed_card;
@@ -315,9 +319,9 @@ export default {
 				});
 			});
 		},
-		onNewCardAdded(){
+		onNewCardAdded() {
 			this.showDynaCardModal = false;
-			this.getCards();
+			this.getCards(false);
 		}
 	}
 }

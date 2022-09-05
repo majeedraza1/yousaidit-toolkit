@@ -202,13 +202,13 @@ export default {
 				a4: [426, 303],
 				a5: [303, 216],
 				a6: [216, 154],
-				square: [300, 150],
+				square: [306, 156],
 			}
 			if (Object.keys(card_sizes).indexOf(this.card_size) === -1) {
 				return [0, 0];
 			}
 			let dimension = card_sizes[this.card_size];
-			return [dimension[0] / 2, dimension[1]];
+			return [(dimension[0] / 2) + 1, dimension[1]];
 		},
 	},
 	watch: {
