@@ -1,6 +1,6 @@
 {
   "name": "yousaidit-toolkit",
-  "version": "1.0.5",
+  "version": "2022.09.5",
   "description": "A powerful WordPress plugin to extend functionality to your WordPress site.",
   "keywords": [
     "wordpress",
@@ -9,7 +9,7 @@
   "author": {
     "name": "Yousaidit Services (Pvt.) Ltd.",
     "email": "info@stackonet.com",
-    "url": "http://www.stackonet.com/"
+    "url": "https://www.stackonet.com/"
   },
   "license": "GPL-3.0-only",
   "repository": {
