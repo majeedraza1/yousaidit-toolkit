@@ -37,9 +37,22 @@ class DesignerCommissionAdminController extends ApiController {
 		register_rest_route( $this->namespace, '/designers-commissions', [
 			[
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => [ $this, 'get_item' ],
+				'callback'            => [ $this, 'get_items' ],
 				'args'                => $this->get_collection_params(),
 				'permission_callback' => '__return_true',
+			],
+		] );
+		register_rest_route( $this->namespace, '/designers-commissions/(?P<id>\d+)', [
+			'args' => [
+				'id' => [
+					'description' => __( 'Unique identifier for the object.' ),
+					'type'        => 'integer',
+				],
+			],
+			[
+				'methods'             => WP_REST_Server::DELETABLE,
+				'callback'            => [ $this, 'delete_item' ],
+				'permission_callback' => [ $this, 'delete_item_permissions_check' ],
 			],
 		] );
 	}
@@ -52,7 +65,7 @@ class DesignerCommissionAdminController extends ApiController {
 	 * @return WP_REST_Response Response object on success, or WP_Error object on failure.
 	 * @throws \Exception
 	 */
-	public function get_item( $request ) {
+	public function get_items( $request ) {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return $this->respondUnauthorized();
 		}
@@ -97,5 +110,40 @@ class DesignerCommissionAdminController extends ApiController {
 			'pagination'   => $pagination,
 			'marketplaces' => MarketPlace::all(),
 		] );
+	}
+
+	/**
+	 * Deletes one item from the collection.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 *
+	 * @return WP_REST_Response Response object on success, or WP_Error object on failure.
+	 */
+	public function delete_item( $request ) {
+		$id    = (int) $request->get_param( 'id' );
+		$model = new DesignerCommission();
+		$item  = $model->find_single( $id );
+		if ( ! $item ) {
+			return $this->respondNotFound();
+		}
+
+		$item->delete( $id );
+
+		return $this->respondOK();
+	}
+
+	/**
+	 * Checks if a given request has access to delete a specific item.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 *
+	 * @return true|WP_Error True if the request has access to delete the item, WP_Error object otherwise.
+	 */
+	public function delete_item_permissions_check( $request ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return new WP_Error( 'rest_forbidden_context', __( 'Sorry, you are not allowed to access this resource.' ) );
+		}
+
+		return true;
 	}
 }

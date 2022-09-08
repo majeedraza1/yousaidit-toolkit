@@ -4,8 +4,6 @@
 		<hr class="wp-header-end">
 		<columns multiline>
 			<column :tablet="12">
-			</column>
-			<column :tablet="12">
 				<div class="mb-4 flex items-center">
 					<a href="#" @click.prevent="show_filter_sidenav = true">Show Filter</a>
 					<div class="flex-1"></div>
@@ -31,6 +29,15 @@
 							#{{ data.row.order_id }}
 						</a>
 						<span v-else>#{{ data.row.order_id }}</span>
+					</template>
+					<template v-slot:action="data">
+						<icon-container hoverable @click="deleteCommission(data.row)">
+							<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px"
+							     style="fill:var(--shapla-error, #f14668)">
+								<path
+									d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM8 9h8v10H8V9zm7.5-5l-1-1h-5l-1 1H5v2h14V4z"/>
+							</svg>
+						</icon-container>
 					</template>
 				</data-table>
 				<div class="mt-4">
@@ -85,14 +92,15 @@
 <script>
 import axios from "axios";
 import {
-	selectField, pagination, dataTable, columns, column, radioButton, shaplaButton, textField, sideNavigation
+	selectField, pagination, dataTable, columns, column, radioButton, shaplaButton, textField, sideNavigation,
+	iconContainer
 } from 'shapla-vue-components';
 
 export default {
 	name: "Commissions",
 	components: {
 		columns, column, dataTable, radioButton, shaplaButton, textField, sideNavigation, selectField,
-		pagination
+		pagination, iconContainer
 	},
 	data() {
 		return {
@@ -108,6 +116,7 @@ export default {
 				{key: 'payment_status', label: 'Payment Status'},
 				{key: 'order_quantity', label: 'Qty', numeric: true},
 				{key: 'total_commission', label: 'Total Commission', numeric: true},
+				{key: 'action', label: 'Action', numeric: true},
 			],
 			report_types: [
 				{key: 'today', label: 'Today'},
@@ -207,6 +216,25 @@ export default {
 				console.log(errors);
 				this.$store.commit('SET_LOADING_STATUS', false);
 			});
+		},
+		deleteCommission(data) {
+			console.log(data);
+			this.$dialog.confirm('Are you sure to delete commission?').then(confirmed => {
+				if (confirmed) {
+					this.$store.commit('SET_LOADING_STATUS', true);
+					axios.delete(window.DesignerProfile.restRoot + '/designers-commissions/' + data.commission_id).then(() => {
+						this.$store.commit('SET_NOTIFICATION', {
+							type: 'success',
+							message: 'Commission deleted successfully'
+						});
+						this.getCommissions();
+					}).catch(errors => {
+						console.log(errors);
+					}).finally(() => {
+						this.$store.commit('SET_LOADING_STATUS', false);
+					});
+				}
+			})
 		}
 	}
 }
