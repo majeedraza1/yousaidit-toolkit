@@ -1,4 +1,4 @@
-import {LitElement, html, css} from "lit";
+import {css, html, LitElement} from "lit";
 import {convertMMtoPX} from "@/utils/helper";
 
 export class DynamicCardLayer extends LitElement {
@@ -155,7 +155,7 @@ export class DynamicCardLayer extends LitElement {
 			return;
 		}
 		if (this.section.section_type === 'static-text') {
-			return html`${this.section.text}`
+			return html`${this.replaceInvertedComma(this.section.text)}`
 		}
 		let showEditIcon = -1 !== [true, 'true', 1, '1', 'yes'].indexOf(this.showEditIcon);
 		let classes = ['section-edit'];
@@ -164,8 +164,17 @@ export class DynamicCardLayer extends LitElement {
 		return html`
 			<div class="${classes.join(' ')}">
 				${showEditIcon ? this.iconTemplate() : ''}
-				${this.section.text ? this.section.text : this.section.placeholder}
+				${this.section.text ? this.replaceInvertedComma(this.section.text) : this.replaceInvertedComma(this.section.placeholder)}
 			</div>`
+	}
+
+	// Replace 'DOUBLE_INVERTED_COMMA' with '"' and 'SINGLE_INVERTED_COMMA' with "'"
+	replaceInvertedComma(str) {
+		return str
+			.replace("/", '')
+			.replace("\\", '')
+			.replace(/DOUBLE_INVERTED_COMMA/g, '"')
+			.replace(/SINGLE_INVERTED_COMMA/g, "'");
 	}
 
 	// Render the component's DOM by returning a Lit template

@@ -2,7 +2,6 @@
 
 namespace YouSaidItCards\Modules\DynamicCard;
 
-use Stackonet\WP\Framework\Supports\Logger;
 use WC_Order;
 use WC_Order_Item_Product;
 use YouSaidItCards\Modules\DynamicCard\Models\CardPayload;
@@ -33,7 +32,7 @@ class DynamicCardManager {
 			add_filter( 'woocommerce_add_cart_item_data', [ self::$instance, 'add_cart_item_data' ] );
 			// Step 4: Add Custom Details as Order Line Items
 			add_action( 'woocommerce_checkout_create_order_line_item',
-				[ self::$instance, 'create_order_line_item' ], 10, 4 );
+				[ self::$instance, 'create_order_line_item' ], 10, 3 );
 			// Step 5: Add background task to generate dynamic card pdf
 			add_action( 'woocommerce_checkout_order_created',
 				[ self::$instance, 'set_background_task_for_dynamic_card' ], 10 );
@@ -119,9 +118,17 @@ class DynamicCardManager {
 			$product = $cart_item['data'];
 			$payload = $product->get_meta( '_dynamic_card_payload', true );
 			$payload = new CardPayload( $payload, $cart_item['_dynamic_card'] );
+			$options = map_deep( $payload->get_data(), function ( $item ) {
+				if ( is_string( $item ) ) {
+					$item = str_replace( '"', 'DOUBLE_INVERTED_COMMA', $item );
+					$item = str_replace( "'", 'SINGLE_INVERTED_COMMA', $item );
+				}
+
+				return $item;
+			} );
 			/* @TODO change card size for dynamic value */
 			$image_string = "<div style='width: 150px;height:150px'><dynamic-card-canvas
-			options='" . wp_json_encode( $payload->get_data() ) . "'
+			options='" . wp_json_encode( $options ) . "'
 			card-width-mm='150'
 			card-height-mm='150'
 			element-width-mm='40'
@@ -168,9 +175,8 @@ class DynamicCardManager {
 	 * @param WC_Order_Item_Product $item
 	 * @param string $cart_item_key
 	 * @param array $values
-	 * @param WC_Order $order
 	 */
-	public function create_order_line_item( $item, $cart_item_key, $values, $order ) {
+	public function create_order_line_item( $item, $cart_item_key, $values ) {
 		if ( array_key_exists( '_dynamic_card', $values ) ) {
 			$data          = is_array( $values['_dynamic_card'] ) ? $values['_dynamic_card'] : [];
 			$_dynamic_card = self::sanitize_dynamic_card( $data );
