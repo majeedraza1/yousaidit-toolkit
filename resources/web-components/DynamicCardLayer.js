@@ -170,6 +170,10 @@ export class DynamicCardLayer extends LitElement {
 
 	// Replace 'DOUBLE_INVERTED_COMMA' with '"' and 'SINGLE_INVERTED_COMMA' with "'"
 	replaceInvertedComma(str) {
+		// If 'str' is not a string, return it
+		if ('string' !== typeof str) {
+			return str;
+		}
 		return str
 			.replace("/", '')
 			.replace("\\", '')
