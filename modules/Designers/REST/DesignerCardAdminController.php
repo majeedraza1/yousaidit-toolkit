@@ -6,6 +6,7 @@ use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
+use YouSaidItCards\Modules\Designers\Admin\Settings;
 use YouSaidItCards\Modules\Designers\Emails\CardAcceptedEmail;
 use YouSaidItCards\Modules\Designers\Emails\CardRejectedEmail;
 use YouSaidItCards\Modules\Designers\Emails\CardTrashedEmail;
@@ -142,7 +143,26 @@ class DesignerCardAdminController extends ApiController {
 			return $this->respondNotFound();
 		}
 
-		return $this->respondOK( $item );
+		$data = $item->to_array();
+
+		$data['default_commissions'] = [
+			'yousaidit'       => Settings::designer_default_commission_for_yousaidit(),
+			'yousaidit-trade' => Settings::designer_default_commission_for_yousaidit_trade(),
+		];
+
+		$sizes = $item->get( 'card_sizes' );
+		foreach ( $sizes as $size ) {
+			$sku = Settings::designer_card_sku_prefix();
+			$sku = str_replace( '{{card_type}}', $item->get( 'card_type' ) === 'dynamic' ? 'D' : 'S', $sku );
+			$sku = str_replace( '{{card_size}}', $size === 'square' ? 'S' : strtoupper( $size ), $sku );
+			$sku = str_replace( '{{card_id}}', $item->get_id(), $sku );
+
+			$data['default_price'][ $size ] = Settings::designer_card_price();
+			$data['default_sku'][ $size ]   = $sku;
+		}
+
+
+		return $this->respondOK( $data );
 	}
 
 	/**

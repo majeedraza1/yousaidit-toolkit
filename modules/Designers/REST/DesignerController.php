@@ -3,6 +3,7 @@
 namespace YouSaidItCards\Modules\Designers\REST;
 
 use Exception;
+use Stackonet\WP\Framework\Supports\Sanitize;
 use Stackonet\WP\Framework\Supports\Validate;
 use WP_Error;
 use WP_REST_Request;
@@ -294,6 +295,11 @@ class DesignerController extends ApiController {
 		$vat_registration_number = $request->get_param( 'vat_registration_number' );
 		if ( ! empty( $vat_registration_number ) ) {
 			$meta_data['vat_registration_number'] = $vat_registration_number;
+		}
+
+		$instagram_url = $request->get_param( 'instagram_url' );
+		if ( Validate::url( $instagram_url ) ) {
+			$meta_data['instagram_url'] = Sanitize::url( $instagram_url );
 		}
 
 		$vat_certificate_issue_date = $request->get_param( 'vat_certificate_issue_date' );

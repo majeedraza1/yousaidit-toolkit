@@ -292,8 +292,17 @@
 <script>
 import axios from "axios";
 import {
-	column, columns, imageContainer, iconContainer, shaplaButton, shaplaChip, textField, toggles, toggle, modal,
-	radioButton
+	column,
+	columns,
+	iconContainer,
+	imageContainer,
+	modal,
+	radioButton,
+	shaplaButton,
+	shaplaChip,
+	textField,
+	toggle,
+	toggles
 } from 'shapla-vue-components';
 import PdfCardItem from "../../../components/PdfCardItem";
 import PdfImageItem from "../../../components/PdfImageItem";
@@ -419,7 +428,20 @@ export default {
 			this.$store.commit('SET_LOADING_STATUS', true);
 			axios.get(Stackonet.root + '/designers-cards/' + this.id).then(response => {
 				this.$store.commit('SET_LOADING_STATUS', false);
-				this.card = response.data.data;
+				let _data = response.data.data;
+				this.card = _data;
+				if (Object.keys(this.commission).length === 0) {
+					let defaults = this.card.default_commissions.yousaidit;
+					_data.card_sizes.forEach(size => {
+						this.commission[size] = defaults.toString();
+					});
+				}
+				if (Object.keys(this.product_sku).length === 0) {
+					this.product_sku = _data.default_sku;
+				}
+				if (Object.keys(this.product_price).length === 0) {
+					this.product_price = _data.default_price;
+				}
 			}).catch(errors => {
 				this.$store.commit('SET_LOADING_STATUS', false);
 				console.log(errors);

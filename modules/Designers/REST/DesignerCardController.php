@@ -254,6 +254,7 @@ class DesignerCardController extends ApiController {
 		}
 
 		$card_title      = $request->get_param( 'title' );
+		$description     = $request->get_param( 'description' );
 		$card_sizes      = $request->get_param( 'sizes' );
 		$categories_ids  = $request->get_param( 'categories_ids' );
 		$tags_ids        = $request->get_param( 'tags_ids' );
@@ -338,6 +339,7 @@ class DesignerCardController extends ApiController {
 
 		$data = [
 			'card_type'        => $card_type,
+			'description'      => $description,
 			'card_title'       => $card_title,
 			'card_sizes'       => $card_sizes,
 			'categories_ids'   => $categories_ids,

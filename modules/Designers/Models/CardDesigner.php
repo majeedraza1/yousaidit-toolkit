@@ -85,6 +85,7 @@ class CardDesigner implements JsonSerializable {
 		'business_name'              => '',
 		'vat_registration_number'    => '',
 		'vat_certificate_issue_date' => '',
+		'instagram_url'              => '',
 		'can_add_dynamic_card'       => 'no',
 		'avatar_id'                  => 0,
 		'cover_photo_id'             => 0,
@@ -184,6 +185,7 @@ class CardDesigner implements JsonSerializable {
 			'description'          => $user->description,
 			'user_url'             => $user->user_url,
 			'user_login'           => $user->user_login,
+			'instagram_url'        => $this->get_instagram_url(),
 			'avatar_url'           => $this->get_avatar_url(),
 			'cover_photo_url'      => $this->get_cover_photo_url(),
 			'card_logo_url'        => $this->get_card_logo_url(),
@@ -345,6 +347,17 @@ class CardDesigner implements JsonSerializable {
 		}
 
 		return $src[0];
+	}
+
+	/**
+	 * Get instagram url
+	 *
+	 * @return string
+	 */
+	public function get_instagram_url(): string {
+		$instagram_url = get_user_meta( $this->get_user_id(), '_instagram_url', true );
+
+		return Validate::url( $instagram_url ) ? $instagram_url : '';
 	}
 
 	/**

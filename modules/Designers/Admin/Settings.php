@@ -31,6 +31,32 @@ class Settings {
 		return self::$instance;
 	}
 
+	public static function designer_default_commission_for_yousaidit() {
+		$options = (array) get_option( 'yousaiditcard_designers_settings' );
+
+		return isset( $options['designer_commission'] ) ? floatval( $options['designer_commission'] ) : 0;
+	}
+
+	public static function designer_default_commission_for_yousaidit_trade() {
+		$options = (array) get_option( 'yousaiditcard_designers_settings' );
+
+		return isset( $options['designer_trade_site_commission'] ) ?
+			floatval( $options['designer_trade_site_commission'] ) : 0;
+	}
+
+	public static function designer_card_sku_prefix(): string {
+		$options = (array) get_option( 'yousaiditcard_designers_settings' );
+
+		return isset( $options['designer_card_sku_prefix'] ) ?
+			sanitize_text_field( $options['designer_card_sku_prefix'] ) : '';
+	}
+
+	public static function designer_card_price(): string {
+		$options = (array) get_option( 'yousaiditcard_designers_settings' );
+
+		return isset( $options['designer_card_price'] ) ? floatval( $options['designer_card_price'] ) : '';
+	}
+
 	public static function designer_minimum_amount_to_pay() {
 		$options        = (array) get_option( 'yousaiditcard_designers_settings' );
 		$minimum_amount = isset( $options['designer_minimum_amount_to_pay'] ) ?
@@ -198,6 +224,46 @@ class Settings {
 				'sanitize_callback' => 'sanitize_text_field',
 			],
 			[
+				'section'           => 'general_settings_section',
+				'id'                => 'designer_commission',
+				'type'              => 'text',
+				'title'             => __( 'Designer Commission (Fix amount)', 'stackonet-yousaidit-toolkit' ),
+				'description'       => __( 'Designer commission per sale.', 'stackonet-yousaidit-toolkit' ),
+				'priority'          => 60,
+				'default'           => 0.30,
+				'sanitize_callback' => 'floatval',
+			],
+			[
+				'section'           => 'general_settings_section',
+				'id'                => 'designer_trade_site_commission',
+				'type'              => 'text',
+				'title'             => __( 'Designer Commission for trade site (Fix amount)', 'stackonet-yousaidit-toolkit' ),
+				'description'       => __( 'Designer commission per sale for trade site.', 'stackonet-yousaidit-toolkit' ),
+				'priority'          => 65,
+				'default'           => 0.10,
+				'sanitize_callback' => 'floatval',
+			],
+			[
+				'section'           => 'general_settings_section',
+				'id'                => 'designer_card_sku_prefix',
+				'type'              => 'text',
+				'title'             => __( 'Product SKU', 'stackonet-yousaidit-toolkit' ),
+				'description'       => __( "{{card_type}} will be replaced with 'S' for static or 'D' for dynamic. {{card_size}} will be replaced with 'S' for square, 'A4', 'A5' or 'A6'. {{card_id}} will be replaced with card id.", 'stackonet-yousaidit-toolkit' ),
+				'priority'          => 70,
+				'default'           => 'DC-{{card_type}}-{{card_size}}-{{card_id}}',
+				'sanitize_callback' => 'sanitize_text_field',
+			],
+			[
+				'section'           => 'general_settings_section',
+				'id'                => 'designer_card_price',
+				'type'              => 'text',
+				'title'             => __( 'Product Price', 'stackonet-yousaidit-toolkit' ),
+				'description'       => __( "Product default price.", 'stackonet-yousaidit-toolkit' ),
+				'priority'          => 75,
+				'default'           => 2.99,
+				'sanitize_callback' => 'floatval',
+			],
+			[
 				'section'           => 'product_settings_section',
 				'id'                => 'default_product_title',
 				'type'              => 'text',
@@ -211,7 +277,7 @@ class Settings {
 				'id'                => 'default_product_content',
 				'type'              => 'textarea',
 				'title'             => __( 'Default Product Content', 'stackonet-yousaidit-toolkit' ),
-				'description'       => __( 'Default product content when generating product from card. Add placeholder {{card_title}} to get dynamic card title.', 'stackonet-yousaidit-toolkit' ),
+				'description'       => __( 'Default product content when generating product from card. Add placeholder {{card_title}} to get dynamic card title. Add placeholder {{card_description}} to get dynamic card description.', 'stackonet-yousaidit-toolkit' ),
 				'priority'          => 50,
 				'sanitize_callback' => 'wp_filter_post_kses',
 			],

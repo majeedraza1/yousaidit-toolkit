@@ -453,7 +453,7 @@ class DesignerCommission extends DatabaseModel {
 			designer_id bigint(20) NOT NULL DEFAULT '0',
 			customer_id bigint(20) NOT NULL DEFAULT '0',
 			order_id bigint(20) NOT NULL DEFAULT '0' COMMENT 'ShipStation order id',
-			order_item_id bigint(20) NOT NULL DEFAULT '0' COMMENTS 'ShipStation order item id',
+			order_item_id bigint(20) NOT NULL DEFAULT '0' COMMENT 'ShipStation order item id',
 			order_quantity int(10) NOT NULL DEFAULT '0',
 			item_commission float NOT NULL DEFAULT '0',
 			total_commission float NOT NULL DEFAULT '0',

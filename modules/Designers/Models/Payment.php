@@ -243,7 +243,7 @@ class Payment extends DatabaseModel {
 			$sql = "ALTER TABLE `{$table_name}` ADD INDEX `payment_status` (`payment_status`);";
 			$wpdb->query( $sql );
 
-			update_option( 'designer_cards_table_version', '1.0.0' );
+			update_option( $table_name . '-version', '1.0.2' );
 		}
 	}
 }

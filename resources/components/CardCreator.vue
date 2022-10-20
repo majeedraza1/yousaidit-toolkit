@@ -233,6 +233,7 @@ export default {
 			card: {
 				card_type: 'dynamic',
 				title: '',
+				description: '',
 				sizes: [],
 				categories_ids: [],
 				tags_ids: [],

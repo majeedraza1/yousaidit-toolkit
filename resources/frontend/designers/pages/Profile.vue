@@ -47,6 +47,11 @@
 					<text-field type="url" label="Username" v-model="designer.user_login"
 					            help-text="Your username will be used as your profile page URL."/>
 				</profile-field>
+
+				<profile-field title="Instagram Profile" :content="designer.instagram_url" field-width="500px"
+							   @save="updateInstagramUrl">
+					<text-field type="url" label="URL" v-model="designer.instagram_url"/>
+				</profile-field>
 			</tab>
 
 			<tab name="Business Detail">
@@ -159,6 +164,7 @@ export default {
 				formatted_address: '',
 				user_login: '',
 				profile_base_url: '',
+				instagram_url: '',
 				business_address: {
 					address_1: '',
 					address_2: '',
@@ -328,6 +334,9 @@ export default {
 					this.$store.commit('SET_NOTIFICATION', {type: 'error', message: error.message});
 				}
 			});
+		},
+		updateInstagramUrl() {
+			this.update({instagram_url: this.designer.instagram_url});
 		},
 		updateBusinessName() {
 			this.update({business_name: this.designer.business_name});

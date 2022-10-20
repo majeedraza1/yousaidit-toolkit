@@ -56,7 +56,7 @@
 		<column :tablet="6">
 			<div class="additional_tags">
 				<shapla-switch v-model="has_suggest_tags" true-value="yes" false-value="no"
-							   label="Suggest a new tag."/>
+				               label="Suggest a new tag."/>
 				<text-field
 					v-if="has_suggest_tags === 'yes'" label="Tags" type="textarea" :rows="1"
 					help-text="Write your suggested tags, separate by comma if you have multiple suggestion"
@@ -65,7 +65,7 @@
 			</div>
 		</column>
 		<column :tablet="6" v-for="attribute in card_attributes" :key="attribute.attribute_name"
-				v-if="card_attributes.length">
+		        v-if="card_attributes.length">
 			<select-field
 				v-model="card.attributes[attribute.attribute_name]"
 				:options="attribute.options" :label="attribute.attribute_label"
@@ -73,6 +73,20 @@
 				:has-error="!!(errors.attributes && errors.attributes[attribute.attribute_name])"
 				:validation-text="errors.attributes?errors.attributes[0]:''"
 			/>
+		</column>
+		<column :tablet="12">
+			<div class="card-description">
+				<h3 class="font-normal text-lg text-primary uppercase">Description</h3>
+				<h4 class="font-normal text-sm">Card description will be visible on product detail page. You can also
+					use HTML tags.</h4>
+				<text-field
+					type="textarea" v-model="card.description"
+					label="Description"
+					:has-error="!!errors.description"
+					:validation-text="errors.description?errors.description[0]:''"
+					:rows="5"
+				/>
+			</div>
 		</column>
 		<column :tablet="12">
 			<div class="market-places">
@@ -98,7 +112,7 @@
 </template>
 
 <script>
-import {columns, column, shaplaSwitch, textField, selectField} from "shapla-vue-components";
+import {column, columns, selectField, shaplaSwitch, textField} from "shapla-vue-components";
 
 export default {
 	name: "CardOptions",

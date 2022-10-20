@@ -129,6 +129,7 @@ class DesignerCard extends DatabaseModel {
 			'id'                     => intval( $this->get( 'id' ) ),
 			'card_type'              => $this->get( 'card_type' ),
 			'card_title'             => $this->get( 'card_title' ),
+			'description'            => $this->get( 'description' ),
 			'card_sizes'             => $this->get( 'card_sizes' ),
 			'categories'             => $this->get_categories(),
 			'tags'                   => $this->get_tags(),
@@ -972,6 +973,11 @@ class DesignerCard extends DatabaseModel {
 			$wpdb->query( $sql );
 
 			update_option( $table_name . '-version', '1.1.0' );
+		}
+		if ( version_compare( $option, '1.2.2', '<' ) ) {
+			$sql = "ALTER TABLE `{$table_name}` ADD `description` TEXT NULL DEFAULT NULL AFTER `card_title`;";
+			$wpdb->query( $sql );
+			update_option( $table_name . '-version', '1.2.2' );
 		}
 	}
 }

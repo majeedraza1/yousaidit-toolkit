@@ -81,6 +81,7 @@ class CardToProduct {
 
 		$default_content = $options['default_product_content'] ?? '';
 		$default_content = str_replace( "{{card_title}}", $designer_card->get( 'card_title' ), $default_content );
+		$default_content = str_replace( "{{card_description}}", $designer_card->get( 'description' ), $default_content );
 		$product->set_description( wp_filter_post_kses( $default_content ) );
 
 		$product->set_status( 'draft' );
