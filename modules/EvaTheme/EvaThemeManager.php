@@ -181,7 +181,7 @@ class EvaThemeManager {
 	 * @return string
 	 */
 	protected function get_dynamic_card_html( $product ): string {
-		$html = '<button type="submit" class="button btn1 bshadow button--customize-dynamic-card" disabled><span>Customize</span></button>';
+		$html = '<button type="submit" class="button btn1 bshadow button--customize-dynamic-card" disabled><span>Personalise</span></button>';
 
 		$payload = $product->get_meta( '_dynamic_card_payload', true );
 		$items   = $payload['card_items'] ?? [];
