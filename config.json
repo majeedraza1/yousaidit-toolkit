@@ -5,6 +5,7 @@
       "./resources/admin/order-dispatcher/main.js",
       "./resources/admin/designers/main.js",
       "./resources/admin/art-work/main.js",
+      "./resources/admin/reminders/main.js",
       "./resources/admin/common.js",
       "./resources/scss/admin.scss"
     ],
@@ -16,6 +17,7 @@
     "frontend": [
       "./resources/frontend/main.js",
       "./resources/frontend/multistep-checkout.js",
+      "./resources/frontend/reminders/main.js",
       "./resources/scss/_multistep-checkout.scss",
       "./resources/scss/frontend.scss"
     ],

@@ -158,6 +158,10 @@ class SettingPage {
 		$setting->set_panel( [ 'id' => 'market_place', 'title' => 'Market Places', 'priority' => 30 ] );
 		$setting->set_panel( [ 'id' => 'help', 'title' => 'Help', 'priority' => 40 ] );
 
+		$setting->set_panels( apply_filters( 'yousaidit_toolkit/settings/panels', [] ) );
+		$setting->set_fields( apply_filters( 'yousaidit_toolkit/settings/fields', [] ) );
+		$setting->set_sections( apply_filters( 'yousaidit_toolkit/settings/sections', [] ) );
+
 		$sections = [
 			[
 				'id'       => 'section_general',

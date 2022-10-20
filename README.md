@@ -48,3 +48,33 @@ order_id=37789
 &mode=pdf
 &action=yousaidit_single_im_card
 ```
+
+## Reminder Module
+
+**Admin Menu**
+
+* Reminders: All reminders created by users are viewable here.
+* Reminders Groups: All reminder groups viewable here.
+	* Create/Edit: Create or edit reminder group.
+		* Title: Title of the reminder group. It will show to user to create reminder.
+		* Product categories: WooCommerce product categories. It will be used when sending email to user for reminder.
+		* Date: Default date of occasion. Only set when date is fixed. e.g. Valentine's Day is always on 14th February.
+		* Call to Action: Custom url to redirect user when clicking on 'Shop cards' button on reminder.
+		* Menu Order: Order of the reminder group.
+* Reminders Queue: All reminders queue viewable here.
+
+**My-Account Menu**
+
+* Reminders: All reminders created by the user are viewable here.
+	* Create/Edit: Create or edit reminder.
+
+**How does it work?**
+
+It registers three cron events.
+
+* One to check due reminders (when remind_date <= current_date) two times in a day and push them to background task to
+  add on 'Reminders Queue' list.
+* Second to check due reminders queue (when remind_date <= current_date < occasion_date ) and set background task to
+  send email to user.
+* Third to check expired (recurring) reminders and set background task to change occasion_date and remind_date to next
+  year.
