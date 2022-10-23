@@ -196,6 +196,7 @@ class Plugin {
 		ShipStationOrderItem::create_table();
 		DesignersManager::activation();
 		RemindersManager::activation();
+		InnerMessageManager::activation();
 //		flush_rewrite_rules();
 	}
 

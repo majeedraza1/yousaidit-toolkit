@@ -88,6 +88,7 @@ class SettingPage {
 			'postcard_product_id'                 => '',
 			// Inner message
 			'inner_message_price'                 => '',
+			'video_inner_message_price'           => '',
 			'inner_message_visible_on_cat'        => '',
 			// Order Dispatcher
 			'other_products_tab_categories'       => '',
@@ -174,12 +175,6 @@ class SettingPage {
 				'title'    => __( 'Postcard Settings' ),
 				'panel'    => 'general',
 				'priority' => 5,
-			],
-			[
-				'id'       => 'section_inner_message_settings',
-				'title'    => __( 'Inner Message Settings' ),
-				'panel'    => 'general',
-				'priority' => 6,
 			],
 			[
 				'id'       => 'section_order_dispatcher',
@@ -435,31 +430,6 @@ class SettingPage {
 			'sanitize_callback' => 'sanitize_text_field',
 			'section'           => 'section_marketplace',
 			'options'           => self::get_market_places(),
-		] );
-
-		$setting->set_field( [
-			'id'                => 'inner_message_price',
-			'type'              => 'text',
-			'title'             => __( 'Inner message price' ),
-			'description'       => __( 'Enter number or float value' ),
-			'default'           => '',
-			'priority'          => 1,
-			'sanitize_callback' => 'sanitize_text_field',
-			'section'           => 'section_inner_message_settings',
-		] );
-		$setting->set_field( [
-			'id'                => 'inner_message_visible_on_cat',
-			'type'              => 'select',
-			'title'             => __( 'Inner message visible on' ),
-			'description'       => __( 'Choose category where the inner message should be visible.' ),
-			'default'           => '',
-			'priority'          => 2,
-			'multiple'          => true,
-			'sanitize_callback' => function ( $value ) {
-				return $value ? array_map( 'intval', $value ) : '';
-			},
-			'section'           => 'section_inner_message_settings',
-			'options'           => self::get_product_categories(),
 		] );
 
 		$action_url = admin_url( 'admin-ajax.php?action=yousaidit_clear_background_task' );

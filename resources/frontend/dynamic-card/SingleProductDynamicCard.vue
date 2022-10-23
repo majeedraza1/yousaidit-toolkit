@@ -27,6 +27,13 @@
 									@edit:layer="(event) => handleEditSection(event.detail.section,event.detail.index)"
 								></dynamic-card-canvas>
 							</template>
+							<template v-slot:video-message>
+								<video-inner-message
+									:product_id="product_id"
+									:inner-message="innerMessage2"
+									:card_size="card_size"
+								/>
+							</template>
 							<template v-slot:inner-message>
 								<div class="dynamic-card--editable-content-container">
 									<editable-content
@@ -54,6 +61,10 @@
 							</image-container>
 							<image-container container-width="64px" class="bg-gray-100" @click.native="slideTo = 1"
 							                 :class="{'border border-solid border-primary':slideTo === 1}">
+								<img :src="placeholder_im" alt=""/>
+							</image-container>
+							<image-container container-width="64px" class="bg-gray-100" @click.native="slideTo = 2"
+							                 :class="{'border border-solid border-primary':slideTo === 2}">
 								<img :src="placeholder_im" alt=""/>
 							</image-container>
 						</div>
@@ -148,17 +159,28 @@
 
 <script>
 import axios from "axios";
-import {modal, shaplaButton, iconContainer, imageContainer, FileUploader, tabs, tab, deleteIcon, notification}
-	from "shapla-vue-components";
+import {
+	deleteIcon,
+	FileUploader,
+	iconContainer,
+	imageContainer,
+	modal,
+	notification,
+	shaplaButton,
+	tab,
+	tabs
+} from "shapla-vue-components";
 import CardWebViewer from "@/components/DynamicCardPreview/CardWebViewer";
 import SwiperSlider from './SwiperSlider';
 import EditableContent from "@/frontend/inner-message/EditableContent";
 import EditorControls from "@/frontend/inner-message/EditorControls";
 import GustLocalStorage from "@/frontend/dynamic-card/GustLocalStorage";
+import VideoInnerMessage from "@/frontend/dynamic-card/VideoInnerMessage";
 
 export default {
 	name: "SingleProductDynamicCard",
 	components: {
+		VideoInnerMessage,
 		EditableContent, CardWebViewer, modal, shaplaButton, iconContainer, SwiperSlider, imageContainer,
 		EditorControls, FileUploader, tabs, tab, deleteIcon, notification
 	},
@@ -171,6 +193,13 @@ export default {
 			show_dynamic_card_editor: false,
 			payload: {},
 			innerMessage: {
+				message: '',
+				font_family: "'Indie Flower', cursive",
+				font_size: '18',
+				alignment: 'center',
+				color: '#1D1D1B',
+			},
+			innerMessage2: {
 				message: '',
 				font_family: "'Indie Flower', cursive",
 				font_size: '18',

@@ -3,6 +3,7 @@
 namespace YouSaidItCards;
 
 // If this file is called directly, abort.
+use YouSaidItCards\Admin\SettingPage;
 use YouSaidItCards\Modules\InnerMessage\Fonts;
 use YouSaidItCards\Utilities\FreePdfBase;
 
@@ -219,12 +220,14 @@ class Assets {
 		$is_user_logged_in = $user->exists();
 
 		$data = [
-			'homeUrl'          => home_url(),
-			'ajaxUrl'          => admin_url( 'admin-ajax.php' ),
-			'restRoot'         => esc_url_raw( rest_url( 'yousaidit/v1' ) ),
-			'isUserLoggedIn'   => $is_user_logged_in,
-			'privacyPolicyUrl' => get_privacy_policy_url(),
-			'placeholderUrlIM' => self::get_assets_url( 'static-images/placeholder--inner-message.jpg' ),
+			'homeUrl'               => home_url(),
+			'ajaxUrl'               => admin_url( 'admin-ajax.php' ),
+			'restRoot'              => esc_url_raw( rest_url( 'yousaidit/v1' ) ),
+			'isUserLoggedIn'        => $is_user_logged_in,
+			'privacyPolicyUrl'      => get_privacy_policy_url(),
+			'placeholderUrlIM'      => self::get_assets_url( 'static-images/placeholder--inner-message.jpg' ),
+			'videoMessagePrice'     => (float) SettingPage::get_option( 'video_inner_message_price' ),
+			'videoMessagePriceHTML' => wc_price( (float) SettingPage::get_option( 'video_inner_message_price' ) ),
 		];
 
 		$data['pdfSizes'] = FreePdfBase::get_sizes();

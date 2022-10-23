@@ -2,10 +2,10 @@
 
 namespace YouSaidItCards\Modules\InnerMessage;
 
-use Stackonet\WP\Framework\Supports\Logger;
 use WC_Cart;
 use WC_Order;
 use WC_Order_Item_Product;
+use YouSaidItCards\Modules\InnerMessage\Models\Video;
 
 defined( 'ABSPATH' ) || die;
 
@@ -61,9 +61,96 @@ class InnerMessageManager {
 			add_filter( 'woocommerce_order_actions', [ self::$instance, 'add_custom_order_action' ], 99 );
 			add_action( 'woocommerce_order_action_generate_inner_message_pdf',
 				[ self::$instance, 'process_custom_order_action' ] );
+
+			add_filter( 'yousaidit_toolkit/settings/sections', [ self::$instance, 'add_settings_section' ] );
+			add_filter( 'yousaidit_toolkit/settings/fields', [ self::$instance, 'add_settings_fields' ] );
 		}
 
 		return self::$instance;
+	}
+
+	/**
+	 * Handle module activation
+	 *
+	 * @return void
+	 */
+	public static function activation() {
+		Video::create_table();
+	}
+
+	/**
+	 * Add settings sections
+	 *
+	 * @param array $sections Array of sections.
+	 *
+	 * @return array
+	 */
+	public function add_settings_section( array $sections ): array {
+		$sections[] = [
+			'id'       => 'section_inner_message_settings',
+			'title'    => __( 'Inner Message Settings', 'yousaidit-toolkit' ),
+			'panel'    => 'general',
+			'priority' => 6,
+		];
+
+		return $sections;
+	}
+
+	/**
+	 * Add settings fields
+	 *
+	 * @param array $fields Array of fields.
+	 *
+	 * @return array
+	 */
+	public function add_settings_fields( array $fields ): array {
+		$terms                    = get_terms( [
+			'taxonomy'   => 'product_cat',
+			'hide_empty' => false,
+		] );
+		$product_category_options = [ "" => "-- Select Category --" ];
+		foreach ( $terms as $term ) {
+			$product_category_options[ $term->term_id ] = $term->name;
+		}
+
+		$fields[] = [
+			'id'                => 'inner_message_price',
+			'type'              => 'text',
+			'title'             => __( 'Inner message price' ),
+			'description'       => __( 'Enter number or float value' ),
+			'default'           => '',
+			'priority'          => 10,
+			'sanitize_callback' => 'sanitize_text_field',
+			'section'           => 'section_inner_message_settings',
+		];
+
+		$fields[] = [
+			'id'                => 'video_inner_message_price',
+			'type'              => 'text',
+			'title'             => __( 'Video Inner message price' ),
+			'description'       => __( 'Enter number or float value' ),
+			'default'           => '',
+			'priority'          => 11,
+			'sanitize_callback' => 'sanitize_text_field',
+			'section'           => 'section_inner_message_settings',
+		];
+
+		$fields[] = [
+			'id'                => 'inner_message_visible_on_cat',
+			'type'              => 'select',
+			'title'             => __( 'Inner message visible on' ),
+			'description'       => __( 'Choose category where the inner message should be visible.' ),
+			'default'           => '',
+			'priority'          => 20,
+			'multiple'          => true,
+			'sanitize_callback' => function ( $value ) {
+				return $value ? array_map( 'intval', $value ) : '';
+			},
+			'section'           => 'section_inner_message_settings',
+			'options'           => $product_category_options,
+		];
+
+		return $fields;
 	}
 
 	public function add_custom_order_action( $actions ) {

@@ -7,6 +7,9 @@
 				</template>
 			</swiper-slider-item>
 			<swiper-slider-item :card_size="card_size">
+				<slot name="video-message">Video message canvas</slot>
+			</swiper-slider-item>
+			<swiper-slider-item :card_size="card_size">
 				<slot name="inner-message">Inner message canvas</slot>
 			</swiper-slider-item>
 		</div>

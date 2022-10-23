@@ -4,8 +4,9 @@ namespace YouSaidItCards\Modules\DynamicCard\REST;
 
 use Stackonet\WP\Framework\Media\UploadedFile;
 use Stackonet\WP\Framework\Media\Uploader;
-use Stackonet\WP\Framework\Supports\Validate;
 use WP_Post;
+use WP_REST_Request;
+use WP_REST_Response;
 use WP_REST_Server;
 use YouSaidItCards\Admin\SettingPage;
 use YouSaidItCards\GoogleVisionClient;
@@ -54,16 +55,25 @@ class UserMediaController extends ApiController {
 				'permission_callback' => '__return_true',
 			],
 		] );
+		register_rest_route( $this->namespace, '/dynamic-cards/video', [
+			[
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'get_video_items' ],
+				'args'                => $this->get_collection_params(),
+				'permission_callback' => '__return_true',
+			],
+			[
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => [ $this, 'upload_video' ],
+				'permission_callback' => '__return_true',
+			],
+		] );
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public function get_items( $request ) {
-		if ( ! $this->can_view_media() ) {
-//			return $this->respondUnauthorized();
-		}
-
 		$ids = array_filter( array_map( 'intval', (array) $request->get_param( 'images' ) ) );
 
 		$response      = [];
@@ -105,9 +115,6 @@ class UserMediaController extends ApiController {
 	 */
 	public function create_item( $request ) {
 		$current_user = wp_get_current_user();
-		if ( ! $this->can_upload_media() ) {
-			// return $this->respondUnauthorized();
-		}
 
 		$files = UploadedFile::getUploadedFiles();
 
@@ -159,6 +166,97 @@ class UserMediaController extends ApiController {
 		$response = $this->_prepare_item_for_response( $attachment_id );
 
 		return $this->respondOK( $response );
+	}
+
+	/**
+	 * Get video items
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 *
+	 * @return WP_REST_Response Response object.
+	 */
+	public function get_video_items( $request ) {
+		$ids = array_filter( array_map( 'intval', (array) $request->get_param( 'videos' ) ) );
+
+		$response      = [];
+		$user_id       = get_current_user_id();
+		$perform_query = false;
+
+		if ( $user_id || count( $ids ) || current_user_can( 'manage_options' ) ) {
+			$perform_query = true;
+		}
+
+		if ( ! $perform_query ) {
+			return $this->respondUnauthorized( null, null, [ 'user' => $user_id ] );
+		}
+
+		$args = [
+			'posts_per_page' => 12,
+			'orderby'        => 'date',
+			'order'          => 'DESC',
+			'post_type'      => 'attachment',
+			'post_status'    => 'inherit',
+			'post_mime_type' => [ 'video/mp4', 'video/ogg', 'video/webm' ],
+		];
+		if ( ! current_user_can( 'manage_options' ) ) {
+			$args['author'] = $user_id;
+		}
+		if ( count( $ids ) ) {
+			$args['include'] = $ids;
+		}
+		$posts_array = get_posts( $args );
+
+		foreach ( $posts_array as $item ) {
+			$response[] = $this->prepare_video_for_response( $item->ID );
+		}
+
+		return $this->respondOK( $response );
+	}
+
+	/**
+	 * Upload a video
+	 *
+	 * @param WP_REST_Request $request
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function upload_video( $request ) {
+		$current_user = wp_get_current_user();
+
+		$files = UploadedFile::getUploadedFiles();
+		$file  = $files['file'] ?? null;
+
+		if ( ! $file instanceof UploadedFile ) {
+			return $this->respondForbidden();
+		}
+
+		$mime_type = $file->getMediaType();
+
+		if ( $file->getSize() > wp_max_upload_size() ) {
+			return $this->respondUnprocessableEntity( 'large_file_size', 'File size too large.' );
+		}
+
+		// only video can be uploaded
+		if ( ! in_array( $mime_type, [ 'video/mp4', 'video/ogg', 'video/webm' ] ) ) {
+			return $this->respondForbidden( 'unsupported_video_format', 'Only mp4, ogg, webm video formats are supported.' );
+		}
+
+		$attachment_id = Uploader::uploadSingleFile( $file );
+		if ( is_wp_error( $attachment_id ) ) {
+			return $this->respondUnprocessableEntity(
+				$attachment_id->get_error_code(),
+				$attachment_id->get_error_message()
+			);
+		}
+
+		$token = wp_generate_password( 20, false, false );
+		update_post_meta( $attachment_id, '_delete_token', $token );
+
+		if ( ! $current_user->exists() ) {
+			update_post_meta( $attachment_id, '_should_delete_after_time', ( time() + DAY_IN_SECONDS ) );
+		}
+
+		return $this->respondOK( $this->prepare_video_for_response( $attachment_id ) );
 	}
 
 	/**
@@ -255,6 +353,27 @@ class UserMediaController extends ApiController {
 			'attachment_url' => $attachment_url,
 			'thumbnail'      => [ 'src' => $image[0], 'width' => $image[1], 'height' => $image[2], ],
 			'full'           => [ 'src' => $full_image[0], 'width' => $full_image[1], 'height' => $full_image[2], ],
+		];
+	}
+
+	/**
+	 * @param $attachment_id
+	 *
+	 * @return array
+	 */
+	public function prepare_video_for_response( $attachment_id ): array {
+		$meta  = wp_get_attachment_metadata( $attachment_id );
+		$title = get_the_title( $attachment_id );
+		$token = get_post_meta( $attachment_id, '_delete_token', true );
+
+		return [
+			'id'     => $attachment_id,
+			'title'  => $title,
+			'token'  => $token,
+			'url'    => wp_get_attachment_url( $attachment_id ),
+			'width'  => $meta['width'],
+			'height' => $meta['height'],
+			'type'   => $meta['mime_type'],
 		];
 	}
 }
