@@ -1,8 +1,9 @@
 <template>
 	<div class="flex w-full h-full">
-		<div v-if="messageType === ''" class="flex flex-col justify-center items-center w-full h-full p-4 lg:p-8">
+		<div v-if="messageType === ''"
+		     class="flex flex-col justify-center items-center w-full h-full p-4 lg:p-8 border border-solid border-gray-100">
 			<div
-				@click="messageType = 'video'"
+				@click="changeType('video')"
 				class="border border-solid border-gray-200 hover:border-gray-500 cursor-pointer inline-flex items-center space-x-2 rounded px-4 py-2">
 				<div class="w-8 h-8">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="fill-current">
@@ -26,7 +27,7 @@
 			<div class="text-sm mt-1">Your video will play when they scan the QR code printed on the inside page.</div>
 
 			<div
-				@click="messageType = 'text'"
+				@click="changeType('video')"
 				class="border border-solid border-gray-200 hover:border-gray-500 cursor-pointer inline-flex items-center rounded px-4 py-2 mt-8">
 				Add text
 			</div>
@@ -54,9 +55,6 @@
 					@success="finishedEvent"
 					@failed="handleFileUploadFailed"
 				/>
-				<p class="mt-2">
-					<shapla-button size="small" outline theme="primary" @click="messageType = ''">Back</shapla-button>
-				</p>
 			</template>
 			<template v-if="videos.length">
 				<image-container :width-ratio="videos[0].width" :height-ratio="videos[0].height">
@@ -69,6 +67,11 @@
 				</p>
 			</template>
 		</div>
+		<template v-if="messageType === 'text' || messageType === 'video'">
+			<shapla-button theme="primary" size="small" class="absolute right-2 top-3 text-bold"
+			               @click="clearVideoInnerMessage">Back
+			</shapla-button>
+		</template>
 	</div>
 </template>
 
@@ -79,7 +82,12 @@ import axios from "axios";
 
 export default {
 	name: "VideoInnerMessage",
-	components: {EditableContent, FileUploader, imageContainer, shaplaButton},
+	components: {
+		EditableContent,
+		FileUploader,
+		imageContainer,
+		shaplaButton,
+	},
 	props: {
 		product_id: {default: 0},
 		card_size: {default: ''},
@@ -89,6 +97,7 @@ export default {
 		return {
 			messageType: '',
 			showLengthError: false,
+			showAddVideoModal: false,
 			videos: [],
 		}
 	},
@@ -104,6 +113,23 @@ export default {
 		},
 	},
 	methods: {
+		emitChange(type, value) {
+			this.$emit('change', type, value);
+		},
+		changeType(type) {
+			this.messageType = type;
+			this.emitChange('type', type);
+			if ('video' === type && this.videos.length) {
+				this.emitChange('video_id', this.videos[0].id);
+			}
+		},
+		clearVideoInnerMessage() {
+			this.$dialog.confirm('Are you sure to clear all changes?').then(confirmed => {
+				if (confirmed) {
+					this.changeType('');
+				}
+			})
+		},
 		onLengthError(error) {
 			this.showLengthError = error;
 		},
@@ -116,6 +142,7 @@ export default {
 			if (response.success) {
 				this.videos.unshift(response.data);
 				localStorage.setItem(`__gust_video_${this.product_id}`, response.data.id.toString());
+				this.emitChange('video_id', response.data.id);
 			}
 		},
 		handleFileUploadFailed(fileObject, response) {
@@ -124,26 +151,34 @@ export default {
 			}
 		},
 		fetchVideos() {
-			let config = {};
-			if (!this.isUserLoggedIn) {
-				const localStorageData = localStorage.getItem(`__gust_video_${this.product_id}`);
-				if (localStorageData) {
-					config = {params: {videos: [parseInt(localStorageData)]}}
+			return new Promise(resolve => {
+				let config = {};
+				if (!this.isUserLoggedIn) {
+					const localStorageData = localStorage.getItem(`__gust_video_${this.product_id}`);
+					if (localStorageData) {
+						config = {params: {videos: [parseInt(localStorageData)]}}
+					}
 				}
-			}
-			axios.get(this.uploadUrl, config).then(response => {
-				if (response.data.data) {
-					this.videos = response.data.data;
-				}
+				axios.get(this.uploadUrl, config).then(response => {
+					if (response.data.data) {
+						this.videos = response.data.data;
+					}
+					resolve(response.data.data);
+				})
 			})
 		},
 		clearVideo() {
 			this.videos = [];
 			localStorage.removeItem(`__gust_video_${this.product_id}`);
+			this.emitChange('video_id', 0);
 		},
 	},
 	mounted() {
-		this.fetchVideos();
+		this.fetchVideos().then(data => {
+			if (this.messageType === 'video') {
+				this.emitChange('video_id', data[0].id);
+			}
+		});
 	}
 }
 </script>

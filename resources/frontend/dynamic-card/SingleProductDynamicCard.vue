@@ -32,6 +32,7 @@
 									:product_id="product_id"
 									:inner-message="innerMessage2"
 									:card_size="card_size"
+									@change="changeVideoInnerMessage"
 								/>
 							</template>
 							<template v-slot:inner-message>
@@ -205,6 +206,8 @@ export default {
 				font_size: '18',
 				alignment: 'center',
 				color: '#1D1D1B',
+				type: '',
+				video_id: 0,
 			},
 			readFromServer: false,
 			images: [],
@@ -254,6 +257,14 @@ export default {
 		}
 	},
 	methods: {
+		changeVideoInnerMessage(type, value) {
+			if ('type' === type) {
+				this.innerMessage2.type = value;
+			}
+			if ('video_id' === type) {
+				this.innerMessage2.video_id = value;
+			}
+		},
 		pxToMm(px) {
 			return Math.round(px * 0.2645833333);
 		},
@@ -293,11 +304,9 @@ export default {
 				let inputId = `#_dynamic_card_input-${index}`
 				if (['static-text', 'input-text'].indexOf(item.section_type) !== -1) {
 					fieldsContainer.querySelector(inputId).value = item.text;
-					console.log(item.text)
 				}
 				if (['static-image', 'input-image'].indexOf(item.section_type) !== -1) {
 					fieldsContainer.querySelector(inputId).value = item.image.id || item.imageOptions.img.id;
-					console.log(item.image.id || item.imageOptions.img.id);
 				}
 			});
 			let imContainer = document.querySelector('#_inner_message_fields');
@@ -307,6 +316,13 @@ export default {
 				imContainer.querySelector('#_inner_message_size').value = this.innerMessage.font_size;
 				imContainer.querySelector('#_inner_message_align').value = this.innerMessage.alignment;
 				imContainer.querySelector('#_inner_message_color').value = this.innerMessage.color;
+			}
+			let imContainer2 = document.querySelector('#_video_inner_message_fields');
+			if (imContainer2 && this.innerMessage2.type) {
+				imContainer2.querySelector('#_inner_message2_type').value = this.innerMessage2.type;
+				if ('video' === this.innerMessage2.type && this.innerMessage2.video_id) {
+					imContainer2.querySelector('#_inner_message2_video_id').value = this.innerMessage2.video_id;
+				}
 			}
 			let variations_form = document.querySelector('form.cart');
 			if (variations_form) {

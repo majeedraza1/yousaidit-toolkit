@@ -40,7 +40,10 @@ class InnerMessageManager {
 
 			// Step 2: Add Customer Data to WooCommerce Cart
 			add_filter( 'woocommerce_add_cart_item_data', [ self::$instance, 'add_cart_item_data' ] );
-			add_action( 'woocommerce_before_calculate_totals', [ self::$instance, 'before_calculate_totals' ], 1, 1 );
+			add_action( 'woocommerce_before_calculate_totals',
+				[ self::$instance, 'add_inner_message_extra_cost' ], 1, 1 );
+			add_action( 'woocommerce_before_calculate_totals',
+				[ self::$instance, 'add_video_message_extra_cost' ], 1, 1 );
 
 			// Step 3: Display Details as Meta in Cart
 			add_filter( 'woocommerce_get_item_data', [ self::$instance, 'get_item_data' ], 99, 2 );
@@ -199,6 +202,11 @@ class InnerMessageManager {
 		if ( isset( $_REQUEST['_inner_message'] ) ) {
 			$cart_item_data['_inner_message'] = static::sanitize_inner_message_data( $_REQUEST['_inner_message'] );
 		}
+		if ( isset( $_REQUEST['_video_inner_message'] ) ) {
+			$data = static::sanitize_inner_message_data( $_POST['_video_inner_message'], true );
+
+			$cart_item_data['_video_inner_message'] = $data;
+		}
 
 		return $cart_item_data;
 	}
@@ -208,7 +216,7 @@ class InnerMessageManager {
 	 *
 	 * @param WC_Cart $cart
 	 */
-	public function before_calculate_totals( WC_Cart $cart ) {
+	public function add_inner_message_extra_cost( WC_Cart $cart ) {
 		$options = (array) get_option( '_stackonet_toolkit' );
 		$price   = isset( $options['inner_message_price'] ) ? floatval( $options['inner_message_price'] ) : 0;
 		// If price is zero, exit here
@@ -220,6 +228,35 @@ class InnerMessageManager {
 			$inner_message     = $value['_inner_message'];
 			$has_inner_message = is_array( $inner_message ) && isset( $inner_message['content'] ) &&
 			                     ! empty( $inner_message['content'] );
+			// If there is no inner message, exit here
+			if ( ! $has_inner_message ) {
+				continue;
+			}
+			$orgPrice = floatval( $value['data']->get_price( '' ) );
+			if ( $price ) {
+				$extra_price = $price;
+				$value['data']->set_price( $orgPrice + $extra_price );
+			}
+		}
+	}
+
+	/**
+	 * Before calculate totals
+	 *
+	 * @param WC_Cart $cart
+	 */
+	public function add_video_message_extra_cost( WC_Cart $cart ) {
+		$options = (array) get_option( '_stackonet_toolkit' );
+		$price   = isset( $options['video_inner_message_price'] ) ? floatval( $options['video_inner_message_price'] ) : 0;
+		// If price is zero, exit here
+		if ( $price <= 0 ) {
+			return;
+		}
+
+		foreach ( $cart->get_cart_contents() as $key => &$value ) {
+			$inner_message     = $value['_video_inner_message'];
+			$has_inner_message = is_array( $inner_message ) && isset( $inner_message['video_id'] ) &&
+			                     ! empty( $inner_message['video_id'] );
 			// If there is no inner message, exit here
 			if ( ! $has_inner_message ) {
 				continue;
@@ -248,6 +285,18 @@ class InnerMessageManager {
 					'key'   => '<a data-mode="view" data-cart-item-key="' . esc_attr( $cart_item['key'] ) . '" class="inline-block border border-solid border-gray-700 p-1 sm:w-full">View Message</a>',
 					'value' => '<a data-mode="edit" data-cart-item-key="' . esc_attr( $cart_item['key'] ) . '" class="inline-block border border-solid border-primary p-1 sm:w-full">Edit Message</a>'
 				];
+			}
+		}
+		if ( is_cart() && array_key_exists( '_video_inner_message', $cart_item ) ) {
+			$im = $cart_item['_video_inner_message'] ?? [];
+			if ( ! empty( $im['video_id'] ) ) {
+				$url = wp_get_attachment_url( $im['video_id'] );
+				if ( $url ) {
+					$item_data[] = [
+						'key'     => 'Video Message',
+						'display' => '<a href="' . esc_url( $url ) . '" target="_blank">View</a>',
+					];
+				}
 			}
 		}
 
@@ -302,6 +351,13 @@ class InnerMessageManager {
 		if ( array_key_exists( '_inner_message', $values ) ) {
 			$item->add_meta_data( '_inner_message', static::sanitize_inner_message_data( $values['_inner_message'] ) );
 		}
+		if ( array_key_exists( '_video_inner_message', $values ) ) {
+			$_data = static::sanitize_inner_message_data( $values['_video_inner_message'], true );
+			$item->add_meta_data( '_video_inner_message', $_data );
+			if ( 'video' == $_data['type'] ) {
+				delete_post_meta( $_data['video_id'], '_should_delete_after_time' );
+			}
+		}
 	}
 
 	/**
@@ -326,10 +382,12 @@ class InnerMessageManager {
 	public function order_item_get_formatted_meta_data( $formatted_meta, $order_item ) {
 		$data = $order_item->get_meta( '_inner_message', true );
 		if ( ! empty( $data ) ) {
-			$formatted_meta[] = (object) array(
-				'display_key'   => 'Inner Message',
-				'display_value' => $data['content'],
-			);
+			if ( ! empty( $data['content'] ) ) {
+				$formatted_meta[] = (object) array(
+					'display_key'   => 'Inner Message',
+					'display_value' => $data['content'],
+				);
+			}
 
 			if ( is_admin() ) {
 				$args = [
@@ -349,30 +407,50 @@ class InnerMessageManager {
 			}
 		}
 
+		$video_data = $order_item->get_meta( '_video_inner_message', true );
+		if ( $video_data ) {
+			$video_url        = wp_get_attachment_url( $video_data['video_id'] );
+			$formatted_meta[] = (object) [
+				'display_key'   => 'Video Message',
+				'display_value' => "<a target='_blank' href='" . esc_url( $video_url ) . "'>View</a>",
+			];
+		}
 
 		return $formatted_meta;
 	}
 
 	/**
-	 * @param $data
+	 * @param mixed $data The data to be sanitized.
+	 * @param bool $contains_video_data Is it contain video data?
 	 *
 	 * @return array
 	 */
-	public static function sanitize_inner_message_data( $data ): array {
+	public static function sanitize_inner_message_data( $data, bool $contains_video_data = false ): array {
 		if ( ! is_array( $data ) ) {
 			return [];
 		}
 
 		$default = [ 'content' => '', 'font' => '', 'size' => '', 'align' => '', 'color' => '' ];
-		$data    = wp_parse_args( $data, $default );
+		if ( $contains_video_data ) {
+			$default['type']     = '';
+			$default['video_id'] = 0;
+		}
+		$data = wp_parse_args( $data, $default );
 
-		return [
+		$sanitized_data = [
 			'content' => stripslashes( wp_filter_post_kses( $data['content'] ) ),
 			'font'    => sanitize_text_field( stripslashes( $data['font'] ) ),
 			'align'   => sanitize_text_field( stripslashes( $data['align'] ) ),
 			'color'   => sanitize_hex_color( stripslashes( $data['color'] ) ),
 			'size'    => intval( $data['size'] ),
 		];
+
+		if ( $contains_video_data ) {
+			$sanitized_data['type']     = sanitize_text_field( stripslashes( $data['type'] ) );
+			$sanitized_data['video_id'] = floatval( $data['video_id'] );
+		}
+
+		return $sanitized_data;
 	}
 
 	public function inner_message_preview_test() {

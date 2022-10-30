@@ -104,6 +104,7 @@ class EvaThemeManager {
 		if ( 'dynamic' == $_card_type ) {
 			$html .= $this->get_dynamic_card_html( $product );
 			$html .= $this->get_inner_message_html( false );
+			$html .= $this->get_video_inner_message_html();
 		} else if ( self::should_show_inner_message( $product ) ) {
 			$html .= $this->get_inner_message_html();
 		}
@@ -171,6 +172,25 @@ class EvaThemeManager {
 		if ( $show_button ) {
 			$html .= '<button type="submit" class="button btn1 bshadow button--add-inner-message"><span>Add a message</span></button>';
 		}
+
+		return $html;
+	}
+
+	/**
+	 * Get video inner message html
+	 *
+	 * @return string
+	 */
+	protected function get_video_inner_message_html(): string {
+		$html = '<div id="_video_inner_message_fields" style="visibility: hidden; position: absolute; width: 1px; height: 1px">';
+		$html .= '<input type="text" id="_inner_message2_type" name="_video_inner_message[type]"/>';
+		$html .= '<input type="text" id="_inner_message2_video_id" name="_video_inner_message[video_id]"/>';
+		$html .= '<textarea id="_inner_message2_content" name="_video_inner_message[content]"></textarea>';
+		$html .= '<input type="text" id="_inner_message2_font" name="_video_inner_message[font]"/>';
+		$html .= '<input type="text" id="_inner_message2_size" name="_video_inner_message[size]"/>';
+		$html .= '<input type="text" id="_inner_message2_align" name="_video_inner_message[align]"/>';
+		$html .= '<input type="text" id="_inner_message2_color" name="_video_inner_message[color]"/>';
+		$html .= '</div>';
 
 		return $html;
 	}
