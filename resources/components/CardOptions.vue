@@ -12,7 +12,7 @@
 				</div>
 				<span class="flex-grow">
 					<span class="bg-primary text-on-primary text-sm py-4 px-2 inline-block">Is your design classed as a rude card?</span>
-					<span class="bg-gray-100 text-sm py-4 px-2 inline-block">We class rude cards what contain words, phrases or themes of an adult content: e.i. swearing or innuendos.</span>
+					<span class="bg-gray-100 text-sm py-4 px-2 inline-block">We class rude cards what contain words, phrases or themes of an adult content: i.e. swearing or innuendos.</span>
 				</span>
 			</div>
 		</column>
@@ -77,8 +77,8 @@
 		<column :tablet="12">
 			<div class="card-description">
 				<h3 class="font-normal text-lg text-primary uppercase">Description</h3>
-				<h4 class="font-normal text-sm">Card description will be visible on product detail page. You can also
-					use HTML tags.</h4>
+				<h4 class="font-normal text-sm">Card description will be visible on product detail page. Be creative as
+					you want, this is great for SEO.</h4>
 				<text-field
 					type="textarea" v-model="card.description"
 					label="Description"

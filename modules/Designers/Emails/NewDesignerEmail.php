@@ -35,9 +35,10 @@ class NewDesignerEmail extends Mailer {
 		$site_name = get_bloginfo( 'name' );
 
 		$args = add_query_arg( [
-			'action' => 'rp',
-			'key'    => get_password_reset_key( $user ),
-			'login'  => $user->user_email,
+			'action'  => 'rp',
+			'key'     => get_password_reset_key( $user ),
+			'login'   => $user->user_login,
+			'wp_lang' => get_bloginfo( 'language' ),
 		], site_url( 'wp-login.php' ) );
 
 		ob_start();
