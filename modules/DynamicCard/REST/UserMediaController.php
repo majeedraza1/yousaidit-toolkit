@@ -11,6 +11,7 @@ use WP_REST_Server;
 use YouSaidItCards\Admin\SettingPage;
 use YouSaidItCards\GoogleVisionClient;
 use YouSaidItCards\REST\ApiController;
+use YouSaidItCards\Utils;
 
 class UserMediaController extends ApiController {
 	/**
@@ -241,7 +242,12 @@ class UserMediaController extends ApiController {
 			return $this->respondForbidden( 'unsupported_video_format', 'Only mp4, ogg, webm video formats are supported.' );
 		}
 
-		$attachment_id = Uploader::uploadSingleFile( $file );
+		$filename      = sprintf( '%s--%s--%s',
+			Utils::generate_uuid(),
+			$current_user->ID,
+			Utils::str_rand( 64 - ( 36 + 4 + strlen( (string) $current_user->ID ) ) )
+		);
+		$attachment_id = Uploader::uploadSingleFile( $file, null, sprintf( '%s.%s', $filename, $file->getClientExtension() ) );
 		if ( is_wp_error( $attachment_id ) ) {
 			return $this->respondUnprocessableEntity(
 				$attachment_id->get_error_code(),
@@ -251,6 +257,7 @@ class UserMediaController extends ApiController {
 
 		$token = wp_generate_password( 20, false, false );
 		update_post_meta( $attachment_id, '_delete_token', $token );
+		update_post_meta( $attachment_id, '_video_message_filename', $filename );
 
 		if ( ! $current_user->exists() ) {
 			update_post_meta( $attachment_id, '_should_delete_after_time', ( time() + DAY_IN_SECONDS ) );

@@ -5,7 +5,7 @@
 - [ ] Add another slider before inner message to upload video or to add a message
 	- [x] Video Message
 		- [x] Show video uploader button
-		- [ ] Re-name video to a unique and unpredictable 64 character length name.
+		- [x] Re-name video to a unique and unpredictable 64 character length name.
 		- [x] If video is uploaded, then show the video
 		- [x] Add option to clear the video
 		- [x] On submit, add the message to cart item data

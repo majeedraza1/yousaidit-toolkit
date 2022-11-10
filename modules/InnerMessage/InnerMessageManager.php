@@ -6,6 +6,7 @@ use WC_Cart;
 use WC_Order;
 use WC_Order_Item_Product;
 use YouSaidItCards\Modules\InnerMessage\Models\Video;
+use YouSaidItCards\Utils;
 
 defined( 'ABSPATH' ) || die;
 
@@ -67,9 +68,58 @@ class InnerMessageManager {
 
 			add_filter( 'yousaidit_toolkit/settings/sections', [ self::$instance, 'add_settings_section' ] );
 			add_filter( 'yousaidit_toolkit/settings/fields', [ self::$instance, 'add_settings_fields' ] );
+
+			add_action( 'yousaidit_toolkit/activation', [ self::$instance, 'add_custom_endpoint' ] );
+			add_action( 'init', [ self::$instance, 'add_custom_endpoint' ] );
+			add_filter( 'query_vars', array( self::$instance, 'query_vars' ), 0 );
+			add_action( 'template_redirect', array( self::$instance, 'redirect_to_url' ) );
 		}
 
 		return self::$instance;
+	}
+
+	/**
+	 * Add custom rewrite endpoint
+	 */
+	public function add_custom_endpoint() {
+		add_rewrite_endpoint( 'video-message', EP_ROOT );
+	}
+
+	/**
+	 * Add query variable
+	 *
+	 * @param array $vars
+	 *
+	 * @return array
+	 */
+	public function query_vars( $vars ) {
+		$vars[] = 'video-message';
+
+		return $vars;
+	}
+
+	/**
+	 * Redirect to url
+	 */
+	public function redirect_to_url() {
+		global $wp_query;
+		$short_code = $wp_query->query_vars['video-message'] ?? null;
+		if ( $short_code && strlen( $short_code ) === 64 ) {
+			global $wpdb;
+			$row     = $wpdb->get_row( $wpdb->prepare(
+				"SELECT * FROM $wpdb->postmeta WHERE meta_key = %s AND meta_value = %s",
+				'_video_message_filename',
+				$short_code
+			), ARRAY_A );
+			$post_id = isset( $row['post_id'] ) ? intval( $row['post_id'] ) : 0;
+			$url     = wp_get_attachment_url( $post_id );
+			if ( $url ) {
+				wp_redirect( $url );
+			} else {
+				wp_redirect( home_url() );
+			}
+			die;
+		}
 	}
 
 	/**
@@ -290,7 +340,7 @@ class InnerMessageManager {
 		if ( is_cart() && array_key_exists( '_video_inner_message', $cart_item ) ) {
 			$im = $cart_item['_video_inner_message'] ?? [];
 			if ( ! empty( $im['video_id'] ) ) {
-				$url = wp_get_attachment_url( $im['video_id'] );
+				$url = Utils::get_video_message_url( $im['video_id'] );
 				if ( $url ) {
 					$item_data[] = [
 						'key'     => 'Video Message',
@@ -409,11 +459,13 @@ class InnerMessageManager {
 
 		$video_data = $order_item->get_meta( '_video_inner_message', true );
 		if ( $video_data ) {
-			$video_url        = wp_get_attachment_url( $video_data['video_id'] );
-			$formatted_meta[] = (object) [
-				'display_key'   => 'Video Message',
-				'display_value' => "<a target='_blank' href='" . esc_url( $video_url ) . "'>View</a>",
-			];
+			$video_url = Utils::get_video_message_url( $video_data['video_id'] );
+			if ( $video_url ) {
+				$formatted_meta[] = (object) [
+					'display_key'   => 'Video Message',
+					'display_value' => "<a target='_blank' href='" . esc_url( $video_url ) . "'>View</a>",
+				];
+			}
 		}
 
 		return $formatted_meta;
