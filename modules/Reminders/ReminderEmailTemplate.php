@@ -44,6 +44,23 @@ class ReminderEmailTemplate extends BillingEmailTemplate {
 	}
 
 	/**
+	 * Get footer
+	 */
+	public function get_footer_html(): string {
+		$html = $this->add_paragraph( '© You Said It ™ (Bluezon Limited) 2022.' );
+		$html .= $this->add_paragraph( 'Registered company address is<br> Polar House, East Norfolk Street, Carlisle CA2 5JL, UK.' );
+		$html .= $this->add_paragraph(
+			sprintf(
+				'To stop these emails you can edit or delete your reminders, %sclick here%s.',
+				'<a href="' . site_url( 'my-account/reminders' ) . '">',
+				'</a>'
+			)
+		);
+
+		return $html;
+	}
+
+	/**
 	 * @return string
 	 */
 	public function get_content_html(): string {

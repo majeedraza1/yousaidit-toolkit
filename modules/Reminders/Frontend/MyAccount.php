@@ -131,7 +131,7 @@ class MyAccount {
 	public function my_account_reminders() {
 		$data = [
 			'reminders' => ( new Reminder() )->find_by_user( get_current_user_id() ),
-			'groups'    => ( new ReminderGroup() )->find_multiple(),
+			'groups'    => ( new ReminderGroup() )->find_multiple( [ 'order_by' => [ 'menu_order ASC', 'id DESC' ] ] ),
 			'countries' => WC()->countries->get_countries(),
 			'states'    => WC()->countries->get_states(),
 		];

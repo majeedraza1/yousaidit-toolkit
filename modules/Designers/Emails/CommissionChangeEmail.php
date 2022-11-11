@@ -24,11 +24,15 @@ class CommissionChangeEmail extends Mailer {
 	 * CardRemoveRequestEmail constructor.
 	 *
 	 * @param CardDesigner $designer
-	 * @param DesignerCard $card
+	 * @param DesignerCard|int $card
 	 */
 	public function __construct( $designer, $card ) {
 		$this->designer = $designer;
-		$this->card     = $card;
+		if ( $card instanceof DesignerCard ) {
+			$this->card = $card;
+		} elseif ( is_numeric( $card ) ) {
+			$this->card = ( new DesignerCard() )->find_by_id( $card );
+		}
 	}
 
 	/**
@@ -39,7 +43,7 @@ class CommissionChangeEmail extends Mailer {
 		$site_name = get_bloginfo( 'name' );
 
 		$commission        = $this->card->get_commission_data();
-		$commission_amount = isset( $commission['commission_amount'] ) ? $commission['commission_amount'] : [];
+		$commission_amount = $commission['commission_amount'] ?? [];
 
 		$amount = '';
 		foreach ( $commission_amount as $size => $_amount ) {

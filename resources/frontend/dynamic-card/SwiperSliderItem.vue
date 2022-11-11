@@ -43,7 +43,7 @@ export default {
 			let innerEL = this.$el.querySelector('.swiper-slide-inner');
 			let d = this.card_dimension;
 
-			if (document.body.offsetWidth <= 768) {
+			if (document.body.offsetWidth < 1024) {
 				this.width = document.body.offsetWidth - 30 || this.$el.offsetWidth;
 				this.height = Math.round(this.width * (d[1] / d[0]));
 			} else {

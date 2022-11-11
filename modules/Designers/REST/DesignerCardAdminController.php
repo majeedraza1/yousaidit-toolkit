@@ -186,6 +186,7 @@ class DesignerCardAdminController extends ApiController {
 
 		$status       = $request->get_param( 'status' );
 		$current_user = wp_get_current_user();
+		$designer_id  = $item->get_designer_user_id();
 
 		$data = [ 'id' => $id ];
 
@@ -218,7 +219,7 @@ class DesignerCardAdminController extends ApiController {
 			}
 
 			if ( 'accepted' == $status ) {
-				( new CardAcceptedEmail( new CardDesigner( $current_user ), $item ) )
+				( new CardAcceptedEmail( new CardDesigner( $designer_id ), $item ) )
 					->send_email();
 			}
 		}
@@ -231,7 +232,7 @@ class DesignerCardAdminController extends ApiController {
 				update_comment_meta( $comment_id, '_comment_author_role', 'Admin' );
 			}
 
-			( new CardRejectedEmail( new CardDesigner( $current_user ), $item ) )
+			( new CardRejectedEmail( new CardDesigner( $designer_id ), $item ) )
 				->set_reject_reason( $reject_reason )
 				->send_email();
 		}
@@ -240,7 +241,7 @@ class DesignerCardAdminController extends ApiController {
 		$item    = ( new DesignerCard() )->find_by_id( $id );
 
 		if ( 'change_commission' == $status ) {
-			( new CommissionChangeEmail( new CardDesigner( $current_user ), $item ) )
+			( new CommissionChangeEmail( new CardDesigner( $designer_id ), $item ) )
 				->send_email();
 		}
 
@@ -262,6 +263,8 @@ class DesignerCardAdminController extends ApiController {
 		if ( ! $item instanceof DesignerCard ) {
 			return $this->respondNotFound();
 		}
+
+		$designer_id     = $item->get_designer_user_id();
 		$commission_data = $item->get_commission_data();
 		$commission_type = $commission_data['commission_type'] ?? '';
 
@@ -277,6 +280,10 @@ class DesignerCardAdminController extends ApiController {
 		}
 
 		( new DesignerCard )->update( $data );
+
+		// Send email to designer.
+		( new CommissionChangeEmail( new CardDesigner( $designer_id ), $id ) )
+			->send_email();
 
 		return $this->respondOK();
 	}

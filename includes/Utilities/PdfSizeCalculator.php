@@ -8,6 +8,7 @@ use setasign\Fpdi\PdfParser\StreamReader;
 use setasign\Fpdi\PdfReader\PageBoundaries;
 use Stackonet\WP\Framework\Abstracts\BackgroundProcess;
 use Stackonet\WP\Framework\Supports\Logger;
+use Stackonet\WP\Framework\Supports\Validate;
 
 class PdfSizeCalculator extends BackgroundProcess {
 
@@ -34,7 +35,12 @@ class PdfSizeCalculator extends BackgroundProcess {
 	 * @return bool
 	 */
 	public static function calculate_pdf_width_and_height( int $pdf_id ): bool {
-		$pdf_url     = wp_get_attachment_url( $pdf_id );
+		$pdf_url = wp_get_attachment_url( $pdf_id );
+		if ( ! Validate::url( $pdf_url ) ) {
+			Logger::log( 'PDF url is not valid for id #' . $pdf_id );
+
+			return false;
+		}
 		$cardContent = file_get_contents( $pdf_url, 'rb' );
 		$stream      = StreamReader::createByString( $cardContent );
 		$pdf         = new Fpdi();
@@ -52,7 +58,7 @@ class PdfSizeCalculator extends BackgroundProcess {
 				delete_option( '_pdf_size_calculator_total_items' );
 			}
 
-			return true;
+			return false;
 		} catch ( Exception $e ) {
 			Logger::log( $e );
 
@@ -201,6 +207,8 @@ class PdfSizeCalculator extends BackgroundProcess {
 			return false;
 		}
 
-		return self::calculate_pdf_width_and_height( $pdf_id );
+		self::calculate_pdf_width_and_height( $pdf_id );
+
+		return false;
 	}
 }

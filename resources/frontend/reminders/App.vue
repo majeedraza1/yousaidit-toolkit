@@ -1,5 +1,6 @@
 <template>
 	<div>
+		<h2>Reminders</h2>
 		<no-reminders v-if="reminders.length < 1" @create="openAddNewModal"/>
 		<template v-if="Object.keys(reminders_grouped_by_month).length">
 			<div class="mb-4 flex">
@@ -54,8 +55,16 @@
 
 <script>
 import {
-	modal, radioButton, columns, column, textField, selectField, shaplaButton, shaplaCheckbox, ConfirmDialog,
-	spinner
+	column,
+	columns,
+	ConfirmDialog,
+	modal,
+	radioButton,
+	selectField,
+	shaplaButton,
+	shaplaCheckbox,
+	spinner,
+	textField
 } from "shapla-vue-components";
 import axios from "axios";
 import NoReminders from "./components/NoReminders";

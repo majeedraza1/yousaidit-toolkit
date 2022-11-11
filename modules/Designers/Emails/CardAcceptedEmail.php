@@ -40,7 +40,7 @@ class CardAcceptedEmail extends Mailer {
 		$site_name = get_bloginfo( 'name' );
 
 		$commission        = $this->card->get_commission_data();
-		$commission_amount = isset( $commission['commission_amount'] ) ? $commission['commission_amount'] : [];
+		$commission_amount = $commission['commission_amount'] ?? [];
 
 		$amount = '';
 		foreach ( $commission_amount as $size => $_amount ) {
