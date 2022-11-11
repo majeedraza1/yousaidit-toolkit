@@ -5,8 +5,10 @@ namespace YouSaidItCards\Modules\InnerMessage;
 use JoyPixels\Client;
 use JoyPixels\Ruleset;
 use WC_Order_Item_Product;
+use YouSaidItCards\Modules\OrderDispatcher\QrCode;
 use YouSaidItCards\Utilities\Filesystem;
 use YouSaidItCards\Utilities\FreePdfBase;
+use YouSaidItCards\Utils;
 
 class PdfGenerator extends PdfGeneratorBase {
 	protected $order_id = 0;
@@ -132,6 +134,15 @@ class PdfGenerator extends PdfGeneratorBase {
 		$this->dir  = $order->get_date_created()->format( "Y-m-d" );
 		$meta       = $order_item->get_meta( '_inner_message', true );
 		$inner_info = is_array( $meta ) ? $meta : [];
+
+		$meta2       = $order_item->get_meta( '_video_inner_message', true );
+		$inner_info2 = is_array( $meta2 ) ? $meta2 : [];
+		if ( is_array( $inner_info2 ) && isset( $inner_info2['video_id'] ) ) {
+			$url        = Utils::get_video_message_url( intval( $inner_info2['video_id'] ) );
+			if ( $url ) {
+				$this->video_message_qr_code = QrCode::generate_video_message( $url );
+			}
+		}
 
 		$this->font_size   = isset( $inner_info['size'] ) ? intval( $inner_info['size'] ) : 14;
 		$this->line_height = $this->font_size * 1.5;

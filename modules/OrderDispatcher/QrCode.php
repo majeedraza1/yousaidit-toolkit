@@ -25,6 +25,38 @@ class QrCode {
 	}
 
 	/**
+	 * Generate video message QR code
+	 *
+	 * @param int $item_id
+	 * @param string $url
+	 * @param int $size
+	 *
+	 * @return array
+	 */
+	public static function generate_video_message( string $url, int $size = 400 ): array {
+		$upload_dir   = wp_get_upload_dir();
+		$baseDir      = $upload_dir['basedir'] . '/qr-codes-video-message/';
+		$qr_code_path = $baseDir . basename( $url ) . '.jpg';
+
+		// Create base directory if not exists
+		if ( ! file_exists( $baseDir ) ) {
+			wp_mkdir_p( $baseDir );
+		}
+
+		// Create QR Image if not exists
+		if ( ! file_exists( $qr_code_path ) ) {
+			static::generate( $url, $qr_code_path, $size );
+		}
+
+		$qr_code_url = str_replace( WP_CONTENT_DIR, WP_CONTENT_URL, $qr_code_path );
+
+		return [
+			'path' => $qr_code_path,
+			'url'  => $qr_code_url,
+		];
+	}
+
+	/**
 	 * @param $filePath
 	 *
 	 * @return string

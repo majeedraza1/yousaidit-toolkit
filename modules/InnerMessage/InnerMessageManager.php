@@ -6,6 +6,7 @@ use WC_Cart;
 use WC_Order;
 use WC_Order_Item_Product;
 use YouSaidItCards\Modules\InnerMessage\Models\Video;
+use YouSaidItCards\Modules\OrderDispatcher\QrCode;
 use YouSaidItCards\Utils;
 
 defined( 'ABSPATH' ) || die;
@@ -73,6 +74,8 @@ class InnerMessageManager {
 			add_action( 'init', [ self::$instance, 'add_custom_endpoint' ] );
 			add_filter( 'query_vars', array( self::$instance, 'query_vars' ), 0 );
 			add_action( 'template_redirect', array( self::$instance, 'redirect_to_url' ) );
+
+			add_action( 'wp_ajax_video_message_qr_code', [ self::$instance, 'video_message_qr_code' ] );
 		}
 
 		return self::$instance;
@@ -120,6 +123,28 @@ class InnerMessageManager {
 			}
 			die;
 		}
+	}
+
+	public function video_message_qr_code() {
+		$current_user = wp_get_current_user();
+		$order_id     = isset( $_REQUEST['order_id'] ) ? intval( $_REQUEST['order_id'] ) : 0;
+		$order        = wc_get_order( $order_id );
+		if ( ! $order instanceof WC_Order ) {
+			wp_die( 'Order not found.' );
+		}
+		if ( ! ( $order->get_customer_id() === $current_user->ID || current_user_can( 'manage_options' ) ) ) {
+			wp_die( 'Sorry, You are not allowed to view this link.' );
+		}
+		$item_id = isset( $_REQUEST['item_id'] ) ? intval( $_REQUEST['item_id'] ) : 0;
+
+		$meta = wc_get_order_item_meta( $item_id, '_video_inner_message', true );
+		if ( ! ( is_array( $meta ) && isset( $meta['type'], $meta['video_id'] ) ) ) {
+			wp_die( 'Invalid request.' );
+		}
+		$url     = Utils::get_video_message_url( intval( $meta['video_id'] ) );
+		$qr_code = QrCode::generate_video_message( $url );
+		wp_redirect( $qr_code['url'] );
+		die;
 	}
 
 	/**
@@ -461,10 +486,23 @@ class InnerMessageManager {
 		if ( $video_data ) {
 			$video_url = Utils::get_video_message_url( $video_data['video_id'] );
 			if ( $video_url ) {
-				$formatted_meta[] = (object) [
-					'display_key'   => 'Video Message',
-					'display_value' => "<a target='_blank' href='" . esc_url( $video_url ) . "'>View</a>",
-				];
+				if ( is_admin() ) {
+					$qr_code_url      = add_query_arg( [
+						'action'   => 'video_message_qr_code',
+						'order_id' => $order_item->get_order_id(),
+						'item_id'  => $order_item->get_id(),
+					], admin_url( 'admin-ajax.php' ) );
+					$formatted_meta[] = (object) [
+						'display_key'   => 'Video Message',
+						'display_value' => "<a target='_blank' href='" . esc_url( $video_url ) . "'>View</a>" .
+						                   " | <a target='_blank' href='" . esc_url( $qr_code_url ) . "'>QR Code</a>",
+					];
+				} else {
+					$formatted_meta[] = (object) [
+						'display_key'   => 'Video Message',
+						'display_value' => "<a target='_blank' href='" . esc_url( $video_url ) . "'>View</a>",
+					];
+				}
 			}
 		}
 

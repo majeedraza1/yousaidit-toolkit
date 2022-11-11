@@ -18,6 +18,7 @@ class PdfGeneratorBase {
 	protected $line_height = 18;
 	protected $padding = '8'; // mm
 	protected $dir = null;
+	protected $video_message_qr_code = [];
 
 
 	public function get_pdf( $mode = 'html', $context = 'view' ) {
@@ -45,20 +46,27 @@ class PdfGeneratorBase {
 	 * @return Dompdf
 	 */
 	public function get_dompdf(): Dompdf {
-		$lines = $this->get_message_lines();
-		$html  = '';
+		$lines      = $this->get_message_lines();
+		$right_html = '';
 		foreach ( $lines as $line ) {
 			$line = str_replace( '&nbsp;', '', $line );
 			if ( strlen( $line ) < 1 ) {
 				continue;
 			}
 			if ( in_array( $line, [ '<br>', '<br/>', '<br />' ] ) ) {
-				$html .= "<br>";
+				$right_html .= "<br>";
 			} else {
-				$html .= "<div>{$line}</div>";
+				$right_html .= "<div>{$line}</div>";
 			}
 		}
-		$final_html = $this->get_html_wrapper( $html );
+
+		$left_html = '';
+		if ( isset( $this->video_message_qr_code['url'] ) ) {
+			$left_html .= '<img src="' . esc_url( $this->video_message_qr_code['url'] ) . '" width="96" height="96" />';
+			$left_html .= '<div style="max-width: 240px;margin-left:auto;margin-right:auto;font-size:12pt;line-height:12pt;font-family:arial">Scan to watch a video greeting made just for you</div>';
+		}
+
+		$final_html = $this->get_html_wrapper( $right_html, $left_html );
 		$final_html = preg_replace( '/>\s+</', "><", $final_html );
 
 		// instantiate and use the dompdf class
@@ -145,11 +153,14 @@ class PdfGeneratorBase {
 	}
 
 	/**
-	 * @param string $content
+	 * Get HTML wrapper
+	 *
+	 * @param string $content Right side content.
+	 * @param string $left_content Left side content.
 	 *
 	 * @return string
 	 */
-	protected function get_html_wrapper( string $content ): string {
+	protected function get_html_wrapper( string $content, string $left_content = '' ): string {
 		ob_start(); ?>
 		<!doctype html>
 		<html lang="en">
@@ -166,7 +177,11 @@ class PdfGeneratorBase {
 		<div class="card-content">
 			<table class="container">
 				<tr class="no-borders">
-					<td class="no-borders left-column"></td>
+					<td class="no-borders left-column" align="center">
+						<div class="card-content-inner align-center justify-center padding-15">
+							<?php echo $left_content; ?>
+						</div>
+					</td>
 					<td class="no-borders right-column" align="center">
 						<div class="card-content-inner align-center justify-center padding-15">
 							<?php echo $content; ?>
