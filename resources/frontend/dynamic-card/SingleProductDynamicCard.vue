@@ -139,8 +139,11 @@
 							</div>
 						</div>
 					</template>
-					<div v-if="slideTo !== 0">
+					<div v-if="slideTo === 2">
 						<editor-controls v-model="innerMessage" @change="onChangeEditorControls"/>
+					</div>
+					<div v-if="slideTo === 1">
+						<editor-controls v-model="innerMessage2" @change="onChangeEditorControls"/>
 					</div>
 					<div class="space-y-2">
 						<shapla-button theme="primary" size="small" fullwidth outline
@@ -155,12 +158,14 @@
 			</div>
 		</modal>
 		<notification :options="notifications"/>
+		<confirm-dialog/>
 	</div>
 </template>
 
 <script>
 import axios from "axios";
 import {
+	ConfirmDialog,
 	deleteIcon,
 	FileUploader,
 	iconContainer,
@@ -183,7 +188,7 @@ export default {
 	components: {
 		VideoInnerMessage,
 		EditableContent, CardWebViewer, modal, shaplaButton, iconContainer, SwiperSlider, imageContainer,
-		EditorControls, FileUploader, tabs, tab, deleteIcon, notification
+		EditorControls, FileUploader, tabs, tab, deleteIcon, notification, ConfirmDialog
 	},
 	data() {
 		return {
@@ -260,9 +265,11 @@ export default {
 		changeVideoInnerMessage(type, value) {
 			if ('type' === type) {
 				this.innerMessage2.type = value;
-			}
-			if ('video_id' === type) {
+			} else if ('video_id' === type) {
 				this.innerMessage2.video_id = value;
+			} else {
+				this.innerMessage2.type = '';
+				this.innerMessage2.video_id = 0;
 			}
 		},
 		pxToMm(px) {
@@ -322,6 +329,14 @@ export default {
 				imContainer2.querySelector('#_inner_message2_type').value = this.innerMessage2.type;
 				if ('video' === this.innerMessage2.type && this.innerMessage2.video_id) {
 					imContainer2.querySelector('#_inner_message2_video_id').value = this.innerMessage2.video_id;
+					localStorage.removeItem(`__gust_video_${this.product_id}`);
+				}
+				if ('text' === this.innerMessage2.type && this.innerMessage2.message) {
+					imContainer2.querySelector('#_inner_message2_content').value = this.innerMessage2.message;
+					imContainer2.querySelector('#_inner_message2_font').value = this.innerMessage2.font_family;
+					imContainer2.querySelector('#_inner_message2_size').value = this.innerMessage2.font_size;
+					imContainer2.querySelector('#_inner_message2_align').value = this.innerMessage2.alignment;
+					imContainer2.querySelector('#_inner_message2_color').value = this.innerMessage2.color;
 				}
 			}
 			let variations_form = document.querySelector('form.cart');

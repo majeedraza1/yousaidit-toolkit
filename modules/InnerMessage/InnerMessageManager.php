@@ -76,6 +76,9 @@ class InnerMessageManager {
 			add_action( 'template_redirect', array( self::$instance, 'redirect_to_url' ) );
 
 			add_action( 'wp_ajax_video_message_qr_code', [ self::$instance, 'video_message_qr_code' ] );
+			add_filter( 'manage_media_columns', [ self::$instance, 'manage_media_columns' ] );
+			add_action( 'manage_media_custom_column', [ self::$instance, 'manage_media_custom_column' ], 10, 2 );
+			add_action( 'woocommerce_checkout_order_created', [ self::$instance, 'order_created' ], 10, 2 );
 		}
 
 		return self::$instance;
@@ -145,6 +148,51 @@ class InnerMessageManager {
 		$qr_code = QrCode::generate_video_message( $url );
 		wp_redirect( $qr_code['url'] );
 		die;
+	}
+
+	public function order_created( \WC_Order $order ) {
+		$items = $order->get_items();
+		foreach ( $items as $item ) {
+			$meta = $item->get_meta( '_video_inner_message', true );
+			if ( is_array( $meta ) && isset( $meta['type'] ) && 'video' === $meta['type'] ) {
+				update_post_meta( $meta['video_id'], '_wc_order_id', $item->get_order_id() );
+				update_post_meta( $meta['video_id'], '_wc_order_item_id', $item->get_id() );
+			}
+		}
+	}
+
+	public function manage_media_columns( $columns ) {
+		$columns['video_message'] = _x( 'Video Message', 'column name', 'yousaidit-toolkit' );
+
+		return $columns;
+	}
+
+	public function manage_media_custom_column( $column_name, $post_id ) {
+		if ( 'video_message' === $column_name ) {
+			$delete_after = (int) get_post_meta( $post_id, '_should_delete_after_time', true );
+			$order_id     = get_post_meta( $post_id, '_wc_order_id', true );
+			$lines        = [];
+			if ( $delete_after ) {
+				$lines[] = [
+					'label' => 'Will be deleted (after)',
+					'value' => gmdate( sprintf( "%s %s", get_option( 'date_format' ), get_option( 'time_format' ) ), $delete_after ),
+				];
+			}
+			if ( $order_id ) {
+				$url     = add_query_arg( [ 'action' => 'edit', 'post' => $order_id ], admin_url( 'post.php' ) );
+				$lines[] = [
+					'label' => 'Related to order',
+					'value' => '<a href="' . esc_url( $url ) . '" target="_blank">#' . esc_html( $order_id ) . '</a>',
+				];
+			}
+
+			foreach ( $lines as $index => $line ) {
+				if ( $index > 0 ) {
+					echo '<br>';
+				}
+				echo '<strong>' . $line['label'] . ': </strong>' . $line['value'];
+			}
+		}
 	}
 
 	/**
@@ -430,7 +478,9 @@ class InnerMessageManager {
 			$_data = static::sanitize_inner_message_data( $values['_video_inner_message'], true );
 			$item->add_meta_data( '_video_inner_message', $_data );
 			if ( 'video' == $_data['type'] ) {
-				delete_post_meta( $_data['video_id'], '_should_delete_after_time' );
+				update_post_meta( $_data['video_id'], '_should_delete_after_time', ( time() + ( MONTH_IN_SECONDS * 6 ) ) );
+				update_post_meta( $_data['video_id'], '_wc_order_id', $item->get_order_id() );
+				update_post_meta( $_data['video_id'], '_wc_order_item_id', $item->get_id() );
 			}
 		}
 	}

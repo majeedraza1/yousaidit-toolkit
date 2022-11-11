@@ -19,6 +19,9 @@ class PdfGeneratorBase {
 	protected $padding = '8'; // mm
 	protected $dir = null;
 	protected $video_message_qr_code = [];
+	protected $left_page_message = [];
+	protected $has_video_message = false;
+	protected $has_left_page_message = false;
 
 
 	public function get_pdf( $mode = 'html', $context = 'view' ) {
@@ -61,9 +64,22 @@ class PdfGeneratorBase {
 		}
 
 		$left_html = '';
-		if ( isset( $this->video_message_qr_code['url'] ) ) {
+		if ( $this->has_video_message && isset( $this->video_message_qr_code['url'] ) ) {
 			$left_html .= '<img src="' . esc_url( $this->video_message_qr_code['url'] ) . '" width="96" height="96" />';
 			$left_html .= '<div style="max-width: 240px;margin-left:auto;margin-right:auto;font-size:12pt;line-height:12pt;font-family:arial">Scan to watch a video greeting made just for you</div>';
+		}
+		if ( $this->has_left_page_message ) {
+			foreach ( $this->get_left_page_message_lines() as $line ) {
+				$line = str_replace( '&nbsp;', '', $line );
+				if ( strlen( $line ) < 1 ) {
+					continue;
+				}
+				if ( in_array( $line, [ '<br>', '<br/>', '<br />' ] ) ) {
+					$left_html .= "<br>";
+				} else {
+					$left_html .= "<div>{$line}</div>";
+				}
+			}
 		}
 
 		$final_html = $this->get_html_wrapper( $right_html, $left_html );
@@ -93,9 +109,15 @@ class PdfGeneratorBase {
 	 *
 	 * @return mixed
 	 */
-	public function get_text_height() {
-		$font_info = Fonts::get_font_info( $this->font_family );
-		$box       = imagettfbbox( $this->font_size, 0, $font_info['fontFilePath'], 'I only need height' );
+	public function get_text_height( string $font_family = '', int $font_size = 0 ) {
+		if ( empty( $font_family ) ) {
+			$font_family = $this->font_family;
+		}
+		if ( empty( $font_size ) ) {
+			$font_size = $this->font_size;
+		}
+		$font_info = Fonts::get_font_info( $font_family );
+		$box       = imagettfbbox( $font_size, 0, $font_info['fontFilePath'], 'I only need height' );
 
 		return $box[3] - $box[5];
 	}
@@ -153,6 +175,44 @@ class PdfGeneratorBase {
 	}
 
 	/**
+	 * Get pdf dynamic style
+	 * @return void
+	 */
+	protected function get_pdf_left_page_dynamic_style() {
+		if ( false === $this->has_left_page_message ) {
+			return;
+		}
+		$font_info       = Fonts::get_font_info( $this->left_page_message['font'] );
+		$fontFamily      = str_replace( ' ', '_', strtolower( $font_info['label'] ) );
+		$text_height     = $this->get_text_height( $this->left_page_message['font'], $this->left_page_message['size'] );
+		$text_box_height = ( $this->padding * 2 ) + static::points_to_mm( $text_height * count( $this->get_left_page_message_lines() ) );
+		$content_height  = static::mm_to_points( $this->page_size[1] - $text_box_height );
+		?>
+		<style type="text/css">
+			@font-face {
+				font-family: <?php echo $fontFamily?>;
+				src: url(<?php echo $font_info['fontUrl'] ?>) format('truetype');
+				font-weight: normal;
+				font-style: normal;
+			}
+
+			.card-content-inner-left {
+				font-family: <?php echo $fontFamily?>;
+				font-weight: normal;
+				font-size: <?php echo $this->left_page_message['size'].'pt'?>;
+				line-height: <?php echo $this->left_page_message['size'].'pt'?>;
+				color: <?php echo $this->left_page_message['color']?>;
+				text-align: <?php echo $this->left_page_message['align']?>;
+			}
+
+			.card-content-inner-left {
+				margin-top: <?php echo intval(static::points_to_mm($content_height) / 2) .'mm'?>;
+			}
+		</style>
+		<?php
+	}
+
+	/**
 	 * Get HTML wrapper
 	 *
 	 * @param string $content Right side content.
@@ -171,6 +231,7 @@ class PdfGeneratorBase {
 				<?php include YOUSAIDIT_TOOLKIT_PATH . '/templates/style-inner-message.css'; ?>
 			</style>
 			<?php $this->get_pdf_dynamic_style(); ?>
+			<?php $this->get_pdf_left_page_dynamic_style(); ?>
 			<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 		</head>
 		<body>
@@ -178,7 +239,7 @@ class PdfGeneratorBase {
 			<table class="container">
 				<tr class="no-borders">
 					<td class="no-borders left-column" align="center">
-						<div class="card-content-inner align-center justify-center padding-15">
+						<div class="card-content-inner card-content-inner-left align-center justify-center padding-15">
 							<?php echo $left_content; ?>
 						</div>
 					</td>
@@ -203,6 +264,24 @@ class PdfGeneratorBase {
 		$client               = new Client( new Ruleset() );
 		$client->imagePathPNG = PdfGeneratorBase::get_emoji_assets_url();
 		$message              = str_replace( '<p>', '<div>', $this->message );
+		$message              = str_replace( '</p>', '</div>', $message );
+		$messages             = explode( '<div>', $message );
+		foreach ( $messages as $index => $message ) {
+			$msg                = str_replace( "</div>", '', $message );
+			$messages[ $index ] = $client->toImage( $msg );
+		}
+
+		return $messages;
+	}
+
+	/**
+	 * Get message lines
+	 * @return array
+	 */
+	public function get_left_page_message_lines(): array {
+		$client               = new Client( new Ruleset() );
+		$client->imagePathPNG = PdfGeneratorBase::get_emoji_assets_url();
+		$message              = str_replace( '<p>', '<div>', $this->left_page_message['content'] ?? '' );
 		$message              = str_replace( '</p>', '</div>', $message );
 		$messages             = explode( '<div>', $message );
 		foreach ( $messages as $index => $message ) {

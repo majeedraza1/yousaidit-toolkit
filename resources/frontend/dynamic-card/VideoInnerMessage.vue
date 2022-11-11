@@ -27,7 +27,7 @@
 			<div class="text-sm mt-1">Your video will play when they scan the QR code printed on the inside page.</div>
 
 			<div
-				@click="changeType('video')"
+				@click="changeType('text')"
 				class="border border-solid border-gray-200 hover:border-gray-500 cursor-pointer inline-flex items-center rounded px-4 py-2 mt-8">
 				Add text
 			</div>
