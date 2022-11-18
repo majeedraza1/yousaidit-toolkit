@@ -23,7 +23,7 @@
     }
   },
   "require": {
-    "php": ">=7.2",
+    "php": ">=7.4",
     "ext-fileinfo": "*",
     "ext-iconv": "*",
     "ext-imagick": "*",
@@ -37,7 +37,7 @@
     "setasign/fpdf": "^1.8",
     "setasign/fpdi": "^2.3",
     "setasign/tfpdf": "^1.32",
-    "stackonet/wp-helpers": "^1.6.0"
+    "stackonet/wp-helpers": "^1.8.1"
   },
   "require-dev": {
     "wp-cli/wp-cli-bundle": "*"

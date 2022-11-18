@@ -258,7 +258,7 @@ class Session extends Collection {
 	 *
 	 * @return array
 	 */
-	public function to_array() {
+	public function to_array(): array {
 		$data = $this->collections;
 		foreach ( $data as $key => $value ) {
 			if ( $value instanceof self ) {

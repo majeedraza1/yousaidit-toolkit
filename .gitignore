@@ -11,5 +11,3 @@ tasks
 
 # Files
 **.map
-package-lock.json
-composer.lock

@@ -152,7 +152,9 @@ class OrderItem implements JsonSerializable {
 				$this->pdf_height = (int) get_post_meta( $this->pdf_id, '_pdf_height_millimeter', true );
 
 				if ( ! ( $this->pdf_width && $this->pdf_height ) ) {
-					PdfSizeCalculator::calculate_pdf_width_and_height( $this->pdf_id );
+					if ( $this->pdf_id ) {
+						PdfSizeCalculator::calculate_pdf_width_and_height( $this->pdf_id );
+					}
 
 					$this->pdf_width  = (int) get_post_meta( $this->pdf_id, '_pdf_width_millimeter', true );
 					$this->pdf_height = (int) get_post_meta( $this->pdf_id, '_pdf_height_millimeter', true );
