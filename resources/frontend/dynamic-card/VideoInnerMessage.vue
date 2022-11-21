@@ -49,12 +49,31 @@
 		</div>
 		<div v-if="messageType === 'video'" class="flex flex-col justify-center items-center w-full h-full p-4 lg:p-8">
 			<template v-if="videos.length < 1">
-				<file-uploader
-					:url="uploadUrl"
-					@before:send="beforeSendEvent"
-					@success="finishedEvent"
-					@failed="handleFileUploadFailed"
-				/>
+				<template v-if="videoType==='recorded'">
+					<div class="mb-2 space-x-4">
+						<shapla-button theme="primary" @click="startRecording">Start Recording</shapla-button>
+					<shapla-button theme="primary" @click="stopRecording">Stop Recording</shapla-button>
+					</div>
+
+					<div>
+						<div>Preview</div>
+						<video id="video-recording-preview" width="160" height="120" autoplay muted></video>
+						<video id="video-recording" width="160" height="120" controls></video>
+					</div>
+				</template>
+
+				<template v-if="videoType==='uploaded'">
+					<file-uploader
+						:url="uploadUrl"
+						@before:send="beforeSendEvent"
+						@success="finishedEvent"
+						@failed="handleFileUploadFailed"
+					/>
+
+					<div class="mt-4">
+						<shapla-button theme="primary" @click="videoType='recorded'">Record Video</shapla-button>
+					</div>
+				</template>
 			</template>
 			<template v-if="videos.length">
 				<image-container :width-ratio="videos[0].width" :height-ratio="videos[0].height">
@@ -79,6 +98,7 @@
 import EditableContent from "@/frontend/inner-message/EditableContent";
 import {FileUploader, imageContainer, shaplaButton} from "shapla-vue-components";
 import axios from "axios";
+import {initRecording,stopRecording} from "@/frontend/dynamic-card/recording";
 
 export default {
 	name: "VideoInnerMessage",
@@ -96,6 +116,7 @@ export default {
 	data() {
 		return {
 			messageType: '',
+			videoType: 'uploaded',
 			showLengthError: false,
 			showAddVideoModal: false,
 			videos: [],
@@ -113,6 +134,13 @@ export default {
 		},
 	},
 	methods: {
+		startRecording() {
+			initRecording();
+		},
+		stopRecording() {
+			let preview = document.querySelector('#video-recording-preview');
+			stopRecording(preview.srcObject);
+		},
 		emitChange(type, value) {
 			this.$emit('change', type, value);
 		},

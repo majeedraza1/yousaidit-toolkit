@@ -237,17 +237,31 @@ class UserMediaController extends ApiController {
 			return $this->respondUnprocessableEntity( 'large_file_size', 'File size too large.' );
 		}
 
+		$need_convert         = false;
+		$browser_supported    = [ 'video/mp4', 'video/ogg', 'video/webm' ];
+		$other_mime_types     = [ 'video/quicktime', 'video/x-msvideo', 'video/avi', 'video/x-ms-wmv' ];
+		$supported_mime_types = array_merge( $browser_supported, $other_mime_types );
+
 		// only video can be uploaded
-		if ( ! in_array( $mime_type, [ 'video/mp4', 'video/ogg', 'video/webm' ] ) ) {
-			return $this->respondForbidden( 'unsupported_video_format', 'Only mp4, ogg, webm video formats are supported.' );
+		if ( ! in_array( $mime_type, $supported_mime_types ) ) {
+			return $this->respondForbidden( 'unsupported_video_format', 'Unsupported Video format.' );
 		}
 
-		$filename      = sprintf( '%s--%s--%s',
+		if ( in_array( $mime_type, $other_mime_types ) ) {
+			$need_convert = true;
+		}
+
+		$filename = sprintf( '%s--%s--%s',
 			Utils::generate_uuid(),
 			$current_user->ID,
 			Utils::str_rand( 64 - ( 36 + 4 + strlen( (string) $current_user->ID ) ) )
 		);
-		$attachment_id = Uploader::uploadSingleFile( $file, null, sprintf( '%s.%s', $filename, $file->getClientExtension() ) );
+
+		if ( $need_convert ) {
+			$attachment_id = new \WP_Error( 'need_to_convert', 'It need to convert file format for browser support.' );
+		} else {
+			$attachment_id = Uploader::uploadSingleFile( $file, null, sprintf( '%s.%s', $filename, $file->getClientExtension() ) );
+		}
 		if ( is_wp_error( $attachment_id ) ) {
 			return $this->respondUnprocessableEntity(
 				$attachment_id->get_error_code(),

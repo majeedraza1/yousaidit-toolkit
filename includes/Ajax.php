@@ -13,7 +13,6 @@ use YouSaidItCards\Modules\Designers\DynamicCard;
 use YouSaidItCards\Modules\Designers\Models\DesignerCard;
 use YouSaidItCards\Modules\DynamicCard\EnvelopeColours;
 use YouSaidItCards\Modules\InnerMessage\Fonts;
-use YouSaidItCards\ShipStation\Order;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -63,7 +62,20 @@ class Ajax {
 			wp_die( __( 'Sorry. This link only for developer to do some testing.', 'yousaidit-toolkit' ) );
 		}
 
-		$sections_values = [];
+		$ffmpeg  = trim( shell_exec( 'which ffmpeg' ) );
+		$FFProbe = trim( shell_exec( 'which ffprobe' ) );
+		try {
+			$filepath = WP_CONTENT_DIR . '/file_example_MOV_1280_1_4MB.mov';
+			$ffmpeg   = \FFMpeg\FFMpeg::create( [
+				'ffmpeg.binaries'  => $ffmpeg,
+				'ffprobe.binaries' => $FFProbe,
+			] );
+			$video    = $ffmpeg->open( $filepath );
+			$video->save( new \FFMpeg\Format\Video\X264(), WP_CONTENT_DIR . '/export-x264.mp4' );
+		} catch ( \Exception $exception ) {
+			var_dump( $exception );
+		}
+		$sections_values = [ $ffmpeg, $FFProbe ];
 		var_dump( $sections_values );
 
 		die();
