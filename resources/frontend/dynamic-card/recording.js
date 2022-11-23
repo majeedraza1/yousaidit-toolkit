@@ -1,4 +1,15 @@
-const recordingTimeMS = 5000;
+const MINUTE_IN_MILLISECONDS = 1000 * 60;
+const recordingTimeMS = 5 * MINUTE_IN_MILLISECONDS;
+
+function formatBytes(x) {
+	const units = ['bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+	const k = 1024
+	let l = 0, n = parseInt(x, 10) || 0;
+	while (n >= k && ++l) {
+		n = n / k;
+	}
+	return (n.toFixed(n < 10 && l > 0 ? 1 : 0) + ' ' + units[l]);
+}
 
 function wait(delayInMS) {
 	return new Promise((resolve) => setTimeout(resolve, delayInMS));
@@ -16,24 +27,34 @@ function startRecording(stream, lengthInMS) {
 	recorder.start();
 	log(`${recorder.state} for ${lengthInMS / 1000} seconds…`);
 
-	let stopped = new Promise((resolve, reject) => {
-		recorder.onstop = resolve;
-		recorder.onerror = (event) => reject(event.name);
+	recorder.addEventListener('stop', () => {
+		return new Promise(resolve => {
+			log('Media recorder has been stopped.');
+			resolve(data)
+		})
 	});
 
-	let recorded = wait(lengthInMS).then(
-		() => {
-			if (recorder.state === "recording") {
-				recorder.stop();
-			}
-		},
-	);
+	let stopped = new Promise((resolve, reject) => {
+		recorder.addEventListener('stop', (event) => {
+			log('Media recorder has been stopped.');
+			resolve(event)
+		});
+		recorder.onerror = (event) => {
+			log('Media recorder has an error' + event.name);
+			reject(event.name)
+		};
+	});
+
+	let recorded = wait(lengthInMS).then(() => {
+		if (recorder.state === "recording") {
+			recorder.stop();
+			log('Media recorder has been complete.');
+		}
+	});
 
 	return Promise.all([
-		stopped,
-		recorded
-	])
-		.then(() => data);
+		stopped
+	]).then(() => data);
 }
 
 function stopRecording(stream) {
@@ -55,20 +76,24 @@ const initRecording = () => {
 		preview.srcObject = stream;
 		preview.captureStream = preview.captureStream || preview.mozCaptureStream;
 		return new Promise((resolve) => preview.onplaying = resolve);
-	}).then(() => startRecording(preview.captureStream(), recordingTimeMS))
-		.then((recordedChunks) => {
-			let recordedBlob = new Blob(recordedChunks, {type: "video/webm"});
-			recording.src = URL.createObjectURL(recordedBlob);
+	}).then(() => {
+		startRecording(preview.captureStream(), recordingTimeMS)
+			.then((recordedChunks) => {
+				let recordedBlob = new Blob(recordedChunks, {type: "video/webm"});
+				recording.src = URL.createObjectURL(recordedBlob);
 
-			log(`Successfully recorded ${recordedBlob.size} bytes of ${recordedBlob.type} media.`);
-		})
-		.catch((error) => {
-			if (error.name === "NotFoundError") {
-				log("Camera or microphone not found. Can't record.");
-			} else {
-				log(error);
-			}
-		});
+				document.dispatchEvent(new CustomEvent('recordComplete', {detail: recordedBlob}));
+
+				log(`Successfully recorded ${formatBytes(recordedBlob.size)} of ${recordedBlob.type} media.`);
+			})
+			.catch((error) => {
+				if (error.name === "NotFoundError") {
+					log("Camera or microphone not found. Can't record.");
+				} else {
+					log(error);
+				}
+			})
+	})
 }
 
 export {

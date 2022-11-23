@@ -51,14 +51,30 @@
 			<template v-if="videos.length < 1">
 				<template v-if="videoType==='recorded'">
 					<div class="mb-2 space-x-4">
-						<shapla-button theme="primary" @click="startRecording">Start Recording</shapla-button>
-					<shapla-button theme="primary" @click="stopRecording">Stop Recording</shapla-button>
+						<shapla-button v-if="!isRecordingStarted" theme="primary" @click="startRecording">Start
+							Recording
+						</shapla-button>
+						<shapla-button v-if="isRecordingStarted" theme="primary" @click="stopRecording">Stop Recording
+						</shapla-button>
 					</div>
 
-					<div>
-						<div>Preview</div>
-						<video id="video-recording-preview" width="160" height="120" autoplay muted></video>
-						<video id="video-recording" width="160" height="120" controls></video>
+					<div class="w-full">
+						<div v-if="isRecordingStarted || isRecordingFinished" class="text-center mb-2 font-bold">
+							Preview
+						</div>
+						<image-container v-show="isRecordingStarted" :width-ratio="1920" :height-ratio="1080">
+							<video id="video-recording-preview" width="192" height="108" autoplay muted></video>
+						</image-container>
+						<image-container v-show="isRecordingFinished && !isRecordingStarted" :width-ratio="1920"
+						                 :height-ratio="1080">
+							<video id="video-recording" width="192" height="108" controls></video>
+						</image-container>
+						<div class="mt-2 text-center">
+							<shapla-button v-if="isRecordingFinished" theme="primary"
+							               :class="{'is-loading':isRecordingSendingToServer}" @click="useRecording"
+							>Use this Recording
+							</shapla-button>
+						</div>
 					</div>
 				</template>
 
@@ -98,7 +114,7 @@
 import EditableContent from "@/frontend/inner-message/EditableContent";
 import {FileUploader, imageContainer, shaplaButton} from "shapla-vue-components";
 import axios from "axios";
-import {initRecording,stopRecording} from "@/frontend/dynamic-card/recording";
+import {initRecording, stopRecording} from "@/frontend/dynamic-card/recording";
 
 export default {
 	name: "VideoInnerMessage",
@@ -116,10 +132,14 @@ export default {
 	data() {
 		return {
 			messageType: '',
+			recordedBlob: null,
 			videoType: 'uploaded',
 			showLengthError: false,
 			showAddVideoModal: false,
 			videos: [],
+			isRecordingStarted: false,
+			isRecordingFinished: false,
+			isRecordingSendingToServer: false,
 		}
 	},
 	computed: {
@@ -135,11 +155,44 @@ export default {
 	},
 	methods: {
 		startRecording() {
+			this.isRecordingStarted = true;
 			initRecording();
 		},
 		stopRecording() {
 			let preview = document.querySelector('#video-recording-preview');
-			stopRecording(preview.srcObject);
+			if (preview) {
+				stopRecording(preview.srcObject);
+			}
+			this.isRecordingStarted = false;
+			this.isRecordingFinished = true;
+		},
+		useRecording() {
+			this.isRecordingSendingToServer = true;
+			const formData = new FormData();
+			formData.append('file', this.recordedBlob);
+
+			const xhr = new XMLHttpRequest();
+			xhr.open('POST', this.uploadUrl);
+			xhr.addEventListener("load", () => {
+				let contentType = xhr.getResponseHeader("Content-Type"),
+					isJsonResponse = (contentType && contentType.indexOf("application/json") !== -1),
+					response = isJsonResponse ? JSON.parse(xhr.responseText) : xhr.responseText;
+
+				this.isRecordingSendingToServer = false;
+				if (xhr.status >= 200 && xhr.status < 300) {
+					if (response.success) {
+						this.videos.unshift(response.data);
+						localStorage.setItem(`__gust_video_${this.product_id}`, response.data.id.toString());
+						this.emitChange('video_id', response.data.id);
+						this.videoType = 'uploaded';
+					}
+				} else {
+					if (response.message) {
+						this.notifications = {type: 'error', title: 'Error!', message: response.message};
+					}
+				}
+			});
+			xhr.send(formData);
 		},
 		emitChange(type, value) {
 			this.$emit('change', type, value);
@@ -207,6 +260,10 @@ export default {
 				this.emitChange('video_id', data[0].id);
 			}
 		});
+		document.addEventListener('recordComplete', (event) => {
+			this.recordedBlob = event.detail;
+			window.console.log(event.detail);
+		})
 	}
 }
 </script>
