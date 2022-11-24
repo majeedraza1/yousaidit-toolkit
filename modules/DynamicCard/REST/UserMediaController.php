@@ -10,6 +10,7 @@ use WP_REST_Response;
 use WP_REST_Server;
 use YouSaidItCards\Admin\SettingPage;
 use YouSaidItCards\GoogleVisionClient;
+use YouSaidItCards\Modules\InnerMessage\VideoEditor;
 use YouSaidItCards\REST\ApiController;
 use YouSaidItCards\Utils;
 
@@ -258,7 +259,7 @@ class UserMediaController extends ApiController {
 		);
 
 		if ( $need_convert ) {
-			$attachment_id = new \WP_Error( 'need_to_convert', 'It need to convert file format for browser support.' );
+			$attachment_id = VideoEditor::convert( $file, null, sprintf( '%s.mp4', $filename ) );
 		} else {
 			$attachment_id = Uploader::uploadSingleFile( $file, null, sprintf( '%s.%s', $filename, $file->getClientExtension() ) );
 		}
