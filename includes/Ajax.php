@@ -62,8 +62,9 @@ class Ajax {
 			wp_die( __( 'Sorry. This link only for developer to do some testing.', 'yousaidit-toolkit' ) );
 		}
 
-		$sections_values = [];
-		var_dump( $sections_values );
+		$sections_values = get_post_meta( 63409, '_wp_attachment_metadata', true );
+		$job             = AWSElementalMediaConvert::get_job( '1669527200336-ukn1y9' );
+		var_dump( [ $job,  ] );
 
 		die();
 	}

@@ -65,11 +65,17 @@ class Utils {
 	/**
 	 * Get video message url
 	 *
-	 * @param int $video_id Video id.
+	 * @param int|string $video_id Video id or AWS MediaConvert job id.
 	 *
 	 * @return false|string
 	 */
-	public static function get_video_message_url( int $video_id ) {
+	public static function get_video_message_url( $video_id ) {
+		if ( is_string( $video_id ) ) {
+			$_video_id = AWSElementalMediaConvert::job_id_to_video_id( $video_id );
+			if ( $_video_id ) {
+				$video_id = $_video_id;
+			}
+		}
 		$meta = get_post_meta( $video_id, '_video_message_filename', true );
 		if ( strlen( $meta ) === 64 ) {
 			return site_url( sprintf( '/video-message/%s', $meta ) );

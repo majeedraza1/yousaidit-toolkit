@@ -79,16 +79,26 @@
 				</template>
 
 				<template v-if="videoType==='uploaded'">
-					<file-uploader
-						:url="uploadUrl"
-						@before:send="beforeSendEvent"
-						@success="finishedEvent"
-						@failed="handleFileUploadFailed"
-					/>
+					<template v-if="job_id">
+						<div class="mb-2 w-full">
+							<progress-bar theme="primary" striped animated/>
+						</div>
+						<div class="border-4 border-dashed border-primary p-2 text-lg font-bold text-center">
+							Your video is being process. It may take upto a minute. Please be patient.
+						</div>
+					</template>
+					<template v-else>
+						<file-uploader
+							:url="uploadUrl"
+							@before:send="beforeSendEvent"
+							@success="finishedEvent"
+							@failed="handleFileUploadFailed"
+						/>
 
-					<div class="mt-4">
-						<shapla-button theme="primary" @click="videoType='recorded'">Record Video</shapla-button>
-					</div>
+						<div class="mt-4">
+							<shapla-button theme="primary" @click="videoType='recorded'">Record Video</shapla-button>
+						</div>
+					</template>
 				</template>
 			</template>
 			<template v-if="videos.length">
@@ -112,7 +122,7 @@
 
 <script>
 import EditableContent from "@/frontend/inner-message/EditableContent";
-import {FileUploader, imageContainer, shaplaButton} from "shapla-vue-components";
+import {FileUploader, imageContainer, progressBar, shaplaButton} from "shapla-vue-components";
 import axios from "axios";
 import {initRecording, stopRecording} from "@/frontend/dynamic-card/recording";
 
@@ -123,6 +133,7 @@ export default {
 		FileUploader,
 		imageContainer,
 		shaplaButton,
+		progressBar
 	},
 	props: {
 		product_id: {default: 0},
@@ -140,6 +151,9 @@ export default {
 			isRecordingStarted: false,
 			isRecordingFinished: false,
 			isRecordingSendingToServer: false,
+			job_id: '',
+			timer_id: null,
+			isCheckingStatus: false,
 		}
 	},
 	computed: {
@@ -152,6 +166,30 @@ export default {
 		isUserLoggedIn() {
 			return window.StackonetToolkit.isUserLoggedIn || false;
 		},
+	},
+	watch: {
+		job_id(newValue, oldValue) {
+			const clear = () => {
+				return new Promise(resolve => {
+					if (this.timer_id) {
+						clearInterval(this.timer_id);
+					}
+					resolve(true);
+				})
+			}
+			const everyFifteenSeconds = 15 * 1000;
+			if (newValue.length && newValue !== oldValue) {
+				clear().then(() => {
+					this.timer_id = setInterval(() => {
+						if (!this.isCheckingStatus) {
+							this.checkJobStatus(newValue);
+						}
+					}, everyFifteenSeconds)
+				})
+			} else {
+				clear();
+			}
+		}
 	},
 	methods: {
 		startRecording() {
@@ -221,9 +259,17 @@ export default {
 		},
 		finishedEvent(fileObject, response) {
 			if (response.success) {
-				this.videos.unshift(response.data);
-				localStorage.setItem(`__gust_video_${this.product_id}`, response.data.id.toString());
-				this.emitChange('video_id', response.data.id);
+				if (response.data.id) {
+					this.videos.unshift(response.data);
+					localStorage.setItem(`__gust_video_${this.product_id}`, response.data.id.toString());
+					this.emitChange('video_id', response.data.id);
+				} else {
+					// Show processing status
+					if (response.data.job_id) {
+						this.job_id = response.data.job_id;
+						localStorage.setItem(`__job_id_${this.product_id}`, response.data.job_id);
+					}
+				}
 			}
 		},
 		handleFileUploadFailed(fileObject, response) {
@@ -253,6 +299,29 @@ export default {
 			localStorage.removeItem(`__gust_video_${this.product_id}`);
 			this.emitChange('video_id', 0);
 		},
+		checkJobStatus(jobId) {
+			this.isCheckingStatus = true;
+			return new Promise(resolve => {
+				axios
+					.get(StackonetToolkit.restRoot + '/dynamic-cards/video/status', {params: {job_id: jobId}})
+					.then(response => {
+						let data = response.data.data;
+						if (response.status === 200) {
+							if (data.id) {
+								this.videos.unshift(data);
+								localStorage.setItem(`__gust_video_${this.product_id}`, data.id.toString());
+								this.emitChange('video_id', data.id);
+								this.job_id = '';
+								localStorage.removeItem(`__job_id_${this.product_id}`);
+							}
+						}
+						resolve(data);
+					})
+					.finally(() => {
+						this.isCheckingStatus = false;
+					})
+			})
+		}
 	},
 	mounted() {
 		this.fetchVideos().then(data => {
@@ -262,12 +331,13 @@ export default {
 		});
 		document.addEventListener('recordComplete', (event) => {
 			this.recordedBlob = event.detail;
-			window.console.log(event.detail);
 		})
+		// Check video job
+		let job_id = localStorage.getItem(`__job_id_${this.product_id}`);
+		if (job_id) {
+			this.job_id = job_id;
+			this.checkJobStatus(job_id);
+		}
 	}
 }
 </script>
-
-<style scoped>
-
-</style>

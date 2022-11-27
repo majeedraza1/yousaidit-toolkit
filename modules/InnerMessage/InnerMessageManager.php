@@ -5,6 +5,7 @@ namespace YouSaidItCards\Modules\InnerMessage;
 use WC_Cart;
 use WC_Order;
 use WC_Order_Item_Product;
+use YouSaidItCards\AWSElementalMediaConvert;
 use YouSaidItCards\Modules\InnerMessage\Models\Video;
 use YouSaidItCards\Modules\OrderDispatcher\QrCode;
 use YouSaidItCards\Utils;
@@ -59,6 +60,7 @@ class InnerMessageManager {
 				[ self::$instance, 'order_item_get_formatted_meta_data' ], 10, 2 );
 
 			BackgroundInnerMessagePdfGenerator::init();
+			BackgroundCopyVideoToServer::init();
 			// Step 5: Add background task to generate dynamic card pdf
 			add_action( 'woocommerce_checkout_order_created',
 				[ self::$instance, 'generate_inner_message_pdf' ], 10 );
@@ -144,7 +146,7 @@ class InnerMessageManager {
 		if ( ! ( is_array( $meta ) && isset( $meta['type'], $meta['video_id'] ) ) ) {
 			wp_die( 'Invalid request.' );
 		}
-		$url     = Utils::get_video_message_url( intval( $meta['video_id'] ) );
+		$url     = Utils::get_video_message_url( $meta['video_id'] );
 		$qr_code = QrCode::generate_video_message( $url );
 		wp_redirect( $qr_code['url'] );
 		die;
@@ -259,6 +261,22 @@ class InnerMessageManager {
 			'priority'          => 11,
 			'sanitize_callback' => 'sanitize_text_field',
 			'section'           => 'section_inner_message_settings',
+		];
+
+		$fields[] = [
+			'id'                => 'video_converter',
+			'type'              => 'select',
+			'title'             => __( 'Video converter' ),
+			'description'       => __( 'Choose video converter to convert unsupported video. To user server, FFMpeg and FFProbe need to be installed on server.' ),
+			'default'           => 'none',
+			'priority'          => 12,
+			'sanitize_callback' => 'sanitize_text_field',
+			'section'           => 'section_inner_message_settings',
+			'options'           => [
+				'none'   => 'Don\'t convert',
+				'aws'    => 'Amazon Web Service',
+				'server' => 'Server',
+			],
 		];
 
 		$fields[] = [
@@ -586,8 +604,18 @@ class InnerMessageManager {
 		];
 
 		if ( $contains_video_data ) {
-			$sanitized_data['type']     = sanitize_text_field( stripslashes( $data['type'] ) );
-			$sanitized_data['video_id'] = floatval( $data['video_id'] );
+			$sanitized_data['type'] = sanitize_text_field( stripslashes( $data['type'] ) );
+			if ( is_numeric( $data['video_id'] ) ) {
+				$sanitized_data['video_id'] = intval( $data['video_id'] );
+			} else {
+				$video_id = AWSElementalMediaConvert::job_id_to_video_id( $data['video_id'] );
+				if ( $video_id ) {
+					$sanitized_data['video_id'] = $video_id;
+				} else {
+					$sanitized_data['video_id']   = sanitize_text_field( $data['video_id'] );
+					$sanitized_data['aws_job_id'] = sanitize_text_field( $data['video_id'] );
+				}
+			}
 		}
 
 		return $sanitized_data;

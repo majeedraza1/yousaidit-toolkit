@@ -9,7 +9,9 @@ use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
 use YouSaidItCards\Admin\SettingPage;
+use YouSaidItCards\AWSElementalMediaConvert;
 use YouSaidItCards\GoogleVisionClient;
+use YouSaidItCards\Modules\InnerMessage\BackgroundCopyVideoToServer;
 use YouSaidItCards\Modules\InnerMessage\VideoEditor;
 use YouSaidItCards\REST\ApiController;
 use YouSaidItCards\Utils;
@@ -67,6 +69,13 @@ class UserMediaController extends ApiController {
 			[
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => [ $this, 'upload_video' ],
+				'permission_callback' => '__return_true',
+			],
+		] );
+		register_rest_route( $this->namespace, '/dynamic-cards/video/status', [
+			[
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'get_video_status' ],
 				'permission_callback' => '__return_true',
 			],
 		] );
@@ -259,7 +268,30 @@ class UserMediaController extends ApiController {
 		);
 
 		if ( $need_convert ) {
-			$attachment_id = VideoEditor::convert( $file, null, sprintf( '%s.mp4', $filename ) );
+			$converter = SettingPage::get_option( 'video_converter', 'none' );
+			if ( 'server' === $converter ) {
+				$attachment_id = VideoEditor::convert( $file, null, sprintf( '%s.mp4', $filename ) );
+			} elseif ( 'aws' === $converter ) {
+				// Store file in temp directory.
+				$upload_dir = wp_upload_dir();
+				$base_dir   = Uploader::get_upload_dir( 'video-to-convert' );
+				$file_path  = Uploader::uploadFile( $file, $base_dir, sprintf( '%s.%s', $filename, $file->get_client_extension() ) );
+				$file_url   = str_replace( $upload_dir['basedir'], $upload_dir['baseurl'], $file_path );
+				if ( 'local' === wp_get_environment_type() && defined( 'AWS_MEDIA_CONVERT_INPUT' ) ) {
+					$file_url = AWS_MEDIA_CONVERT_INPUT;
+				}
+				// Create AWS MediaConvert job to create job to convert video
+				$job_id = AWSElementalMediaConvert::create_job( $file_url );
+
+				// Store job id to use it later to check status
+				return $this->respondAccepted( [
+					'job_id'   => $job_id,
+					'filepath' => $file_path,
+					'file_url' => $file_url,
+				] );
+			} else {
+				return $this->respondForbidden( 'unsupported_video_format', 'Unsupported Video format.' );
+			}
 		} else {
 			$attachment_id = Uploader::uploadSingleFile( $file, null, sprintf( '%s.%s', $filename, $file->getClientExtension() ) );
 		}
@@ -279,6 +311,34 @@ class UserMediaController extends ApiController {
 		}
 
 		return $this->respondOK( $this->prepare_video_for_response( $attachment_id ) );
+	}
+
+	/**
+	 * @param \WP_REST_Request $request The request object.
+	 *
+	 * @return WP_REST_Response
+	 * @throws \Exception
+	 */
+	public function get_video_status( $request ) {
+		$job_id = $request->get_param( 'job_id' );
+		$job    = AWSElementalMediaConvert::get_job( $job_id );
+		if ( is_wp_error( $job ) ) {
+			return $this->respondWithWpError( $job );
+		}
+
+		$data = AWSElementalMediaConvert::format_job_result( $job );
+		if ( 'complete' !== $data['status'] ) {
+			return $this->respondAccepted( $data );
+		}
+
+		BackgroundCopyVideoToServer::init()->push_to_queue( [ 'job_id' => $job_id ] );
+
+		return $this->respondOK( [
+			'id'     => $data['id'],
+			'url'    => $data['output'],
+			'width'  => $data['width'],
+			'height' => $data['height'],
+		] );
 	}
 
 	/**
