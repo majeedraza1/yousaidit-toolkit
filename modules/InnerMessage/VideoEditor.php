@@ -10,6 +10,7 @@ use Stackonet\WP\Framework\Media\UploadedFile;
 use Stackonet\WP\Framework\Media\Uploader;
 use WP_Error;
 use YouSaidItCards\AWSElementalMediaConvert;
+use YouSaidItCards\Utils;
 
 /**
  * VideoEditor class
@@ -137,8 +138,25 @@ class VideoEditor {
 			wp_update_attachment_metadata( $attachment_id, $attach_data );
 			$token = wp_generate_password( 20, false, false );
 			update_post_meta( $attachment_id, '_delete_token', $token );
-			update_post_meta( $attachment_id, '_video_message_filename', $data['post_title'] );
 			update_post_meta( $attachment_id, '_aws_media_convert_job_id', $job_id );
+			if ( strlen( $data['post_title'] ) === 64 ) {
+				$filename = $data['post_title'];
+			} else {
+				$filename = sprintf( '%s--%s--%s',
+					Utils::generate_uuid(),
+					0,
+					Utils::str_rand( 64 - ( 36 + 1 + 4 ) )
+				);;
+			}
+			update_post_meta( $attachment_id, '_video_message_filename', $filename );
+
+			$options = get_option( '_aws_media_convert_' . $job_id );
+			if ( is_array( $options ) ) {
+				foreach ( $options as $meta_key => $meta_value ) {
+					update_post_meta( $attachment_id, $meta_key, $meta_value );
+				}
+				delete_option( '_aws_media_convert_' . $job_id );
+			}
 		}
 
 		delete_transient( $transient_name );

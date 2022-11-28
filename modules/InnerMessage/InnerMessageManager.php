@@ -2,6 +2,7 @@
 
 namespace YouSaidItCards\Modules\InnerMessage;
 
+use Exception;
 use WC_Cart;
 use WC_Order;
 use WC_Order_Item_Product;
@@ -78,6 +79,7 @@ class InnerMessageManager {
 			add_action( 'template_redirect', array( self::$instance, 'redirect_to_url' ) );
 
 			add_action( 'wp_ajax_video_message_qr_code', [ self::$instance, 'video_message_qr_code' ] );
+			add_action( 'wp_ajax_video_message_copy_to_server', [ self::$instance, 'video_message_copy_to_server' ] );
 			add_filter( 'manage_media_columns', [ self::$instance, 'manage_media_columns' ] );
 			add_action( 'manage_media_custom_column', [ self::$instance, 'manage_media_custom_column' ], 10, 2 );
 			add_action( 'woocommerce_checkout_order_created', [ self::$instance, 'order_created' ], 10, 2 );
@@ -149,6 +151,42 @@ class InnerMessageManager {
 		$url     = Utils::get_video_message_url( $meta['video_id'] );
 		$qr_code = QrCode::generate_video_message( $url );
 		wp_redirect( $qr_code['url'] );
+		die;
+	}
+
+	public function video_message_copy_to_server() {
+		$current_user = wp_get_current_user();
+		$order_id     = isset( $_REQUEST['order_id'] ) ? intval( $_REQUEST['order_id'] ) : 0;
+		$order        = wc_get_order( $order_id );
+		if ( ! $order instanceof WC_Order ) {
+			wp_die( 'Order not found.' );
+		}
+		if ( ! ( $order->get_customer_id() === $current_user->ID || current_user_can( 'manage_options' ) ) ) {
+			wp_die( 'Sorry, You are not allowed to view this link.' );
+		}
+		$item_id = isset( $_REQUEST['item_id'] ) ? intval( $_REQUEST['item_id'] ) : 0;
+
+		$meta = wc_get_order_item_meta( $item_id, '_video_inner_message', true );
+		if ( ! ( is_array( $meta ) && isset( $meta['type'], $meta['video_id'] ) ) ) {
+			wp_die( 'Invalid request.' );
+		}
+		$job_id = isset( $_REQUEST['job_id'] ) ? sanitize_text_field( $_REQUEST['job_id'] ) : '';
+		if ( is_numeric( $job_id ) ) {
+			wp_die( 'Video already sync! You can close this tab now.' );
+		}
+		try {
+			$job = AWSElementalMediaConvert::get_job( $job_id );
+			if ( is_array( $job ) ) {
+				$data     = AWSElementalMediaConvert::format_job_result( $job );
+				$video_id = VideoEditor::copy_video( $data['output'], $job_id );
+
+				$meta['video_id'] = $video_id;
+				wc_update_order_item_meta( $item_id, '_video_inner_message', $meta );
+			}
+		} catch ( Exception $e ) {
+			var_dump( 'Could not copy video for job: ' . $job_id );
+			var_dump( $e );
+		}
 		die;
 	}
 
@@ -496,9 +534,18 @@ class InnerMessageManager {
 			$_data = static::sanitize_inner_message_data( $values['_video_inner_message'], true );
 			$item->add_meta_data( '_video_inner_message', $_data );
 			if ( 'video' == $_data['type'] ) {
-				update_post_meta( $_data['video_id'], '_should_delete_after_time', ( time() + ( MONTH_IN_SECONDS * 6 ) ) );
-				update_post_meta( $_data['video_id'], '_wc_order_id', $item->get_order_id() );
-				update_post_meta( $_data['video_id'], '_wc_order_item_id', $item->get_id() );
+				$meta_data = [
+					'_should_delete_after_time' => ( time() + ( MONTH_IN_SECONDS * 6 ) ),
+					'_wc_order_id'              => $item->get_order_id(),
+					'_wc_order_item_id'         => $item->get_id(),
+				];
+				if ( is_numeric( $_data['video_id'] ) ) {
+					foreach ( $meta_data as $meta_key => $meta_value ) {
+						update_post_meta( $_data['video_id'], $meta_key, $meta_value );
+					}
+				} elseif ( isset( $_data['aws_job_id'] ) ) {
+					update_option( '_aws_media_convert_' . $_data['aws_job_id'], $meta_data );
+				}
 			}
 		}
 	}
@@ -553,6 +600,18 @@ class InnerMessageManager {
 		$video_data = $order_item->get_meta( '_video_inner_message', true );
 		if ( $video_data ) {
 			$video_url = Utils::get_video_message_url( $video_data['video_id'] );
+			if ( is_admin() && ! empty( $video_data['video_id'] ) && false === $video_url ) {
+				$copy_to_server_url = add_query_arg( [
+					'action'   => 'video_message_copy_to_server',
+					'order_id' => $order_item->get_order_id(),
+					'item_id'  => $order_item->get_id(),
+					'job_id'   => $video_data['video_id'],
+				], admin_url( 'admin-ajax.php' ) );
+				$formatted_meta[]   = (object) [
+					'display_key'   => 'Video Message',
+					'display_value' => "<a target='_blank' href='" . esc_url( $copy_to_server_url ) . "'>Sync</a>",
+				];
+			}
 			if ( $video_url ) {
 				if ( is_admin() ) {
 					$qr_code_url      = add_query_arg( [

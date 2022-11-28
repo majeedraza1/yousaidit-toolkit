@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Yousaidit Toolkit
  * Description: A powerful WordPress plugin to extend functionality to your WordPress site.
- * Version: 2022.10.20
+ * Version: 2022.11.28
  * Author: Stackonet Services (Pvt.) Ltd.
  * Author URI: https://stackonet.com
  * Requires at least: 5.5
@@ -36,7 +36,7 @@ final class YousaiditToolkit {
 	 *
 	 * @var string
 	 */
-	private $version = '2022.10.20';
+	private $version = '2022.11.28';
 
 	/**
 	 * Minimum PHP version required

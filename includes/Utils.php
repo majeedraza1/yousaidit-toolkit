@@ -2,6 +2,8 @@
 
 namespace YouSaidItCards;
 
+use Stackonet\WP\Framework\Supports\Validate;
+
 class Utils {
 	/**
 	 * What type of request is this?
@@ -76,9 +78,12 @@ class Utils {
 				$video_id = $_video_id;
 			}
 		}
+		$url  = wp_get_attachment_url( $video_id );
 		$meta = get_post_meta( $video_id, '_video_message_filename', true );
 		if ( strlen( $meta ) === 64 ) {
 			return site_url( sprintf( '/video-message/%s', $meta ) );
+		} elseif ( Validate::url( $url ) ) {
+			return $url;
 		}
 
 		return false;
