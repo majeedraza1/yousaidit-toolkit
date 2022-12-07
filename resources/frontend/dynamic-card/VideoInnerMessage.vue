@@ -90,9 +90,11 @@
 					<template v-else>
 						<file-uploader
 							:url="uploadUrl"
-							@before:send="beforeSendEvent"
 							@success="finishedEvent"
 							@failed="handleFileUploadFailed"
+							:chunking="true"
+							:chunk-size="10000000"
+							:headers="headers"
 						/>
 
 						<div class="mt-4">
@@ -165,6 +167,13 @@ export default {
 		},
 		isUserLoggedIn() {
 			return window.StackonetToolkit.isUserLoggedIn || false;
+		},
+		headers() {
+			const headers = {};
+			if (window.StackonetToolkit.restNonce) {
+				headers['X-WP-Nonce'] = window.StackonetToolkit.restNonce;
+			}
+			return headers
 		},
 	},
 	watch: {

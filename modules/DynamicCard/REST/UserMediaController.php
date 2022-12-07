@@ -10,6 +10,7 @@ use WP_REST_Response;
 use WP_REST_Server;
 use YouSaidItCards\Admin\SettingPage;
 use YouSaidItCards\AWSElementalMediaConvert;
+use YouSaidItCards\ChunkFileUploader;
 use YouSaidItCards\GoogleVisionClient;
 use YouSaidItCards\Modules\InnerMessage\BackgroundCopyVideoToServer;
 use YouSaidItCards\Modules\InnerMessage\VideoEditor;
@@ -69,6 +70,13 @@ class UserMediaController extends ApiController {
 			[
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => [ $this, 'upload_video' ],
+				'permission_callback' => '__return_true',
+			],
+		] );
+		register_rest_route( $this->namespace, '/video/async-upload', [
+			[
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => [ $this, 'async_upload' ],
 				'permission_callback' => '__return_true',
 			],
 		] );
@@ -224,6 +232,34 @@ class UserMediaController extends ApiController {
 		return $this->respondOK( $response );
 	}
 
+	public function async_upload( WP_REST_Request $request ): WP_REST_Response {
+		$files = UploadedFile::getUploadedFiles();
+		$file  = $files['file'] ?? null;
+
+		if ( ! $file instanceof UploadedFile ) {
+			return $this->respondForbidden();
+		}
+
+		$attachment_id = ChunkFileUploader::upload( $file, $request->get_params() );
+		if ( is_wp_error( $attachment_id ) ) {
+			return $this->respondWithWpError( $attachment_id );
+		}
+
+		if ( 0 === $attachment_id ) {
+			return $this->respondAccepted();
+		}
+
+		if ( $attachment_id instanceof UploadedFile ) {
+			$attachment_id = Uploader::uploadSingleFile( $attachment_id, null, $request->get_param( 'name' ) );
+		}
+
+		if ( is_wp_error( $attachment_id ) ) {
+			return $this->respondWithWpError( $attachment_id );
+		}
+
+		return $this->respondOK( $this->prepare_video_for_response( $attachment_id ) );
+	}
+
 	/**
 	 * Upload a video
 	 *
@@ -232,6 +268,7 @@ class UserMediaController extends ApiController {
 	 * @return WP_REST_Response
 	 */
 	public function upload_video( $request ) {
+		$is_chunk     = $request->has_param( 'chunk' ) && $request->has_param( 'chunks' );
 		$current_user = wp_get_current_user();
 
 		$files = UploadedFile::getUploadedFiles();
@@ -241,10 +278,30 @@ class UserMediaController extends ApiController {
 			return $this->respondForbidden();
 		}
 
-		$mime_type = $file->getMediaType();
-
 		if ( $file->getSize() > wp_max_upload_size() ) {
 			return $this->respondUnprocessableEntity( 'large_file_size', 'File size too large.' );
+		}
+
+		$filename = sprintf( '%s--%s--%s',
+			Utils::generate_uuid(),
+			$current_user->ID,
+			Utils::str_rand( 64 - ( 36 + 4 + strlen( (string) $current_user->ID ) ) )
+		);
+
+		if ( $is_chunk ) {
+			$attachment_id = ChunkFileUploader::upload( $file, [
+				'chunk'  => $request->get_param( 'chunk' ),
+				'chunks' => $request->get_param( 'chunks' ),
+				'name'   => $request->get_param( 'name' ),
+			] );
+
+			if ( 0 === $attachment_id ) {
+				return $this->respondAccepted();
+			}
+
+			if ( $attachment_id instanceof UploadedFile ) {
+				$file = $attachment_id;
+			}
 		}
 
 		$need_convert         = false;
@@ -253,19 +310,15 @@ class UserMediaController extends ApiController {
 		$supported_mime_types = array_merge( $browser_supported, $other_mime_types );
 
 		// only video can be uploaded
-		if ( ! in_array( $mime_type, $supported_mime_types ) ) {
-			return $this->respondForbidden( 'unsupported_video_format', 'Unsupported Video format.' );
+		if ( ! in_array( $file->get_mime_type(), $supported_mime_types ) ) {
+			return $this->respondForbidden( 'unsupported_video_format', 'Unsupported Video format.', [
+				'mime_type' => $file->get_mime_type(),
+			] );
 		}
 
-		if ( in_array( $mime_type, $other_mime_types ) ) {
+		if ( in_array( $file->get_mime_type(), $other_mime_types ) ) {
 			$need_convert = true;
 		}
-
-		$filename = sprintf( '%s--%s--%s',
-			Utils::generate_uuid(),
-			$current_user->ID,
-			Utils::str_rand( 64 - ( 36 + 4 + strlen( (string) $current_user->ID ) ) )
-		);
 
 		if ( $need_convert ) {
 			$converter = SettingPage::get_option( 'video_converter', 'none' );
@@ -428,14 +481,19 @@ class UserMediaController extends ApiController {
 		$image          = wp_get_attachment_image_src( $attachment_id, 'thumbnail', true );
 		$full_image     = wp_get_attachment_image_src( $attachment_id, 'full' );
 
-		return [
+		$data = [
 			'id'             => $attachment_id,
 			'title'          => $title,
 			'token'          => $token,
 			'attachment_url' => $attachment_url,
 			'thumbnail'      => [ 'src' => $image[0], 'width' => $image[1], 'height' => $image[2], ],
-			'full'           => [ 'src' => $full_image[0], 'width' => $full_image[1], 'height' => $full_image[2], ],
+			'full'           => [ 'src' => '', 'width' => '', 'height' => '', ],
 		];
+		if ( is_array( $full_image ) ) {
+			$data['full'] = [ 'src' => $full_image[0], 'width' => $full_image[1], 'height' => $full_image[2], ];
+		}
+
+		return $data;
 	}
 
 	/**
