@@ -1,7 +1,7 @@
 <template>
 	<div class="flex w-full h-full">
 		<div v-if="messageType === ''"
-		     class="flex flex-col justify-center items-center w-full h-full p-4 lg:p-8 border border-solid border-gray-100">
+			 class="flex flex-col justify-center items-center w-full h-full p-4 lg:p-8 border border-solid border-gray-100">
 			<div
 				@click="changeType('video')"
 				class="border border-solid border-gray-200 hover:border-gray-500 cursor-pointer inline-flex items-center space-x-2 rounded px-4 py-2">
@@ -66,12 +66,12 @@
 							<video id="video-recording-preview" width="192" height="108" autoplay muted></video>
 						</image-container>
 						<image-container v-show="isRecordingFinished && !isRecordingStarted" :width-ratio="1920"
-						                 :height-ratio="1080">
+										 :height-ratio="1080">
 							<video id="video-recording" width="192" height="108" controls></video>
 						</image-container>
 						<div class="mt-2 text-center">
 							<shapla-button v-if="isRecordingFinished" theme="primary"
-							               :class="{'is-loading':isRecordingSendingToServer}" @click="useRecording"
+										   :class="{'is-loading':isRecordingSendingToServer}" @click="useRecording"
 							>Use this Recording
 							</shapla-button>
 						</div>
@@ -116,7 +116,7 @@
 		</div>
 		<template v-if="messageType === 'text' || messageType === 'video'">
 			<shapla-button theme="primary" size="small" class="absolute right-2 top-3 text-bold"
-			               @click="clearVideoInnerMessage">Back
+						   @click="clearVideoInnerMessage">Back
 			</shapla-button>
 		</template>
 	</div>
@@ -267,6 +267,7 @@ export default {
 			}
 		},
 		finishedEvent(fileObject, response) {
+			window.console.log(fileObject, response);
 			if (response.success) {
 				if (response.data.id) {
 					this.videos.unshift(response.data);
