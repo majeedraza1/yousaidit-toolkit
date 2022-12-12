@@ -139,7 +139,11 @@ class PdfGenerator extends PdfGeneratorBase {
 		$inner_info2 = is_array( $meta2 ) ? $meta2 : [];
 		if ( is_array( $inner_info2 ) && isset( $inner_info2['type'] ) ) {
 			if ( 'video' === $inner_info2['type'] && isset( $inner_info2['video_id'] ) && is_numeric( $inner_info2['video_id'] ) ) {
-				$url = Utils::get_video_message_url( intval( $inner_info2['video_id'] ) );
+				$url                = Utils::get_video_message_url( intval( $inner_info2['video_id'] ) );
+				$video_delete_after = get_post_meta( $inner_info2['video_id'], '_should_delete_after_time', true );
+				if ( $video_delete_after ) {
+					$this->video_delete_after = (int) $video_delete_after;
+				}
 				if ( $url ) {
 					$this->video_message_qr_code = QrCode::generate_video_message( $url );
 					$this->has_video_message     = true;

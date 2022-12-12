@@ -84,7 +84,7 @@
 							<progress-bar theme="primary" striped animated/>
 						</div>
 						<div class="border-4 border-dashed border-primary p-2 text-lg font-bold text-center">
-							Your video is being process. It may take upto a minute. Please be patient.
+							Your video is being processed. It may take upto a minute. Please be patient.
 						</div>
 					</template>
 					<template v-else>
@@ -126,7 +126,7 @@
 import EditableContent from "@/frontend/inner-message/EditableContent";
 import {FileUploader, imageContainer, progressBar, shaplaButton} from "shapla-vue-components";
 import axios from "axios";
-import {initRecording, stopRecording} from "@/frontend/dynamic-card/recording";
+import {initRecording, stopRecording} from "@/frontend/dynamic-card/recording.ts";
 
 export default {
 	name: "VideoInnerMessage",
@@ -201,6 +201,11 @@ export default {
 		}
 	},
 	methods: {
+		clearVideoData() {
+			this.videoType = 'uploaded';
+			localStorage.removeItem(`__gust_video_${this.product_id}`);
+			this.job_id = '';
+		},
 		startRecording() {
 			this.isRecordingStarted = true;
 			initRecording();
@@ -255,6 +260,7 @@ export default {
 			this.$dialog.confirm('Are you sure to clear all changes?').then(confirmed => {
 				if (confirmed) {
 					this.changeType('');
+					this.clearVideoData();
 				}
 			})
 		},
@@ -267,7 +273,6 @@ export default {
 			}
 		},
 		finishedEvent(fileObject, response) {
-			window.console.log(fileObject, response);
 			if (response.success) {
 				if (response.data.id) {
 					this.videos.unshift(response.data);

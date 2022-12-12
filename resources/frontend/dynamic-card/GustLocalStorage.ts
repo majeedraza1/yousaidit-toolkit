@@ -6,12 +6,12 @@ class GustLocalStorage {
 		return localStorageData ? JSON.parse(localStorageData) : {};
 	}
 
-	static getItem(key) {
+	static getItem(key: string) {
 		const data = GustLocalStorage.getItems();
 		return data[key] ?? null;
 	}
 
-	static setItems(newData) {
+	static setItems(newData: Record<string, undefined>) {
 		const data = GustLocalStorage.getItems();
 		Object.entries(newData).forEach(([key, value]) => {
 			data[key] = value;
@@ -19,13 +19,13 @@ class GustLocalStorage {
 		localStorage.setItem(GustLocalStorage.key, JSON.stringify(data));
 	}
 
-	static setItem(key, value) {
+	static setItem(key: string, value: undefined) {
 		const data = GustLocalStorage.getItems();
 		data[key] = value;
 		localStorage.setItem(GustLocalStorage.key, JSON.stringify(data));
 	}
 
-	static removeItem(key) {
+	static removeItem(key: string) {
 		const data = GustLocalStorage.getItems();
 		if (data[key]) {
 			delete data[key];
@@ -37,7 +37,7 @@ class GustLocalStorage {
 		return GustLocalStorage.getItem('media_ids') || [];
 	}
 
-	static appendMedia(id) {
+	static appendMedia(id: string | number) {
 		const ids = GustLocalStorage.getItem('media_ids') || [];
 		ids.push(id);
 		GustLocalStorage.setItem('media_ids', ids);
@@ -52,12 +52,12 @@ class GustVideoStorage {
 		return localStorageData ? JSON.parse(localStorageData) : {};
 	}
 
-	static getItem(key) {
+	static getItem(key: string) {
 		const data = GustVideoStorage.getItems();
 		return data[key] ?? null;
 	}
 
-	static setItems(newData) {
+	static setItems(newData: Record<string, undefined>) {
 		const data = GustVideoStorage.getItems();
 		Object.entries(newData).forEach(([key, value]) => {
 			data[key] = value;
@@ -65,13 +65,13 @@ class GustVideoStorage {
 		localStorage.setItem(GustVideoStorage.key, JSON.stringify(data));
 	}
 
-	static setItem(key, value) {
+	static setItem(key: string, value: undefined) {
 		const data = GustVideoStorage.getItems();
 		data[key] = value;
 		localStorage.setItem(GustVideoStorage.key, JSON.stringify(data));
 	}
 
-	static removeItem(key) {
+	static removeItem(key: string) {
 		const data = GustVideoStorage.getItems();
 		if (data[key]) {
 			delete data[key];
@@ -83,7 +83,7 @@ class GustVideoStorage {
 		return GustVideoStorage.getItem('media_ids') || [];
 	}
 
-	static appendMedia(id) {
+	static appendMedia(id: string | number) {
 		const ids = GustVideoStorage.getItem('media_ids') || [];
 		ids.push(id);
 		GustVideoStorage.setItem('media_ids', ids);

@@ -1,29 +1,29 @@
 const MINUTE_IN_MILLISECONDS = 1000 * 60;
 const recordingTimeMS = 5 * MINUTE_IN_MILLISECONDS;
 
-function formatBytes(x) {
+const formatBytes = (x: number) => {
 	const units = ['bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
 	const k = 1024
-	let l = 0, n = parseInt(x, 10) || 0;
+	let l = 0, n = x || 0;
 	while (n >= k && ++l) {
 		n = n / k;
 	}
 	return (n.toFixed(n < 10 && l > 0 ? 1 : 0) + ' ' + units[l]);
 }
 
-function wait(delayInMS) {
+const wait = (delayInMS: number) => {
 	return new Promise((resolve) => setTimeout(resolve, delayInMS));
 }
 
-function log(msg) {
+function log(msg: undefined | string) {
 	window.console.log(msg);
 }
 
-function startRecording(stream, lengthInMS) {
+const startRecording = (stream: MediaStream, lengthInMS: number) => {
 	let recorder = new MediaRecorder(stream);
-	let data = [];
+	let data: Blob[] = [];
 
-	recorder.ondataavailable = (event) => data.push(event.data);
+	recorder.ondataavailable = (event: BlobEvent) => data.push(event.data as Blob);
 	recorder.start();
 	log(`${recorder.state} for ${lengthInMS / 1000} seconds…`);
 
@@ -35,13 +35,13 @@ function startRecording(stream, lengthInMS) {
 	});
 
 	let stopped = new Promise((resolve, reject) => {
-		recorder.addEventListener('stop', (event) => {
+		recorder.addEventListener('stop', (event: Event) => {
 			log('Media recorder has been stopped.');
 			resolve(event)
 		});
-		recorder.onerror = (event) => {
-			log('Media recorder has an error' + event.name);
-			reject(event.name)
+		recorder.onerror = (event: Event) => {
+			log('Media recorder has an error');
+			reject(event)
 		};
 	});
 
@@ -57,13 +57,13 @@ function startRecording(stream, lengthInMS) {
 	]).then(() => data);
 }
 
-function stopRecording(stream) {
-	stream.getTracks().forEach((track) => track.stop());
+const stopRecording = (stream: MediaStream) => {
+	stream.getTracks().forEach((track: MediaStreamTrack) => track.stop());
 }
 
 const initRecording = () => {
-	let preview = document.querySelector('#video-recording-preview');
-	let recording = document.querySelector('#video-recording');
+	let preview = document.querySelector('#video-recording-preview') as HTMLVideoElementWithCaptureStream;
+	let recording = document.querySelector('#video-recording') as HTMLVideoElementWithCaptureStream;
 
 	navigator.mediaDevices.getUserMedia({
 		video: {
@@ -74,7 +74,7 @@ const initRecording = () => {
 		audio: true
 	}).then((stream) => {
 		preview.srcObject = stream;
-		preview.captureStream = preview.captureStream || preview.mozCaptureStream;
+		// preview.captureStream = preview.captureStream || preview.mozCaptureStream;
 		return new Promise((resolve) => preview.onplaying = resolve);
 	}).then(() => {
 		startRecording(preview.captureStream(), recordingTimeMS)
@@ -97,8 +97,6 @@ const initRecording = () => {
 }
 
 export {
-	wait,
-	startRecording,
 	initRecording,
 	stopRecording
 }

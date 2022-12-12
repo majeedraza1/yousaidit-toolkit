@@ -33,6 +33,15 @@ module.exports = (env, argv) => {
 		"module": {
 			"rules": [
 				{
+					test: /\.tsx?$/,
+					loader: "ts-loader",
+					exclude: /node_modules/,
+					options: {
+						// Tell to ts-loader: if you check .vue file extension, handle it like a ts file
+						appendTsSuffixTo: [/\.vue$/]
+					}
+				},
+				{
 					test: /\.(js|jsx)$/i,
 					use: {
 						loader: "babel-loader",
@@ -131,7 +140,7 @@ module.exports = (env, argv) => {
 				path.resolve(path.join(__dirname, 'resources/')),
 				path.resolve(path.join(__dirname, 'resources/shapla')),
 			],
-			extensions: ['*', '.js', '.vue', '.json']
+			extensions: ['*', '.js', '.vue', '.json', '.ts', '.tsx']
 		},
 		"plugins": plugins
 	}

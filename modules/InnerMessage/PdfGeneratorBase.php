@@ -22,6 +22,7 @@ class PdfGeneratorBase {
 	protected $left_page_message = [];
 	protected $has_video_message = false;
 	protected $has_left_page_message = false;
+	protected int $video_delete_after = 0;
 
 
 	public function get_pdf( $mode = 'html', $context = 'view' ) {
@@ -67,6 +68,11 @@ class PdfGeneratorBase {
 		if ( $this->has_video_message && isset( $this->video_message_qr_code['url'] ) ) {
 			$left_html .= '<img src="' . esc_url( $this->video_message_qr_code['url'] ) . '" width="96" height="96" />';
 			$left_html .= '<div style="max-width: 240px;margin-left:auto;margin-right:auto;font-size:12pt;line-height:12pt;font-family:arial">Scan to watch a video greeting made just for you</div>';
+			if ( $this->video_delete_after ) {
+				$left_html .= '<div style="font-size:7pt;line-height:7pt;position:absolute;bottom:8px;left:8px;font-family:arial">';
+				$left_html .= sprintf( 'This QR code will be expired after %s', date( get_option( 'date_format' ), $this->video_delete_after ) );
+				$left_html .= '</div>';
+			}
 		}
 		if ( $this->has_left_page_message ) {
 			foreach ( $this->get_left_page_message_lines() as $line ) {
@@ -212,6 +218,20 @@ class PdfGeneratorBase {
 		<?php
 	}
 
+	protected function get_pdf_left_video_qr_code_style() {
+		if ( ! $this->has_video_message ) {
+			return;
+		}
+		$content_height = static::mm_to_points( $this->page_size[1] ) - static::px_to_points( 200 );
+		?>
+		<style type="text/css">
+			.card-content-inner-left {
+				margin-top: <?php echo intval(static::points_to_mm($content_height) / 2) .'mm'?>;
+			}
+		</style>
+		<?php
+	}
+
 	/**
 	 * Get HTML wrapper
 	 *
@@ -232,6 +252,7 @@ class PdfGeneratorBase {
 			</style>
 			<?php $this->get_pdf_dynamic_style(); ?>
 			<?php $this->get_pdf_left_page_dynamic_style(); ?>
+			<?php $this->get_pdf_left_video_qr_code_style(); ?>
 			<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 		</head>
 		<body>

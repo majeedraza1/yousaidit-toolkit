@@ -180,7 +180,7 @@ import CardWebViewer from "@/components/DynamicCardPreview/CardWebViewer";
 import SwiperSlider from './SwiperSlider';
 import EditableContent from "@/frontend/inner-message/EditableContent";
 import EditorControls from "@/frontend/inner-message/EditorControls";
-import GustLocalStorage from "@/frontend/dynamic-card/GustLocalStorage";
+import GustLocalStorage from "@/frontend/dynamic-card/GustLocalStorage.ts";
 import VideoInnerMessage from "@/frontend/dynamic-card/VideoInnerMessage";
 
 export default {
