@@ -95,6 +95,7 @@
 							:chunking="true"
 							:chunk-size="10000000"
 							:headers="headers"
+							:text-max-upload-limit="maxUploadLimitText"
 						/>
 
 						<div class="mt-4">
@@ -159,6 +160,9 @@ export default {
 		}
 	},
 	computed: {
+		maxUploadLimitText() {
+			return window.StackonetToolkit.maxUploadLimitText;
+		},
 		videoMessagePriceHTML() {
 			return window.StackonetToolkit.videoMessagePriceHTML;
 		},

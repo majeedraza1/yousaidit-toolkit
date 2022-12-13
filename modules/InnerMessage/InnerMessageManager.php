@@ -302,6 +302,16 @@ class InnerMessageManager {
 		];
 
 		$fields[] = [
+			'id'                => 'max_upload_limit_text',
+			'type'              => 'text',
+			'title'             => __( 'Max Upload Limit Text' ),
+			'default'           => 'Maximum upload file size: 2MB',
+			'priority'          => 11,
+			'sanitize_callback' => 'sanitize_text_field',
+			'section'           => 'section_inner_message_settings',
+		];
+
+		$fields[] = [
 			'id'                => 'video_converter',
 			'type'              => 'select',
 			'title'             => __( 'Video converter' ),

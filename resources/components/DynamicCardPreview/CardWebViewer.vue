@@ -109,7 +109,7 @@ import "@/web-components/DynamicCardBackground";
 import "@/web-components/DynamicCardLayer";
 import Popover from '@/shapla/popover';
 import {shaplaButton, iconContainer, FileUploader, deleteIcon} from "shapla-vue-components";
-import {FeaturedImage, MediaModal} from "@/shapla/shapla-media-uploader";
+import {_FeaturedImage as FeaturedImage, _MediaModal as MediaModal} from "shapla-vue-components";
 
 const optionArgs = {card_size: '', card_bg_type: '', card_bg_color: '', card_background: {}, card_items: []};
 export default {

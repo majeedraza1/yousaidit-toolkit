@@ -71,7 +71,7 @@
     "lit": "^2.0.2",
     "shapla-color-system": "^1.2.0",
     "shapla-css": "^2.1.0",
-    "shapla-vue-components": "^2.0.0-alpha.4",
+    "shapla-vue-components": "^2.0.0-alpha.5",
     "swiper": "^7.2.0",
     "v-emoji-picker": "^2.3.3",
     "vue": "^2.6.14",

@@ -89,6 +89,7 @@ class SettingPage {
 			// Inner message
 			'inner_message_price'                 => '',
 			'video_inner_message_price'           => '',
+			'max_upload_limit_text'               => 'Maximum upload file size: 2MB',
 			'inner_message_visible_on_cat'        => '',
 			// Order Dispatcher
 			'other_products_tab_categories'       => '',
