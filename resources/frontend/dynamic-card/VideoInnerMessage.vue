@@ -24,11 +24,15 @@
 					<div v-html="videoMessagePriceHTML"></div>
 				</div>
 			</div>
-			<div class="text-sm mt-1">Your video will play when they scan the QR code printed on the inside page.</div>
+			<div class="text-sm mt-1 max-w-sm text-center">
+				Your video will play when they scan the QR code printed on the inside page.
+			</div>
+
+			<div class="text-lg my-8">Or</div>
 
 			<div
 				@click="changeType('text')"
-				class="border border-solid border-gray-200 hover:border-gray-500 cursor-pointer inline-flex items-center rounded px-4 py-2 mt-8">
+				class="border border-solid border-gray-200 hover:border-gray-500 cursor-pointer inline-flex items-center rounded px-4 py-2">
 				Add text
 			</div>
 		</div>
@@ -69,7 +73,10 @@
 										 :height-ratio="1080">
 							<video id="video-recording" width="192" height="108" controls></video>
 						</image-container>
-						<div class="mt-2 text-center">
+						<div class="mt-2 text-center space-x-2">
+							<shapla-button v-if="isRecordingFinished" theme="primary" outline @click="cancelRecording">
+								Cancel
+							</shapla-button>
 							<shapla-button v-if="isRecordingFinished" theme="primary"
 										   :class="{'is-loading':isRecordingSendingToServer}" @click="useRecording"
 							>Use this Recording
@@ -213,6 +220,12 @@ export default {
 			this.job_id = '';
 			this.videoType = 'uploaded';
 			localStorage.removeItem(`__gust_video_${this.product_id}`);
+		},
+		cancelRecording() {
+			this.isRecordingStarted = false;
+			this.isRecordingFinished = false;
+			this.isRecordingSendingToServer = false;
+			this.videoType = 'uploaded';
 		},
 		startRecording() {
 			this.isRecordingStarted = true;
