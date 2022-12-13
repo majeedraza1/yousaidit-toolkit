@@ -97,6 +97,7 @@
 							:headers="headers"
 							:text-max-upload-limit="maxUploadLimitText"
 						/>
+						<div v-html="fileUploaderTermsHTML" class="mt-2 max-w-xs text-sm text-center"></div>
 
 						<div class="mt-4">
 							<shapla-button theme="primary" @click="videoType='recorded'">Record Video</shapla-button>
@@ -163,6 +164,9 @@ export default {
 		maxUploadLimitText() {
 			return window.StackonetToolkit.maxUploadLimitText;
 		},
+		fileUploaderTermsHTML() {
+			return window.StackonetToolkit.fileUploaderTermsHTML;
+		},
 		videoMessagePriceHTML() {
 			return window.StackonetToolkit.videoMessagePriceHTML;
 		},
@@ -206,9 +210,9 @@ export default {
 	},
 	methods: {
 		clearVideoData() {
+			this.job_id = '';
 			this.videoType = 'uploaded';
 			localStorage.removeItem(`__gust_video_${this.product_id}`);
-			this.job_id = '';
 		},
 		startRecording() {
 			this.isRecordingStarted = true;
@@ -317,6 +321,7 @@ export default {
 			this.videos = [];
 			localStorage.removeItem(`__gust_video_${this.product_id}`);
 			this.emitChange('video_id', 0);
+			this.clearVideoData();
 		},
 		checkJobStatus(jobId) {
 			this.isCheckingStatus = true;

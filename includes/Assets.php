@@ -229,6 +229,7 @@ class Assets {
 			'videoMessagePrice'     => (float) SettingPage::get_option( 'video_inner_message_price' ),
 			'videoMessagePriceHTML' => wc_price( (float) SettingPage::get_option( 'video_inner_message_price' ) ),
 			'maxUploadLimitText'    => SettingPage::get_option( 'max_upload_limit_text' ),
+			'fileUploaderTermsHTML' => SettingPage::get_option( 'file_uploader_terms_and_condition' ),
 		];
 
 		$data['pdfSizes'] = FreePdfBase::get_sizes();

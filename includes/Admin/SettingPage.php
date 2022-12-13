@@ -69,30 +69,32 @@ class SettingPage {
 
 	public static function get_option( $key, $default = '' ) {
 		$default_options = [
-			'enable_adult_content_check'          => '1',
+			'enable_adult_content_check'                 => '1',
 			// ShipStation API key
-			'ship_station_api_key'                => '',
-			'ship_station_api_secret'             => '',
+			'ship_station_api_key'                       => '',
+			'ship_station_api_secret'                    => '',
 			// PayPal Config
-			'paypal_sandbox_mode'                 => '',
-			'paypal_client_id'                    => '',
-			'paypal_client_secret'                => '',
+			'paypal_sandbox_mode'                        => '',
+			'paypal_client_id'                           => '',
+			'paypal_client_secret'                       => '',
 			// Google Cloud
-			'google_api_secret_key'               => '',
+			'google_api_secret_key'                      => '',
 			// Trade Site
-			'trade_site_url'                      => '',
-			'trade_site_auth_token'               => '',
-			'trade_site_rest_namespace'           => '',
-			'trade_site_card_to_product_endpoint' => '',
+			'trade_site_url'                             => '',
+			'trade_site_auth_token'                      => '',
+			'trade_site_rest_namespace'                  => '',
+			'trade_site_card_to_product_endpoint'        => '',
 			// Postcard
-			'postcard_product_id'                 => '',
+			'postcard_product_id'                        => '',
 			// Inner message
-			'inner_message_price'                 => '',
-			'video_inner_message_price'           => '',
-			'max_upload_limit_text'               => 'Maximum upload file size: 2MB',
-			'inner_message_visible_on_cat'        => '',
+			'inner_message_price'                        => '',
+			'video_inner_message_price'                  => '',
+			'max_upload_limit_text'                      => 'Maximum upload file size: 2MB',
+			'file_uploader_terms_and_condition'          => 'By uploading a video you are consenting to the You Said It’s Term of Use.',
+			'number_of_reminders_for_free_video_message' => 5,
+			'inner_message_visible_on_cat'               => '',
 			// Order Dispatcher
-			'other_products_tab_categories'       => '',
+			'other_products_tab_categories'              => '',
 		];
 		$_options        = (array) get_option( '_stackonet_toolkit', [] );
 		$options         = wp_parse_args( $_options, $default_options );

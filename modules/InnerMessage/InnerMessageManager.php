@@ -3,12 +3,14 @@
 namespace YouSaidItCards\Modules\InnerMessage;
 
 use Exception;
+use Stackonet\WP\Framework\Supports\Sanitize;
 use WC_Cart;
 use WC_Order;
 use WC_Order_Item_Product;
 use YouSaidItCards\AWSElementalMediaConvert;
 use YouSaidItCards\Modules\InnerMessage\Models\Video;
 use YouSaidItCards\Modules\OrderDispatcher\QrCode;
+use YouSaidItCards\Modules\Reminders\Models\Reminder;
 use YouSaidItCards\Utils;
 
 defined( 'ABSPATH' ) || die;
@@ -312,6 +314,26 @@ class InnerMessageManager {
 		];
 
 		$fields[] = [
+			'id'                => 'file_uploader_terms_and_condition',
+			'type'              => 'textarea',
+			'title'             => __( 'File Uploader terms and condition.' ),
+			'default'           => 'By uploading a video you are consenting to the You Said It’s Term of Use.',
+			'priority'          => 11,
+			'sanitize_callback' => [ Sanitize::class, 'html' ],
+			'section'           => 'section_inner_message_settings',
+		];
+
+		$fields[] = [
+			'id'                => 'number_of_reminders_for_free_video_message',
+			'type'              => 'number',
+			'title'             => __( 'Number of reminders for free video message.' ),
+			'default'           => 5,
+			'priority'          => 11,
+			'sanitize_callback' => [ Sanitize::class, 'number' ],
+			'section'           => 'section_inner_message_settings',
+		];
+
+		$fields[] = [
 			'id'                => 'video_converter',
 			'type'              => 'select',
 			'title'             => __( 'Video converter' ),
@@ -440,6 +462,17 @@ class InnerMessageManager {
 		// If price is zero, exit here
 		if ( $price <= 0 ) {
 			return;
+		}
+
+		$user_id = get_current_user_id();
+		if ( $user_id ) {
+			$num_of_reminders_for_free = isset( $options['number_of_reminders_for_free_video_message'] ) ?
+				intval( $options['number_of_reminders_for_free_video_message'] ) : 0;
+			$total_reminders           = ( new Reminder() )->count_records( [ 'user_id' => $user_id ] );
+
+			if ( $num_of_reminders_for_free && $total_reminders && ( $total_reminders >= $num_of_reminders_for_free ) ) {
+				return;
+			}
 		}
 
 		foreach ( $cart->get_cart_contents() as $key => &$value ) {
