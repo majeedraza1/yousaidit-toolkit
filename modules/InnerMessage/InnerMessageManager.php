@@ -500,9 +500,12 @@ class InnerMessageManager {
 	 * @return array
 	 */
 	public function get_item_data( array $item_data, array $cart_item ): array {
-		if ( is_cart() && array_key_exists( '_inner_message', $cart_item ) ) {
-			$im = $cart_item['_inner_message'] ?? [];
-			if ( ! empty( $im['content'] ) ) {
+		$has_left_side_message = is_array( $cart_item['_video_inner_message'] ) &&
+		                         isset( $cart_item['_video_inner_message']['content'] );
+		if ( is_cart() && ( array_key_exists( '_inner_message', $cart_item ) || $has_left_side_message ) ) {
+			$im  = $cart_item['_inner_message'] ?? [];
+			$im2 = $cart_item['_video_inner_message'] ?? [];
+			if ( ! empty( $im['content'] ) || ! empty( $im2['content'] ) ) {
 				$item_data[] = [
 					'key'   => '<a data-mode="view" data-cart-item-key="' . esc_attr( $cart_item['key'] ) . '" class="inline-block border border-solid border-gray-700 p-1 sm:w-full">View Message</a>',
 					'value' => '<a data-mode="edit" data-cart-item-key="' . esc_attr( $cart_item['key'] ) . '" class="inline-block border border-solid border-primary p-1 sm:w-full">Edit Message</a>'
