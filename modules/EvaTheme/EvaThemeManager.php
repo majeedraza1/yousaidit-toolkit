@@ -107,6 +107,7 @@ class EvaThemeManager {
 			$html .= $this->get_video_inner_message_html();
 		} else if ( self::should_show_inner_message( $product ) ) {
 			$html .= $this->get_inner_message_html();
+			$html .= $this->get_video_inner_message_html();
 		}
 		if ( $price > 0 ) {
 			$html .= '<span class="inner-message-cost">+ ' . wc_price( $price ) . '</span>';

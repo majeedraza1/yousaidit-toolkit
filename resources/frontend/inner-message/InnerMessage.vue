@@ -4,11 +4,11 @@
 			   :show-close-icon="false" :close-on-background-click="false"
 			   :class="{
 				   'modal--inner-message-compose':true,
-				   'has-multi-compose modal--single-product-dynamic-card':hasBothSideContent
+				   'has-multi-compose modal--single-product-dynamic-card':hasBothSideContent|| page === 'single-product'
 			   }"
-			   :content-class="hasBothSideContent?'modal-dynamic-card-content':''">
+			   :content-class="hasBothSideContent || page === 'single-product'?'modal-dynamic-card-content':''">
 			>
-			<div v-show="hasBothSideContent">
+			<div v-show="hasBothSideContent || page === 'single-product'">
 				<multi-compose
 					v-if="showModal"
 					:active="showModal"
@@ -16,7 +16,7 @@
 					:right-message="innerMessage"
 					:card-size="card_size"
 					@close="closeModal"
-					@submit="onUpdateCartItemInfo"
+					@submit="onUpdateMultiCompose"
 				/>
 			</div>
 			<compose v-show="hasLeftPageContent && !hasRightPageContent" :active="showModal"
@@ -135,21 +135,6 @@ export default {
 		hasBothSideContent() {
 			return this.hasLeftPageContent && this.hasRightPageContent;
 		},
-		paddingTop() {
-			if ('a4' === this.card_size) {
-				return (100 / (426 / 2) * 303) + '%';
-			}
-			if ('a5' === this.card_size) {
-				return (100 / (303 / 2) * 216) + '%';
-			}
-			if ('a6' === this.card_size) {
-				return (100 / (216 / 2) * 154) + '%';
-			}
-			if ('square' === this.card_size) {
-				return (100 / (306 / 2) * 156) + '%';
-			}
-			return '100%';
-		},
 		btnText() {
 			return this.page === 'cart' ? 'Update' : 'Add to Basket';
 		}
@@ -185,9 +170,16 @@ export default {
 		document.addEventListener('click', event => {
 			let dataset = event.target.dataset;
 			if (dataset['cartItemKey']) {
-				this.$store.commit('SET_LOADING_STATUS', true);
-				let data = {action: 'get_cart_item_info', item_key: dataset['cartItemKey'], mode: dataset['mode']}
-				axios.get(StackonetToolkit.ajaxUrl, {params: data}).then(response => {
+				this.readInnerMessageDateForCardItem(dataset);
+			}
+		});
+	},
+	methods: {
+		readInnerMessageDateForCardItem(dataset) {
+			this.$store.commit('SET_LOADING_STATUS', true);
+			let data = {action: 'get_cart_item_info', item_key: dataset['cartItemKey'], mode: dataset['mode']}
+			axios.get(StackonetToolkit.ajaxUrl, {params: data})
+				.then(response => {
 					const _data = response.data;
 					this.$store.commit('SET_LOADING_STATUS', false);
 					if (_data._inner_message && _data._inner_message.content.length) {
@@ -215,10 +207,11 @@ export default {
 						this.cartkey = _data.key;
 					}
 				})
-			}
-		});
-	},
-	methods: {
+				.catch(error => {
+					this.$store.commit('SET_LOADING_STATUS', false);
+					console.log(error);
+				});
+		},
 		onSlideChange() {
 		},
 		closeViewModal() {
@@ -291,6 +284,40 @@ export default {
 						window.location.reload();
 					}
 				})
+			}
+		},
+		onUpdateMultiCompose(data) {
+			if ('cart' === this.page) {
+				return this.onUpdateCartItemInfo(data);
+			}
+
+			let fieldsContainer = document.querySelector('#_inner_message_fields');
+			if (fieldsContainer) {
+				const leftPageContent = data.left;
+				fieldsContainer.querySelector('#_inner_message_content').value = leftPageContent.content;
+				fieldsContainer.querySelector('#_inner_message_font').value = leftPageContent.font;
+				fieldsContainer.querySelector('#_inner_message_size').value = leftPageContent.size;
+				fieldsContainer.querySelector('#_inner_message_align').value = leftPageContent.alignment;
+				fieldsContainer.querySelector('#_inner_message_color').value = leftPageContent.color;
+			}
+
+			let imContainer2 = document.querySelector('#_video_inner_message_fields');
+			if (imContainer2) {
+				const rightPageContent = data.right;
+				imContainer2.querySelector('#_inner_message2_type').value = 'text';
+				imContainer2.querySelector('#_inner_message2_video_id').value = '';
+				imContainer2.querySelector('#_inner_message2_content').value = rightPageContent.content;
+				imContainer2.querySelector('#_inner_message2_font').value = rightPageContent.font;
+				imContainer2.querySelector('#_inner_message2_size').value = rightPageContent.size;
+				imContainer2.querySelector('#_inner_message2_align').value = rightPageContent.alignment;
+				imContainer2.querySelector('#_inner_message2_color').value = rightPageContent.color;
+			}
+
+			let variations_form = document.querySelector('form.cart');
+			if (variations_form) {
+				this.$store.commit('SET_LOADING_STATUS', true);
+				this.showModal = false;
+				variations_form.submit();
 			}
 		},
 		onUpdateCartItemInfo(data) {

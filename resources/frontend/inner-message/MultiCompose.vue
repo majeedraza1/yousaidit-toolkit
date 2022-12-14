@@ -176,8 +176,12 @@ export default {
 		}
 	},
 	mounted() {
-		this.leftInnerMessage = this.leftMessage;
-		this.rightInnerMessage = this.rightMessage;
+		if (Object.keys(this.leftMessage).length) {
+			this.leftInnerMessage = this.leftMessage;
+		}
+		if (Object.keys(this.rightMessage).length) {
+			this.rightInnerMessage = this.rightMessage;
+		}
 	}
 }
 </script>
