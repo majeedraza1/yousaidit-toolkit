@@ -14,7 +14,7 @@
 				<div class="flex flex-col flex-grow dynamic-card--canvas">
 					<div class="w-full flex dynamic-card--canvas-slider">
 						<swiper-slider v-if="show_dynamic_card_editor && Object.keys(payload).length"
-						               :card_size="card_size" :slide-to="slideTo" @slideChange="onSlideChange">
+									   :card_size="card_size" :slide-to="slideTo" @slideChange="onSlideChange">
 							<template v-slot:canvas="slotProps">
 								<dynamic-card-canvas
 									show-edit-icon
@@ -57,15 +57,15 @@
 					<div class="swiper-thumbnail mt-4 dynamic-card--canvas-thumb bg-gray-200">
 						<div class="flex space-x-4 p-2 justify-center">
 							<image-container container-width="64px" class="bg-gray-100" @click.native="slideTo = 0"
-							                 :class="{'border border-solid border-primary':slideTo === 0}">
+											 :class="{'border border-solid border-primary':slideTo === 0}">
 								<img :src="product_thumb" alt="">
 							</image-container>
 							<image-container container-width="64px" class="bg-gray-100" @click.native="slideTo = 1"
-							                 :class="{'border border-solid border-primary':slideTo === 1}">
+											 :class="{'border border-solid border-primary':slideTo === 1}">
 								<img :src="placeholder_im" alt=""/>
 							</image-container>
 							<image-container container-width="64px" class="bg-gray-100" @click.native="slideTo = 2"
-							                 :class="{'border border-solid border-primary':slideTo === 2}">
+											 :class="{'border border-solid border-primary':slideTo === 2}">
 								<img :src="placeholder_im" alt=""/>
 							</image-container>
 						</div>
@@ -112,9 +112,9 @@
 										<template v-if="images.length">
 											<div v-for="_img in images" class="w-1/4 p-1">
 												<img :src="_img.thumbnail.src || _img.full.src" alt=""
-												     @click="handleImageSelect(_img)"
-												     class="border-4 border-solid border-gray-200"
-												     :class="{'border-primary':isImageSelected(_img)}"
+													 @click="handleImageSelect(_img)"
+													 class="border-4 border-solid border-gray-200"
+													 :class="{'border-primary':isImageSelected(_img)}"
 												>
 											</div>
 										</template>
@@ -133,7 +133,7 @@
 								</tab>
 							</tabs>
 							<div class="relative border border-solid mt-6"
-							     v-if="activeSection.image && activeSection.image.src">
+								 v-if="activeSection.image && activeSection.image.src">
 								<img :src="activeSection.image.src" alt=""/>
 								<delete-icon class="absolute -top-2 -right-2" @click="removeImage"/>
 							</div>
@@ -147,7 +147,7 @@
 					</div>
 					<div class="space-y-2">
 						<shapla-button theme="primary" size="small" fullwidth outline
-						               @click="show_dynamic_card_editor = false">
+									   @click="show_dynamic_card_editor = false">
 							Cancel
 						</shapla-button>
 						<shapla-button theme="primary" size="medium" fullwidth @click="handleSubmit">
@@ -177,18 +177,17 @@ import {
 	tabs
 } from "shapla-vue-components";
 import CardWebViewer from "@/components/DynamicCardPreview/CardWebViewer";
-import SwiperSlider from './SwiperSlider';
 import EditableContent from "@/frontend/inner-message/EditableContent";
 import EditorControls from "@/frontend/inner-message/EditorControls";
+import SwiperSlider from "@/frontend/dynamic-card/SwiperSlider.vue";
 import GustLocalStorage from "@/frontend/dynamic-card/GustLocalStorage.ts";
 import VideoInnerMessage from "@/frontend/dynamic-card/VideoInnerMessage";
 
 export default {
 	name: "SingleProductDynamicCard",
 	components: {
-		VideoInnerMessage,
 		EditableContent, CardWebViewer, modal, shaplaButton, iconContainer, SwiperSlider, imageContainer,
-		EditorControls, FileUploader, tabs, tab, deleteIcon, notification, ConfirmDialog
+		VideoInnerMessage, EditorControls, FileUploader, tabs, tab, deleteIcon, notification, ConfirmDialog
 	},
 	data() {
 		return {

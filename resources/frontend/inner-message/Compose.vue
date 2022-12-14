@@ -120,14 +120,7 @@ export default {
 			if (editor && content) {
 				this.showLengthError = editor.offsetHeight > (0.95 * content.offsetHeight);
 			}
-		},
-		active(newValue) {
-			if (newValue) {
-				let container = this.$el.querySelector('#editable-content-container');
-			}
 		}
-	},
-	mounted() {
 	}
 }
 </script>

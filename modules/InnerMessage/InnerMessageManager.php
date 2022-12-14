@@ -44,6 +44,9 @@ class InnerMessageManager {
 			add_action( 'wp_ajax_set_cart_item_info', [ self::$instance, 'set_cart_item_info' ] );
 			add_action( 'wp_ajax_nopriv_set_cart_item_info', [ self::$instance, 'set_cart_item_info' ] );
 
+			add_action( 'wp_ajax_update_cart_item_info', [ self::$instance, 'update_cart_item_info' ] );
+			add_action( 'wp_ajax_nopriv_update_cart_item_info', [ self::$instance, 'update_cart_item_info' ] );
+
 			// Step 2: Add Customer Data to WooCommerce Cart
 			add_filter( 'woocommerce_add_cart_item_data', [ self::$instance, 'add_cart_item_data' ] );
 			add_action( 'woocommerce_before_calculate_totals',
@@ -545,14 +548,41 @@ class InnerMessageManager {
 	public function set_cart_item_info() {
 		$item_key      = $_REQUEST['item_key'] ?? '';
 		$inner_message = $_REQUEST['inner_message'] ?? [];
+		$page_side     = isset( $_REQUEST['page_side'] ) && 'left' === $_REQUEST['page_side'] ? 'left' : 'right';
+		$meta_key      = 'left' === $page_side ? '_video_inner_message' : '_inner_message';
 
 		$data_changed  = false;
 		$cart          = WC()->cart;
 		$cart_contents = $cart->get_cart_contents();
 		foreach ( $cart_contents as $key => $cart_content ) {
 			if ( $key == $item_key ) {
-				$cart_contents[ $key ]['_inner_message'] = self::sanitize_inner_message_data( $inner_message );
-				$data_changed                            = true;
+				$cart_contents[ $key ][ $meta_key ] = self::sanitize_inner_message_data( $inner_message );
+				$data_changed                       = true;
+			}
+		}
+
+		if ( $data_changed ) {
+			$cart->set_cart_contents( $cart_contents );
+			$cart->calculate_totals();
+		}
+
+		die();
+	}
+
+	public function update_cart_item_info() {
+		$item_key   = $_REQUEST['item_key'] ?? '';
+		$messages   = $_REQUEST['messages'] ?? [];
+		$left_data  = $messages['left'] ?? [];
+		$right_data = $messages['right'] ?? [];
+
+		$data_changed  = false;
+		$cart          = WC()->cart;
+		$cart_contents = $cart->get_cart_contents();
+		foreach ( $cart_contents as $key => $cart_content ) {
+			if ( $key == $item_key ) {
+				$cart_contents[ $key ]['_video_inner_message'] = self::sanitize_inner_message_data( $left_data );
+				$cart_contents[ $key ]['_inner_message']       = self::sanitize_inner_message_data( $right_data );
+				$data_changed                                  = true;
 			}
 		}
 

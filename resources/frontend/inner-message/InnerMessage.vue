@@ -1,9 +1,30 @@
 <template>
 	<div class="yousaidit-inner-message">
 		<modal :active="showModal" type="box" content-size="full" @close="closeModal"
-			   :show-close-icon="false" :close-on-background-click="false" class="modal--inner-message-compose">
-			<compose :active="showModal" :inner-message="innerMessage" :card-size="card_size"
-					 :btn-text="btnText" @close="closeModal" @submit="submit"/>
+			   :show-close-icon="false" :close-on-background-click="false"
+			   :class="{
+				   'modal--inner-message-compose':true,
+				   'has-multi-compose modal--single-product-dynamic-card':hasBothSideContent
+			   }"
+			   :content-class="hasBothSideContent?'modal-dynamic-card-content':''">
+			>
+			<div v-show="hasBothSideContent">
+				<multi-compose
+					v-if="showModal"
+					:active="showModal"
+					:left-message="videoInnerMessage"
+					:right-message="innerMessage"
+					:card-size="card_size"
+					@close="closeModal"
+					@submit="onUpdateCartItemInfo"
+				/>
+			</div>
+			<compose v-show="hasLeftPageContent && !hasRightPageContent" :active="showModal"
+					 :inner-message="videoInnerMessage" :card-size="card_size"
+					 :btn-text="btnText" @close="closeModal" @submit="(_data) => submit(_data,'left')"/>
+			<compose v-show="hasRightPageContent && !hasLeftPageContent" :active="showModal"
+					 :inner-message="innerMessage" :card-size="card_size"
+					 :btn-text="btnText" @close="closeModal" @submit="(_data) => submit(_data,'right')"/>
 		</modal>
 		<modal v-if="showViewModal" :active="true" type="card" title="Preview" content-size="full"
 			   @close="closeViewModal" :show-card-footer="false">
@@ -78,28 +99,36 @@
 import {mapState} from 'vuex';
 import axios from "axios";
 import {ConfirmDialog, modal, notification, shaplaButton, spinner} from 'shapla-vue-components';
-import Compose from "./Compose";
+import Compose from "./Compose.vue";
+import MultiCompose from "./MultiCompose.vue";
 import EditableContent from "@/frontend/inner-message/EditableContent";
 import SwiperSlider from "@/frontend/dynamic-card/SwiperSlider.vue";
 
+const defaultData = () => {
+	return {
+		showModal: false,
+		card_size: '',
+		showViewModal: false,
+		innerMessage: {},
+		videoInnerMessage: {},
+		hasRightPageContent: false,
+		hasLeftPageContent: false,
+		slideTo: 0,
+		page: 'single-product',
+		cartkey: '',
+		canvas_height: 0,
+		canvas_width: 0,
+	}
+}
+
 export default {
 	name: "InnerMessage",
-	components: {SwiperSlider, EditableContent, Compose, spinner, notification, ConfirmDialog, modal, shaplaButton},
+	components: {
+		SwiperSlider, EditableContent, Compose, spinner, notification, ConfirmDialog, modal, shaplaButton,
+		MultiCompose
+	},
 	data() {
-		return {
-			showModal: false,
-			card_size: '',
-			showViewModal: false,
-			innerMessage: {},
-			videoInnerMessage: {},
-			hasRightPageContent: false,
-			hasLeftPageContent: false,
-			slideTo: 0,
-			page: 'single-product',
-			cartkey: '',
-			canvas_height: 0,
-			canvas_width: 0,
-		}
+		return defaultData();
 	},
 	computed: {
 		...mapState(['loading', 'notification']),
@@ -120,30 +149,6 @@ export default {
 				return (100 / (306 / 2) * 156) + '%';
 			}
 			return '100%';
-		},
-		innerMessageClass() {
-			let classes = ['card-size'];
-			if (this.card_size) {
-				classes.push(`card-size--${this.card_size}`);
-			} else {
-				classes.push('card-size--square');
-			}
-
-			return classes;
-		},
-		innerMessageStyle() {
-			let styles = [];
-			if (!Object.keys(this.innerMessage).length) {
-				return styles;
-			}
-			styles.push({
-				// height: '100%',
-				"--font-family": this.innerMessage.font,
-				"--text-align": this.innerMessage.align,
-				"--color": this.innerMessage.color,
-				"--font-size": this.innerMessage.size + 'px'
-			});
-			return styles;
 		},
 		btnText() {
 			return this.page === 'cart' ? 'Update' : 'Add to Basket';
@@ -221,9 +226,7 @@ export default {
 			if (document.body.classList.contains('has-shapla-modal')) {
 				document.body.classList.remove('has-shapla-modal');
 			}
-			this.videoInnerMessage = {};
-			this.hasRightPageContent = false;
-			this.hasLeftPageContent = false;
+			Object.assign(this.$data, defaultData());
 		},
 		closeModal() {
 			this.showModal = false;
@@ -231,9 +234,7 @@ export default {
 			if (checkbox) {
 				checkbox.checked = false;
 			}
-			this.videoInnerMessage = {};
-			this.hasRightPageContent = false;
-			this.hasLeftPageContent = false;
+			Object.assign(this.$data, defaultData());
 		},
 		submit(data, side = 'right') {
 			let message = '';
@@ -276,6 +277,7 @@ export default {
 					method: 'POST',
 					data: {
 						action: 'set_cart_item_info',
+						page_side: side,
 						item_key: this.cartkey,
 						inner_message: {
 							content: data.message,
@@ -290,7 +292,21 @@ export default {
 					}
 				})
 			}
-		}
+		},
+		onUpdateCartItemInfo(data) {
+			window.jQuery.ajax({
+				url: StackonetToolkit.ajaxUrl,
+				method: 'POST',
+				data: {
+					action: 'update_cart_item_info',
+					item_key: this.cartkey,
+					messages: data
+				},
+				success: function () {
+					window.location.reload();
+				}
+			})
+		},
 	}
 }
 </script>
