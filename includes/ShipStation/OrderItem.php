@@ -100,6 +100,7 @@ class OrderItem implements JsonSerializable {
 	 * @var array
 	 */
 	protected $inner_message_info = [];
+	protected $video_inner_message = [];
 
 	protected $ship_station_order_id = 0;
 	/**
@@ -418,8 +419,10 @@ class OrderItem implements JsonSerializable {
 	public function read_inner_message_info_for_web() {
 		$order_item = $this->get_wc_order_item();
 		if ( $order_item instanceof WC_Order_Item_Product ) {
-			$meta                     = $order_item->get_meta( '_inner_message', true );
-			$this->inner_message_info = is_array( $meta ) ? $meta : [];
+			$meta                      = $order_item->get_meta( '_inner_message', true );
+			$this->inner_message_info  = is_array( $meta ) ? $meta : [];
+			$meta2                     = $order_item->get_meta( '_video_inner_message', true );
+			$this->video_inner_message = is_array( $meta2 ) ? $meta2 : [];
 		}
 	}
 
@@ -450,7 +453,27 @@ class OrderItem implements JsonSerializable {
 		$content = is_array( $this->inner_message_info ) && isset( $this->inner_message_info['content'] ) ?
 			$this->inner_message_info['content'] : '';
 
-		return ! empty( $content );
+		$video_content = is_array( $this->video_inner_message ) && count( $this->video_inner_message );
+
+		return ! empty( $content ) || $video_content;
+	}
+
+	public function has_video_message(): bool {
+		$video_content = is_array( $this->video_inner_message ) ? $this->video_inner_message : [];
+
+		if ( ! isset( $video_content['type'] ) ) {
+			return false;
+		}
+
+		if ( 'video' === $video_content['type'] && isset( $video_content['video_id'] ) && is_numeric( $video_content['video_id'] ) ) {
+			return true;
+		}
+
+		if ( 'text' === $video_content['type'] && isset( $video_content['content'] ) && ! empty( $video_content['content'] ) ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

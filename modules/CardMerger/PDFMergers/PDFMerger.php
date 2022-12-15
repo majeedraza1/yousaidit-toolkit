@@ -280,7 +280,7 @@ class PDFMerger {
 		if ( $order_item->has_inner_message() && static::$print_inner_message ) {
 			$info          = $order_item->get_inner_message_info();
 			$wc_order_item = $order_item->get_wc_order_item();
-			if ( $wc_order_item instanceof WC_Order_Item_Product && count( $info ) > 1 ) {
+			if ( $wc_order_item instanceof WC_Order_Item_Product && ( count( $info ) > 1 || $order_item->has_video_message() ) ) {
 				$file   = PdfGenerator::get_pdf_for_order_item( $wc_order_item );
 				$stream = StreamReader::createByFile( $file );
 				$pdf->addPage();
