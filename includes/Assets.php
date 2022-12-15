@@ -3,6 +3,7 @@
 namespace YouSaidItCards;
 
 // If this file is called directly, abort.
+use Stackonet\WP\Framework\Supports\Validate;
 use YouSaidItCards\Admin\SettingPage;
 use YouSaidItCards\Modules\InnerMessage\Fonts;
 use YouSaidItCards\Utilities\FreePdfBase;
@@ -230,6 +231,7 @@ class Assets {
 			'videoMessagePriceHTML' => wc_price( (float) SettingPage::get_option( 'video_inner_message_price' ) ),
 			'maxUploadLimitText'    => SettingPage::get_option( 'max_upload_limit_text' ),
 			'fileUploaderTermsHTML' => SettingPage::get_option( 'file_uploader_terms_and_condition' ),
+			'isRecordingEnabled'    => Validate::checked( SettingPage::get_option( 'show_recording_option_for_video_message' ) ),
 		];
 
 		$data['pdfSizes'] = FreePdfBase::get_sizes();

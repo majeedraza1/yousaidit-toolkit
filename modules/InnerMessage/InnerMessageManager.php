@@ -353,6 +353,16 @@ class InnerMessageManager {
 		];
 
 		$fields[] = [
+			'id'                => 'show_recording_option_for_video_message',
+			'type'              => 'checkbox',
+			'title'             => __( 'Show recording option for video message', 'yousaidit-toolkit' ),
+			'default'           => 1,
+			'priority'          => 11,
+			'sanitize_callback' => [ Sanitize::class, 'checked' ],
+			'section'           => 'section_inner_message_settings',
+		];
+
+		$fields[] = [
 			'id'                => 'inner_message_visible_on_cat',
 			'type'              => 'select',
 			'title'             => __( 'Inner message visible on' ),

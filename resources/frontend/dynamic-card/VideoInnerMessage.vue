@@ -106,7 +106,7 @@
 						/>
 						<div v-html="fileUploaderTermsHTML" class="mt-2 max-w-xs text-sm text-center"></div>
 
-						<div class="mt-4">
+						<div class="mt-4" v-if="isRecordingEnabled">
 							<shapla-button theme="primary" @click="videoType='recorded'">Record Video</shapla-button>
 						</div>
 					</template>
@@ -168,6 +168,9 @@ export default {
 		}
 	},
 	computed: {
+		isRecordingEnabled() {
+			return window.StackonetToolkit.isRecordingEnabled;
+		},
 		maxUploadLimitText() {
 			return window.StackonetToolkit.maxUploadLimitText;
 		},
