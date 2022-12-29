@@ -70,6 +70,7 @@ class SettingPage {
 	public static function get_option( $key, $default = '' ) {
 		$default_options = [
 			'enable_adult_content_check'                 => '1',
+			'enable_adult_content_check_for_video'       => '0',
 			// ShipStation API key
 			'ship_station_api_key'                       => '',
 			'ship_station_api_secret'                    => '',
@@ -240,6 +241,16 @@ class SettingPage {
 			'description'       => __( 'Enable adult content check on media image' ),
 			'priority'          => 10,
 			'default'           => 'yes',
+			'sanitize_callback' => 'sanitize_text_field',
+			'section'           => 'section_general',
+		] );
+
+		$setting->set_field( [
+			'id'                => 'enable_adult_content_check_for_video',
+			'type'              => 'checkbox',
+			'title'             => __( 'Enable adult content check on video' ),
+			'priority'          => 10,
+			'default'           => 0,
 			'sanitize_callback' => 'sanitize_text_field',
 			'section'           => 'section_general',
 		] );

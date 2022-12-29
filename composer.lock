@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d2ca5a4c4170fd334bd565adae5ff5c7",
+    "content-hash": "2eefbb6c791fcc18d53db216ccd66cab",
     "packages": [
         {
             "name": "alchemy/binary-driver",
@@ -124,16 +124,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.247.2",
+            "version": "3.255.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "00542e760d8464e0ee635f916841fdfbd1ceb95c"
+                "reference": "69034d834b67085c86ca6b34fdd0976c097eb86f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/00542e760d8464e0ee635f916841fdfbd1ceb95c",
-                "reference": "00542e760d8464e0ee635f916841fdfbd1ceb95c",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/69034d834b67085c86ca6b34fdd0976c097eb86f",
+                "reference": "69034d834b67085c86ca6b34fdd0976c097eb86f",
                 "shasum": ""
             },
             "require": {
@@ -212,22 +212,22 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.247.2"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.255.5"
             },
-            "time": "2022-11-23T19:35:36+00:00"
+            "time": "2022-12-28T19:21:16+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
-            "version": "2.0.7",
+            "version": "2.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Bacon/BaconQrCode.git",
-                "reference": "d70c840f68657ce49094b8d91f9ee0cc07fbf66c"
+                "reference": "8674e51bb65af933a5ffaf1c308a660387c35c22"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Bacon/BaconQrCode/zipball/d70c840f68657ce49094b8d91f9ee0cc07fbf66c",
-                "reference": "d70c840f68657ce49094b8d91f9ee0cc07fbf66c",
+                "url": "https://api.github.com/repos/Bacon/BaconQrCode/zipball/8674e51bb65af933a5ffaf1c308a660387c35c22",
+                "reference": "8674e51bb65af933a5ffaf1c308a660387c35c22",
                 "shasum": ""
             },
             "require": {
@@ -266,9 +266,9 @@
             "homepage": "https://github.com/Bacon/BaconQrCode",
             "support": {
                 "issues": "https://github.com/Bacon/BaconQrCode/issues",
-                "source": "https://github.com/Bacon/BaconQrCode/tree/2.0.7"
+                "source": "https://github.com/Bacon/BaconQrCode/tree/2.0.8"
             },
-            "time": "2022-03-14T02:02:36+00:00"
+            "time": "2022-12-07T17:46:57+00:00"
         },
         {
             "name": "dasprid/enum",
@@ -1770,16 +1770,16 @@
         },
         {
             "name": "setasign/tfpdf",
-            "version": "v1.32",
+            "version": "v1.33",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Setasign/tFPDF.git",
-                "reference": "a879b83485c263605cbf98ab2e8fdd4d37ca2707"
+                "reference": "050de12ab5359ce475dab49bae5cedbcf455f708"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Setasign/tFPDF/zipball/a879b83485c263605cbf98ab2e8fdd4d37ca2707",
-                "reference": "a879b83485c263605cbf98ab2e8fdd4d37ca2707",
+                "url": "https://api.github.com/repos/Setasign/tFPDF/zipball/050de12ab5359ce475dab49bae5cedbcf455f708",
+                "reference": "050de12ab5359ce475dab49bae5cedbcf455f708",
                 "shasum": ""
             },
             "type": "library",
@@ -1818,22 +1818,22 @@
             ],
             "support": {
                 "issues": "https://github.com/Setasign/tFPDF/issues",
-                "source": "https://github.com/Setasign/tFPDF/tree/master"
+                "source": "https://github.com/Setasign/tFPDF/tree/v1.33"
             },
-            "time": "2020-08-31T07:28:46+00:00"
+            "time": "2022-12-20T10:26:07+00:00"
         },
         {
             "name": "stackonet/wp-helpers",
-            "version": "1.8.1",
+            "version": "1.9.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sayful1/wp-helpers.git",
-                "reference": "5c1405b560215a3cf1d76a8eff3b5d0f80509653"
+                "reference": "9dce83db1cda5e8801fcbc2af4674bd39cc6f0ed"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sayful1/wp-helpers/zipball/5c1405b560215a3cf1d76a8eff3b5d0f80509653",
-                "reference": "5c1405b560215a3cf1d76a8eff3b5d0f80509653",
+                "url": "https://api.github.com/repos/sayful1/wp-helpers/zipball/9dce83db1cda5e8801fcbc2af4674bd39cc6f0ed",
+                "reference": "9dce83db1cda5e8801fcbc2af4674bd39cc6f0ed",
                 "shasum": ""
             },
             "require": {
@@ -1882,9 +1882,9 @@
             "support": {
                 "email": "info@stackonet.com",
                 "issues": "https://github.com/sayful1/wp-helpers/issues",
-                "source": "https://github.com/sayful1/wp-helpers/tree/1.8.1"
+                "source": "https://github.com/sayful1/wp-helpers/tree/1.9.2"
             },
-            "time": "2022-11-18T09:57:43+00:00"
+            "time": "2022-12-29T13:05:24+00:00"
         },
         {
             "name": "symfony/cache",

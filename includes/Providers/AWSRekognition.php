@@ -6,7 +6,10 @@ use Aws\Credentials\Credentials;
 use Aws\Rekognition\Exception\RekognitionException;
 use Aws\Rekognition\RekognitionClient;
 use Aws\Result;
+use Aws\S3\Exception\S3Exception;
+use Aws\S3\S3Client;
 use Exception;
+use Stackonet\WP\Framework\Media\UploadedFile;
 use WP_Error;
 
 /**
@@ -17,6 +20,13 @@ class AWSRekognition {
 	 * Get client
 	 */
 	private static $client;
+
+	/**
+	 * Get s3 client
+	 *
+	 * @var S3Client|null
+	 */
+	private static $s3_client;
 
 	/**
 	 * Get settings
@@ -75,11 +85,68 @@ class AWSRekognition {
 	}
 
 	/**
+	 * Get s3 client
+	 *
+	 * @return S3Client|null
+	 * @throws Exception
+	 */
+	public static function get_s3_client(): ?S3Client {
+		if ( is_null( static::$s3_client ) ) {
+			static::$s3_client = new S3Client( [
+				'version'     => static::get_setting( 'version' ),
+				'region'      => static::get_setting( 'region' ),
+				'credentials' => static::get_credentials(),
+			] );
+		}
+
+		return static::$s3_client;
+	}
+
+	/**
+	 * Put video to s3
+	 *
+	 * @return WP_Error|string
+	 */
+	public static function put_object( UploadedFile $file, ?string $file_name = '' ) {
+		try {
+			$file_name = ( ! empty( $file_name ) ? $file_name : $file->get_client_filename() );
+			$result    = static::get_s3_client()->putObject( [
+				'ACL'        => 'public-read',
+				'Bucket'     => static::get_setting( 'source_bucket' ),
+				'Key'        => static::get_setting( 'object_prefix' ) . $file_name,
+				'SourceFile' => $file->get_file(),
+			] );
+
+			return $result->get( 'ObjectURL' );
+		} catch ( S3Exception $e ) {
+			return new WP_Error( 's3_error', $e->getAwsErrorMessage() );
+		} catch ( Exception $e ) {
+			return new WP_Error( 'setting_error', $e->getMessage() );
+		}
+	}
+
+	public static function delete_object( string $filename ) {
+		try {
+			return static::get_s3_client()->deleteObject( [
+				'Bucket' => static::get_setting( 'source_bucket' ),
+				'Key'    => static::get_setting( 'object_prefix' ) . $filename,
+			] );
+		} catch ( S3Exception $e ) {
+			return new WP_Error( 's3_error', $e->getAwsErrorMessage() );
+		} catch ( Exception $e ) {
+			return new WP_Error( 'setting_error', $e->getMessage() );
+		}
+	}
+
+	/**
 	 * Create a new job
 	 *
 	 * @return string|WP_Error
 	 */
-	public static function create_job( string $video_url ) {
+	public
+	static function create_job(
+		string $object_name
+	) {
 		try {
 			$client = static::get_client();
 			// Start content moderation for the web url provided $video_url
@@ -87,7 +154,7 @@ class AWSRekognition {
 				'Video' => [
 					'S3Object' => [
 						'Bucket' => static::get_setting( 'source_bucket' ),
-						'Name'   => $video_url,
+						'Name'   => $object_name,
 					],
 				],
 			] );
@@ -107,7 +174,10 @@ class AWSRekognition {
 	 *
 	 * @return WP_Error|Result
 	 */
-	public static function get_job( string $job_id ) {
+	public
+	static function get_job(
+		string $job_id
+	) {
 		try {
 			return static::get_client()->getContentModeration( [
 				"JobId" => $job_id,
@@ -124,7 +194,10 @@ class AWSRekognition {
 	 *
 	 * @return bool
 	 */
-	public static function is_adult( Result $result ): bool {
+	public
+	static function is_adult(
+		Result $result
+	): bool {
 		$ModerationLabels = $result->get( 'ModerationLabels' );
 		$labels           = [];
 		foreach ( $ModerationLabels as $moderation_label ) {
@@ -143,5 +216,20 @@ class AWSRekognition {
 		}
 
 		return in_array( 'Suggestive', array_keys( $labels ), true );
+	}
+
+	/**
+	 * Get s3 base url
+	 *
+	 * @return string
+	 * @throws Exception
+	 */
+	public
+	static function get_base_url(): string {
+		return sprintf(
+			'https://%s.s3.%s.amazonaws.com/',
+			static::get_setting( 'source_bucket' ),
+			static::get_setting( 'region' )
+		);
 	}
 }
