@@ -3,6 +3,7 @@
 namespace YouSaidItCards;
 
 use Stackonet\WP\Framework\Supports\Validate;
+use YouSaidItCards\Providers\AWSElementalMediaConvert;
 
 class Utils {
 	/**

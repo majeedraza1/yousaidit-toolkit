@@ -13,6 +13,7 @@ use YouSaidItCards\Modules\Designers\DynamicCard;
 use YouSaidItCards\Modules\Designers\Models\DesignerCard;
 use YouSaidItCards\Modules\DynamicCard\EnvelopeColours;
 use YouSaidItCards\Modules\InnerMessage\Fonts;
+use YouSaidItCards\Providers\AWSRekognition;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -62,9 +63,18 @@ class Ajax {
 			wp_die( __( 'Sorry. This link only for developer to do some testing.', 'yousaidit-toolkit' ) );
 		}
 
-		$sections_values = get_post_meta( 63409, '_wp_attachment_metadata', true );
-		$job             = AWSElementalMediaConvert::get_job( '1669527200336-ukn1y9' );
-		var_dump( [ $job,  ] );
+		// Job1 Adult: cb9d24dcddc35ff5975eed45ca4ccb0056681b5351135452d18204854ffdbf1b
+		// Job1 Not Adult: eba84590eee4ea3449862063106c7b788025b8db5ec3614397e527f565681e71
+		$job      = AWSRekognition::get_job( 'cb9d24dcddc35ff5975eed45ca4ccb0056681b5351135452d18204854ffdbf1b' );
+		$is_adult = AWSRekognition::is_adult( $job );
+//		$job2     = AWSRekognition::create_job( 'dist/d413709f-c299-640a-3cae-175c030909ec--2--40jla3irjd88xc4w4r59skm.mp4' );
+		$job      = AWSRekognition::get_job( 'ac2ced09a07138ca27f155dbecae6a98d2abff35dbdd6487cf0a46cefe293a13' );
+		$is_adult = AWSRekognition::is_adult( $job );
+		var_dump( [
+			'is_adult' => $is_adult,
+			'job'      => $job,
+//			'job2'     => $job2
+		] );
 
 		die();
 	}

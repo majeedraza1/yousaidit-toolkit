@@ -1,6 +1,6 @@
 <?php
 
-namespace YouSaidItCards;
+namespace YouSaidItCards\Providers;
 
 use Aws\Credentials\Credentials;
 use Aws\MediaConvert\Exception\MediaConvertException;

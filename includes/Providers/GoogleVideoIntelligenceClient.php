@@ -1,6 +1,6 @@
 <?php
 
-namespace YouSaidItCards;
+namespace YouSaidItCards\Providers;
 
 use Stackonet\WP\Framework\Supports\RestClient;
 use YouSaidItCards\Admin\SettingPage;
@@ -10,16 +10,16 @@ use YouSaidItCards\Admin\SettingPage;
  */
 class GoogleVideoIntelligenceClient extends RestClient {
 	public function __construct() {
-		$key = SettingPage::get_option( 'google_api_secret_key' );
+		$key = SettingPage::get_option( 'google_video_intelligence_key' );
 		if ( ! empty( $key ) ) {
-			$this->set_global_parameter( 'key', $key );
+			$this->add_headers( 'x-goog-api-key', $key );
 		}
-		$project_number = SettingPage::get_option( 'google_project_number' );
+		$project_number = SettingPage::get_option( 'google_video_intelligence_project_id' );
 		if ( ! empty( $project_number ) ) {
 			$this->add_headers( 'x-goog-user-project', $project_number );
 		}
 		$this->add_headers( 'Content-Type', 'application/json; charset=utf-8' );
-		$this->add_headers( 'Referer', site_url() );
+		$this->add_headers( 'Referer', 'https://yousaidit.co.uk' );
 		parent::__construct( 'https://videointelligence.googleapis.com/v1' );
 	}
 
@@ -33,7 +33,7 @@ class GoogleVideoIntelligenceClient extends RestClient {
 		}
 
 		$data = [
-			"features" => [ [ "type" => "EXPLICIT_CONTENT_DETECTION" ] ],
+			"features" => [ "EXPLICIT_CONTENT_DETECTION" ],
 			"inputUri" => $video_url,
 		];
 

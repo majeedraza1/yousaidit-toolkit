@@ -1,6 +1,6 @@
 <?php
 
-namespace YouSaidItCards;
+namespace YouSaidItCards\Providers;
 
 use Stackonet\WP\Framework\Supports\RestClient;
 use WP_Error;

@@ -9,7 +9,7 @@ use finfo;
 use Stackonet\WP\Framework\Media\UploadedFile;
 use Stackonet\WP\Framework\Media\Uploader;
 use WP_Error;
-use YouSaidItCards\AWSElementalMediaConvert;
+use YouSaidItCards\Providers\AWSElementalMediaConvert;
 use YouSaidItCards\Utils;
 
 /**

@@ -5,7 +5,7 @@ namespace YouSaidItCards\Modules\InnerMessage;
 use Exception;
 use Stackonet\WP\Framework\Abstracts\BackgroundProcess;
 use Stackonet\WP\Framework\Supports\Logger;
-use YouSaidItCards\AWSElementalMediaConvert;
+use YouSaidItCards\Providers\AWSElementalMediaConvert;
 
 /**
  * BackgroundCopyVideoToServer

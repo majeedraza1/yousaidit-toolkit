@@ -79,6 +79,9 @@ class SettingPage {
 			'paypal_client_secret'                       => '',
 			// Google Cloud
 			'google_api_secret_key'                      => '',
+			// Google video intelligence
+			'google_video_intelligence_key'              => '',
+			'google_video_intelligence_project_id'       => '',
 			// Trade Site
 			'trade_site_url'                             => '',
 			'trade_site_auth_token'                      => '',
@@ -205,6 +208,13 @@ class SettingPage {
 				'title'       => __( 'Google Api', 'dialog-contact-form' ),
 				'description' => __( 'Google Api settings', 'dialog-contact-form' ),
 				'priority'    => 30,
+			],
+			[
+				'id'          => 'section_google_video_intelligence',
+				'panel'       => 'integrations',
+				'title'       => __( 'Google video intelligence', 'dialog-contact-form' ),
+				'description' => __( 'Google video intelligence settings', 'dialog-contact-form' ),
+				'priority'    => 31,
 			],
 			[
 				'id'          => 'section_trade_site_auth',
@@ -373,6 +383,26 @@ class SettingPage {
 			'priority'          => 45,
 			'sanitize_callback' => 'sanitize_text_field',
 			'section'           => 'section_google_api',
+		] );
+
+		$setting->set_field( [
+			'id'                => 'google_video_intelligence_key',
+			'type'              => 'text',
+			'title'             => __( 'Key', 'yousaidit-toolkit' ),
+			'default'           => '',
+			'priority'          => 45,
+			'sanitize_callback' => 'sanitize_text_field',
+			'section'           => 'section_google_video_intelligence',
+		] );
+
+		$setting->set_field( [
+			'id'                => 'google_video_intelligence_project_id',
+			'type'              => 'text',
+			'title'             => __( 'Project ID', 'yousaidit-toolkit' ),
+			'default'           => '',
+			'priority'          => 45,
+			'sanitize_callback' => 'sanitize_text_field',
+			'section'           => 'section_google_video_intelligence',
 		] );
 
 		$setting->set_field( [

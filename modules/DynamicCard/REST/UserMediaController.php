@@ -9,11 +9,11 @@ use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
 use YouSaidItCards\Admin\SettingPage;
-use YouSaidItCards\AWSElementalMediaConvert;
 use YouSaidItCards\ChunkFileUploader;
-use YouSaidItCards\GoogleVisionClient;
 use YouSaidItCards\Modules\InnerMessage\BackgroundCopyVideoToServer;
 use YouSaidItCards\Modules\InnerMessage\VideoEditor;
+use YouSaidItCards\Providers\AWSElementalMediaConvert;
+use YouSaidItCards\Providers\GoogleVisionClient;
 use YouSaidItCards\REST\ApiController;
 use YouSaidItCards\Utils;
 

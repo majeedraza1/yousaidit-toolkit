@@ -7,10 +7,10 @@ use Stackonet\WP\Framework\Supports\Sanitize;
 use WC_Cart;
 use WC_Order;
 use WC_Order_Item_Product;
-use YouSaidItCards\AWSElementalMediaConvert;
 use YouSaidItCards\Modules\InnerMessage\Models\Video;
 use YouSaidItCards\Modules\OrderDispatcher\QrCode;
 use YouSaidItCards\Modules\Reminders\Models\Reminder;
+use YouSaidItCards\Providers\AWSElementalMediaConvert;
 use YouSaidItCards\Utils;
 
 defined( 'ABSPATH' ) || die;
