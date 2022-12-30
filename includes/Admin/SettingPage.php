@@ -211,13 +211,6 @@ class SettingPage {
 				'priority'    => 30,
 			],
 			[
-				'id'          => 'section_google_video_intelligence',
-				'panel'       => 'integrations',
-				'title'       => __( 'Google video intelligence', 'dialog-contact-form' ),
-				'description' => __( 'Google video intelligence settings', 'dialog-contact-form' ),
-				'priority'    => 31,
-			],
-			[
 				'id'          => 'section_trade_site_auth',
 				'title'       => __( 'Auth', 'dialog-contact-form' ),
 				'description' => __( 'Auth settings', 'dialog-contact-form' ),
@@ -394,26 +387,6 @@ class SettingPage {
 			'priority'          => 45,
 			'sanitize_callback' => 'sanitize_text_field',
 			'section'           => 'section_google_api',
-		] );
-
-		$setting->set_field( [
-			'id'                => 'google_video_intelligence_key',
-			'type'              => 'text',
-			'title'             => __( 'Key', 'yousaidit-toolkit' ),
-			'default'           => '',
-			'priority'          => 45,
-			'sanitize_callback' => 'sanitize_text_field',
-			'section'           => 'section_google_video_intelligence',
-		] );
-
-		$setting->set_field( [
-			'id'                => 'google_video_intelligence_project_id',
-			'type'              => 'text',
-			'title'             => __( 'Project ID', 'yousaidit-toolkit' ),
-			'default'           => '',
-			'priority'          => 45,
-			'sanitize_callback' => 'sanitize_text_field',
-			'section'           => 'section_google_video_intelligence',
 		] );
 
 		$setting->set_field( [

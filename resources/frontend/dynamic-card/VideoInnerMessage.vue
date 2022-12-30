@@ -128,12 +128,13 @@
 						   @click="clearVideoInnerMessage">Back
 			</shapla-button>
 		</template>
+		<notification :options="notifications"/>
 	</div>
 </template>
 
 <script>
 import EditableContent from "@/frontend/inner-message/EditableContent";
-import {FileUploader, imageContainer, progressBar, shaplaButton} from "shapla-vue-components";
+import {FileUploader, imageContainer, progressBar, shaplaButton,notification} from "shapla-vue-components";
 import axios from "axios";
 import {initRecording, stopRecording} from "@/frontend/dynamic-card/recording.ts";
 
@@ -144,7 +145,8 @@ export default {
 		FileUploader,
 		imageContainer,
 		shaplaButton,
-		progressBar
+		progressBar,
+		notification
 	},
 	props: {
 		product_id: {default: 0},
@@ -165,6 +167,7 @@ export default {
 			job_id: '',
 			timer_id: null,
 			isCheckingStatus: false,
+			notifications:{},
 		}
 	},
 	computed: {
@@ -356,6 +359,14 @@ export default {
 							}
 						}
 						resolve(data);
+					})
+					.catch(error=>{
+						const errorData = error.response.data;
+						if ('adult_content' === errorData.code) {
+							this.notifications = {type: 'error', title: 'Error!', message: errorData.message};
+							this.job_id = '';
+							localStorage.removeItem(`__job_id_${this.product_id}`);
+						}
 					})
 					.finally(() => {
 						this.isCheckingStatus = false;

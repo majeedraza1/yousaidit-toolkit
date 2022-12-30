@@ -298,6 +298,9 @@ class UserMediaController extends ApiController {
 				'chunks' => $request->get_param( 'chunks' ),
 				'name'   => $request->get_param( 'name' ),
 			] );
+			// get extension from name.
+			$ext               = pathinfo( $request->get_param( 'name' ), PATHINFO_EXTENSION );
+			$filename_with_ext = sprintf( '%s.%s', $filename, $ext );
 
 			if ( 0 === $attachment_id ) {
 				return $this->respondAccepted();

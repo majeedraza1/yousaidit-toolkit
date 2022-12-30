@@ -60,6 +60,10 @@ class BackgroundCopyVideoToServer extends BackgroundProcess {
 			$job      = AWSElementalMediaConvert::get_job( $job_id );
 			$data     = AWSElementalMediaConvert::format_job_result( $job );
 			$video_id = VideoEditor::copy_video( $data['output'], $job_id );
+			if ( ! is_wp_error( $video_id ) ) {
+				// Delete output videos from aws
+				AWSElementalMediaConvert::delete_object( $data['output'] );
+			}
 		} catch ( Exception $e ) {
 			Logger::log( 'Could not copy video for job: ' . $job_id );
 			Logger::log( $e );

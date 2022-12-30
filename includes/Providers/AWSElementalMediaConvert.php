@@ -5,6 +5,8 @@ namespace YouSaidItCards\Providers;
 use Aws\Credentials\Credentials;
 use Aws\MediaConvert\Exception\MediaConvertException;
 use Aws\MediaConvert\MediaConvertClient;
+use Aws\S3\Exception\S3Exception;
+use Aws\S3\S3Client;
 use Exception;
 use WP_Error;
 
@@ -16,6 +18,13 @@ class AWSElementalMediaConvert {
 	 * Get client
 	 */
 	private static $client;
+
+	/**
+	 * Get s3 client
+	 *
+	 * @var S3Client|null
+	 */
+	private static $s3_client;
 
 	/**
 	 * Get settings
@@ -71,6 +80,24 @@ class AWSElementalMediaConvert {
 		}
 
 		return static::$client;
+	}
+
+	/**
+	 * Get s3 client
+	 *
+	 * @return S3Client|null
+	 * @throws Exception
+	 */
+	public static function get_s3_client(): ?S3Client {
+		if ( is_null( static::$s3_client ) ) {
+			static::$s3_client = new S3Client( [
+				'version'     => 'latest',
+				'region'      => static::get_setting( 'region' ),
+				'credentials' => static::get_credentials(),
+			] );
+		}
+
+		return static::$s3_client;
 	}
 
 	/**
@@ -136,6 +163,20 @@ class AWSElementalMediaConvert {
 			return new WP_Error( $e->getAwsErrorCode(), $e->getAwsErrorMessage() );
 		} catch ( Exception $e ) {
 			return new WP_Error( $e->getCode(), $e->getMessage() );
+		}
+	}
+
+	public static function delete_object( string $file_url ) {
+		$key = str_replace( static::get_setting( 's3_base_url' ), '', $file_url );
+		try {
+			return static::get_s3_client()->deleteObject( [
+				'Bucket' => static::get_setting( 'source_bucket' ),
+				'Key'    => $key,
+			] );
+		} catch ( S3Exception $e ) {
+			return new WP_Error( 's3_error', $e->getAwsErrorMessage() );
+		} catch ( Exception $e ) {
+			return new WP_Error( 'setting_error', $e->getMessage() );
 		}
 	}
 
@@ -220,12 +261,12 @@ class AWSElementalMediaConvert {
 	 * @throws Exception
 	 */
 	public static function format_job_result( array $data ): array {
-		$setting       = rtrim( static::get_setting( 's3_bucket_base_url' ), '/' );
+		$base_url      = rtrim( static::get_setting( 's3_bucket_base_url' ), '/' );
 		$OutputDetails = $data['OutputGroupDetails'][0]['OutputDetails'][0] ?? [];
 		$status        = $data['Status'];
 		$file_input    = $data['Settings']['Inputs'][0]['FileInput'];
 		$filename      = pathinfo( $file_input, PATHINFO_FILENAME );
-		$url           = join( '/', [ $setting, sprintf( '%s.%s', $filename, 'mp4' ) ] );
+		$url           = join( '/', [ $base_url, sprintf( '%s.%s', $filename, 'mp4' ) ] );
 
 		return [
 			'id'       => $data['Id'],
