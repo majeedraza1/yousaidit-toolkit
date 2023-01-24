@@ -115,6 +115,28 @@ class Assets {
 	}
 
 	/**
+	 * Get version
+	 *
+	 * @param  array  $script  Script data.
+	 *
+	 * @return string
+	 */
+	public function get_version( array $script = [] ): string {
+		// Return version number for third party scripts.
+		if ( isset( $script['version'] ) ) {
+			return $script['version'];
+		}
+
+		// Get version from file modification time.
+		$file_path = str_replace( WP_CONTENT_URL, WP_CONTENT_DIR, $script['src'] );
+		if ( file_exists( $file_path ) ) {
+			return gmdate( 'Y.m.d.Gi', filemtime( $file_path ) );
+		}
+
+		return $this->version;
+	}
+
+	/**
 	 * Register our app scripts and styles
 	 *
 	 * @return void
@@ -142,8 +164,7 @@ class Assets {
 		foreach ( $scripts as $handle => $script ) {
 			$deps      = $script['deps'] ?? false;
 			$in_footer = $script['in_footer'] ?? true;
-			$version   = $script['version'] ?? $this->version;
-			wp_register_script( $handle, $script['src'], $deps, $version, $in_footer );
+			wp_register_script( $handle, $script['src'], $deps, $this->get_version( $script ), $in_footer );
 		}
 	}
 
@@ -157,7 +178,7 @@ class Assets {
 	public function register_styles( $styles ) {
 		foreach ( $styles as $handle => $style ) {
 			$deps = $style['deps'] ?? false;
-			wp_register_style( $handle, $style['src'], $deps, $this->version );
+			wp_register_style( $handle, $style['src'], $deps, $this->get_version( $style ) );
 		}
 	}
 
