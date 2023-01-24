@@ -80,7 +80,7 @@ class Assets {
 	/**
 	 * Get assets path
 	 *
-	 * @param string $path Get assets path
+	 * @param  string  $path  Get assets path
 	 *
 	 * @return string
 	 */
@@ -96,7 +96,7 @@ class Assets {
 	/**
 	 * Get assets URL
 	 *
-	 * @param string $path
+	 * @param  string  $path
 	 *
 	 * @return string
 	 */
@@ -134,7 +134,7 @@ class Assets {
 	/**
 	 * Register scripts
 	 *
-	 * @param array $scripts
+	 * @param  array  $scripts
 	 *
 	 * @return void
 	 */
@@ -150,7 +150,7 @@ class Assets {
 	/**
 	 * Register styles
 	 *
-	 * @param array $styles
+	 * @param  array  $styles
 	 *
 	 * @return void
 	 */
@@ -231,6 +231,7 @@ class Assets {
 			'videoMessagePriceHTML' => wc_price( (float) SettingPage::get_option( 'video_inner_message_price' ) ),
 			'maxUploadLimitText'    => SettingPage::get_option( 'max_upload_limit_text' ),
 			'fileUploaderTermsHTML' => SettingPage::get_option( 'file_uploader_terms_and_condition' ),
+			'qrCodePlayInfo'        => SettingPage::get_option( 'video_message_qr_code_info_for_customer' ),
 			'isRecordingEnabled'    => Validate::checked( SettingPage::get_option( 'show_recording_option_for_video_message' ) ),
 		];
 

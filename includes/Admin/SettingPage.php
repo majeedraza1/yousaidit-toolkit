@@ -95,6 +95,7 @@ class SettingPage {
 			'video_inner_message_price'                  => '',
 			'max_upload_limit_text'                      => 'Maximum upload file size: 2MB',
 			'file_uploader_terms_and_condition'          => 'By uploading a video you are consenting to the You Said It’s Term of Use.',
+			'video_message_qr_code_info_for_customer'    => 'Your video will play when they scan the QR code printed on the inside page.',
 			'number_of_reminders_for_free_video_message' => 5,
 			'inner_message_visible_on_cat'               => '',
 			// Order Dispatcher

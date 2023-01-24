@@ -103,7 +103,7 @@ class InnerMessageManager {
 	/**
 	 * Add query variable
 	 *
-	 * @param array $vars
+	 * @param  array  $vars
 	 *
 	 * @return array
 	 */
@@ -220,7 +220,8 @@ class InnerMessageManager {
 			if ( $delete_after ) {
 				$lines[] = [
 					'label' => 'Will be deleted (after)',
-					'value' => gmdate( sprintf( "%s %s", get_option( 'date_format' ), get_option( 'time_format' ) ), $delete_after ),
+					'value' => gmdate( sprintf( "%s %s", get_option( 'date_format' ), get_option( 'time_format' ) ),
+						$delete_after ),
 				];
 			}
 			if ( $order_id ) {
@@ -252,7 +253,7 @@ class InnerMessageManager {
 	/**
 	 * Add settings sections
 	 *
-	 * @param array $sections Array of sections.
+	 * @param  array  $sections  Array of sections.
 	 *
 	 * @return array
 	 */
@@ -270,7 +271,7 @@ class InnerMessageManager {
 	/**
 	 * Add settings fields
 	 *
-	 * @param array $fields Array of fields.
+	 * @param  array  $fields  Array of fields.
 	 *
 	 * @return array
 	 */
@@ -322,6 +323,16 @@ class InnerMessageManager {
 			'title'             => __( 'File Uploader terms and condition.' ),
 			'default'           => 'By uploading a video you are consenting to the You Said It’s Term of Use.',
 			'priority'          => 11,
+			'sanitize_callback' => [ Sanitize::class, 'html' ],
+			'section'           => 'section_inner_message_settings',
+		];
+
+		$fields[] = [
+			'id'                => 'video_message_qr_code_info_for_customer',
+			'type'              => 'textarea',
+			'title'             => __( 'How will play after scanning qr code' ),
+			'default'           => 'Your video will play when they scan the QR code printed on the inside page.',
+			'priority'          => 12,
 			'sanitize_callback' => [ Sanitize::class, 'html' ],
 			'section'           => 'section_inner_message_settings',
 		];
@@ -387,7 +398,7 @@ class InnerMessageManager {
 	}
 
 	/**
-	 * @param WC_Order $order
+	 * @param  WC_Order  $order
 	 */
 	public function process_custom_order_action( $order ) {
 		BackgroundInnerMessagePdfGenerator::generate_for_order( $order, true );
@@ -418,7 +429,7 @@ class InnerMessageManager {
 	/**
 	 * Add custom data to cart
 	 *
-	 * @param array $cart_item_data
+	 * @param  array  $cart_item_data
 	 *
 	 * @return array
 	 */
@@ -438,7 +449,7 @@ class InnerMessageManager {
 	/**
 	 * Before calculate totals
 	 *
-	 * @param WC_Cart $cart
+	 * @param  WC_Cart  $cart
 	 */
 	public function add_inner_message_extra_cost( WC_Cart $cart ) {
 		$options = (array) get_option( '_stackonet_toolkit' );
@@ -467,7 +478,7 @@ class InnerMessageManager {
 	/**
 	 * Before calculate totals
 	 *
-	 * @param WC_Cart $cart
+	 * @param  WC_Cart  $cart
 	 */
 	public function add_video_message_extra_cost( WC_Cart $cart ) {
 		$options = (array) get_option( '_stackonet_toolkit' );
@@ -507,8 +518,8 @@ class InnerMessageManager {
 	/**
 	 * Display information as Meta on Cart & Checkout page
 	 *
-	 * @param array $item_data
-	 * @param array $cart_item
+	 * @param  array  $item_data
+	 * @param  array  $cart_item
 	 *
 	 * @return array
 	 */
@@ -607,10 +618,10 @@ class InnerMessageManager {
 	/**
 	 * Add custom data to order line item
 	 *
-	 * @param WC_Order_Item_Product $item
-	 * @param string $cart_item_key
-	 * @param array $values
-	 * @param WC_Order $order
+	 * @param  WC_Order_Item_Product  $item
+	 * @param  string  $cart_item_key
+	 * @param  array  $values
+	 * @param  WC_Order  $order
 	 */
 	public function create_order_line_item( $item, $cart_item_key, $values, $order ) {
 		if ( array_key_exists( '_inner_message', $values ) ) {
@@ -639,7 +650,7 @@ class InnerMessageManager {
 	/**
 	 * Generate inner message pdf
 	 *
-	 * @param WC_Order $order
+	 * @param  WC_Order  $order
 	 *
 	 * @return void
 	 */
@@ -650,8 +661,8 @@ class InnerMessageManager {
 	/**
 	 * Display on Order detail page and (Order received / Thank you page)
 	 *
-	 * @param array $formatted_meta
-	 * @param WC_Order_Item_Product $order_item
+	 * @param  array  $formatted_meta
+	 * @param  WC_Order_Item_Product  $order_item
 	 *
 	 * @return mixed
 	 */
@@ -672,8 +683,10 @@ class InnerMessageManager {
 					'mode'     => 'pdf'
 				];
 
-				$url1    = add_query_arg( $args + [ 'action' => 'yousaidit_single_im_card' ], admin_url( 'admin-ajax.php' ) );
-				$url2    = add_query_arg( $args + [ 'action' => 'yousaidit_single_pdf_card' ], admin_url( 'admin-ajax.php' ) );
+				$url1    = add_query_arg( $args + [ 'action' => 'yousaidit_single_im_card' ],
+					admin_url( 'admin-ajax.php' ) );
+				$url2    = add_query_arg( $args + [ 'action' => 'yousaidit_single_pdf_card' ],
+					admin_url( 'admin-ajax.php' ) );
 				$display = sprintf( "%s | %s",
 					"<a target='_blank' href='" . esc_url( $url2 ) . "'>View PDF</a>",
 					"<a target='_blank' href='" . esc_url( $url1 ) . "'>View Inner Message PDF</a>"
@@ -723,8 +736,8 @@ class InnerMessageManager {
 	}
 
 	/**
-	 * @param mixed $data The data to be sanitized.
-	 * @param bool $contains_video_data Is it contain video data?
+	 * @param  mixed  $data  The data to be sanitized.
+	 * @param  bool  $contains_video_data  Is it contain video data?
 	 *
 	 * @return array
 	 */

@@ -25,7 +25,7 @@
 				</div>
 			</div>
 			<div class="text-sm mt-1 max-w-sm text-center">
-				Your video will play when they scan the QR code printed on the inside page.
+        {{ qrCodePlayInfo }}
 			</div>
 
 			<div class="text-lg my-8">Or</div>
@@ -182,6 +182,9 @@ export default {
 		},
 		videoMessagePriceHTML() {
 			return window.StackonetToolkit.videoMessagePriceHTML;
+		},
+    qrCodePlayInfo() {
+			return window.StackonetToolkit.qrCodePlayInfo;
 		},
 		uploadUrl() {
 			return StackonetToolkit.restRoot + '/dynamic-cards/video';
