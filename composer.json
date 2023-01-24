@@ -37,7 +37,7 @@
     "setasign/fpdf": "^1.8",
     "setasign/fpdi": "^2.3",
     "setasign/tfpdf": "^1.33",
-    "stackonet/wp-helpers": "^1.9.2",
+    "stackonet/wp-helpers": "^1.9.7",
     "php-ffmpeg/php-ffmpeg": "v0.19.0",
     "aws/aws-sdk-php": "^3.255"
   },
