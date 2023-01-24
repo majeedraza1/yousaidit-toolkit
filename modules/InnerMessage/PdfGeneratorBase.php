@@ -69,7 +69,7 @@ class PdfGeneratorBase {
 			$left_html .= '<img src="' . esc_url( $this->video_message_qr_code['url'] ) . '" width="96" height="96" />';
 			$left_html .= '<div style="max-width: 240px;margin-left:auto;margin-right:auto;font-size:12pt;line-height:12pt;font-family:arial">Scan to watch a video greeting made just for you</div>';
 			if ( $this->video_delete_after ) {
-				$left_html .= '<div style="font-size:7pt;line-height:7pt;position:absolute;bottom:8px;left:8px;font-family:arial">';
+				$left_html .= '<div style="max-width: 240px;margin-left:auto;margin-right:auto;margin-top:50px;font-size:7pt;line-height:7pt;font-family:arial">';
 				$left_html .= sprintf( 'This QR code will be expired after %s', date( get_option( 'date_format' ), $this->video_delete_after ) );
 				$left_html .= '</div>';
 			}
