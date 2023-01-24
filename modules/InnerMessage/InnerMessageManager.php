@@ -746,6 +746,23 @@ class InnerMessageManager {
 			return [];
 		}
 
+		if ( isset( $data['message'] ) && ! isset( $data['content'] ) ) {
+			$data['content'] = $data['message'];
+			unset( $data['message'] );
+		}
+		if ( isset( $data['font_family'] ) && ! isset( $data['font'] ) ) {
+			$data['font'] = $data['font_family'];
+			unset( $data['font_family'] );
+		}
+		if ( isset( $data['font_size'] ) && ! isset( $data['size'] ) ) {
+			$data['size'] = $data['font_size'];
+			unset( $data['font_size'] );
+		}
+		if ( is_single( $data['alignment'] ) && ! isset( $data['align'] ) ) {
+			$data['align'] = $data['alignment'];
+			unset( $data['alignment'] );
+		}
+
 		$default = [ 'content' => '', 'font' => '', 'size' => '', 'align' => '', 'color' => '' ];
 		if ( $contains_video_data ) {
 			$default['type']     = '';
