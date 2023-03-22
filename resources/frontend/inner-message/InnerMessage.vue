@@ -3,11 +3,10 @@
     <modal :active="showModal" type="box" content-size="full" @close="closeModal"
            :show-close-icon="false" :close-on-background-click="false"
            :class="{
-				   'modal--inner-message-compose':true,
-				   'has-multi-compose modal--single-product-dynamic-card':hasBothSideContent|| page === 'single-product'
-			   }"
+				      'modal--inner-message-compose':true,
+				      'has-multi-compose modal--single-product-dynamic-card':hasBothSideContent|| page === 'single-product'
+			     }"
            :content-class="hasBothSideContent || page === 'single-product'?'modal-dynamic-card-content':''">
-      >
       <div v-show="hasBothSideContent || page === 'single-product'">
         <multi-compose
             v-if="showModal"
@@ -349,16 +348,15 @@ export default {
   .modal--inner-message-compose {
     .shapla-modal-content {
       border-radius: 0;
-      height: 100vh;
+      height: var(--inner-message-modal-height, 100vh);
       width: 100vw;
 
       .admin-bar & {
-        margin-top: 32px;
-        height: calc(100vh - 32px);
+        margin-top: var(--admin-bar-height, 32px);
+        --inner-message-modal-height: calc(100vh - var(--admin-bar-height, 32px));
 
         @media screen and (max-width: 782px) {
-          margin-top: 46px;
-          height: calc(100vh - 46px);
+          --admin-bar-height: 46px;
         }
       }
     }

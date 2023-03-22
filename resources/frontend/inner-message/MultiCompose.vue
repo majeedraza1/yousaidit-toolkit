@@ -204,6 +204,12 @@ export default {
   &, *:before, *:after {
     box-sizing: border-box;
   }
+
+  @media screen and (max-width: 767px) {
+    max-height: var(--inner-message-modal-height, 95vh);
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
 }
 
 .has-multi-compose {
