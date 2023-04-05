@@ -24,7 +24,11 @@ class BaseAddress extends DatabaseModel {
 	 * @return int
 	 */
 	public function get_id(): int {
-		return (int) $this->get( 'id' );
+		if ( $this->has( 'id' ) ) {
+			return intval( $this->get( 'id' ) );
+		}
+
+		return parent::get_id();
 	}
 
 	/**
