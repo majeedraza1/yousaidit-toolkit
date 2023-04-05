@@ -71,7 +71,7 @@ class Session extends Collection {
 	 * Will rebuild the session collection from the given session ID if it exists. Otherwise, will
 	 * create a new session with that ID.
 	 *
-	 * @param array $data
+	 * @param  array  $data
 	 */
 	protected function __construct( $data = [] ) {
 
@@ -127,7 +127,8 @@ class Session extends Collection {
 	 * @uses apply_filters Calls `wp_session_expiration` to get the standard expiration time for sessions.
 	 */
 	protected function set_expiration() {
-		$this->exp_variant = time() + (int) apply_filters( 'wp_session_expiration_variant', ( MINUTE_IN_SECONDS * 15 ) );
+		$this->exp_variant = time() + (int) apply_filters( 'wp_session_expiration_variant',
+				( MINUTE_IN_SECONDS * 15 ) );
 		$this->expires     = time() + (int) apply_filters( 'wp_session_expiration', ( MINUTE_IN_SECONDS * 10 ) );
 	}
 
@@ -185,7 +186,7 @@ class Session extends Collection {
 	/**
 	 * Regenerate the current session's ID.
 	 *
-	 * @param bool $delete_old Flag whether or not to delete the old session data from the server.
+	 * @param  bool  $delete_old  Flag whether or not to delete the old session data from the server.
 	 */
 	public function regenerate_id( $delete_old = false ) {
 		if ( $delete_old ) {
@@ -233,8 +234,8 @@ class Session extends Collection {
 	/**
 	 * Offset to set
 	 *
-	 * @param mixed $key The offset to assign the value to.
-	 * @param mixed $value The value to set.
+	 * @param  mixed  $key  The offset to assign the value to.
+	 * @param  mixed  $value  The value to set.
 	 *
 	 * @return void
 	 */
@@ -258,7 +259,7 @@ class Session extends Collection {
 	 *
 	 * @return array
 	 */
-	public function to_array() {
+	public function to_array(): array {
 		$data = $this->collections;
 		foreach ( $data as $key => $value ) {
 			if ( $value instanceof self ) {
