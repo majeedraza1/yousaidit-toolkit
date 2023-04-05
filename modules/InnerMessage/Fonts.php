@@ -18,15 +18,21 @@ class Fonts {
 	 * files are located, ttf versions of the font are copied to the fonts
 	 * directory.  Changes to the font lookup table are saved to the cache.
 	 *
-	 * @param string $fontName the font-family name
-	 * @param string $normal the filename of the normal face font subtype
-	 * @param string $bold the filename of the bold face font subtype
-	 * @param string $italic the filename of the italic face font subtype
-	 * @param string $bold_italic the filename of the bold italic face font subtype
+	 * @param  string  $fontName  the font-family name
+	 * @param  string  $normal  the filename of the normal face font subtype
+	 * @param  string  $bold  the filename of the bold face font subtype
+	 * @param  string  $italic  the filename of the italic face font subtype
+	 * @param  string  $bold_italic  the filename of the bold italic face font subtype
 	 *
 	 * @throws Exception
 	 */
-	public static function install_font_family( $fontName, $normal, $bold = null, $italic = null, $bold_italic = null ) {
+	public static function install_font_family(
+		$fontName,
+		$normal,
+		$bold = null,
+		$italic = null,
+		$bold_italic = null
+	) {
 		$dompdf = new Dompdf();
 		$dir    = Filesystem::get_uploads_dir( 'inner-message-fonts' );
 		Filesystem::maybe_create_dir( $dir['path'] );
@@ -83,7 +89,8 @@ class Fonts {
 		// Copy the files to the font directory.
 		foreach ( $fonts as $var => $src ) {
 			if ( is_null( $src ) ) {
-				$entry[ $var ] = $dompdf->getOptions()->get( 'fontDir' ) . '/' . mb_substr( basename( $normal ), 0, - 4 );
+				$entry[ $var ] = $dompdf->getOptions()->get( 'fontDir' ) . '/' . mb_substr( basename( $normal ), 0,
+						- 4 );
 				continue;
 			}
 
@@ -130,6 +137,7 @@ class Fonts {
 	public static function get_list(): array {
 		$fonts                         = [];
 		$fonts['OpenSans']             = static::get_font_info( 'Open Sans', 'sans-serif' );
+		$fonts['OpenSansLight']        = static::get_font_info( 'Open Sans Light', 'sans-serif' );
 		$fonts['JosefinSlab']          = static::get_font_info( 'Josefin Slab', 'serif' );
 		$fonts['Prata']                = static::get_font_info( 'Prata', 'serif' );
 		$fonts['IndieFlower']          = static::get_font_info( 'Indie Flower', 'cursive' );
@@ -176,8 +184,8 @@ class Fonts {
 	/**
 	 * Get font info
 	 *
-	 * @param string $fontFamily
-	 * @param string|null $group
+	 * @param  string  $fontFamily
+	 * @param  string|null  $group
 	 *
 	 * @return array
 	 */
@@ -203,7 +211,7 @@ class Fonts {
 	/**
 	 * Get font path
 	 *
-	 * @param string $fontFamily
+	 * @param  string  $fontFamily
 	 *
 	 * @return string
 	 */
