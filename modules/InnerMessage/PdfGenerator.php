@@ -173,47 +173,4 @@ class PdfGenerator extends PdfGeneratorBase {
 			}
 		}
 	}
-
-	public function _test_fpdf() {
-		$client = new Client( new Ruleset() );
-
-		$messages = $this->get_message_lines();
-
-		var_dump( $messages );
-		die;
-
-		$fontEmoji = Fonts::get_font_info( 'Noto Emoji' );
-		$font      = Fonts::get_font_info( $this->font_family );
-		$fpd       = new \tFPDF( 'L', 'mm', [ $this->page_size[0], $this->page_size[1] ] );
-
-		// Add font
-		$font_family = str_replace( ' ', '', $font['label'] );
-		$fpd->AddFont( $font_family, '', $font['fileName'], true );
-//		$fpd->AddFont( 'NotoEmoji', '', $fontEmoji['fileName'], true );
-
-		$fpd->AddPage();
-
-		list( $red, $green, $blue ) = FreePdfBase::find_rgb_color( $this->text_color );
-		$fpd->SetTextColor( $red, $green, $blue );
-		$fpd->SetFont( $font_family, '', $this->font_size );
-//		$fpd->SetFont( 'NotoEmoji', '', $this->font_size );
-
-		$line_gap = ( $this->font_size / 3 );
-		$y_pos    = ( $fpd->GetPageHeight() / 2 ) - ( count( $messages ) * $line_gap );
-
-		foreach ( $messages as $index => $message ) {
-			$x_pos = $fpd->GetPageWidth() / 4 * 3 - $fpd->GetStringWidth( $message ) / 2;
-			if ( $index > 0 ) {
-				$y_pos += $line_gap;
-			}
-
-			if ( false !== strpos( '<img', $message ) ) {
-// /(?P<imgTag><img\s.*.src="(?P<imgSrc>\s*.*)"\s?\/>)/mgi
-			}
-			$text_width = $fpd->GetStringWidth( $message );
-			$fpd->Text( $x_pos, $y_pos, $message );
-		}
-
-		$fpd->Output( $args['dest'] ?? '', $args['name'] ?? '' );
-	}
 }

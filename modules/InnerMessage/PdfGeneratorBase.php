@@ -23,7 +23,6 @@ class PdfGeneratorBase {
 	protected $line_height = 18;
 	protected $padding = 8; // mm
 	protected $dir = null;
-	protected $text_box_height = 0;
 	protected $video_message_qr_code = [];
 	protected $left_page_message = [];
 	protected $has_video_message = false;
@@ -56,7 +55,7 @@ class PdfGeneratorBase {
 	 * @return Dompdf
 	 */
 	public function get_dompdf(): Dompdf {
-		$lines      = $this->get_message_lines();
+		$lines      = $this->get_right_page_message_lines();
 		$right_html = '';
 		foreach ( $lines as $line ) {
 			$line = str_replace( '&nbsp;', '', $line );
@@ -76,7 +75,8 @@ class PdfGeneratorBase {
 			$left_html .= '<div style="max-width: 240px;margin-left:auto;margin-right:auto;font-size:12pt;line-height:12pt;font-family:arial">Scan to watch a video greeting made just for you</div>';
 			if ( $this->video_delete_after ) {
 				$left_html .= '<div style="max-width: 240px;margin-left:auto;margin-right:auto;margin-top:50px;font-size:7pt;line-height:7pt;font-family:arial">';
-				$left_html .= sprintf( 'This QR code will be expired after %s', date( get_option( 'date_format' ), $this->video_delete_after ) );
+				$left_html .= sprintf( 'This QR code will be expired after %s',
+					date( get_option( 'date_format' ), $this->video_delete_after ) );
 				$left_html .= '</div>';
 			}
 		}
@@ -119,26 +119,25 @@ class PdfGeneratorBase {
 		return $dompdf;
 	}
 
-	/**
-	 * Get text box height
-	 *
-	 * @return mixed
-	 */
-	public function get_text_height( string $font_family = '', int $font_size = 0 ) {
-		if ( empty( $font_family ) ) {
-			$font_family = $this->font_family;
+	public function get_left_page_text_box_height(): float {
+		$lines  = $this->get_left_page_message_lines();
+		$height = 0;
+		foreach ( $lines as $line ) {
+			$metrics = $this->get_font_metrics(
+				wp_strip_all_tags( $line ),
+				$this->left_page_message['font'],
+				$this->left_page_message['size']
+			);
+			if ( is_array( $metrics ) && isset( $metrics['textHeight'] ) ) {
+				$height += floatval( $metrics['textHeight'] );
+			}
 		}
-		if ( empty( $font_size ) ) {
-			$font_size = $this->font_size;
-		}
-		$font_info = Fonts::get_font_info( $font_family );
-		$box       = imagettfbbox( $font_size, 0, $font_info['fontFilePath'], 'A quick brown fox jumps over the lazy dogs.' );
 
-		return $box[3] - $box[5];
+		return $height;
 	}
 
-	public function get_text_box_height(): float {
-		$lines  = $this->get_message_lines();
+	public function get_right_page_text_box_height(): float {
+		$lines  = $this->get_right_page_message_lines();
 		$height = 0;
 		foreach ( $lines as $line ) {
 			$metrics = $this->get_font_metrics( wp_strip_all_tags( $line ) );
@@ -151,23 +150,33 @@ class PdfGeneratorBase {
 	}
 
 	/**
-	 * @param  string  $text
+	 * Get font metrics
+	 *
+	 * @param  string  $text  The string to test for font metrics.
+	 * @param  string  $font_family  The font family.
+	 * @param  int  $font_size  The font size.
 	 *
 	 * @return array|false {
 	 * Array of font metrics info
 	 * }
 	 */
-	public function get_font_metrics( string $text = '' ) {
+	public function get_font_metrics( string $text = '', string $font_family = '', int $font_size = 0 ) {
 		if ( empty( $text ) ) {
 			$text = 'A quick brown fox jumps over the lazy dogs.';
 		}
-		$font_info = Fonts::get_font_info( $this->font_family );
+		if ( empty( $font_family ) ) {
+			$font_family = $this->font_family;
+		}
+		if ( empty( $font_size ) ) {
+			$font_size = $this->font_size;
+		}
+		$font_info = Fonts::get_font_info( $font_family );
 		try {
 			$im = new Imagick();
 			$im->setResolution( 300, 300 );
 			$draw = new ImagickDraw();
 			$draw->setFont( $font_info['fontFilePath'] );
-			$draw->setFontSize( $this->font_size );
+			$draw->setFontSize( $font_size );
 
 			return $im->queryFontMetrics( $draw, $text );
 		} catch ( ImagickDrawException|ImagickException $e ) {
@@ -177,7 +186,12 @@ class PdfGeneratorBase {
 		}
 	}
 
-	protected function recalculate_lines( array $text_lines, float $max_box_width = 0 ): array {
+	protected function recalculate_lines(
+		array $text_lines,
+		float $max_box_width = 0,
+		string $font_family = '',
+		int $font_size = 0
+	): array {
 		if ( empty( $max_box_width ) ) {
 			$half_of_page      = $this->page_size[0] / 2;
 			$max_content_width = $half_of_page - ( $this->padding * 2 ) - 2; // 2 mm extra edge
@@ -185,7 +199,7 @@ class PdfGeneratorBase {
 		}
 		$computed_lines = [];
 		foreach ( $text_lines as $str ) {
-			$matrix = $this->get_font_metrics( $str );
+			$matrix = $this->get_font_metrics( $str, $font_family, $font_size );
 			if ( $matrix['textWidth'] <= $max_box_width ) {
 				$computed_lines[] = $str;
 			} else {
@@ -243,7 +257,7 @@ class PdfGeneratorBase {
 	protected function get_pdf_dynamic_style() {
 		$font_info       = Fonts::get_font_info( $this->font_family );
 		$fontFamily      = str_replace( ' ', '_', strtolower( $font_info['label'] ) );
-		$text_box_height = static::points_to_mm( $this->get_text_box_height() );
+		$text_box_height = static::points_to_mm( $this->get_right_page_text_box_height() );
 		$max_height      = $this->page_size[1] - ( $this->padding * 2 );
 		if ( $text_box_height >= $max_height ) {
 			$content_inner_mt = 1;
@@ -252,7 +266,7 @@ class PdfGeneratorBase {
 		}
 		$show_structure = isset( $_GET['show_structure'] );
 		?>
-        <style type="text/css">
+		<style type="text/css">
             @font-face {
                 font-family: <?php echo $fontFamily?>;
                 src: url(<?php echo $font_info['fontUrl'] ?>) format('truetype');
@@ -293,11 +307,11 @@ class PdfGeneratorBase {
             .padding-15 {
                 padding: <?php echo $this->padding.'mm' ?>;
             }
-        </style>
+		</style>
 		<?php
 		if ( $show_structure ) {
 			?>
-            <style>
+			<style>
                 .left-column {
                     background-color: lightyellow;
                 }
@@ -331,14 +345,14 @@ class PdfGeneratorBase {
                     background-color: rgb(231 229 228);
                 }
 
-                <?php
-                foreach ( range( 1, 10 ) as $index => $item ) {
-                    echo '.row-' . intval( $item ) . '-of-10 {';
-                    echo 'top: '. (10 * $index).'%';
-                    echo '}';
-                }
-                ?>
-            </style>
+				<?php
+				foreach ( range( 1, 10 ) as $index => $item ) {
+					echo '.row-' . intval( $item ) . '-of-10 {';
+					echo 'top: '. (10 * $index).'%';
+					echo '}';
+				}
+				?>
+			</style>
 			<?php
 		}
 	}
@@ -351,32 +365,37 @@ class PdfGeneratorBase {
 		if ( false === $this->has_left_page_message ) {
 			return;
 		}
+		$text_box_height = static::points_to_mm( $this->get_left_page_text_box_height() );
+		$max_height      = $this->page_size[1] - ( $this->padding * 2 );
+		if ( $text_box_height >= $max_height ) {
+			$content_inner_mt = 1;
+		} else {
+			$content_inner_mt = intval( ( $max_height - $text_box_height ) / 2 );
+		}
+
 		$font_info       = Fonts::get_font_info( $this->left_page_message['font'] );
 		$fontFamily      = str_replace( ' ', '_', strtolower( $font_info['label'] ) );
-		$text_height     = $this->get_text_height( $this->left_page_message['font'], $this->left_page_message['size'] );
-		$text_box_height = ( $this->padding * 2 ) + static::points_to_mm( $text_height * count( $this->get_left_page_message_lines() ) );
-		$content_height  = static::mm_to_points( $this->page_size[1] - $text_box_height );
 		?>
 		<style type="text/css">
-			@font-face {
-				font-family: <?php echo $fontFamily?>;
-				src: url(<?php echo $font_info['fontUrl'] ?>) format('truetype');
-				font-weight: normal;
-				font-style: normal;
-			}
+            @font-face {
+                font-family: <?php echo $fontFamily?>;
+                src: url(<?php echo $font_info['fontUrl'] ?>) format('truetype');
+                font-weight: normal;
+                font-style: normal;
+            }
 
-			.card-content-inner-left {
-				font-family: <?php echo $fontFamily?>;
-				font-weight: normal;
-				font-size: <?php echo $this->left_page_message['size'].'pt'?>;
-				line-height: <?php echo $this->left_page_message['size'].'pt'?>;
-				color: <?php echo $this->left_page_message['color']?>;
-				text-align: <?php echo $this->left_page_message['align']?>;
-			}
+            .card-content-inner-left {
+                font-family: <?php echo $fontFamily?>;
+                font-weight: normal;
+                font-size: <?php echo $this->left_page_message['size'].'pt'?>;
+                line-height: <?php echo $this->left_page_message['size'].'pt'?>;
+                color: <?php echo $this->left_page_message['color']?>;
+                text-align: <?php echo $this->left_page_message['align']?>;
+            }
 
-			.card-content-inner-left {
-				margin-top: <?php echo intval(static::points_to_mm($content_height) / 2) .'mm'?>;
-			}
+            .card-content-inner-left {
+                margin-top: <?php echo $content_inner_mt .'mm'?>;
+            }
 		</style>
 		<?php
 	}
@@ -388,9 +407,9 @@ class PdfGeneratorBase {
 		$content_height = static::mm_to_points( $this->page_size[1] ) - static::px_to_points( 200 );
 		?>
 		<style type="text/css">
-			.card-content-inner-left {
-				margin-top: <?php echo intval(static::points_to_mm($content_height) / 2) .'mm'?>;
-			}
+            .card-content-inner-left {
+                margin-top: <?php echo intval(static::points_to_mm($content_height) / 2) .'mm'?>;
+            }
 		</style>
 		<?php
 	}
@@ -398,8 +417,8 @@ class PdfGeneratorBase {
 	/**
 	 * Get HTML wrapper
 	 *
-	 * @param string $content Right side content.
-	 * @param string $left_content Left side content.
+	 * @param  string  $content  Right side content.
+	 * @param  string  $left_content  Left side content.
 	 *
 	 * @return string
 	 */
@@ -464,7 +483,7 @@ class PdfGeneratorBase {
 	 * Get message lines
 	 * @return array
 	 */
-	public function get_message_lines(): array {
+	public function get_right_page_message_lines(): array {
 		$client               = new Client( new Ruleset() );
 		$client->imagePathPNG = PdfGeneratorBase::get_emoji_assets_url();
 		$message              = str_replace( '<p>', '<div>', $this->message );
@@ -495,7 +514,18 @@ class PdfGeneratorBase {
 		$messages             = explode( '<div>', $message );
 		foreach ( $messages as $index => $message ) {
 			$msg                = str_replace( "</div>", '', $message );
-			$messages[ $index ] = $client->toImage( $msg );
+			$messages[ $index ] = preg_replace( '/(<[^>]+) style=".*?"/i', '$1', $msg );
+		}
+
+		$messages = array_filter( $messages );// Remove empty elements
+		$messages = $this->recalculate_lines(
+			$messages,
+			0,
+			$this->left_page_message['font'],
+			$this->left_page_message['size']
+		);
+		foreach ( $messages as $index => $message ) {
+			$messages[ $index ] = $client->toImage( $message );
 		}
 
 		return $messages;
