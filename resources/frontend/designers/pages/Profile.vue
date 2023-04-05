@@ -13,7 +13,7 @@
 		<tabs fullwidth tab-style="toggle">
 			<tab name="Personal Detail" selected>
 				<profile-field title="Name" :content="`${designer.first_name} ${designer.last_name}`"
-				               @save="updateName">
+							   @save="updateName">
 					<text-field type="text" label="First Name" v-model="designer.first_name"/>
 					<text-field type="text" label="Last Name" v-model="designer.last_name"/>
 				</profile-field>
@@ -37,15 +37,15 @@
 				</profile-field>
 
 				<profile-field title="About Yourself" :content="designer.description" field-width="500px"
-				               @save="updateDescription">
+							   @save="updateDescription">
 					<text-field type="textarea" label="Detail" v-model="designer.description"/>
 				</profile-field>
 
 				<profile-field title="Profile URL" :content="`${designer.profile_base_url}/${designer.user_login}`"
-				               @save="updateProfileUrl">
+							   @save="updateProfileUrl">
 					<span v-html="`${designer.profile_base_url}/${designer.user_login}`"></span>
 					<text-field type="url" label="Username" v-model="designer.user_login"
-					            help-text="Your username will be used as your profile page URL."/>
+								help-text="Your username will be used as your profile page URL."/>
 				</profile-field>
 
 				<profile-field title="Instagram Profile" :content="designer.instagram_url" field-width="500px"
@@ -60,23 +60,23 @@
 				</profile-field>
 
 				<profile-field title="Business Address" @save="updateBusinessAddress"
-				               :content="designer.formatted_address">
+							   :content="designer.formatted_address">
 					<text-field type="text" label="Address Line 1" autocomplete="address-line1"
-					            v-model="designer.business_address.address_1" name="address_1"/>
+								v-model="designer.business_address.address_1" name="address_1"/>
 					<text-field type="text" label="Address Line 2" autocomplete="address-line2"
-					            v-model="designer.business_address.address_2" name="address_2"/>
+								v-model="designer.business_address.address_2" name="address_2"/>
 					<text-field type="text" label="City" autocomplete="address-level2"
-					            v-model="designer.business_address.city" name="city"/>
+								v-model="designer.business_address.city" name="city"/>
 					<text-field type="text" label="Post Code" autocomplete="postal-code"
-					            v-model="designer.business_address.post_code" name="post_code"/>
+								v-model="designer.business_address.post_code" name="post_code"/>
 					<text-field type="text" label="Country" autocomplete="country"
-					            v-model="designer.business_address.country" name="country"/>
+								v-model="designer.business_address.country" name="country"/>
 				</profile-field>
 
 				<profile-field title="VAT" :content="designer.vat_registration_number" @save="updateVatInfo">
 					<text-field type="text" label="Vat Registration Number" v-model="designer.vat_registration_number"/>
 					<text-field type="date" label="Vat Certificate Issue Date"
-					            v-model="designer.vat_certificate_issue_date"/>
+								v-model="designer.vat_certificate_issue_date"/>
 				</profile-field>
 			</tab>
 
@@ -134,10 +134,9 @@
 
 <script>
 import axios from "axios";
-import {textField, tabs, tab, selectField, shaplaButton} from 'shapla-vue-components'
+import {_MediaModal as MediaModal, selectField, shaplaButton, tab, tabs, textField} from 'shapla-vue-components'
 import ProfileField from "../components/ProfileField";
 import DesignerProfileHeader from "../components/DesignerProfileHeader";
-import MediaModal from "../../../shapla/shapla-media-uploader/src/MediaModal";
 
 export default {
 	name: "Profile",

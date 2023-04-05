@@ -3,6 +3,8 @@
 namespace YouSaidItCards;
 
 // If this file is called directly, abort.
+use Stackonet\WP\Framework\Supports\Validate;
+use YouSaidItCards\Admin\SettingPage;
 use YouSaidItCards\Modules\InnerMessage\Fonts;
 use YouSaidItCards\Utilities\FreePdfBase;
 
@@ -78,7 +80,7 @@ class Assets {
 	/**
 	 * Get assets path
 	 *
-	 * @param string $path Get assets path
+	 * @param  string  $path  Get assets path
 	 *
 	 * @return string
 	 */
@@ -94,7 +96,7 @@ class Assets {
 	/**
 	 * Get assets URL
 	 *
-	 * @param string $path
+	 * @param  string  $path
 	 *
 	 * @return string
 	 */
@@ -110,6 +112,28 @@ class Assets {
 		}
 
 		return $url;
+	}
+
+	/**
+	 * Get version
+	 *
+	 * @param  array  $script  Script data.
+	 *
+	 * @return string
+	 */
+	public function get_version( array $script = [] ): string {
+		// Return version number for third party scripts.
+		if ( isset( $script['version'] ) ) {
+			return $script['version'];
+		}
+
+		// Get version from file modification time.
+		$file_path = str_replace( WP_CONTENT_URL, WP_CONTENT_DIR, $script['src'] );
+		if ( file_exists( $file_path ) ) {
+			return gmdate( 'Y.m.d.Gi', filemtime( $file_path ) );
+		}
+
+		return $this->version;
 	}
 
 	/**
@@ -132,7 +156,7 @@ class Assets {
 	/**
 	 * Register scripts
 	 *
-	 * @param array $scripts
+	 * @param  array  $scripts
 	 *
 	 * @return void
 	 */
@@ -140,22 +164,21 @@ class Assets {
 		foreach ( $scripts as $handle => $script ) {
 			$deps      = $script['deps'] ?? false;
 			$in_footer = $script['in_footer'] ?? true;
-			$version   = $script['version'] ?? $this->version;
-			wp_register_script( $handle, $script['src'], $deps, $version, $in_footer );
+			wp_register_script( $handle, $script['src'], $deps, $this->get_version( $script ), $in_footer );
 		}
 	}
 
 	/**
 	 * Register styles
 	 *
-	 * @param array $styles
+	 * @param  array  $styles
 	 *
 	 * @return void
 	 */
 	public function register_styles( $styles ) {
 		foreach ( $styles as $handle => $style ) {
 			$deps = $style['deps'] ?? false;
-			wp_register_style( $handle, $style['src'], $deps, $this->version );
+			wp_register_style( $handle, $style['src'], $deps, $this->get_version( $style ) );
 		}
 	}
 
@@ -219,12 +242,18 @@ class Assets {
 		$is_user_logged_in = $user->exists();
 
 		$data = [
-			'homeUrl'          => home_url(),
-			'ajaxUrl'          => admin_url( 'admin-ajax.php' ),
-			'restRoot'         => esc_url_raw( rest_url( 'yousaidit/v1' ) ),
-			'isUserLoggedIn'   => $is_user_logged_in,
-			'privacyPolicyUrl' => get_privacy_policy_url(),
-			'placeholderUrlIM' => self::get_assets_url( 'static-images/placeholder--inner-message.jpg' ),
+			'homeUrl'               => home_url(),
+			'ajaxUrl'               => admin_url( 'admin-ajax.php' ),
+			'restRoot'              => esc_url_raw( rest_url( 'yousaidit/v1' ) ),
+			'isUserLoggedIn'        => $is_user_logged_in,
+			'privacyPolicyUrl'      => get_privacy_policy_url(),
+			'placeholderUrlIM'      => self::get_assets_url( 'static-images/placeholder--inner-message.jpg' ),
+			'videoMessagePrice'     => (float) SettingPage::get_option( 'video_inner_message_price' ),
+			'videoMessagePriceHTML' => wc_price( (float) SettingPage::get_option( 'video_inner_message_price' ) ),
+			'maxUploadLimitText'    => SettingPage::get_option( 'max_upload_limit_text' ),
+			'fileUploaderTermsHTML' => SettingPage::get_option( 'file_uploader_terms_and_condition' ),
+			'qrCodePlayInfo'        => SettingPage::get_option( 'video_message_qr_code_info_for_customer' ),
+			'isRecordingEnabled'    => Validate::checked( SettingPage::get_option( 'show_recording_option_for_video_message' ) ),
 		];
 
 		$data['pdfSizes'] = FreePdfBase::get_sizes();

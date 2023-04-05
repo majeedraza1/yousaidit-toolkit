@@ -5,8 +5,10 @@ namespace YouSaidItCards\Modules\InnerMessage;
 use JoyPixels\Client;
 use JoyPixels\Ruleset;
 use WC_Order_Item_Product;
+use YouSaidItCards\Modules\OrderDispatcher\QrCode;
 use YouSaidItCards\Utilities\Filesystem;
 use YouSaidItCards\Utilities\FreePdfBase;
+use YouSaidItCards\Utils;
 
 class PdfGenerator extends PdfGeneratorBase {
 	protected $order_id = 0;
@@ -132,6 +134,26 @@ class PdfGenerator extends PdfGeneratorBase {
 		$this->dir  = $order->get_date_created()->format( "Y-m-d" );
 		$meta       = $order_item->get_meta( '_inner_message', true );
 		$inner_info = is_array( $meta ) ? $meta : [];
+
+		$meta2       = $order_item->get_meta( '_video_inner_message', true );
+		$inner_info2 = is_array( $meta2 ) ? $meta2 : [];
+		if ( is_array( $inner_info2 ) && isset( $inner_info2['type'] ) ) {
+			if ( 'video' === $inner_info2['type'] && isset( $inner_info2['video_id'] ) && is_numeric( $inner_info2['video_id'] ) ) {
+				$url                = Utils::get_video_message_url( intval( $inner_info2['video_id'] ) );
+				$video_delete_after = get_post_meta( $inner_info2['video_id'], '_should_delete_after_time', true );
+				if ( $video_delete_after ) {
+					$this->video_delete_after = (int) $video_delete_after;
+				}
+				if ( $url ) {
+					$this->video_message_qr_code = QrCode::generate_video_message( $url );
+					$this->has_video_message     = true;
+				}
+			}
+			if ( 'text' === $inner_info2['type'] && ! empty( $inner_info2['content'] ) ) {
+				$this->left_page_message     = $inner_info2;
+				$this->has_left_page_message = true;
+			}
+		}
 
 		$this->font_size   = isset( $inner_info['size'] ) ? intval( $inner_info['size'] ) : 14;
 		$this->line_height = $this->font_size * 1.5;

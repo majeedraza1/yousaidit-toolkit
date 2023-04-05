@@ -147,7 +147,7 @@ class PdfSizeCalculator extends BackgroundProcess {
 			wp_die( 'Sorry only admin can perform upgrade.' );
 		}
 
-		$nonce = isset( $_REQUEST['_token'] ) ? $_REQUEST['_token'] : '';
+		$nonce = $_REQUEST['_token'] ?? '';
 		if ( ! wp_verify_nonce( $nonce, 'pdf_size_calculator_upgrade' ) ) {
 			wp_die( 'Sorry, Invalid URL.' );
 		}
@@ -194,7 +194,9 @@ class PdfSizeCalculator extends BackgroundProcess {
 		update_option( '_pdf_size_calculator_started', 'yes', false );
 
 		foreach ( $ids as $pdf_id ) {
-			static::init()->push_to_queue( [ 'pdf_id' => $pdf_id ] );
+			if ( $pdf_id ) {
+				static::init()->push_to_queue( [ 'pdf_id' => $pdf_id ] );
+			}
 		}
 	}
 
@@ -203,11 +205,9 @@ class PdfSizeCalculator extends BackgroundProcess {
 	 */
 	protected function task( $item ) {
 		$pdf_id = isset( $item['pdf_id'] ) ? intval( $item['pdf_id'] ) : 0;
-		if ( empty( $pdf_id ) ) {
-			return false;
+		if ( $pdf_id ) {
+			self::calculate_pdf_width_and_height( $pdf_id );
 		}
-
-		self::calculate_pdf_width_and_height( $pdf_id );
 
 		return false;
 	}

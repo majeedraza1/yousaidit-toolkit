@@ -83,7 +83,7 @@ class Auth {
 		if ( static::$enable_cors ) {
 			$allow_headers = array_unique( array_merge(
 				$allow_headers,
-				[ 'Authorization', 'X-WP-Nonce', 'X-Auth-Token' ]
+				[ 'Authorization', 'X-WP-Nonce', 'X-Auth-Token', 'Content-Range' ]
 			) );
 		}
 
@@ -171,7 +171,7 @@ class Auth {
 	 * Get token for a user
 	 *
 	 * @param WP_User $user
-	 * @param int     $for_week
+	 * @param int $for_week
 	 *
 	 * @return string|WP_Error
 	 */

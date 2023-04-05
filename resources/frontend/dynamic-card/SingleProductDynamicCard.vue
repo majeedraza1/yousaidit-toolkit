@@ -14,7 +14,7 @@
 				<div class="flex flex-col flex-grow dynamic-card--canvas">
 					<div class="w-full flex dynamic-card--canvas-slider">
 						<swiper-slider v-if="show_dynamic_card_editor && Object.keys(payload).length"
-						               :card_size="card_size" :slide-to="slideTo" @slideChange="onSlideChange">
+									   :card_size="card_size" :slide-to="slideTo" @slideChange="onSlideChange">
 							<template v-slot:canvas="slotProps">
 								<dynamic-card-canvas
 									show-edit-icon
@@ -26,6 +26,14 @@
 									:element-height-mm="`${pxToMm(slotProps.sizes.height)}`"
 									@edit:layer="(event) => handleEditSection(event.detail.section,event.detail.index)"
 								></dynamic-card-canvas>
+							</template>
+							<template v-slot:video-message>
+								<video-inner-message
+									:product_id="product_id"
+									:inner-message="innerMessage2"
+									:card_size="card_size"
+									@change="changeVideoInnerMessage"
+								/>
 							</template>
 							<template v-slot:inner-message>
 								<div class="dynamic-card--editable-content-container">
@@ -49,11 +57,15 @@
 					<div class="swiper-thumbnail mt-4 dynamic-card--canvas-thumb bg-gray-200">
 						<div class="flex space-x-4 p-2 justify-center">
 							<image-container container-width="64px" class="bg-gray-100" @click.native="slideTo = 0"
-							                 :class="{'border border-solid border-primary':slideTo === 0}">
+											 :class="{'border border-solid border-primary':slideTo === 0}">
 								<img :src="product_thumb" alt="">
 							</image-container>
 							<image-container container-width="64px" class="bg-gray-100" @click.native="slideTo = 1"
-							                 :class="{'border border-solid border-primary':slideTo === 1}">
+											 :class="{'border border-solid border-primary':slideTo === 1}">
+								<img :src="placeholder_im" alt=""/>
+							</image-container>
+							<image-container container-width="64px" class="bg-gray-100" @click.native="slideTo = 2"
+											 :class="{'border border-solid border-primary':slideTo === 2}">
 								<img :src="placeholder_im" alt=""/>
 							</image-container>
 						</div>
@@ -100,9 +112,9 @@
 										<template v-if="images.length">
 											<div v-for="_img in images" class="w-1/4 p-1">
 												<img :src="_img.thumbnail.src || _img.full.src" alt=""
-												     @click="handleImageSelect(_img)"
-												     class="border-4 border-solid border-gray-200"
-												     :class="{'border-primary':isImageSelected(_img)}"
+													 @click="handleImageSelect(_img)"
+													 class="border-4 border-solid border-gray-200"
+													 :class="{'border-primary':isImageSelected(_img)}"
 												>
 											</div>
 										</template>
@@ -121,18 +133,21 @@
 								</tab>
 							</tabs>
 							<div class="relative border border-solid mt-6"
-							     v-if="activeSection.image && activeSection.image.src">
+								 v-if="activeSection.image && activeSection.image.src">
 								<img :src="activeSection.image.src" alt=""/>
 								<delete-icon class="absolute -top-2 -right-2" @click="removeImage"/>
 							</div>
 						</div>
 					</template>
-					<div v-if="slideTo !== 0">
+					<div v-if="slideTo === 2">
 						<editor-controls v-model="innerMessage" @change="onChangeEditorControls"/>
+					</div>
+					<div v-if="slideTo === 1">
+						<editor-controls v-model="innerMessage2" @change="onChangeEditorControls"/>
 					</div>
 					<div class="space-y-2">
 						<shapla-button theme="primary" size="small" fullwidth outline
-						               @click="show_dynamic_card_editor = false">
+									   @click="show_dynamic_card_editor = false">
 							Cancel
 						</shapla-button>
 						<shapla-button theme="primary" size="medium" fullwidth @click="handleSubmit">
@@ -143,24 +158,36 @@
 			</div>
 		</modal>
 		<notification :options="notifications"/>
+		<confirm-dialog/>
 	</div>
 </template>
 
 <script>
 import axios from "axios";
-import {modal, shaplaButton, iconContainer, imageContainer, FileUploader, tabs, tab, deleteIcon, notification}
-	from "shapla-vue-components";
+import {
+	ConfirmDialog,
+	deleteIcon,
+	FileUploader,
+	iconContainer,
+	imageContainer,
+	modal,
+	notification,
+	shaplaButton,
+	tab,
+	tabs
+} from "shapla-vue-components";
 import CardWebViewer from "@/components/DynamicCardPreview/CardWebViewer";
-import SwiperSlider from './SwiperSlider';
 import EditableContent from "@/frontend/inner-message/EditableContent";
 import EditorControls from "@/frontend/inner-message/EditorControls";
-import GustLocalStorage from "@/frontend/dynamic-card/GustLocalStorage";
+import SwiperSlider from "@/frontend/dynamic-card/SwiperSlider.vue";
+import GustLocalStorage from "@/frontend/dynamic-card/GustLocalStorage.ts";
+import VideoInnerMessage from "@/frontend/dynamic-card/VideoInnerMessage";
 
 export default {
 	name: "SingleProductDynamicCard",
 	components: {
 		EditableContent, CardWebViewer, modal, shaplaButton, iconContainer, SwiperSlider, imageContainer,
-		EditorControls, FileUploader, tabs, tab, deleteIcon, notification
+		VideoInnerMessage, EditorControls, FileUploader, tabs, tab, deleteIcon, notification, ConfirmDialog
 	},
 	data() {
 		return {
@@ -176,6 +203,15 @@ export default {
 				font_size: '18',
 				alignment: 'center',
 				color: '#1D1D1B',
+			},
+			innerMessage2: {
+				message: '',
+				font_family: "'Indie Flower', cursive",
+				font_size: '18',
+				alignment: 'center',
+				color: '#1D1D1B',
+				type: '',
+				video_id: 0,
 			},
 			readFromServer: false,
 			images: [],
@@ -225,6 +261,16 @@ export default {
 		}
 	},
 	methods: {
+		changeVideoInnerMessage(type, value) {
+			if ('type' === type) {
+				this.innerMessage2.type = value;
+			} else if ('video_id' === type) {
+				this.innerMessage2.video_id = value;
+			} else {
+				this.innerMessage2.type = '';
+				this.innerMessage2.video_id = 0;
+			}
+		},
 		pxToMm(px) {
 			return Math.round(px * 0.2645833333);
 		},
@@ -264,11 +310,9 @@ export default {
 				let inputId = `#_dynamic_card_input-${index}`
 				if (['static-text', 'input-text'].indexOf(item.section_type) !== -1) {
 					fieldsContainer.querySelector(inputId).value = item.text;
-					console.log(item.text)
 				}
 				if (['static-image', 'input-image'].indexOf(item.section_type) !== -1) {
 					fieldsContainer.querySelector(inputId).value = item.image.id || item.imageOptions.img.id;
-					console.log(item.image.id || item.imageOptions.img.id);
 				}
 			});
 			let imContainer = document.querySelector('#_inner_message_fields');
@@ -278,6 +322,21 @@ export default {
 				imContainer.querySelector('#_inner_message_size').value = this.innerMessage.font_size;
 				imContainer.querySelector('#_inner_message_align').value = this.innerMessage.alignment;
 				imContainer.querySelector('#_inner_message_color').value = this.innerMessage.color;
+			}
+			let imContainer2 = document.querySelector('#_video_inner_message_fields');
+			if (imContainer2 && this.innerMessage2.type) {
+				imContainer2.querySelector('#_inner_message2_type').value = this.innerMessage2.type;
+				if ('video' === this.innerMessage2.type && this.innerMessage2.video_id) {
+					imContainer2.querySelector('#_inner_message2_video_id').value = this.innerMessage2.video_id;
+					localStorage.removeItem(`__gust_video_${this.product_id}`);
+				}
+				if ('text' === this.innerMessage2.type && this.innerMessage2.message) {
+					imContainer2.querySelector('#_inner_message2_content').value = this.innerMessage2.message;
+					imContainer2.querySelector('#_inner_message2_font').value = this.innerMessage2.font_family;
+					imContainer2.querySelector('#_inner_message2_size').value = this.innerMessage2.font_size;
+					imContainer2.querySelector('#_inner_message2_align').value = this.innerMessage2.alignment;
+					imContainer2.querySelector('#_inner_message2_color').value = this.innerMessage2.color;
+				}
 			}
 			let variations_form = document.querySelector('form.cart');
 			if (variations_form) {
