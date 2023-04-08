@@ -128,16 +128,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.263.2",
+            "version": "3.263.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "5516a7edae70fff66223b2fd320c20b3b17ced56"
+                "reference": "92c6d3d8e328c7c30788f5091725a658356759db"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/5516a7edae70fff66223b2fd320c20b3b17ced56",
-                "reference": "5516a7edae70fff66223b2fd320c20b3b17ced56",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/92c6d3d8e328c7c30788f5091725a658356759db",
+                "reference": "92c6d3d8e328c7c30788f5091725a658356759db",
                 "shasum": ""
             },
             "require": {
@@ -216,9 +216,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.263.2"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.263.6"
             },
-            "time": "2023-04-03T18:19:25+00:00"
+            "time": "2023-04-07T18:23:41+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -1831,16 +1831,16 @@
         },
         {
             "name": "stackonet/wp-helpers",
-            "version": "1.9.9",
+            "version": "1.9.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sayful1/wp-helpers.git",
-                "reference": "c5609301c2a58e51fb36b97f5b189b690bf52db2"
+                "reference": "879baeb50a4fa423e78fc7f084afc5ed0e055e50"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sayful1/wp-helpers/zipball/c5609301c2a58e51fb36b97f5b189b690bf52db2",
-                "reference": "c5609301c2a58e51fb36b97f5b189b690bf52db2",
+                "url": "https://api.github.com/repos/sayful1/wp-helpers/zipball/879baeb50a4fa423e78fc7f084afc5ed0e055e50",
+                "reference": "879baeb50a4fa423e78fc7f084afc5ed0e055e50",
                 "shasum": ""
             },
             "require": {
@@ -1889,9 +1889,9 @@
             "support": {
                 "email": "info@stackonet.com",
                 "issues": "https://github.com/sayful1/wp-helpers/issues",
-                "source": "https://github.com/sayful1/wp-helpers/tree/1.9.9"
+                "source": "https://github.com/sayful1/wp-helpers/tree/1.9.10"
             },
-            "time": "2023-04-04T15:59:27+00:00"
+            "time": "2023-04-06T04:20:30+00:00"
         },
         {
             "name": "symfony/cache",
@@ -5198,16 +5198,16 @@
         },
         {
             "name": "wp-cli/extension-command",
-            "version": "v2.1.12",
+            "version": "v2.1.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wp-cli/extension-command.git",
-                "reference": "31ebccb1dfb9d7fdb60d495fd724385f75caa140"
+                "reference": "e92390ce3a0d95f534ab6c88f9a77bfd4615de47"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wp-cli/extension-command/zipball/31ebccb1dfb9d7fdb60d495fd724385f75caa140",
-                "reference": "31ebccb1dfb9d7fdb60d495fd724385f75caa140",
+                "url": "https://api.github.com/repos/wp-cli/extension-command/zipball/e92390ce3a0d95f534ab6c88f9a77bfd4615de47",
+                "reference": "e92390ce3a0d95f534ab6c88f9a77bfd4615de47",
                 "shasum": ""
             },
             "require": {
@@ -5290,9 +5290,9 @@
             "homepage": "https://github.com/wp-cli/extension-command",
             "support": {
                 "issues": "https://github.com/wp-cli/extension-command/issues",
-                "source": "https://github.com/wp-cli/extension-command/tree/v2.1.12"
+                "source": "https://github.com/wp-cli/extension-command/tree/v2.1.13"
             },
-            "time": "2023-03-03T14:38:19+00:00"
+            "time": "2023-04-04T21:39:30+00:00"
         },
         {
             "name": "wp-cli/i18n-command",
