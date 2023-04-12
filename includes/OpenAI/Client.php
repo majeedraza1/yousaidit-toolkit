@@ -37,14 +37,18 @@ class Client extends RestClient {
 	 * @return string|WP_Error
 	 */
 	public static function recreate_article( CardOption $option, bool $force = false, string $group = 'unknown' ) {
-		$cache_key = 'openai_recreate_article_' . md5( $option->get_instruction() );
+		$content = $option->get_instruction();
+		if ( empty( $content ) ) {
+			return new WP_Error( 'no_instruction', 'No instruction to handle it.' );
+		}
+		$cache_key = 'openai_recreate_article_' . md5( $content );
 		$result    = get_transient( $cache_key );
 		if ( empty( $result ) || $force ) {
 			$api_response = ( new static() )->chat_completions(
 				[
 					'model'    => static::DEFAULT_MODEL,
 					'messages' => [
-						[ 'role' => 'user', 'content' => $option->get_instruction() ]
+						[ 'role' => 'user', 'content' => $content ]
 					],
 				]
 			);

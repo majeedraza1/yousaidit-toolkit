@@ -21,6 +21,7 @@
     "resources/**/*.vue"
   ],
   "files": [
-    "resources/utils/vue-shims.d.ts"
+    "resources/utils/shims-tsx.d.ts",
+    "resources/utils/shims-vue.d.ts"
   ]
 }

@@ -473,7 +473,7 @@ body.is-dynamic-card-product {
 		}
 		.dynamic-card--canvas {
 			height: calc(100vh - 2rem); // excluding padding of modal box
-			width: calc(100% - 320px);
+			width: calc(100% - 360px);
 
 			&-slider {
 				height: calc(100vh - (2rem + 100px + 1rem)); // excluding padding of modal box
@@ -485,7 +485,7 @@ body.is-dynamic-card-product {
 		}
 
 		.dynamic-card--controls {
-			width: 320px;
+			width: 360px;
 		}
 	}
 }

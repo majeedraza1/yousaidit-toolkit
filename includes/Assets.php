@@ -6,6 +6,7 @@ namespace YouSaidItCards;
 use Stackonet\WP\Framework\Supports\Validate;
 use YouSaidItCards\Admin\SettingPage;
 use YouSaidItCards\Modules\InnerMessage\Fonts;
+use YouSaidItCards\OpenAI\CardOption;
 use YouSaidItCards\Utilities\FreePdfBase;
 
 defined( 'ABSPATH' ) || exit;
@@ -274,6 +275,10 @@ class Assets {
 
 			$data['logoutUrl'] = wp_logout_url( get_the_permalink() );
 		}
+
+		$data['occasions']  = CardOption::OCCASIONS;
+		$data['topics']     = CardOption::TOPICS;
+		$data['recipients'] = CardOption::RECIPIENTS;
 
 		echo '<script>window.StackonetToolkit = ' . wp_json_encode( $data ) . '</script>' . PHP_EOL;
 	}

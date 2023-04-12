@@ -67,6 +67,9 @@ class CardOption extends Data {
 	 * @return string
 	 */
 	public function get_instruction(): string {
+		if ( empty( $this->get_occasion() ) || empty( $this->get_recipient() ) ) {
+			return '';
+		}
 		$type = $this->is_poem() ? 'poem' : 'message';
 		$text = sprintf(
 			'Write me a %s %s for my %s',
@@ -191,7 +194,12 @@ class CardOption extends Data {
 		}
 	}
 
-	public static function dd() {
+	/**
+	 * Get all instruction
+	 *
+	 * @return array
+	 */
+	public static function get_all_instructions(): array {
 		$data = [];
 		foreach ( array_keys( static::OCCASIONS ) as $occasion ) {
 			foreach ( array_keys( static::RECIPIENTS ) as $recipient ) {
@@ -200,8 +208,13 @@ class CardOption extends Data {
 					$option->set_occasion( $occasion );
 					$option->set_recipient( $recipient );
 					$option->set_topic( $topic );
-					// $option->set_type( 'poem' );
 
+					$data[] = [
+						'option'      => wp_json_encode( $option ),
+						'instruction' => $option->get_instruction(),
+					];
+
+					$option->set_type( 'poem' );
 					$data[] = [
 						'option'      => wp_json_encode( $option ),
 						'instruction' => $option->get_instruction(),
