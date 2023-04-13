@@ -82,7 +82,11 @@ class CardOption extends Data {
 			$text .= sprintf( ' who likes %s', strtolower( static::TOPICS[ $this->get_topic() ] ) );
 		}
 
-		$text .= '. Max number of words is 60';
+		if ( $this->is_poem() ) {
+			$text .= '. Maximum lines should not exceed 6. Maximum number of words for the poem is 60';
+		} else {
+			$text .= '. Max number of words is 60';
+		}
 
 		return $text;
 	}

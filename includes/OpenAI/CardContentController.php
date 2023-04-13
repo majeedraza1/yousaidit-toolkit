@@ -101,9 +101,9 @@ class CardContentController extends ApiController {
 		}
 
 		$message  = preg_split( '/\r\n|\r|\n/', stripslashes( $message ) );
-		$messages = '';
+		$messages = [];
 		foreach ( $message as $item ) {
-			$messages .= '<div>' . trim( $item ) . '</div>';
+			$messages[] = trim( $item );
 		}
 
 		$response = [

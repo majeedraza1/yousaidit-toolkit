@@ -191,10 +191,6 @@ export default {
                 this.readInnerMessageDateForCardItem(dataset);
             }
         });
-        document.addEventListener('openAiContent', (event) => {
-            this.innerMessage.content = event.detail.lines;
-            this.hasRightPageContent = true;
-        })
     },
     methods: {
         changeVideoInnerMessage(type, value) {

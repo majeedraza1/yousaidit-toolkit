@@ -9,23 +9,9 @@
                                 :product_id="product_id"
                                 :inner-message="leftInnerMessage"
                                 :card_size="cardSize"
+                                :open-ai-editable="0===slideTo"
                                 @change="changeVideoInnerMessage"
                         />
-                        <div class="dynamic-card--editable-content-container" style="display:none">
-                            <editable-content
-                                    placeholder="Please click here to write your message"
-                                    :font-family="leftInnerMessage.font_family"
-                                    :font-size="leftInnerMessage.font_size"
-                                    :text-align="leftInnerMessage.alignment"
-                                    :color="leftInnerMessage.color"
-                                    v-model="leftInnerMessage.message"
-                                    :card-size="cardSize"
-                                    @lengthError="error => onLengthError(error, 'left')"
-                            />
-                            <div v-if="leftInnerMessage.showLengthError" class="has-error p-2 my-4 absolute bottom-0">
-                                Oops... your message is too long, please keep inside the box.
-                            </div>
-                        </div>
                     </template>
                     <template v-slot:inner-message>
                         <div class="dynamic-card--editable-content-container">
@@ -37,6 +23,7 @@
                                     :color="rightInnerMessage.color"
                                     v-model="rightInnerMessage.message"
                                     :card-size="cardSize"
+                                    :open-ai-editable="1===slideTo"
                                     @lengthError="error => onLengthError(error, 'right')"
                             />
                             <div v-if="rightInnerMessage.showLengthError" class="has-error p-2 my-4 absolute bottom-0">
@@ -62,10 +49,18 @@
         <div
                 class="flex flex-col justify-between bg-gray-100 p-2 dynamic-card--controls lg:border border-solid border-gray-100">
             <div v-if="slideTo === 0">
-                <editor-controls v-model="leftInnerMessage" @change="onChangeLeftEditorControls"/>
+                <editor-controls
+                        v-model="leftInnerMessage"
+                        @change="onChangeLeftEditorControls"
+                        @generateContent="onGenerateContentLeft"
+                />
             </div>
             <div v-if="slideTo === 1">
-                <editor-controls v-model="rightInnerMessage" @change="onChangeEditorControls"/>
+                <editor-controls
+                        v-model="rightInnerMessage"
+                        @change="onChangeEditorControls"
+                        @generateContent="onGenerateContentRight"
+                />
             </div>
             <div class="space-y-2">
                 <shapla-button theme="primary" size="small" fullwidth outline @click="$emit('close')">
@@ -196,6 +191,28 @@ export default {
             if ('emoji' === args.key) {
                 document.execCommand("insertHtml", false, args.payload);
             }
+        },
+        messagesLinesToString(lines) {
+            let contentEl = document.createElement('div');
+            lines.forEach(line => {
+                let divEl = document.createElement('div');
+                if (['<br>', ''].includes(line)) {
+                    divEl.append(document.createElement('br'))
+                } else {
+                    divEl.innerText = line;
+                }
+                contentEl.append(divEl);
+            })
+            return contentEl.innerHTML;
+        },
+        onGenerateContentLeft(args) {
+            // args.lines
+            this.leftInnerMessage.type = 'text';
+            this.leftInnerMessage.message = this.messagesLinesToString(args.lines);
+        },
+        onGenerateContentRight(args) {
+            // args.lines
+            this.rightInnerMessage.message = this.messagesLinesToString(args.lines);
         },
         handleSubmit() {
             this.$emit('submit', {
