@@ -5,8 +5,10 @@ namespace YouSaidItCards\Modules\InnerMessage;
 use JoyPixels\Client;
 use JoyPixels\Ruleset;
 use WC_Order_Item_Product;
+use YouSaidItCards\Modules\OrderDispatcher\QrCode;
 use YouSaidItCards\Utilities\Filesystem;
 use YouSaidItCards\Utilities\FreePdfBase;
+use YouSaidItCards\Utils;
 
 class PdfGenerator extends PdfGeneratorBase {
 	protected $order_id = 0;
@@ -133,6 +135,26 @@ class PdfGenerator extends PdfGeneratorBase {
 		$meta       = $order_item->get_meta( '_inner_message', true );
 		$inner_info = is_array( $meta ) ? $meta : [];
 
+		$meta2       = $order_item->get_meta( '_video_inner_message', true );
+		$inner_info2 = is_array( $meta2 ) ? $meta2 : [];
+		if ( is_array( $inner_info2 ) && isset( $inner_info2['type'] ) ) {
+			if ( 'video' === $inner_info2['type'] && isset( $inner_info2['video_id'] ) && is_numeric( $inner_info2['video_id'] ) ) {
+				$url                = Utils::get_video_message_url( intval( $inner_info2['video_id'] ) );
+				$video_delete_after = get_post_meta( $inner_info2['video_id'], '_should_delete_after_time', true );
+				if ( $video_delete_after ) {
+					$this->video_delete_after = (int) $video_delete_after;
+				}
+				if ( $url ) {
+					$this->video_message_qr_code = QrCode::generate_video_message( $url );
+					$this->has_video_message     = true;
+				}
+			}
+			if ( 'text' === $inner_info2['type'] && ! empty( $inner_info2['content'] ) ) {
+				$this->left_page_message     = $inner_info2;
+				$this->has_left_page_message = true;
+			}
+		}
+
 		$this->font_size   = isset( $inner_info['size'] ) ? intval( $inner_info['size'] ) : 14;
 		$this->line_height = $this->font_size * 1.5;
 		$this->text_color  = $inner_info['color'] ?? '#000000';
@@ -150,48 +172,5 @@ class PdfGenerator extends PdfGeneratorBase {
 				$this->page_size = [ 306, 156 ];
 			}
 		}
-	}
-
-	public function _test_fpdf() {
-		$client = new Client( new Ruleset() );
-
-		$messages = $this->get_message_lines();
-
-		var_dump( $messages );
-		die;
-
-		$fontEmoji = Fonts::get_font_info( 'Noto Emoji' );
-		$font      = Fonts::get_font_info( $this->font_family );
-		$fpd       = new \tFPDF( 'L', 'mm', [ $this->page_size[0], $this->page_size[1] ] );
-
-		// Add font
-		$font_family = str_replace( ' ', '', $font['label'] );
-		$fpd->AddFont( $font_family, '', $font['fileName'], true );
-//		$fpd->AddFont( 'NotoEmoji', '', $fontEmoji['fileName'], true );
-
-		$fpd->AddPage();
-
-		list( $red, $green, $blue ) = FreePdfBase::find_rgb_color( $this->text_color );
-		$fpd->SetTextColor( $red, $green, $blue );
-		$fpd->SetFont( $font_family, '', $this->font_size );
-//		$fpd->SetFont( 'NotoEmoji', '', $this->font_size );
-
-		$line_gap = ( $this->font_size / 3 );
-		$y_pos    = ( $fpd->GetPageHeight() / 2 ) - ( count( $messages ) * $line_gap );
-
-		foreach ( $messages as $index => $message ) {
-			$x_pos = $fpd->GetPageWidth() / 4 * 3 - $fpd->GetStringWidth( $message ) / 2;
-			if ( $index > 0 ) {
-				$y_pos += $line_gap;
-			}
-
-			if ( false !== strpos( '<img', $message ) ) {
-// /(?P<imgTag><img\s.*.src="(?P<imgSrc>\s*.*)"\s?\/>)/mgi
-			}
-			$text_width = $fpd->GetStringWidth( $message );
-			$fpd->Text( $x_pos, $y_pos, $message );
-		}
-
-		$fpd->Output( $args['dest'] ?? '', $args['name'] ?? '' );
 	}
 }

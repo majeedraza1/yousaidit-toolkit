@@ -91,8 +91,9 @@ class DynamicCardManager {
 				continue;
 			}
 
-			if ( $_time > $now ) {
-				wp_delete_attachment( $item, true );
+			// delete attachment if time is passed
+			if ( $_time < $now ) {
+				wp_delete_attachment( $item->ID, true );
 			}
 		}
 	}

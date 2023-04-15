@@ -6,9 +6,9 @@ use Stackonet\WP\Framework\Media\UploadedFile;
 use Stackonet\WP\Framework\Media\Uploader;
 use WP_REST_Response;
 use WP_REST_Server;
-use YouSaidItCards\GoogleVisionClient;
 use YouSaidItCards\Modules\Auth\Auth;
 use YouSaidItCards\Modules\Customer\Models\Customer;
+use YouSaidItCards\Providers\GoogleVisionClient;
 use YouSaidItCards\REST\ApiController;
 
 class UserProfileController extends ApiController {
