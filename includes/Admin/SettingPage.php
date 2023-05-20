@@ -69,28 +69,37 @@ class SettingPage {
 
 	public static function get_option( $key, $default = '' ) {
 		$default_options = [
-			'enable_adult_content_check'          => '1',
+			'enable_adult_content_check'                 => '1',
+			'enable_adult_content_check_for_video'       => '0',
 			// ShipStation API key
-			'ship_station_api_key'                => '',
-			'ship_station_api_secret'             => '',
+			'ship_station_api_key'                       => '',
+			'ship_station_api_secret'                    => '',
 			// PayPal Config
-			'paypal_sandbox_mode'                 => '',
-			'paypal_client_id'                    => '',
-			'paypal_client_secret'                => '',
+			'paypal_sandbox_mode'                        => '',
+			'paypal_client_id'                           => '',
+			'paypal_client_secret'                       => '',
 			// Google Cloud
-			'google_api_secret_key'               => '',
+			'google_api_secret_key'                      => '',
+			// Google video intelligence
+			'google_video_intelligence_key'              => '',
+			'google_video_intelligence_project_id'       => '',
 			// Trade Site
-			'trade_site_url'                      => '',
-			'trade_site_auth_token'               => '',
-			'trade_site_rest_namespace'           => '',
-			'trade_site_card_to_product_endpoint' => '',
+			'trade_site_url'                             => '',
+			'trade_site_auth_token'                      => '',
+			'trade_site_rest_namespace'                  => '',
+			'trade_site_card_to_product_endpoint'        => '',
 			// Postcard
-			'postcard_product_id'                 => '',
+			'postcard_product_id'                        => '',
 			// Inner message
-			'inner_message_price'                 => '',
-			'inner_message_visible_on_cat'        => '',
+			'inner_message_price'                        => '',
+			'video_inner_message_price'                  => '',
+			'max_upload_limit_text'                      => 'Maximum upload file size: 2MB',
+			'file_uploader_terms_and_condition'          => 'By uploading a video you are consenting to the You Said It’s Term of Use.',
+			'video_message_qr_code_info_for_customer'    => 'Your video will play when they scan the QR code printed on the inside page.',
+			'number_of_reminders_for_free_video_message' => 5,
+			'inner_message_visible_on_cat'               => '',
 			// Order Dispatcher
-			'other_products_tab_categories'       => '',
+			'other_products_tab_categories'              => '',
 		];
 		$_options        = (array) get_option( '_stackonet_toolkit', [] );
 		$options         = wp_parse_args( $_options, $default_options );
@@ -176,12 +185,6 @@ class SettingPage {
 				'priority' => 5,
 			],
 			[
-				'id'       => 'section_inner_message_settings',
-				'title'    => __( 'Inner Message Settings' ),
-				'panel'    => 'general',
-				'priority' => 6,
-			],
-			[
 				'id'       => 'section_order_dispatcher',
 				'title'    => __( 'Order Dispatcher Settings' ),
 				'panel'    => 'general',
@@ -232,6 +235,16 @@ class SettingPage {
 			'description'       => __( 'Enable adult content check on media image' ),
 			'priority'          => 10,
 			'default'           => 'yes',
+			'sanitize_callback' => 'sanitize_text_field',
+			'section'           => 'section_general',
+		] );
+
+		$setting->set_field( [
+			'id'                => 'enable_adult_content_check_for_video',
+			'type'              => 'checkbox',
+			'title'             => __( 'Enable adult content check on video' ),
+			'priority'          => 10,
+			'default'           => 0,
 			'sanitize_callback' => 'sanitize_text_field',
 			'section'           => 'section_general',
 		] );
@@ -435,31 +448,6 @@ class SettingPage {
 			'sanitize_callback' => 'sanitize_text_field',
 			'section'           => 'section_marketplace',
 			'options'           => self::get_market_places(),
-		] );
-
-		$setting->set_field( [
-			'id'                => 'inner_message_price',
-			'type'              => 'text',
-			'title'             => __( 'Inner message price' ),
-			'description'       => __( 'Enter number or float value' ),
-			'default'           => '',
-			'priority'          => 1,
-			'sanitize_callback' => 'sanitize_text_field',
-			'section'           => 'section_inner_message_settings',
-		] );
-		$setting->set_field( [
-			'id'                => 'inner_message_visible_on_cat',
-			'type'              => 'select',
-			'title'             => __( 'Inner message visible on' ),
-			'description'       => __( 'Choose category where the inner message should be visible.' ),
-			'default'           => '',
-			'priority'          => 2,
-			'multiple'          => true,
-			'sanitize_callback' => function ( $value ) {
-				return $value ? array_map( 'intval', $value ) : '';
-			},
-			'section'           => 'section_inner_message_settings',
-			'options'           => self::get_product_categories(),
 		] );
 
 		$action_url = admin_url( 'admin-ajax.php?action=yousaidit_clear_background_task' );

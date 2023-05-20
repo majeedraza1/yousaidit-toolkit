@@ -1,10 +1,13 @@
 <template>
 	<div class="swiper">
 		<div class="swiper-wrapper">
-			<swiper-slider-item :card_size="card_size">
+			<swiper-slider-item :card_size="card_size" v-if="false === hideCanvas">
 				<template v-slot:default="slotProps">
 					<slot name="canvas" v-bind:sizes="slotProps.sizes">Design Card canvas</slot>
 				</template>
+			</swiper-slider-item>
+			<swiper-slider-item :card_size="card_size">
+				<slot name="video-message">Video message canvas</slot>
 			</swiper-slider-item>
 			<swiper-slider-item :card_size="card_size">
 				<slot name="inner-message">Inner message canvas</slot>
@@ -24,7 +27,8 @@ export default {
 	components: {SwiperSliderItem},
 	props: {
 		card_size: {type: String, default: ''},
-		slideTo: {type: Number, default: 0}
+		slideTo: {type: Number, default: 0},
+		hideCanvas: {type: Boolean, default: false}
 	},
 	data() {
 		return {

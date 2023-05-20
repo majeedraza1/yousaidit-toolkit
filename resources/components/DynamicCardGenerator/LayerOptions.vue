@@ -115,7 +115,7 @@
 
 <script>
 import {modal, shaplaButton, textField, selectField, columns, column, sideNavigation} from 'shapla-vue-components';
-import {FeaturedImage, MediaModal} from "@/shapla/shapla-media-uploader";
+import {_FeaturedImage as FeaturedImage, _MediaModal as MediaModal} from "shapla-vue-components";
 
 const defaultOptions = {
 	label: '',

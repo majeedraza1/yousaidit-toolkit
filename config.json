@@ -7,7 +7,8 @@
       "./resources/admin/art-work/main.js",
       "./resources/admin/reminders/main.js",
       "./resources/admin/common.js",
-      "./resources/scss/admin.scss"
+      "./resources/scss/admin.scss",
+      "./resources/admin/ai-content-writer-settings/main.tsx"
     ],
     "designer-profile": [
       "./resources/frontend/designers/main.js",

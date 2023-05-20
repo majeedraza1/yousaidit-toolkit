@@ -53,7 +53,7 @@ class DesignerCardAttachmentController extends ApiController {
 	/**
 	 * Retrieves a collection of items.
 	 *
-	 * @param WP_REST_Request $request Full data about the request.
+	 * @param  WP_REST_Request  $request  Full data about the request.
 	 *
 	 * @return WP_REST_Response Response object on success, or WP_Error object on failure.
 	 */
@@ -104,7 +104,7 @@ class DesignerCardAttachmentController extends ApiController {
 	/**
 	 * Upload a file to a collection of items.
 	 *
-	 * @param WP_REST_Request $request Full data about the request.
+	 * @param  WP_REST_Request  $request  Full data about the request.
 	 *
 	 * @return WP_REST_Response Response object.
 	 * @throws Exception
@@ -118,8 +118,11 @@ class DesignerCardAttachmentController extends ApiController {
 
 		$user_id = (int) $request->get_param( 'user_id' );
 
-		$type = $request->get_param( 'type' );
-		$type = in_array( $type, [ 'card_pdf', 'card_gallery_images', 'card_image' ] ) ? $type : 'card_image';
+		$type                 = $request->get_param( 'type' );
+		$profile_images_types = [ 'avatar', 'cover' ];
+		$card_file_types      = [ 'card_pdf', 'card_gallery_images', 'card_image', 'card-logo' ];
+		$valid_types          = array_merge( $profile_images_types, $card_file_types );
+		$type                 = in_array( $type, $valid_types ) ? $type : 'card_image';
 
 		$card_size = $request->get_param( 'card_size' );
 
@@ -148,12 +151,11 @@ class DesignerCardAttachmentController extends ApiController {
 			return $this->respondForbidden();
 		}
 
+		$accepted_size = wp_convert_hr_to_bytes( '10MB' );
 		if ( 'card_pdf' == $type ) {
 			$valid_file_types = [ 'application/pdf' ];
-			$accepted_size    = wp_convert_hr_to_bytes( '10MB' );
 		} else {
 			$valid_file_types = [ 'image/jpeg', 'image/jpg', 'image/png' ];
-			$accepted_size    = wp_convert_hr_to_bytes( '10MB' );
 		}
 
 		if ( $uploadedFile->getSize() > $accepted_size ) {
@@ -169,14 +171,16 @@ class DesignerCardAttachmentController extends ApiController {
 		$imagick         = new \Imagick( $uploadedFile->getFile() );
 		$imageResolution = $imagick->getImageResolution();
 
-		if ( $imageResolution['x'] < 300 || $imageResolution['y'] < 300 ) {
-			$resolution = $imageResolution['x'];
-			if ( $imageResolution['y'] !== $resolution ) {
-				$resolution = sprintf( "%sx%s", $resolution, $imageResolution['y'] );
-			}
-			$message = "Minimum image resolution is 300dpi. Your uploaded image resolution is {$resolution} dpi";
+		if ( ! in_array( $type, $profile_images_types, true ) ) {
+			if ( $imageResolution['x'] < 300 || $imageResolution['y'] < 300 ) {
+				$resolution = $imageResolution['x'];
+				if ( $imageResolution['y'] !== $resolution ) {
+					$resolution = sprintf( "%sx%s", $resolution, $imageResolution['y'] );
+				}
+				$message = "Minimum image resolution is 300dpi. Your uploaded image resolution is {$resolution} dpi";
 
-			return $this->respondUnprocessableEntity( null, $message );
+				return $this->respondUnprocessableEntity( null, $message );
+			}
 		}
 
 		$attachments = Attachment::upload( $uploadedFile );
@@ -195,8 +199,8 @@ class DesignerCardAttachmentController extends ApiController {
 	/**
 	 * Prepares the item for the REST response.
 	 *
-	 * @param mixed $item WordPress representation of the item.
-	 * @param WP_REST_Request $request Request object.
+	 * @param  mixed  $item  WordPress representation of the item.
+	 * @param  WP_REST_Request  $request  Request object.
 	 *
 	 * @return array
 	 */

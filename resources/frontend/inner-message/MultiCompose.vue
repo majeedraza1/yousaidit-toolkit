@@ -1,0 +1,274 @@
+<template>
+    <div class="multi-compose w-full h-full flex sm:flex-col md:flex-col lg:flex-row lg:space-x-4">
+        <div class="flex flex-col flex-grow dynamic-card--canvas">
+            <div class="w-full h-full flex dynamic-card--canvas-slider">
+                <swiper-slider :card_size="cardSize" :slide-to="slideTo" :hide-canvas="true"
+                               @slideChange="onSlideChange">
+                    <template v-slot:video-message>
+                        <video-inner-message
+                                :product_id="product_id"
+                                :inner-message="leftInnerMessage"
+                                :card_size="cardSize"
+                                :open-ai-editable="0===slideTo"
+                                @change="changeVideoInnerMessage"
+                        />
+                    </template>
+                    <template v-slot:inner-message>
+                        <div class="dynamic-card--editable-content-container">
+                            <editable-content
+                                    placeholder="Please click here to write your message"
+                                    :font-family="rightInnerMessage.font_family"
+                                    :font-size="rightInnerMessage.font_size"
+                                    :text-align="rightInnerMessage.alignment"
+                                    :color="rightInnerMessage.color"
+                                    v-model="rightInnerMessage.message"
+                                    :card-size="cardSize"
+                                    :open-ai-editable="1===slideTo"
+                                    @lengthError="error => onLengthError(error, 'right')"
+                            />
+                            <div v-if="rightInnerMessage.showLengthError" class="has-error p-2 my-4 absolute bottom-0">
+                                Oops... your message is too long, please keep inside the box.
+                            </div>
+                        </div>
+                    </template>
+                </swiper-slider>
+            </div>
+            <div class="swiper-thumbnail mt-4 dynamic-card--canvas-thumb bg-gray-200">
+                <div class="flex space-x-4 p-2 justify-center">
+                    <image-container container-width="64px" class="bg-gray-100" @click.native="slideTo = 0"
+                                     :class="{'border border-solid border-primary':slideTo === 0}">
+                        <img :src="placeholder_im_left" alt=""/>
+                    </image-container>
+                    <image-container container-width="64px" class="bg-gray-100" @click.native="slideTo = 1"
+                                     :class="{'border border-solid border-primary':slideTo === 1}">
+                        <img :src="placeholder_im_right" alt=""/>
+                    </image-container>
+                </div>
+            </div>
+        </div>
+        <div
+                class="flex flex-col justify-between bg-gray-100 p-2 dynamic-card--controls lg:border border-solid border-gray-100">
+            <div v-if="slideTo === 0">
+                <editor-controls
+                        v-model="leftInnerMessage"
+                        @change="onChangeLeftEditorControls"
+                        @generateContent="onGenerateContentLeft"
+                />
+            </div>
+            <div v-if="slideTo === 1">
+                <editor-controls
+                        v-model="rightInnerMessage"
+                        @change="onChangeEditorControls"
+                        @generateContent="onGenerateContentRight"
+                />
+            </div>
+            <div class="space-y-2 mb-24 md:mb-0">
+                <shapla-button theme="primary" size="small" fullwidth outline @click="$emit('close')">
+                    Cancel
+                </shapla-button>
+                <shapla-button theme="primary" size="medium" fullwidth @click="handleSubmit">
+                    Add to basket
+                </shapla-button>
+                <div class="">&nbsp;</div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+import {
+    ConfirmDialog,
+    deleteIcon,
+    FileUploader,
+    iconContainer,
+    imageContainer,
+    modal,
+    notification,
+    shaplaButton,
+    tab,
+    tabs
+} from "shapla-vue-components";
+import CardWebViewer from "@/components/DynamicCardPreview/CardWebViewer";
+import EditableContent from "@/frontend/inner-message/EditableContent";
+import EditorControls from "@/frontend/inner-message/EditorControls";
+import SwiperSlider from "@/frontend/dynamic-card/SwiperSlider.vue";
+import VideoInnerMessage from "@/frontend/dynamic-card/VideoInnerMessage";
+
+const defaults = (side = 'right') => {
+    let defaults = {
+        message: '',
+        font_family: "'Indie Flower', cursive",
+        font_size: '18',
+        alignment: 'center',
+        color: '#1D1D1B',
+        showLengthError: false,
+    }
+    if ('left' === side) {
+        defaults.type = '';
+        defaults.video_id = 0;
+    }
+    return defaults;
+}
+
+export default {
+    name: "MultiCompose",
+    components: {
+        EditableContent, CardWebViewer, modal, shaplaButton, iconContainer, SwiperSlider, imageContainer,
+        VideoInnerMessage, EditorControls, FileUploader, tabs, tab, deleteIcon, notification, ConfirmDialog
+    },
+    props: {
+        active: {type: Boolean, default: false},
+        cardSize: {type: String},
+        product_id: {type: Number, default: 0},
+        leftMessage: {type: Object, default: () => ({})},
+        rightMessage: {type: Object, default: () => ({})},
+        btnText: {type: String, default: 'Add to Basket'}
+    },
+    data() {
+        return {
+            slideTo: 0,
+            leftInnerMessage: defaults('left'),
+            rightInnerMessage: defaults(),
+        }
+    },
+    computed: {
+        placeholder_im() {
+            return window.StackonetToolkit.placeholderUrlIM;
+        },
+        placeholder_im_left() {
+            return window.StackonetToolkit.placeholderUrlIML;
+        },
+        placeholder_im_right() {
+            return window.StackonetToolkit.placeholderUrlIMR;
+        }
+    },
+    watch: {
+        leftMessage: {
+            deep: true,
+            handler(newValue) {
+                this.leftInnerMessage.type = newValue.type;
+                this.leftInnerMessage.video_id = newValue.video_id;
+                this.leftInnerMessage.message = newValue.content;
+                this.leftInnerMessage.font_family = newValue.font;
+                this.leftInnerMessage.font_size = newValue.size;
+                this.leftInnerMessage.alignment = newValue.align;
+                this.leftInnerMessage.color = newValue.color;
+            }
+        },
+        rightMessage: {
+            deep: true,
+            handler(newValue) {
+                this.rightInnerMessage.message = newValue.content;
+                this.rightInnerMessage.font_family = newValue.font;
+                this.rightInnerMessage.font_size = newValue.size;
+                this.rightInnerMessage.alignment = newValue.align;
+                this.rightInnerMessage.color = newValue.color;
+            }
+        },
+    },
+    methods: {
+        changeVideoInnerMessage(type, value) {
+            if ('type' === type) {
+                this.leftInnerMessage.type = value;
+            } else if ('video_id' === type) {
+                this.leftInnerMessage.video_id = value;
+            } else {
+                this.leftInnerMessage.type = '';
+                this.leftInnerMessage.video_id = 0;
+            }
+        },
+        onSlideChange(activeIndex) {
+            if (activeIndex !== this.slideTo) {
+                this.slideTo = activeIndex;
+            }
+        },
+        onLengthError(error, side = null) {
+            if (side === 'left') {
+                this.leftInnerMessage.showLengthError = error;
+            } else if (side === 'right') {
+                this.rightInnerMessage.showLengthError = error;
+            }
+        },
+        onChangeLeftEditorControls(args) {
+            if ('emoji' === args.key) {
+                document.execCommand("insertHtml", false, args.payload);
+            }
+        },
+        onChangeEditorControls(args) {
+            if ('emoji' === args.key) {
+                document.execCommand("insertHtml", false, args.payload);
+            }
+        },
+        messagesLinesToString(lines) {
+            let contentEl = document.createElement('div');
+            lines.forEach(line => {
+                let divEl = document.createElement('div');
+                if (['<br>', ''].includes(line)) {
+                    divEl.append(document.createElement('br'))
+                } else {
+                    divEl.innerText = line;
+                }
+                contentEl.append(divEl);
+            })
+            return contentEl.innerHTML;
+        },
+        onGenerateContentLeft(args) {
+            // args.lines
+            this.leftInnerMessage.type = 'text';
+            this.leftInnerMessage.message = this.messagesLinesToString(args.lines);
+        },
+        onGenerateContentRight(args) {
+            // args.lines
+            this.rightInnerMessage.message = this.messagesLinesToString(args.lines);
+        },
+        handleSubmit() {
+            this.$emit('submit', {
+                left: this.leftInnerMessage,
+                right: this.rightInnerMessage
+            });
+        }
+    },
+    mounted() {
+        if (Object.keys(this.leftMessage).length) {
+            this.leftInnerMessage.type = this.leftMessage.type;
+            this.leftInnerMessage.video_id = this.leftMessage.video_id;
+            this.leftInnerMessage.message = this.leftMessage.content;
+            this.leftInnerMessage.font_family = this.leftMessage.font;
+            this.leftInnerMessage.font_size = this.leftMessage.size;
+            this.leftInnerMessage.alignment = this.leftMessage.align;
+            this.leftInnerMessage.color = this.leftMessage.color;
+        }
+        if (Object.keys(this.rightMessage).length) {
+            this.rightInnerMessage.message = this.rightMessage.content;
+            this.rightInnerMessage.font_family = this.rightMessage.font;
+            this.rightInnerMessage.font_size = this.rightMessage.size;
+            this.rightInnerMessage.alignment = this.rightMessage.align;
+            this.rightInnerMessage.color = this.rightMessage.color;
+        }
+    }
+}
+</script>
+
+<style lang="scss">
+.multi-compose {
+  &, *:before, *:after {
+    box-sizing: border-box;
+  }
+
+  @media screen and (max-width: 767px) {
+    max-height: var(--inner-message-modal-height, 95vh);
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+}
+
+.has-multi-compose {
+  &, *:before, *:after {
+    box-sizing: border-box;
+  }
+
+  .shapla-modal-content {
+    overflow: hidden;
+  }
+}
+</style>

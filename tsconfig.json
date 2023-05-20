@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "useDefineForClassFields": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "strict": true,
+    "jsx": "preserve",
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "lib": [
+      "esnext",
+      "dom"
+    ]
+  },
+  "include": [
+    "resources/**/*.ts",
+    "resources/**/*.d.ts",
+    "resources/**/*.tsx",
+    "resources/**/*.vue"
+  ],
+  "files": [
+    "resources/utils/shims-tsx.d.ts",
+    "resources/utils/shims-vue.d.ts"
+  ]
+}

@@ -6,6 +6,8 @@ module.exports = {
 			'./resources/**/*.vue',
 			'./resources/**/*.js',
 			'./resources/**/*.jsx',
+			'./resources/**/*.ts',
+			'./resources/**/*.tsx',
 			'./resources/**/*.scss',
 		]
 	},

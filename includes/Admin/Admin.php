@@ -56,12 +56,16 @@ class Admin {
 	}
 
 	public function admin_scripts() {
+		global $hook_suffix;
 		$data = array(
 			'root'    => esc_url_raw( rest_url( 'stackonet/v1' ) ),
 			'nonce'   => wp_create_nonce( 'wp_rest' ),
 			'ajaxurl' => admin_url( 'admin-ajax.php' ),
 		);
 		wp_localize_script( 'stackonet-toolkit-admin', 'Stackonet', $data );
+		if ( 'settings_page_stackonet-toolkit' === $hook_suffix ) {
+			wp_enqueue_style( 'stackonet-toolkit-admin' );
+		}
 	}
 
 	/**

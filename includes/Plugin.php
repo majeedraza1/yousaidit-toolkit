@@ -2,7 +2,6 @@
 
 namespace YouSaidItCards;
 
-use Stackonet\WP\Framework\Supports\Validate;
 use WP_HTTP_Response;
 use WP_REST_Request;
 use WP_REST_Server;
@@ -28,6 +27,7 @@ use YouSaidItCards\Modules\Reminders\RemindersManager;
 use YouSaidItCards\Modules\RudeProduct\RudeProductManager;
 use YouSaidItCards\Modules\TradeSite\TradeSiteManager;
 use YouSaidItCards\Modules\WooCommerce\WooCommerceManager;
+use YouSaidItCards\OpenAI\CardContentController;
 use YouSaidItCards\REST\ContactController;
 use YouSaidItCards\REST\OrderController;
 use YouSaidItCards\REST\ProductController;
@@ -143,7 +143,7 @@ class Plugin {
 		$this->container['module_rude_product']     = RudeProductManager::init();
 		$this->container['module_order_dispatcher'] = OrderDispatcherManager::init();
 		$this->container['module_packing_slip']     = PackingSlipManager::init();
-		$this->container['module_packing_slip']     = CardMergerManager::init();
+		$this->container['module_card_merger']      = CardMergerManager::init();
 		$this->container['module_hide_product']     = HideProductsFromShop::init();
 		$this->container['module_inner_message']    = InnerMessageManager::init();
 		$this->container['module_trade_site']       = TradeSiteManager::init();
@@ -170,8 +170,9 @@ class Plugin {
 		$this->container['frontend']        = Frontend::init();
 		$this->container['rest_contact_us'] = ContactController::init();
 
-		$this->container['rest-product'] = ProductController::init();
-		$this->container['rest-order']   = OrderController::init();
+		$this->container['rest-product']         = ProductController::init();
+		$this->container['rest-order']           = OrderController::init();
+		$this->container['rest-ai_card_content'] = CardContentController::init();
 	}
 
 	/**
@@ -196,6 +197,7 @@ class Plugin {
 		ShipStationOrderItem::create_table();
 		DesignersManager::activation();
 		RemindersManager::activation();
+		InnerMessageManager::activation();
 //		flush_rewrite_rules();
 	}
 
@@ -211,9 +213,9 @@ class Plugin {
 	/**
 	 * Modify error response for our endpoint
 	 *
-	 * @param WP_HTTP_Response $result Result to send to the client. Usually a WP_REST_Response.
-	 * @param WP_REST_Server $server Server instance.
-	 * @param WP_REST_Request $request Request used to generate the response.
+	 * @param  WP_HTTP_Response  $result  Result to send to the client. Usually a WP_REST_Response.
+	 * @param  WP_REST_Server  $server  Server instance.
+	 * @param  WP_REST_Request  $request  Request used to generate the response.
 	 *
 	 * @return WP_HTTP_Response
 	 */
@@ -237,7 +239,7 @@ class Plugin {
 	/**
 	 * What type of request is this?
 	 *
-	 * @param string $type admin, ajax, rest, cron or frontend.
+	 * @param  string  $type  admin, ajax, rest, cron or frontend.
 	 *
 	 * @return bool
 	 */

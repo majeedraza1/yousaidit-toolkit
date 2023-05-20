@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Yousaidit Toolkit
  * Description: A powerful WordPress plugin to extend functionality to your WordPress site.
- * Version: 2022.10.20
+ * Version: 2023.05.20
  * Author: Stackonet Services (Pvt.) Ltd.
  * Author URI: https://stackonet.com
  * Requires at least: 5.5
@@ -36,7 +36,7 @@ final class YousaiditToolkit {
 	 *
 	 * @var string
 	 */
-	private $version = '2022.10.20';
+	private $version = '2023.05.20';
 
 	/**
 	 * Minimum PHP version required
@@ -182,7 +182,7 @@ final class YousaiditToolkit {
 			) . '</p>';
 		$error .= '<p>' . sprintf(
 				__( 'The version of your PHP is %s unsupported and old %s. ', 'yousaidit-toolkit' ),
-				'<a href="http://php.net/supported-versions.php" target="_blank"><strong>',
+				'<a href="https://php.net/supported-versions.php" target="_blank"><strong>',
 				'</strong></a>'
 			);
 		$error .= __( 'You should update your PHP software or contact your host regarding this matter.',
