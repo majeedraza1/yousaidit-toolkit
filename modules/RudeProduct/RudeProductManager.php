@@ -2,8 +2,10 @@
 
 namespace YouSaidItCards\Modules\RudeProduct;
 
+use Stackonet\WP\Framework\Supports\Validate;
 use WP_Post;
 use WP_Query;
+use YouSaidItCards\Admin\SettingPage;
 use YouSaidItCards\Session\Session;
 
 defined( 'ABSPATH' ) || exit;
@@ -45,9 +47,38 @@ class RudeProductManager {
 
 			add_action( 'wp_ajax_show_rude_card_dialog', array( self::$instance, 'show_rude_card_dialog' ) );
 			add_action( 'wp_ajax_nopriv_show_rude_card_dialog', array( self::$instance, 'show_rude_card_dialog' ) );
+
+			add_filter( 'yousaidit_toolkit/settings/sections', [ self::$instance, 'setting_section' ] );
+			add_filter( 'yousaidit_toolkit/settings/fields', [ self::$instance, 'setting_fields' ] );
 		}
 
 		return self::$instance;
+	}
+
+	public function setting_section( array $sections ) {
+		$sections[] = [
+			'id'       => 'section_rude_card',
+			'title'    => __( 'Rude Card Settings' ),
+			'panel'    => 'general',
+			'priority' => 20,
+		];
+
+		return $sections;
+	}
+
+	public function setting_fields( array $fields ) {
+		$fields[] = [
+			'id'                => 'enable_rude_card_popup',
+			'type'              => 'checkbox',
+			'title'             => __( 'Enable popup' ),
+			'description'       => __( 'Enable one time popup for rude card preview.' ),
+			'priority'          => 10,
+			'default'           => '1',
+			'sanitize_callback' => 'sanitize_text_field',
+			'section'           => 'section_rude_card',
+		];
+
+		return $fields;
 	}
 
 	/**
@@ -270,9 +301,12 @@ class RudeProductManager {
 			return;
 		}
 
-		$cookie_name = '_show_rude_card_dialog';
-		$dialog      = isset( $_COOKIE[ $cookie_name ] ) ? $_COOKIE[ $cookie_name ] : 'yes';
-		if ( 'no' === $dialog ) {
+		$should_show = Validate::checked( SettingPage::get_option( 'enable_rude_card_popup', '1' ) );
+		if ( false === $should_show ) {
+			return;
+		}
+
+		if ( 'no' === ( $_COOKIE['_show_rude_card_dialog'] ?? 'yes' ) ) {
 			return;
 		}
 		?>

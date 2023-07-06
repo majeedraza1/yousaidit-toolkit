@@ -453,9 +453,7 @@ class OrderItem implements JsonSerializable {
 		$content = is_array( $this->inner_message_info ) && isset( $this->inner_message_info['content'] ) ?
 			$this->inner_message_info['content'] : '';
 
-		$video_content = is_array( $this->video_inner_message ) && count( $this->video_inner_message );
-
-		return ! empty( $content ) || $video_content;
+		return ! empty( $content ) || $this->has_video_message();
 	}
 
 	public function has_video_message(): bool {
@@ -469,7 +467,7 @@ class OrderItem implements JsonSerializable {
 			return true;
 		}
 
-		if ( 'text' === $video_content['type'] && isset( $video_content['content'] ) && ! empty( $video_content['content'] ) ) {
+		if ( 'text' === $video_content['type'] && ! empty( $video_content['content'] ) ) {
 			return true;
 		}
 

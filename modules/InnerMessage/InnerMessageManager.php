@@ -104,7 +104,7 @@ class InnerMessageManager {
 	/**
 	 * Add query variable
 	 *
-	 * @param  array  $vars
+	 * @param array $vars
 	 *
 	 * @return array
 	 */
@@ -254,7 +254,7 @@ class InnerMessageManager {
 	/**
 	 * Add settings panels
 	 *
-	 * @param  array  $panels  The panels.
+	 * @param array $panels The panels.
 	 *
 	 * @return array
 	 */
@@ -271,7 +271,7 @@ class InnerMessageManager {
 	/**
 	 * Add settings sections
 	 *
-	 * @param  array  $sections  Array of sections.
+	 * @param array $sections Array of sections.
 	 *
 	 * @return array
 	 */
@@ -295,7 +295,7 @@ class InnerMessageManager {
 	/**
 	 * Add settings fields
 	 *
-	 * @param  array  $fields  Array of fields.
+	 * @param array $fields Array of fields.
 	 *
 	 * @return array
 	 */
@@ -449,7 +449,7 @@ class InnerMessageManager {
 	}
 
 	/**
-	 * @param  WC_Order  $order
+	 * @param WC_Order $order
 	 */
 	public function process_custom_order_action( $order ) {
 		BackgroundInnerMessagePdfGenerator::generate_for_order( $order, true );
@@ -480,7 +480,7 @@ class InnerMessageManager {
 	/**
 	 * Add custom data to cart
 	 *
-	 * @param  array  $cart_item_data
+	 * @param array $cart_item_data
 	 *
 	 * @return array
 	 */
@@ -500,7 +500,7 @@ class InnerMessageManager {
 	/**
 	 * Before calculate totals
 	 *
-	 * @param  WC_Cart  $cart
+	 * @param WC_Cart $cart
 	 */
 	public function add_inner_message_extra_cost( WC_Cart $cart ) {
 		$options = (array) get_option( '_stackonet_toolkit' );
@@ -529,7 +529,7 @@ class InnerMessageManager {
 	/**
 	 * Before calculate totals
 	 *
-	 * @param  WC_Cart  $cart
+	 * @param WC_Cart $cart
 	 */
 	public function add_video_message_extra_cost( WC_Cart $cart ) {
 		$options = (array) get_option( '_stackonet_toolkit' );
@@ -569,8 +569,8 @@ class InnerMessageManager {
 	/**
 	 * Display information as Meta on Cart & Checkout page
 	 *
-	 * @param  array  $item_data
-	 * @param  array  $cart_item
+	 * @param array $item_data
+	 * @param array $cart_item
 	 *
 	 * @return array
 	 */
@@ -669,10 +669,10 @@ class InnerMessageManager {
 	/**
 	 * Add custom data to order line item
 	 *
-	 * @param  WC_Order_Item_Product  $item
-	 * @param  string  $cart_item_key
-	 * @param  array  $values
-	 * @param  WC_Order  $order
+	 * @param WC_Order_Item_Product $item
+	 * @param string $cart_item_key
+	 * @param array $values
+	 * @param WC_Order $order
 	 */
 	public function create_order_line_item( $item, $cart_item_key, $values, $order ) {
 		if ( array_key_exists( '_inner_message', $values ) ) {
@@ -701,7 +701,7 @@ class InnerMessageManager {
 	/**
 	 * Generate inner message pdf
 	 *
-	 * @param  WC_Order  $order
+	 * @param WC_Order $order
 	 *
 	 * @return void
 	 */
@@ -712,74 +712,31 @@ class InnerMessageManager {
 	/**
 	 * Display on Order detail page and (Order received / Thank you page)
 	 *
-	 * @param  array  $formatted_meta
-	 * @param  WC_Order_Item_Product  $order_item
+	 * @param array $formatted_meta
+	 * @param WC_Order_Item_Product $order_item
 	 *
 	 * @return mixed
 	 */
 	public function order_item_get_formatted_meta_data( $formatted_meta, $order_item ) {
-		$data = $order_item->get_meta( '_inner_message', true );
-		if ( ! empty( $data ) ) {
-			if ( ! empty( $data['content'] ) ) {
-				$formatted_meta[] = (object) array(
-					'display_key'   => 'Inner Message',
-					'display_value' => $data['content'],
-				);
+		if ( $order_item instanceof WC_Order_Item_Product ) {
+			$meta   = Utils::get_formatted_meta_for_video_message( $order_item );
+			$r_meta = Utils::get_formatted_meta_for_right_text_message( $order_item );
+			foreach ( array_merge( $meta, $r_meta ) as $item ) {
+				$formatted_meta[] = $item;
 			}
 
 			if ( is_admin() ) {
-				$args = [
+				$pdf_url = add_query_arg( [
+					'action'   => 'yousaidit_single_pdf_card',
 					'order_id' => $order_item->get_order_id(),
 					'item_id'  => $order_item->get_id(),
 					'mode'     => 'pdf'
-				];
-
-				$url1    = add_query_arg( $args + [ 'action' => 'yousaidit_single_im_card' ],
-					admin_url( 'admin-ajax.php' ) );
-				$url2    = add_query_arg( $args + [ 'action' => 'yousaidit_single_pdf_card' ],
-					admin_url( 'admin-ajax.php' ) );
-				$display = sprintf( "%s | %s",
-					"<a target='_blank' href='" . esc_url( $url2 ) . "'>View PDF</a>",
-					"<a target='_blank' href='" . esc_url( $url1 ) . "'>View Inner Message PDF</a>"
-				);
-
-				$formatted_meta[] = (object) [ 'display_key' => '', 'display_value' => $display, ];
-			}
-		}
-
-		$video_data = $order_item->get_meta( '_video_inner_message', true );
-		if ( $video_data ) {
-			$video_url = Utils::get_video_message_url( $video_data['video_id'] );
-			if ( is_admin() && ! empty( $video_data['video_id'] ) && false === $video_url ) {
-				$copy_to_server_url = add_query_arg( [
-					'action'   => 'video_message_copy_to_server',
-					'order_id' => $order_item->get_order_id(),
-					'item_id'  => $order_item->get_id(),
-					'job_id'   => $video_data['video_id'],
 				], admin_url( 'admin-ajax.php' ) );
-				$formatted_meta[]   = (object) [
-					'display_key'   => 'Video Message',
-					'display_value' => "<a target='_blank' href='" . esc_url( $copy_to_server_url ) . "'>Sync</a>",
-				];
-			}
-			if ( $video_url ) {
-				if ( is_admin() ) {
-					$qr_code_url      = add_query_arg( [
-						'action'   => 'video_message_qr_code',
-						'order_id' => $order_item->get_order_id(),
-						'item_id'  => $order_item->get_id(),
-					], admin_url( 'admin-ajax.php' ) );
-					$formatted_meta[] = (object) [
-						'display_key'   => 'Video Message',
-						'display_value' => "<a target='_blank' href='" . esc_url( $video_url ) . "'>View</a>" .
-						                   " | <a target='_blank' href='" . esc_url( $qr_code_url ) . "'>QR Code</a>",
-					];
-				} else {
-					$formatted_meta[] = (object) [
-						'display_key'   => 'Video Message',
-						'display_value' => "<a target='_blank' href='" . esc_url( $video_url ) . "'>View</a>",
-					];
-				}
+
+				$formatted_meta[] = (object) array(
+					'display_key'   => 'Card PDF',
+					'display_value' => "<a target='_blank' href='" . esc_url( $pdf_url ) . "'>View PDF</a>",
+				);
 			}
 		}
 
@@ -787,8 +744,8 @@ class InnerMessageManager {
 	}
 
 	/**
-	 * @param  mixed  $data  The data to be sanitized.
-	 * @param  bool  $contains_video_data  Is it contain video data?
+	 * @param mixed $data The data to be sanitized.
+	 * @param bool $contains_video_data Is it contain video data?
 	 *
 	 * @return array
 	 */
@@ -809,25 +766,37 @@ class InnerMessageManager {
 			$data['size'] = $data['font_size'];
 			unset( $data['font_size'] );
 		}
-		if ( is_single( $data['alignment'] ) && ! isset( $data['align'] ) ) {
+		if ( isset( $data['alignment'] ) && ! isset( $data['align'] ) ) {
 			$data['align'] = $data['alignment'];
 			unset( $data['alignment'] );
 		}
 
-		$default = [ 'content' => '', 'font' => '', 'size' => '', 'align' => '', 'color' => '' ];
-		if ( $contains_video_data ) {
-			$default['type']     = '';
-			$default['video_id'] = 0;
-		}
-		$data = wp_parse_args( $data, $default );
+		$default = [
+			'type'     => 'text',
+			'content'  => '',
+			'font'     => '',
+			'size'     => '',
+			'align'    => '',
+			'color'    => '',
+			'video_id' => 0,
+		];
+		$data    = wp_parse_args( $data, $default );
+
+		$content = stripslashes( wp_filter_post_kses( $data['content'] ) );
+		$content = Utils::sanitize_inner_message_text( $content );
 
 		$sanitized_data = [
-			'content' => stripslashes( wp_filter_post_kses( $data['content'] ) ),
+			'content' => $content,
 			'font'    => sanitize_text_field( stripslashes( $data['font'] ) ),
 			'align'   => sanitize_text_field( stripslashes( $data['align'] ) ),
 			'color'   => sanitize_hex_color( stripslashes( $data['color'] ) ),
 			'size'    => intval( $data['size'] ),
 		];
+
+		$count_data = array_filter( array_values( $sanitized_data ) );
+		if ( ! $contains_video_data && count( $count_data ) < count( array_keys( $sanitized_data ) ) ) {
+			return [];
+		}
 
 		if ( $contains_video_data ) {
 			$sanitized_data['type'] = sanitize_text_field( stripslashes( $data['type'] ) );

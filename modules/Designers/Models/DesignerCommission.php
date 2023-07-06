@@ -150,7 +150,7 @@ class DesignerCommission extends DatabaseModel {
 		}
 		$item = static::find_for_order( $data['order_id'], $data['order_item_id'] );
 		if ( $item instanceof self ) {
-			return $item->get( 'id' );
+			return $item->get_id();
 		}
 
 		return ( new static )->create( $data );

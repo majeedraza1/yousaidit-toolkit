@@ -25,7 +25,7 @@ class CommissionCalculator {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self();
 
-			// set an designer commission cost when added to an order (WC 3.0+)
+			// set a designer commission cost when added to an order (WC 3.0+)
 			add_action( 'woocommerce_new_order_item', [ self::$instance, 'add_new_order_commission' ], 10, 3 );
 			// Display commission info on order item
 			add_action( 'woocommerce_after_order_itemmeta', [ self::$instance, 'display_item_commission' ], 10, 3 );
@@ -111,21 +111,21 @@ class CommissionCalculator {
 			$order->update_meta_data( '_has_designer_commissions', 'yes' );
 			$order->save_meta_data();;
 
-			$commission_id = DesignerCommission::createIfNotExists( [
-				'card_id'          => $card_id,
-				'designer_id'      => $designer_id,
-				'customer_id'      => $order->get_customer_id(),
-				'order_id'         => $order_id,
-				'order_item_id'    => $item->get_id(),
-				'order_quantity'   => $item->get_quantity(),
-				'item_commission'  => $commission_per_sale,
-				'total_commission' => $commission_amount,
-				'card_size'        => $size,
-				'order_status'     => $order->get_status( 'edit' ),
-				'payment_status'   => 'unpaid',
-			] );
+//			$commission_id = DesignerCommission::createIfNotExists( [
+//				'card_id'          => $card_id,
+//				'designer_id'      => $designer_id,
+//				'customer_id'      => $order->get_customer_id(),
+//				'order_id'         => $order_id,
+//				'order_item_id'    => $item->get_id(),
+//				'order_quantity'   => $item->get_quantity(),
+//				'item_commission'  => $commission_per_sale,
+//				'total_commission' => $commission_amount,
+//				'card_size'        => $size,
+//				'order_status'     => $order->get_status( 'edit' ),
+//				'payment_status'   => 'unpaid',
+//			] );
 
-			wc_update_order_item_meta( $item_id, '_card_designer_commission_id', $commission_id );
+//			wc_update_order_item_meta( $item_id, '_card_designer_commission_id', $commission_id );
 
 			$card->increase_sales_count( $item );
 

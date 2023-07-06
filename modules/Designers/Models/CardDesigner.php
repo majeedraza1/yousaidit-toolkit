@@ -261,7 +261,7 @@ class CardDesigner implements JsonSerializable {
 	 */
 	public function can_add_dynamic_card(): bool {
 		// Admin user can add dynamic card
-		if ( $this->get_user()->has_cap( 'manage_options' ) ) {
+		if ( user_can( $this->get_user(), 'manage_options' ) ) {
 			return true;
 		}
 		$can_add_dynamic_card = get_user_meta( $this->get_user_id(), '_can_add_dynamic_card', true );

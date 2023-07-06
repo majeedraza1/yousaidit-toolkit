@@ -10,6 +10,7 @@ use ImagickException;
 use JoyPixels\Client;
 use JoyPixels\Ruleset;
 use Stackonet\WP\Framework\Supports\Logger;
+use YouSaidItCards\Utils;
 
 class PdfGeneratorBase {
 	protected $page_size = [ 306, 156 ];
@@ -152,9 +153,9 @@ class PdfGeneratorBase {
 	/**
 	 * Get font metrics
 	 *
-	 * @param  string  $text  The string to test for font metrics.
-	 * @param  string  $font_family  The font family.
-	 * @param  int  $font_size  The font size.
+	 * @param string $text The string to test for font metrics.
+	 * @param string $font_family The font family.
+	 * @param int $font_size The font size.
 	 *
 	 * @return array|false {
 	 * Array of font metrics info
@@ -214,8 +215,8 @@ class PdfGeneratorBase {
 	}
 
 	/**
-	 * @param  string  $message  The message to be calculated.
-	 * @param  float  $line_max_width  Line maximum width in points.
+	 * @param string $message The message to be calculated.
+	 * @param float $line_max_width Line maximum width in points.
 	 *
 	 * @return array
 	 */
@@ -267,83 +268,83 @@ class PdfGeneratorBase {
 		$show_structure = isset( $_GET['show_structure'] );
 		?>
 		<style type="text/css">
-            @font-face {
-                font-family: <?php echo $fontFamily?>;
-                src: url(<?php echo $font_info['fontUrl'] ?>) format('truetype');
-                font-weight: normal;
-                font-style: normal;
-            }
+			@font-face {
+				font-family: <?php echo $fontFamily?>;
+				src: url(<?php echo $font_info['fontUrl'] ?>) format('truetype');
+				font-weight: normal;
+				font-style: normal;
+			}
 
-            body, .card-content-inner {
-                font-family: <?php echo $fontFamily?>;
-                font-weight: normal;
-                font-size: <?php echo $this->font_size.'pt'?>;
-                line-height: <?php echo $this->font_size.'pt'?>;
-                color: <?php echo $this->text_color?>;
-                text-align: <?php echo $this->text_align?>;
-            }
+			body, .card-content-inner {
+				font-family: <?php echo $fontFamily?>;
+				font-weight: normal;
+				font-size: <?php echo $this->font_size.'pt'?>;
+				line-height: <?php echo $this->font_size.'pt'?>;
+				color: <?php echo $this->text_color?>;
+				text-align: <?php echo $this->text_align?>;
+			}
 
-            br {
-                line-height: <?php echo $this->font_size.'pt'?>;
-            }
+			br {
+				line-height: <?php echo $this->font_size.'pt'?>;
+			}
 
-            .left-column {
-                background-color: <?php echo $this->left_column_bg ?>;
-            }
+			.left-column {
+				background-color: <?php echo $this->left_column_bg ?>;
+			}
 
-            .right-column {
-                background-color: <?php echo $this->right_column_bg ?>;
-            }
+			.right-column {
+				background-color: <?php echo $this->right_column_bg ?>;
+			}
 
-            .left-column, .right-column {
-                width: <?php echo intval($this->page_size[0] / 2).'mm'?>;
-                height: <?php echo intval($this->page_size[1] ).'mm'?>;
-            }
+			.left-column, .right-column {
+				width: <?php echo intval($this->page_size[0] / 2).'mm'?>;
+				height: <?php echo intval($this->page_size[1] ).'mm'?>;
+			}
 
-            .card-content-inner {
-                margin-top: <?php echo $content_inner_mt .'mm'?>;
-            }
+			.card-content-inner {
+				margin-top: <?php echo $content_inner_mt .'mm'?>;
+			}
 
-            .padding-15 {
-                padding: <?php echo $this->padding.'mm' ?>;
-            }
+			.padding-15 {
+				padding: <?php echo $this->padding.'mm' ?>;
+			}
 		</style>
 		<?php
 		if ( $show_structure ) {
 			?>
 			<style>
-                .left-column {
-                    background-color: lightyellow;
-                }
+				.left-column {
+					background-color: lightyellow;
+				}
 
-                .right-column {
-                    background-color: whitesmoke;
-                    position: relative;
-                }
+				.right-column {
+					background-color: whitesmoke;
+					position: relative;
+				}
 
-                .middle-of-the-page {
-                    position: absolute;
-                    width: 100%;
-                    height: 100%;
-                    left: 0;
-                    top: 0;
-                    z-index: -1;
-                }
+				.middle-of-the-page {
+					position: absolute;
+					width: 100%;
+					height: 100%;
+					left: 0;
+					top: 0;
+					z-index: -1;
+				}
 
-                .structure-row {
-                    position: absolute;
-                    width: 100%;
-                    height: 10%;
-                    left: 0;
-                }
+				.structure-row {
+					position: absolute;
+					width: 100%;
+					height: 10%;
+					left: 0;
+				}
 
-                .bg-even {
-                    background-color: #fef2f2;
-                }
+				.bg-even {
+					background-color: #fef2f2;
+				}
 
-                .bg-odd {
-                    background-color: rgb(231 229 228);
-                }
+				.bg-odd {
+					background-color: rgb(231 229 228);
+				}
 
 				<?php
 				foreach ( range( 1, 10 ) as $index => $item ) {
@@ -373,29 +374,29 @@ class PdfGeneratorBase {
 			$content_inner_mt = intval( ( $max_height - $text_box_height ) / 2 );
 		}
 
-		$font_info       = Fonts::get_font_info( $this->left_page_message['font'] );
-		$fontFamily      = str_replace( ' ', '_', strtolower( $font_info['label'] ) );
+		$font_info  = Fonts::get_font_info( $this->left_page_message['font'] );
+		$fontFamily = str_replace( ' ', '_', strtolower( $font_info['label'] ) );
 		?>
 		<style type="text/css">
-            @font-face {
-                font-family: <?php echo $fontFamily?>;
-                src: url(<?php echo $font_info['fontUrl'] ?>) format('truetype');
-                font-weight: normal;
-                font-style: normal;
-            }
+			@font-face {
+				font-family: <?php echo $fontFamily?>;
+				src: url(<?php echo $font_info['fontUrl'] ?>) format('truetype');
+				font-weight: normal;
+				font-style: normal;
+			}
 
-            .card-content-inner-left {
-                font-family: <?php echo $fontFamily?>;
-                font-weight: normal;
-                font-size: <?php echo $this->left_page_message['size'].'pt'?>;
-                line-height: <?php echo $this->left_page_message['size'].'pt'?>;
-                color: <?php echo $this->left_page_message['color']?>;
-                text-align: <?php echo $this->left_page_message['align']?>;
-            }
+			.card-content-inner-left {
+				font-family: <?php echo $fontFamily?>;
+				font-weight: normal;
+				font-size: <?php echo $this->left_page_message['size'].'pt'?>;
+				line-height: <?php echo $this->left_page_message['size'].'pt'?>;
+				color: <?php echo $this->left_page_message['color']?>;
+				text-align: <?php echo $this->left_page_message['align']?>;
+			}
 
-            .card-content-inner-left {
-                margin-top: <?php echo $content_inner_mt .'mm'?>;
-            }
+			.card-content-inner-left {
+				margin-top: <?php echo $content_inner_mt .'mm'?>;
+			}
 		</style>
 		<?php
 	}
@@ -407,9 +408,9 @@ class PdfGeneratorBase {
 		$content_height = static::mm_to_points( $this->page_size[1] ) - static::px_to_points( 200 );
 		?>
 		<style type="text/css">
-            .card-content-inner-left {
-                margin-top: <?php echo intval(static::points_to_mm($content_height) / 2) .'mm'?>;
-            }
+			.card-content-inner-left {
+				margin-top: <?php echo intval(static::points_to_mm($content_height) / 2) .'mm'?>;
+			}
 		</style>
 		<?php
 	}
@@ -417,8 +418,8 @@ class PdfGeneratorBase {
 	/**
 	 * Get HTML wrapper
 	 *
-	 * @param  string  $content  Right side content.
-	 * @param  string  $left_content  Left side content.
+	 * @param string $content Right side content.
+	 * @param string $left_content Left side content.
 	 *
 	 * @return string
 	 */
@@ -461,7 +462,7 @@ class PdfGeneratorBase {
 						if ( isset( $_GET['show_structure'] ) ) {
 							echo '<div class="middle-of-the-page">';
 							foreach ( range( 1, 10 ) as $index => $item ) {
-								$color_class = ( $index % 2 ) ? 'bg-even' : 'bg-odd';
+								$color_class = ( $index % 2 ) ? 'bg-odd' : 'bg-even';
 								echo '<div class="structure-row row-' . intval( $item ) . '-of-10 ' . $color_class . '"></div>';
 							}
 							echo '</div>';
@@ -486,12 +487,10 @@ class PdfGeneratorBase {
 	public function get_right_page_message_lines(): array {
 		$client               = new Client( new Ruleset() );
 		$client->imagePathPNG = PdfGeneratorBase::get_emoji_assets_url();
-		$message              = str_replace( '<p>', '<div>', $this->message );
-		$message              = str_replace( '</p>', '</div>', $message );
+		$message              = Utils::sanitize_inner_message_text( $this->message );
 		$messages             = explode( '<div>', $message );
 		foreach ( $messages as $index => $message ) {
-			$msg                = str_replace( "</div>", '', $message );
-			$messages[ $index ] = preg_replace( '/(<[^>]+) style=".*?"/i', '$1', $msg );
+			$messages[ $index ] = str_replace( "</div>", '', $message );
 		}
 		$messages = array_filter( $messages );// Remove empty elements
 		$messages = $this->recalculate_lines( $messages );
@@ -509,8 +508,7 @@ class PdfGeneratorBase {
 	public function get_left_page_message_lines(): array {
 		$client               = new Client( new Ruleset() );
 		$client->imagePathPNG = PdfGeneratorBase::get_emoji_assets_url();
-		$message              = str_replace( '<p>', '<div>', $this->left_page_message['content'] ?? '' );
-		$message              = str_replace( '</p>', '</div>', $message );
+		$message              = Utils::sanitize_inner_message_text( $this->left_page_message['content'] ?? '' );
 		$messages             = explode( '<div>', $message );
 		foreach ( $messages as $index => $message ) {
 			$msg                = str_replace( "</div>", '', $message );
@@ -561,14 +559,14 @@ class PdfGeneratorBase {
 	}
 
 	/**
-	 * @param  string  $left_column_bg
+	 * @param string $left_column_bg
 	 */
 	public function set_left_column_bg( string $left_column_bg ): void {
 		$this->left_column_bg = $left_column_bg;
 	}
 
 	/**
-	 * @param  string  $right_column_bg
+	 * @param string $right_column_bg
 	 */
 	public function set_right_column_bg( string $right_column_bg ): void {
 		$this->right_column_bg = $right_column_bg;

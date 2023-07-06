@@ -172,7 +172,9 @@ export default {
                 this.leftInnerMessage.type = value;
             } else if ('video_id' === type) {
                 this.leftInnerMessage.video_id = value;
-            } else {
+            } else if ('message' === type){
+				this.leftInnerMessage.message = value;
+			} else {
                 this.leftInnerMessage.type = '';
                 this.leftInnerMessage.video_id = 0;
             }
