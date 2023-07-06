@@ -423,10 +423,12 @@ class Ajax {
 				$attach_data = wp_generate_attachment_metadata( $attachment_id, $new_file_path );
 				wp_update_attachment_metadata( $attachment_id, $attach_data );
 
-				if ( $delete_current ) {
-					wp_delete_attachment( $product->get_image_id(), true );
+				if ( $product instanceof WC_Product ) {
+					if ( $delete_current ) {
+						wp_delete_attachment( $product->get_image_id(), true );
+					}
+					set_post_thumbnail( $product->get_id(), $attachment_id );
 				}
-				set_post_thumbnail( $product->get_id(), $attachment_id );
 			}
 
 			return $attachment_id;
