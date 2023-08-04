@@ -25,6 +25,8 @@ use YouSaidItCards\Modules\Designers\REST\PayPalPayoutController;
 use YouSaidItCards\Modules\Designers\REST\SettingController;
 use YouSaidItCards\Modules\Designers\REST\UserRegistrationController;
 use YouSaidItCards\Modules\Designers\REST\WebLoginController;
+use YouSaidItCards\ShipStation\Order;
+use YouSaidItCards\ShipStation\ShipStationApi;
 use YouSaidItCards\Utils;
 
 defined( 'ABSPATH' ) || exit;
@@ -48,6 +50,10 @@ class DesignersManager {
 			add_action( 'sync_commissions_from_shipstation', [ self::$instance, 'sync_commission' ] );
 			add_action( 'wp_ajax_sync_orders_commissions', [ self::$instance, 'sync_commission' ] );
 			add_action( 'wp_ajax_remove_orders_commissions', [ self::$instance, 'remove_commissions' ] );
+
+			add_filter( 'woocommerce_order_actions', [ self::$instance, 'add_custom_order_action' ], 99 );
+			add_action( 'woocommerce_order_action_update_designer_commission',
+				[ self::$instance, 'update_designer_commission' ] );
 
 			CommissionCalculator::init();
 			DesignerCustomerProfile::init();
@@ -128,5 +134,20 @@ class DesignersManager {
 	public function remove_commissions() {
 		DesignerCommission::remove_commission_without_marketplace();
 		die;
+	}
+
+	public function add_custom_order_action( $actions ) {
+		$actions['update_designer_commission'] = 'Update Designer Commission (if any)';
+
+		return $actions;
+	}
+
+	public function update_designer_commission( \WC_Order $wc_order ) {
+		$order = ShipStationApi::init()->get_order_by_wc_order( $wc_order->get_id() );
+		if ( $order instanceof Order ) {
+			foreach ( $order->get_order_items() as $order_item ) {
+				$order_item->update_designer_commission();
+			}
+		}
 	}
 }
