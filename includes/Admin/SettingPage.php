@@ -107,6 +107,10 @@ class SettingPage {
 		return $options[ $key ] ?? $default;
 	}
 
+	public static function get_shipstation_yousaidit_store_id() {
+		return static::get_option( 'shipstation_yousaidit_store_id' );
+	}
+
 	/**
 	 * Get order products ids
 	 *

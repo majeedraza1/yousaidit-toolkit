@@ -10,6 +10,16 @@ class ShipStationApi extends RestClient {
 
 	use Cacheable;
 
+	const STATUSES = [
+		"awaiting_payment",
+		"awaiting_shipment",
+		"pending_fulfillment",
+		"shipped",
+		"on_hold",
+		"cancelled",
+		"rejected_fulfillment",
+	];
+
 	/**
 	 * @var string
 	 */
@@ -48,6 +58,39 @@ class ShipStationApi extends RestClient {
 		$this->add_auth_header( base64_encode( $api_key . ':' . $api_secret ) );
 
 		parent::__construct();
+	}
+
+	/**
+	 * @param int $wc_order_id
+	 * @param bool $force
+	 *
+	 * @return array|\WP_Error|Order
+	 */
+	public function get_order_by_wc_order( int $wc_order_id, bool $force = false ) {
+		$store_id = SettingPage::get_shipstation_yousaidit_store_id();
+		if ( empty( $store_id ) ) {
+			return new \WP_Error( 'store_not_set', 'Store id is not set properly.' );
+		}
+		$transient_name = 'ship_station_order_for_' . $wc_order_id;
+		$order          = get_transient( $transient_name );
+		if ( false === $order || $force ) {
+			$orders = $this->get( 'orders', [
+				'pageSize'    => 1,
+				'orderNumber' => $wc_order_id,
+				'storeId'     => $store_id,
+			] );
+			if ( is_wp_error( $orders ) ) {
+				return $orders;
+			}
+			$orders = $orders['orders'] ?? [];
+			if ( empty( $orders ) ) {
+				return new \WP_Error( 'not_found', sprintf( 'No ShipStation order found for id #%s', $wc_order_id ) );
+			}
+			$order = $orders[0];
+			set_transient( $transient_name, $order, HOUR_IN_SECONDS );
+		}
+
+		return new Order( $order );
 	}
 
 	/**
@@ -97,9 +140,13 @@ class ShipStationApi extends RestClient {
 			'sortDir'     => 'DESC',
 			'orderStatus' => 'awaiting_shipment',
 		];
+		$args       = wp_parse_args( $args, $default );
+		$valid_args = array_merge( array_keys( $default ), [ 'storeId', 'orderNumber' ] );
 		$parameters = [];
-		foreach ( $default as $key => $default_value ) {
-			$parameters[ $key ] = isset( $args[ $key ] ) ? $args[ $key ] : $default_value;
+		foreach ( $args as $key => $value ) {
+			if ( in_array( $key, $valid_args, true ) ) {
+				$parameters[ $key ] = $value;
+			}
 		}
 
 		$orders = $this->get( 'orders', $parameters );
@@ -113,7 +160,7 @@ class ShipStationApi extends RestClient {
 	/**
 	 * Get order from ShipStation API by order id
 	 *
-	 * @param int $order_id
+	 * @param int $order_id ShipStation order id.
 	 *
 	 * @return array|object
 	 */

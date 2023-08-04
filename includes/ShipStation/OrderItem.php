@@ -6,6 +6,7 @@ use JsonSerializable;
 use WC_Order_Item_Product;
 use WC_Product;
 use YouSaidItCards\Modules\Designers\Models\DesignerCard;
+use YouSaidItCards\Modules\Designers\Models\DesignerCommission;
 use YouSaidItCards\Modules\DynamicCard\BackgroundDynamicPdfGenerator;
 use YouSaidItCards\Utilities\FreePdfBase;
 use YouSaidItCards\Utilities\MarketPlace;
@@ -268,6 +269,33 @@ class OrderItem implements JsonSerializable {
 		}
 
 		return (float) $this->designer_commission;
+	}
+
+	public function update_designer_commission() {
+		if ( ! $this->has_designer_commission() ) {
+			return false;
+		}
+		$order_data = ShipStationApi::init()->get_order( $this->ship_station_order_id );
+		if ( ! is_array( $order_data ) ) {
+			return false;
+		}
+		$order = new Order( $order_data );
+		$data  = [
+			'card_id'          => $this->get_card_id(),
+			'designer_id'      => $this->get_designer_id(),
+			'order_id'         => $this->get_ship_station_order_id(),
+			'order_item_id'    => (int) $this->get_prop( 'orderItemId', 0 ),
+			'order_quantity'   => $this->get_quantity(),
+			'item_commission'  => $this->get_designer_commission(),
+			'total_commission' => $this->get_designer_commission() * $this->get_quantity(),
+			'card_size'        => $this->get_card_size(),
+			'order_status'     => $order->get_order_status(),
+			'marketplace'      => MarketPlace::get_store_key( $this->store_id ),
+			'payment_status'   => 'unpaid',
+			'created_via'      => 'shipstation-api',
+		];
+
+		return DesignerCommission::createIfNotExists( $data );
 	}
 
 	/**
