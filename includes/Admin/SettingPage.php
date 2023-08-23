@@ -111,6 +111,10 @@ class SettingPage {
 		return static::get_option( 'shipstation_yousaidit_store_id' );
 	}
 
+	public static function get_shipstation_amazon_store_id(): int {
+		return (int) static::get_option( 'shipstation_amazon_store_id' );
+	}
+
 	/**
 	 * Get order products ids
 	 *
