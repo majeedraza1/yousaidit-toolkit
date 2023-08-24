@@ -8,6 +8,7 @@ use WC_Cart;
 use WC_Order;
 use WC_Order_Item_Product;
 use YouSaidItCards\Modules\InnerMessage\Models\Video;
+use YouSaidItCards\Modules\InnerMessage\REST\Controller;
 use YouSaidItCards\Modules\OrderDispatcher\QrCode;
 use YouSaidItCards\Modules\Reminders\Models\Reminder;
 use YouSaidItCards\Providers\AWSElementalMediaConvert;
@@ -67,6 +68,7 @@ class InnerMessageManager {
 
 			BackgroundInnerMessagePdfGenerator::init();
 			BackgroundCopyVideoToServer::init();
+			Controller::init();
 			// Step 5: Add background task to generate dynamic card pdf
 			add_action( 'woocommerce_checkout_order_created',
 				[ self::$instance, 'generate_inner_message_pdf' ], 10 );
