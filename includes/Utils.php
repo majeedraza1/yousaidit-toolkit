@@ -9,7 +9,7 @@ class Utils {
 	/**
 	 * What type of request is this?
 	 *
-	 * @param string $type admin, ajax, rest, cron or frontend.
+	 * @param  string  $type  admin, ajax, rest, cron or frontend.
 	 *
 	 * @return bool
 	 */
@@ -49,7 +49,7 @@ class Utils {
 	/**
 	 * Generate random string
 	 *
-	 * @param int $length String length.
+	 * @param  int  $length  String length.
 	 *
 	 * @return string
 	 * @throws \Exception
@@ -68,7 +68,7 @@ class Utils {
 	/**
 	 * Get video message url
 	 *
-	 * @param int|string $video_id Video id or AWS MediaConvert job id.
+	 * @param  int|string  $video_id  Video id or AWS MediaConvert job id.
 	 *
 	 * @return false|string
 	 */
@@ -93,7 +93,7 @@ class Utils {
 	/**
 	 * Sanitize inner message text
 	 *
-	 * @param mixed|string $message
+	 * @param  mixed|string  $message
 	 *
 	 * @return mixed|string
 	 */
@@ -123,7 +123,7 @@ class Utils {
 		foreach ( explode( PHP_EOL, $message ) as $message ) {
 			if ( empty( $message ) ) {
 				$lines[] = "";
-			} else if ( strip_tags( trim( $message ) ) == trim( $message ) ) {
+			} elseif ( strip_tags( trim( $message ) ) == trim( $message ) ) {
 				$lines[] = '<div>' . $message . '</div>';
 			} else {
 				if ( false !== strpos( $message, '<br>' ) ) {
@@ -163,7 +163,15 @@ class Utils {
 			];
 
 			$url1    = add_query_arg( $args, admin_url( 'admin-ajax.php' ) );
-			$display = "<a target='_blank' href='" . esc_url( $url1 ) . "'>View Inner Message PDF</a>";
+			$display = "<a class='button' target='_blank' href='" . esc_url( $url1 ) . "'>View Inner Message PDF</a>";
+
+			if ( current_user_can( 'manage_options' ) ) {
+				$args['meta_key'] = '_inner_message';
+				$args['im']       = rawurlencode( wp_json_encode( $data ) );
+				$url2             = add_query_arg( $args, admin_url( 'admin-ajax.php' ) );
+
+				$display .= " <a class='button edit-im edit-im-right' href='" . esc_url( $url2 ) . "'>Edit</a>";
+			}
 
 			$message = '<div>' . $message . '</div>' . $display;
 		}
@@ -195,7 +203,14 @@ class Utils {
 				];
 
 				$url1    = add_query_arg( $args, admin_url( 'admin-ajax.php' ) );
-				$display = "<a target='_blank' href='" . esc_url( $url1 ) . "'>View Inner Message PDF</a>";
+				$display = "<a target='_blank' class='button' href='" . esc_url( $url1 ) . "'>View Inner Message PDF</a>";
+
+				if ( current_user_can( 'manage_options' ) ) {
+					$args['meta_key'] = '_video_inner_message';
+					$args['im']       = rawurlencode( wp_json_encode( $meta ) );
+					$url2             = add_query_arg( $args, admin_url( 'admin-ajax.php' ) );
+					$display .= " <a class='button edit-im' href='" . esc_url( $url2 ) . "'>Edit</a>";
+				}
 
 				$message = '<div>' . $message . '</div>' . $display;
 			}
