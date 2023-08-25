@@ -30,16 +30,16 @@ class PdfSizeCalculator extends BackgroundProcess {
 	/**
 	 * Calculate pdf width and height
 	 *
-	 * @param int $pdf_id The pdf id.
+	 * @param  int  $pdf_id  The pdf id.
 	 *
-	 * @return bool
+	 * @return array
 	 */
-	public static function calculate_pdf_width_and_height( int $pdf_id ): bool {
+	public static function calculate_pdf_width_and_height( int $pdf_id ): array {
 		$pdf_url = wp_get_attachment_url( $pdf_id );
 		if ( ! Validate::url( $pdf_url ) ) {
 			Logger::log( 'PDF url is not valid for id #' . $pdf_id );
 
-			return false;
+			return [ 0, 0 ];
 		}
 		$cardContent = file_get_contents( $pdf_url, 'rb' );
 		$stream      = StreamReader::createByString( $cardContent );
@@ -58,12 +58,14 @@ class PdfSizeCalculator extends BackgroundProcess {
 				delete_option( '_pdf_size_calculator_total_items' );
 			}
 
-			return false;
+			if ( $card_width && $card_height ) {
+				return [ $card_width, $card_height ];
+			}
 		} catch ( Exception $e ) {
 			Logger::log( $e );
-
-			return false;
 		}
+
+		return [ 0, 0 ];
 	}
 
 	/**
@@ -121,8 +123,8 @@ class PdfSizeCalculator extends BackgroundProcess {
 	/**
 	 * Add admin notice
 	 *
-	 * @param string $content
-	 * @param bool $dismissible
+	 * @param  string  $content
+	 * @param  bool  $dismissible
 	 *
 	 * @return string
 	 */

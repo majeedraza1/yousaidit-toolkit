@@ -9,6 +9,7 @@ use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
+use YouSaidItCards\ShipStation\OrderItemPdf;
 use YouSaidItCards\Utilities\PdfSizeCalculator;
 
 class ProductController extends LegacyApiController {
@@ -53,12 +54,20 @@ class ProductController extends LegacyApiController {
 				'permission_callback' => '__return_true',
 			],
 		] );
+
+		register_rest_route( $this->namespace, '/order-item-pdf', [
+			[
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => [ $this, 'update_order_item_pdf' ],
+				'permission_callback' => '__return_true',
+			],
+		] );
 	}
 
 	/**
 	 * Retrieves a collection of devices.
 	 *
-	 * @param WP_REST_Request $request Full data about the request.
+	 * @param  WP_REST_Request  $request  Full data about the request.
 	 *
 	 * @return WP_REST_Response Response object on success, or WP_Error object on failure.
 	 */
@@ -100,7 +109,7 @@ class ProductController extends LegacyApiController {
 	/**
 	 * Updates one item from the collection.
 	 *
-	 * @param WP_REST_Request $request Full data about the request.
+	 * @param  WP_REST_Request  $request  Full data about the request.
 	 *
 	 * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
 	 */
@@ -142,7 +151,7 @@ class ProductController extends LegacyApiController {
 	}
 
 	/**
-	 * @param array $products_ids
+	 * @param  array  $products_ids
 	 *
 	 * @return array
 	 */
@@ -184,7 +193,7 @@ class ProductController extends LegacyApiController {
 	/**
 	 * Get PDF card data
 	 *
-	 * @param WC_Product $product
+	 * @param  WC_Product  $product
 	 *
 	 * @return array
 	 */
@@ -203,5 +212,38 @@ class ProductController extends LegacyApiController {
 			'width'     => (int) get_post_meta( $pdf_id, '_pdf_width_millimeter', true ),
 			'height'    => (int) get_post_meta( $pdf_id, '_pdf_height_millimeter', true ),
 		];
+	}
+
+	public function update_order_item_pdf( WP_REST_Request $request ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return $this->respondUnauthorized();
+		}
+		$pdf_id = (int) $request->get_param( 'pdf_id' );
+		$post   = get_post( $pdf_id );
+		if ( ! $post instanceof \WP_Post ) {
+			return $this->respondNotFound();
+		}
+		list( $pdf_width, $pdf_height ) = PdfSizeCalculator::calculate_pdf_width_and_height( $pdf_id );
+
+		$product_id    = (int) $request->get_param( 'product_id' );
+		$order_id      = (int) $request->get_param( 'order_id' );
+		$order_item_id = (int) $request->get_param( 'order_item_id' );
+		$store_id      = (int) $request->get_param( 'store_id' );
+		$product_sku   = $request->get_param( 'product_sku' );
+		$card_size     = $request->get_param( 'card_size' );
+
+		$data = OrderItemPdf::create_if_not_exists( [
+			'product_id'    => $product_id,
+			'product_sku'   => $product_sku,
+			'card_size'     => $card_size,
+			'order_id'      => $order_id,
+			'order_item_id' => $order_item_id,
+			'store_id'      => $store_id,
+			'pdf_id'        => $pdf_id,
+			'pdf_width'     => $pdf_width,
+			'pdf_height'    => $pdf_height,
+		] );
+
+		return $this->respondCreated( $data );
 	}
 }

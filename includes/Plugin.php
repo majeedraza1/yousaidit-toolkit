@@ -32,6 +32,7 @@ use YouSaidItCards\REST\ContactController;
 use YouSaidItCards\REST\OrderController;
 use YouSaidItCards\REST\ProductController;
 use YouSaidItCards\Session\SessionManager;
+use YouSaidItCards\ShipStation\OrderItemPdf;
 use YouSaidItCards\ShipStation\ShipStationApi;
 use YouSaidItCards\ShipStation\ShipStationOrder;
 use YouSaidItCards\ShipStation\ShipStationOrderAddress;
@@ -159,6 +160,8 @@ class Plugin {
 	 */
 	public function admin_includes() {
 		$this->container['admin'] = Admin::init();
+
+		OrderItemPdf::create_table();
 	}
 
 	/**
