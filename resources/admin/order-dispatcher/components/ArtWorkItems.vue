@@ -2,7 +2,7 @@
 	<div>
 		<art-work-item
 			v-for="_product in item.products"
-			:key="_product.id"
+			:key="_product.shipstation_item_id"
 			:product="_product"
 		/>
 	</div>
@@ -19,7 +19,3 @@ export default {
 	}
 }
 </script>
-
-<style lang="scss" scoped>
-
-</style>

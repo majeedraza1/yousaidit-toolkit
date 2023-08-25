@@ -129,7 +129,6 @@ export default {
 			if ('pdf_cards' === action) {
 				this.active_item = item;
 				this.showPdfModal = true;
-				console.log(action, item);
 			}
 		},
 		hidePdfModal() {
