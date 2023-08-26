@@ -391,11 +391,12 @@ class Order implements JsonSerializable {
 					if ( ! $order_item->get_pdf_width() || ! $order_item->get_pdf_height() ) {
 						continue;
 					}
-					$key = sprintf( "%sx%sx%sx%s",
+					$key = sprintf( "%sx%sx%sx%sx%s",
 						$order_item->get_pdf_width(),
 						$order_item->get_pdf_height(),
 						$order_item->has_inner_message() ? 'i' : 'b',
-						$order_item->is_dynamic_card_type() ? 'd' : 's'
+						$order_item->is_dynamic_card_type() ? 'd' : 's',
+						$order_item->is_custom_card() ? 'c' : 'd'
 					);
 					$qty = isset( $items[ $key ]['quantity'] ) ? intval( $items[ $key ]['quantity'] ) : 0;
 
@@ -405,13 +406,22 @@ class Order implements JsonSerializable {
 					$items[ $key ]['inner_message']  = $order_item->has_inner_message();
 					$items[ $key ]['card_type']      = $order_item->get_card_type();
 					$items[ $key ]['card_size']      = $order_item->get_card_size();
-					$items[ $key ]['product_parent'] = $order_item->get_product()->get_parent_id();
-					$items[ $key ]['product_id']     = $order_item->get_product()->get_id();
-					$items[ $key ]['quantity']       = $order_item->get_quantity() + $qty;
+					$items[ $key ]['is_custom_card'] = $order_item->is_custom_card();
+
+					if ( $order_item->has_product() ) {
+						$items[ $key ]['product_parent'] = $order_item->get_product()->get_parent_id();
+						$items[ $key ]['product_id']     = $order_item->get_product()->get_id();
+					} else {
+						$items[ $key ]['product_parent'] = 0;
+						$items[ $key ]['product_id']     = 0;
+					}
+
+					$items[ $key ]['quantity'] = $order_item->get_quantity() + $qty;
 
 					$items[ $key ]['items'][] = [
 						'shipStation_order_id' => $order->get_id(),
 						'order_item_id'        => $order_item->get_order_item_id(),
+						'sku'                  => $order_item->get_sku(),
 						'wc_order_id'          => $order->get_wc_order_id(),
 						'wc_order_item_id'     => $order_item->get_wc_order_item_id(),
 						'has_inner_message'    => $order_item->has_inner_message(),

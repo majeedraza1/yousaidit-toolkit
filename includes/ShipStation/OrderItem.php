@@ -14,6 +14,8 @@ use YouSaidItCards\Utilities\PdfSizeCalculator;
 
 class OrderItem implements JsonSerializable {
 
+	const CUSTOM_CARD_SKU_PREFIX = [ 'CUST-' ];
+
 	/**
 	 * @var array
 	 */
@@ -416,6 +418,16 @@ class OrderItem implements JsonSerializable {
 		return $this->sku;
 	}
 
+	public function is_custom_card(): bool {
+		foreach ( static::CUSTOM_CARD_SKU_PREFIX as $prefix ) {
+			if ( false !== strpos( $this->get_sku(), $prefix ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	/**
 	 * Get item quantity
 	 *
@@ -480,7 +492,7 @@ class OrderItem implements JsonSerializable {
 	/**
 	 * @return bool
 	 */
-	public function has_product() {
+	public function has_product(): bool {
 		return $this->get_product() instanceof WC_Product;
 	}
 
