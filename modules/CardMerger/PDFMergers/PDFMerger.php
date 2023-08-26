@@ -121,9 +121,11 @@ class PDFMerger {
 				if ( in_array( $type, [ 'both', 'pdf' ] ) ) {
 					// Import card
 					self::import_base_card( $pdf, $order_item );
-
-					$is_in_other_products = in_array( $order_item->get_product()->get_id(), $other_products_ids, true ) ||
+					$is_in_other_products = false;
+					if ($order_item->has_product()){
+						$is_in_other_products = in_array( $order_item->get_product()->get_id(), $other_products_ids, true ) ||
 					                        in_array( $order_item->get_product()->get_parent_id(), $other_products_ids, true );
+					}
 
 					if ( ! $order_item->is_dynamic_card_type() && ! $is_in_other_products ) {
 						// Add qr code
