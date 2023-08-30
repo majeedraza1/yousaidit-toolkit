@@ -19,6 +19,15 @@ class Settings {
 		7 => 'Sunday'
 	];
 
+	const COMMON_HOLIDAYS = [
+		[ 'label' => 'New Year\'s Day', 'date_string' => 'January 1st' ],
+		[ 'label' => 'May Day Bank Holiday', 'date_string' => 'first Monday of May' ],
+		[ 'label' => 'Spring Bank Holiday', 'date_string' => 'last Monday of May' ],
+		[ 'label' => 'Summer Bank Holiday', 'date_string' => 'last Monday of August' ],
+		[ 'label' => 'Christmas Day', 'date_string' => 'December 25th' ],
+		[ 'label' => 'Boxing Day', 'date_string' => 'December 26th' ],
+	];
+
 	/**
 	 * Get weekly holiday
 	 *
@@ -34,14 +43,9 @@ class Settings {
 	 * @return array[]
 	 */
 	public static function get_common_public_holidays(): array {
-		return [
-			[ 'label' => 'New Year\'s Day', 'date_string' => 'January 1st' ],
-			[ 'label' => 'May Day Bank Holiday', 'date_string' => 'first Monday of May' ],
-			[ 'label' => 'Spring Bank Holiday', 'date_string' => 'last Monday of May' ],
-			[ 'label' => 'Summer Bank Holiday', 'date_string' => 'last Monday of August' ],
-			[ 'label' => 'Christmas Day', 'date_string' => 'December 25th' ],
-			[ 'label' => 'Boxing Day', 'date_string' => 'December 26th' ],
-		];
+		$holidays = get_option( 'dispatch_timer_common_holidays', static::COMMON_HOLIDAYS );
+
+		return is_array( $holidays ) ? $holidays : [];
 	}
 
 	/**
