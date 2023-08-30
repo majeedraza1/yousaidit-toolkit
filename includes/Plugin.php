@@ -14,6 +14,7 @@ use YouSaidItCards\Modules\CardMerger\CardMergerManager;
 use YouSaidItCards\Modules\ColorTheme\ColorThemeManager;
 use YouSaidItCards\Modules\Customer\CustomerManager;
 use YouSaidItCards\Modules\Designers\DesignersManager;
+use YouSaidItCards\Modules\DispatchTimer\DispatchTimerManager;
 use YouSaidItCards\Modules\DynamicCard\DynamicCardManager;
 use YouSaidItCards\Modules\EvaTheme\EvaThemeManager;
 use YouSaidItCards\Modules\Faq\FaqManager;
@@ -151,6 +152,7 @@ class Plugin {
 		$this->container['module_eva_theme']        = EvaThemeManager::init();
 		$this->container['module_featured_product'] = FeaturedProductsFirst::init();
 		$this->container['module_reminder']         = RemindersManager::init();
+		$this->container['module_dispatch_timer']   = DispatchTimerManager::init();
 	}
 
 	/**
