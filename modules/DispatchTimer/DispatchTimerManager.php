@@ -10,8 +10,10 @@ class DispatchTimerManager {
 	public static function init() {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new static();
-			add_action( 'wp_ajax_yousaidit_dispatch_timer_test', [ self::$instance, 'dispatch_timer_test' ] );
+			add_action( 'wp_ajax_yousaidit_dispatch_timer', [ self::$instance, 'dispatch_timer' ] );
+			add_action( 'wp_ajax_nopriv_yousaidit_dispatch_timer', [ self::$instance, 'dispatch_timer' ] );
 			add_filter( 'woocommerce_short_description', [ self::$instance, 'short_description' ] );
+			add_action( 'wp_footer', [ self::$instance, 'add_scripts' ], 0 );
 
 			add_filter( 'yousaidit_toolkit/settings/panels', [ self::$instance, 'add_settings_panels' ] );
 			add_filter( 'yousaidit_toolkit/settings/sections', [ self::$instance, 'add_settings_section' ] );
@@ -24,7 +26,7 @@ class DispatchTimerManager {
 	}
 
 	public function short_description( $short_description ) {
-		if ( is_singular( 'product' ) && current_user_can( 'read' ) ) {
+		if ( is_singular( 'product' ) ) {
 			try {
 				$short_description = Settings::get_next_dispatch_timer_message();
 			} catch ( \Exception $e ) {
@@ -34,19 +36,39 @@ class DispatchTimerManager {
 		return $short_description;
 	}
 
-	public function dispatch_timer_test() {
-		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( __( 'Sorry. This link only for developer to do some testing.', 'yousaidit-toolkit' ) );
-		}
-
-		$datetime = new \DateTime( 'now', wp_timezone() );
-
-		var_dump( [
-			'next_time' => Settings::get_next_dispatch_datetime(),
-			'date'      => $datetime->format( 'Y-m-d H:i:s' ),
-			'holidays'  => Settings::get_holidays_for_date( $datetime->format( 'Y-m-d' ) ),
+	public function dispatch_timer() {
+		// Nonce verification is not required
+		wp_send_json( [
+			'nextDispatchTime' => Settings::get_next_dispatch_timer_message(),
 		] );
 		wp_die();
+	}
+
+	/**
+	 * Add scripts to update dispatch timer via javascript for un-authenticated user
+	 *
+	 * @return void
+	 */
+	public function add_scripts() {
+		if ( ! is_singular( 'product' ) ) {
+			return;
+		}
+		$url = add_query_arg( [ 'action' => 'yousaidit_dispatch_timer' ], admin_url( 'admin-ajax.php' ) );
+		$url = wp_nonce_url( $url, 'yousaidit_dispatch_timer_nonce', '_token' );
+		?>
+        <script type="text/javascript">
+            var xhr = new XMLHttpRequest();
+            xhr.addEventListener("load", function () {
+                var data = JSON.parse(xhr.responseText);
+                var el = document.querySelector('.woocommerce-product-details__short-description');
+                if (el) {
+                    el.innerHTML = data.nextDispatchTime;
+                }
+            });
+            xhr.open("GET", "<?php echo esc_url( $url ); ?>");
+            xhr.send();
+        </script>
+		<?php
 	}
 
 	/**
