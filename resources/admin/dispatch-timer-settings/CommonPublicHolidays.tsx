@@ -231,6 +231,12 @@ export default class CommonPublicHolidays extends Component<any, CommonPublicHol
                   last Monday of August<br/>
                   first Monday of May
                 </p>
+                <p className="description">
+                  <span>To learn more, visit </span>
+                  <a href="https://www.php.net/manual/en/function.strtotime.php" target='_blank'>
+                    https://www.php.net/manual/en/function.strtotime.php
+                  </a>
+                </p>
               </td>
             </tr>
             </tbody>
@@ -278,6 +284,12 @@ export default class CommonPublicHolidays extends Component<any, CommonPublicHol
                   last Monday of May<br/>
                   last Monday of August<br/>
                   first Monday of May
+                </p>
+                <p className="description">
+                  <span>To learn more, visit </span>
+                  <a href="https://www.php.net/manual/en/function.strtotime.php" target='_blank'>
+                    https://www.php.net/manual/en/function.strtotime.php
+                  </a>
                 </p>
               </td>
             </tr>

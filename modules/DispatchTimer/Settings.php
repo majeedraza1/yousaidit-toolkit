@@ -28,13 +28,50 @@ class Settings {
 		[ 'label' => 'Boxing Day', 'date_string' => 'December 26th' ],
 	];
 
+
+	/**
+	 * Get options
+	 *
+	 * @return array
+	 */
+	public static function get_options(): array {
+		$defaults = [
+			'dispatch_timer_weekly_holiday'   => [ 6, 7 ],
+			'dispatch_timer_get_cut_off_time' => '14:00',
+		];
+		$options  = get_option( '_stackonet_toolkit' );
+		$options  = is_array( $options ) ? $options : [];
+
+		return wp_parse_args( $options, $defaults );
+	}
+
+	/**
+	 * Get option
+	 *
+	 * @param  string  $key  Option key.
+	 * @param  mixed  $default  Default value.
+	 *
+	 * @return mixed|null
+	 */
+	public static function get_option( string $key, $default = null ) {
+		$options = static::get_options();
+
+		return $options[ $key ] ?? $default;
+	}
+
 	/**
 	 * Get weekly holiday
 	 *
 	 * @return string[]
 	 */
 	public static function get_weekly_holiday(): array {
-		return [ 'Saturday', 'Sunday' ];
+		$option = static::get_option( 'dispatch_timer_weekly_holiday', [ 6, 7 ] );
+		$day    = [];
+		foreach ( $option as $day_id ) {
+			$day[] = static::DAYS_OF_WEEK[ $day_id ] ?? '';
+		}
+
+		return $day;
 	}
 
 	/**
@@ -54,17 +91,9 @@ class Settings {
 	 * @return array[]
 	 */
 	public static function get_special_holidays(): array {
-		return [
-			'2023' => [
-				[ 'label' => 'Boxing Day', 'date' => '2023-08-31' ],
-				[ 'label' => 'Boxing Day', 'date' => '2023-09-01' ],
-				[ 'label' => 'Boxing Day', 'date' => '2023-12-26' ],
-				[ 'label' => 'Christmas Day', 'date' => '2023-12-25' ],
-			],
-			'2024' => [
-				[ 'label' => 'Christmas Day', 'date' => '2024-12-25' ],
-			],
-		];
+		$holidays = get_option( 'dispatch_timer_special_holidays', [] );
+
+		return is_array( $holidays ) ? $holidays : [];
 	}
 
 	/**
@@ -73,7 +102,7 @@ class Settings {
 	 * @return string
 	 */
 	public static function get_cut_off_time(): string {
-		return '14:00';
+		return static::get_option( 'dispatch_timer_get_cut_off_time', '14:00' );
 	}
 
 	/**

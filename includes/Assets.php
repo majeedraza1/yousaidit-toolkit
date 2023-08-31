@@ -283,7 +283,7 @@ class Assets {
 		$data['topics']     = Setting::get_topics();
 		$data['recipients'] = Setting::get_recipients();
 
-		$data['common_holidays'] = Settings::get_common_public_holidays();
+		$data['common_holidays']  = Settings::get_common_public_holidays();
 		$data['special_holidays'] = Settings::get_special_holidays();
 
 		echo '<script>window.StackonetToolkit = ' . wp_json_encode( $data ) . '</script>' . PHP_EOL;

@@ -128,25 +128,30 @@ class AdminRestController extends ApiController {
 	 *
 	 * @return array
 	 */
-	private static function sanitize_special_holidays( $holidays ): array {
+	private static function sanitize_special_holidays( $data ): array {
 		$sanitized = [];
-		if ( ! is_array( $holidays ) ) {
+		if ( ! is_array( $data ) ) {
 			return $sanitized;
 		}
 
-		foreach ( $holidays as $holiday ) {
-			if ( ! isset( $holiday['date'] ) ) {
-				continue;
-			}
-			if ( ! Validate::date( $holiday['date'] ) ) {
-				continue;
-			}
-			$datetime = \DateTime::createFromFormat( 'Y-m-d', $holiday['date'] );
+		foreach ( $data as $year => $holidays ) {
+			foreach ( $holidays as $holiday ) {
+				if ( ! isset( $holiday['date'] ) ) {
+					continue;
+				}
+				if ( ! Validate::date( $holiday['date'] ) ) {
+					continue;
+				}
+				$datetime = \DateTime::createFromFormat( 'Y-m-d', $holiday['date'] );
+				if ( $year != $datetime->format( 'Y' ) ) {
+					continue;
+				}
 
-			$sanitized[ $datetime->format( 'Y' ) ][] = [
-				'label' => $holiday['label'],
-				'date'  => $holiday['date'],
-			];
+				$sanitized[ $year ][] = [
+					'label' => $holiday['label'],
+					'date'  => $holiday['date'],
+				];
+			}
 		}
 
 		return $sanitized;
