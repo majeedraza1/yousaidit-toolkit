@@ -207,7 +207,7 @@ class Settings {
 			$start_datetime = DateTime::createFromFormat( 'Y-m-d', $start_date, wp_timezone() );
 		}
 		$cache_key      = sprintf( 'holidays_for_date_%s_%s', $start_datetime->format( 'Y_m_d' ), $num_of_days );
-		$final_holidays = get_transient( $cache_key );
+		$final_holidays = false; // get_transient( $cache_key );
 		if ( ! is_array( $final_holidays ) || $force ) {
 			$max_datetime = clone $start_datetime;
 			$max_datetime->modify( sprintf( '+ %s days', $num_of_days ) );
@@ -299,11 +299,11 @@ class Settings {
 			$message = sprintf( 'Order within <strong>%s hrs %s mins</strong> for same day dispatch', $dif->h,
 				$dif->i );
 		} else {
-			$message = sprintf( 'Order <strong>today</strong> and it will bd dispatched on %s',
+			$message = sprintf( 'Order <strong>today</strong> and it will be dispatched on %s',
 				$next_dispatch->format( 'l' ) );
 		}
 
-		$html = '<div class="dispatch-timer">';
+		$html = '<div class="dispatch-timer mb-4">';
 		$html .= '<span class="dispatch-timer__icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px">
 					<path d="M0 0h24v24H0V0z" fill="none"/>
 					<path d="M12.5 8H11v6l4.75 2.85.75-1.23-4-2.37zm4.837-6.19l4.607 3.845-1.28 1.535-4.61-3.843zm-10.674 0l1.282 1.536L3.337 7.19l-1.28-1.536zM12 4c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9zm0 16c-3.86 0-7-3.14-7-7s3.14-7 7-7 7 3.14 7 7-3.14 7-7 7z"/>
