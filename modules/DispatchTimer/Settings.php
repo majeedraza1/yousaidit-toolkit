@@ -190,67 +190,56 @@ class Settings {
 	 *
 	 * @param  string|null  $start_date
 	 * @param  int  $num_of_days
-	 * @param  bool  $force
 	 *
 	 * @return array
 	 * @throws Exception
 	 */
-	public static function get_holidays_for_date(
-		?string $start_date = null,
-		int $num_of_days = 30,
-		bool $force = false
-	): array {
+	public static function get_holidays_for_date( ?string $start_date = null, int $num_of_days = 30 ): array {
 		$num_of_days = min( 90, max( 7, $num_of_days ) );
 		if ( empty( $start_date ) ) {
 			$start_datetime = new DateTime( 'now', wp_timezone() );
 		} else {
 			$start_datetime = DateTime::createFromFormat( 'Y-m-d', $start_date, wp_timezone() );
 		}
-		$cache_key      = sprintf( 'holidays_for_date_%s_%s', $start_datetime->format( 'Y_m_d' ), $num_of_days );
-		$final_holidays = false; // get_transient( $cache_key );
-		if ( ! is_array( $final_holidays ) || $force ) {
-			$max_datetime = clone $start_datetime;
-			$max_datetime->modify( sprintf( '+ %s days', $num_of_days ) );
-			$year = (int) $start_datetime->format( 'Y' );
+		$max_datetime = clone $start_datetime;
+		$max_datetime->modify( sprintf( '+ %s days', $num_of_days ) );
+		$year = (int) $start_datetime->format( 'Y' );
 
-			$special_holidays = static::get_special_holidays_dates();
-			$weekly_holiday   = [];
-			$common_holidays  = [];
+		$special_holidays = static::get_special_holidays_dates();
+		$weekly_holiday   = [];
+		$common_holidays  = [];
 
-			try {
-				$common_holidays = static::get_common_holiday_for_year( $year );
-				if ( in_array( $start_datetime->format( 'm' ), [ 12, '12' ], true ) ) {
-					$common_holidays = array_merge(
-						$common_holidays,
-						static::get_common_holiday_for_year( $year + 1 )
-					);
-				}
-			} catch ( Exception $e ) {
+		try {
+			$common_holidays = static::get_common_holiday_for_year( $year );
+			if ( in_array( $start_datetime->format( 'm' ), [ 12, '12' ], true ) ) {
+				$common_holidays = array_merge(
+					$common_holidays,
+					static::get_common_holiday_for_year( $year + 1 )
+				);
 			}
+		} catch ( Exception $e ) {
+		}
 
-			try {
-				$weekly_holiday = static::get_weekly_holiday_dates( $start_date, $num_of_days );
-			} catch ( Exception $e ) {
+		try {
+			$weekly_holiday = static::get_weekly_holiday_dates( $start_date, $num_of_days );
+		} catch ( Exception $e ) {
+		}
+
+		$holidays = array_merge( $common_holidays, $weekly_holiday, $special_holidays );
+
+		if ( count( $holidays ) ) {
+			$holidays = array_unique( $holidays );
+			asort( $holidays );
+			$holidays = array_values( $holidays );
+		}
+
+		$final_holidays = [];
+		foreach ( $holidays as $holiday ) {
+			$_datetime = DateTime::createFromFormat( 'Y-m-d', $holiday, wp_timezone() );
+			if ( $_datetime < $start_datetime || $_datetime > $max_datetime ) {
+				continue;
 			}
-
-			$holidays = array_merge( $common_holidays, $weekly_holiday, $special_holidays );
-
-			if ( count( $holidays ) ) {
-				$holidays = array_unique( $holidays );
-				asort( $holidays );
-				$holidays = array_values( $holidays );
-			}
-
-			$final_holidays = [];
-			foreach ( $holidays as $holiday ) {
-				$_datetime = DateTime::createFromFormat( 'Y-m-d', $holiday, wp_timezone() );
-				if ( $_datetime < $start_datetime || $_datetime > $max_datetime ) {
-					continue;
-				}
-				$final_holidays[] = $holiday;
-			}
-
-			set_transient( $cache_key, $final_holidays, DAY_IN_SECONDS );
+			$final_holidays[] = $holiday;
 		}
 
 		return $final_holidays;
@@ -291,6 +280,12 @@ class Settings {
 		return $dispatch_time;
 	}
 
+	/**
+	 * Get next dispatch timer message
+	 *
+	 * @return string
+	 * @throws Exception
+	 */
 	public static function get_next_dispatch_timer_message(): string {
 		$datetime      = new \DateTime( 'now', wp_timezone() );
 		$next_dispatch = Settings::get_next_dispatch_datetime( $datetime );

@@ -12,6 +12,7 @@ class DispatchTimerManager {
 			self::$instance = new static();
 			add_action( 'wp_ajax_yousaidit_dispatch_timer', [ self::$instance, 'dispatch_timer' ] );
 			add_action( 'wp_ajax_nopriv_yousaidit_dispatch_timer', [ self::$instance, 'dispatch_timer' ] );
+
 			add_filter( 'woocommerce_short_description', [ self::$instance, 'short_description' ] );
 			add_action( 'wp_footer', [ self::$instance, 'add_scripts' ], 0 );
 
@@ -25,6 +26,13 @@ class DispatchTimerManager {
 		return self::$instance;
 	}
 
+	/**
+	 * Modify short description and display next dispatch time
+	 *
+	 * @param $short_description
+	 *
+	 * @return mixed|string
+	 */
 	public function short_description( $short_description ) {
 		if ( is_singular( 'product' ) ) {
 			try {
@@ -36,6 +44,12 @@ class DispatchTimerManager {
 		return $short_description;
 	}
 
+	/**
+	 * Send next dispatch time over AJAX request
+	 *
+	 * @return void
+	 * @throws \Exception
+	 */
 	public function dispatch_timer() {
 		// Nonce verification is not required
 		wp_send_json( [

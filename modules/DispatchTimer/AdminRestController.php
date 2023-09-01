@@ -19,14 +19,10 @@ class AdminRestController extends ApiController {
 			'callback'            => [ $this, 'create_setting_item' ],
 			'permission_callback' => '__return_true',
 			'args'                => [
-				'common_holidays'  => [
-				],
-				'weekly_holiday'   => [
-				],
-				'special_holidays' => [
-				],
-				'cut_off_time'     => [
-				],
+				'common_holidays'  => [],
+				'special_holidays' => [],
+				'cut_off_time'     => [],
+				'weekly_holiday'   => [],
 			],
 		] );
 		register_rest_route( $this->namespace, 'dispatch-timer/string-to-date', [
