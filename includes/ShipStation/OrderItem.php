@@ -14,6 +14,8 @@ use YouSaidItCards\Utilities\PdfSizeCalculator;
 
 class OrderItem implements JsonSerializable {
 
+	const CUSTOM_CARD_SKU_PREFIX = [ 'CUST-' ];
+
 	/**
 	 * @var array
 	 */
@@ -122,9 +124,9 @@ class OrderItem implements JsonSerializable {
 	/**
 	 * OrderItem constructor.
 	 *
-	 * @param array $data
-	 * @param int $ship_station_order_id
-	 * @param int $quantities_in_order
+	 * @param  array  $data
+	 * @param  int  $ship_station_order_id
+	 * @param  int  $quantities_in_order
 	 */
 	public function __construct( $data = [], $ship_station_order_id = 0, $quantities_in_order = 0, $store_id = 0 ) {
 		$this->data                      = $data;
@@ -155,11 +157,11 @@ class OrderItem implements JsonSerializable {
 
 				if ( ! ( $this->pdf_width && $this->pdf_height ) ) {
 					if ( $this->pdf_id ) {
-						PdfSizeCalculator::calculate_pdf_width_and_height( $this->pdf_id );
-					}
+						list( $pdf_width, $pdf_height ) = PdfSizeCalculator::calculate_pdf_width_and_height( $this->pdf_id );
 
-					$this->pdf_width  = (int) get_post_meta( $this->pdf_id, '_pdf_width_millimeter', true );
-					$this->pdf_height = (int) get_post_meta( $this->pdf_id, '_pdf_height_millimeter', true );
+						$this->pdf_width  = $pdf_width;
+						$this->pdf_height = $pdf_height;
+					}
 				}
 			}
 
@@ -176,13 +178,22 @@ class OrderItem implements JsonSerializable {
 
 		// Check item card size
 		$this->read_card_size();
+
+		if ( ! $this->pdf_id ) {
+			$info = OrderItemPdf::find_by_sku( $this->get_sku(), $this->get_order_item_id() );
+			if ( $info instanceof OrderItemPdf ) {
+				$this->pdf_id     = $info->get_pdf_id();
+				$this->pdf_width  = $info->get_pdf_width();
+				$this->pdf_height = $info->get_pdf_height();
+			}
+		}
 	}
 
 	/**
 	 * Get property
 	 *
-	 * @param string $key
-	 * @param null $default
+	 * @param  string  $key
+	 * @param  null  $default
 	 *
 	 * @return mixed|null
 	 */
@@ -205,22 +216,27 @@ class OrderItem implements JsonSerializable {
 			$data['title']             = $this->get_product()->get_title();
 			$data['product_sku']       = $this->get_product()->get_sku();
 			$data['edit_product_url']  = $this->get_product_edit_url();
-			$data['quantity']          = $this->get_quantity();
 			$data['options']           = $this->get_option();
 			$data['product_thumbnail'] = $url;
 			$data['card_id']           = $this->card_id;
 			$data['designer_id']       = $this->designer_id;
 			$data['commission']        = $this->get_designer_commission();
 			$data['total_commission']  = ( $this->get_designer_commission() * $this->get_quantity() );
+		} else {
+			$data['id']          = 0;
+			$data['title']       = $this->data['name'] ?? '';
+			$data['product_sku'] = $this->sku;
 		}
 
 		return array_merge( $data, [
-			'art_work'          => $this->get_art_work(),
-			'attached_file'     => $this->get_attached_file(),
-			'pdf_id'            => $this->get_pdf_id(),
-			'has_inner_message' => $this->has_inner_message(),
-			'inner_message'     => $this->get_inner_message(),
-			'card_size'         => $this->get_card_size(),
+			'quantity'            => $this->get_quantity(),
+			'art_work'            => $this->get_art_work(),
+			'attached_file'       => $this->get_attached_file(),
+			'pdf_id'              => $this->get_pdf_id(),
+			'has_inner_message'   => $this->has_inner_message(),
+			'inner_message'       => $this->get_inner_message(),
+			'card_size'           => $this->get_card_size(),
+			'shipstation_item_id' => $this->get_order_item_id(),
 		] );
 	}
 
@@ -402,6 +418,16 @@ class OrderItem implements JsonSerializable {
 		return $this->sku;
 	}
 
+	public function is_custom_card(): bool {
+		foreach ( static::CUSTOM_CARD_SKU_PREFIX as $prefix ) {
+			if ( false !== strpos( $this->get_sku(), $prefix ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	/**
 	 * Get item quantity
 	 *
@@ -466,7 +492,7 @@ class OrderItem implements JsonSerializable {
 	/**
 	 * @return bool
 	 */
-	public function has_product() {
+	public function has_product(): bool {
 		return $this->get_product() instanceof WC_Product;
 	}
 

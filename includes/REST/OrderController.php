@@ -78,7 +78,7 @@ class OrderController extends LegacyApiController {
 	/**
 	 * Get order items
 	 *
-	 * @param WP_REST_Request $request
+	 * @param  WP_REST_Request  $request
 	 *
 	 * @return WP_REST_Response
 	 */
@@ -105,7 +105,7 @@ class OrderController extends LegacyApiController {
 	/**
 	 * Retrieves a collection of items.
 	 *
-	 * @param WP_REST_Request $request Full data about the request.
+	 * @param  WP_REST_Request  $request  Full data about the request.
 	 *
 	 * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
 	 */
@@ -151,7 +151,7 @@ class OrderController extends LegacyApiController {
 	/**
 	 * Retrieves a collection of items.
 	 *
-	 * @param WP_REST_Request $request Full data about the request.
+	 * @param  WP_REST_Request  $request  Full data about the request.
 	 *
 	 * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
 	 */
@@ -168,7 +168,7 @@ class OrderController extends LegacyApiController {
 	/**
 	 * Retrieves one item from the collection.
 	 *
-	 * @param WP_REST_Request $request Full data about the request.
+	 * @param  WP_REST_Request  $request  Full data about the request.
 	 *
 	 * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
 	 */
@@ -189,7 +189,7 @@ class OrderController extends LegacyApiController {
 	/**
 	 * Updates one item from the collection.
 	 *
-	 * @param WP_REST_Request $request Full data about the request.
+	 * @param  WP_REST_Request  $request  Full data about the request.
 	 *
 	 * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
 	 */
@@ -209,7 +209,8 @@ class OrderController extends LegacyApiController {
 
 		$updatedData = Order::mark_as_shipped( $request->get_params() );
 		if ( is_wp_error( $updatedData ) ) {
-			return $this->respondInternalServerError( $updatedData->get_error_code(), $updatedData->get_error_message() );
+			return $this->respondInternalServerError( $updatedData->get_error_code(),
+				$updatedData->get_error_message() );
 		}
 
 		return $this->respondOK( $updatedData );

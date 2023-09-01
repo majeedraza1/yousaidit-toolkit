@@ -10,6 +10,7 @@ use Stackonet\WP\Framework\Supports\Validate;
 use WC_Abstract_Order;
 use WC_Product;
 use WP_Error;
+use YouSaidItCards\Admin\SettingPage;
 
 class Order implements JsonSerializable {
 
@@ -81,7 +82,7 @@ class Order implements JsonSerializable {
 	/**
 	 * Order constructor.
 	 *
-	 * @param array $data
+	 * @param  array  $data
 	 */
 	public function __construct( array $data = [] ) {
 		$this->data          = $data;
@@ -130,6 +131,7 @@ class Order implements JsonSerializable {
 			'contain_mixed_card_sizes' => $this->is_contain_mixed_card_sizes(),
 			'custom_info'              => $this->stackonet_custom_info(),
 			'door_delivery'            => $this->straight_to_door_delivery(),
+			'print_shipping_label_url' => $this->get_print_shipping_label_url(),
 		];
 	}
 
@@ -211,7 +213,7 @@ class Order implements JsonSerializable {
 	/**
 	 * Get formatted shop address
 	 *
-	 * @param string $separator
+	 * @param  string  $separator
 	 *
 	 * @return string
 	 */
@@ -318,7 +320,7 @@ class Order implements JsonSerializable {
 	/**
 	 * Get customer formatted shipping address
 	 *
-	 * @param string $separator
+	 * @param  string  $separator
 	 *
 	 * @return string
 	 */
@@ -368,7 +370,7 @@ class Order implements JsonSerializable {
 	/**
 	 * Get card sizes
 	 *
-	 * @param bool $force
+	 * @param  bool  $force
 	 *
 	 * @return array
 	 */
@@ -389,11 +391,12 @@ class Order implements JsonSerializable {
 					if ( ! $order_item->get_pdf_width() || ! $order_item->get_pdf_height() ) {
 						continue;
 					}
-					$key = sprintf( "%sx%sx%sx%s",
+					$key = sprintf( "%sx%sx%sx%sx%s",
 						$order_item->get_pdf_width(),
 						$order_item->get_pdf_height(),
 						$order_item->has_inner_message() ? 'i' : 'b',
-						$order_item->is_dynamic_card_type() ? 'd' : 's'
+						$order_item->is_dynamic_card_type() ? 'd' : 's',
+						$order_item->is_custom_card() ? 'c' : 'd'
 					);
 					$qty = isset( $items[ $key ]['quantity'] ) ? intval( $items[ $key ]['quantity'] ) : 0;
 
@@ -403,13 +406,22 @@ class Order implements JsonSerializable {
 					$items[ $key ]['inner_message']  = $order_item->has_inner_message();
 					$items[ $key ]['card_type']      = $order_item->get_card_type();
 					$items[ $key ]['card_size']      = $order_item->get_card_size();
-					$items[ $key ]['product_parent'] = $order_item->get_product()->get_parent_id();
-					$items[ $key ]['product_id']     = $order_item->get_product()->get_id();
-					$items[ $key ]['quantity']       = $order_item->get_quantity() + $qty;
+					$items[ $key ]['is_custom_card'] = $order_item->is_custom_card();
+
+					if ( $order_item->has_product() ) {
+						$items[ $key ]['product_parent'] = $order_item->get_product()->get_parent_id();
+						$items[ $key ]['product_id']     = $order_item->get_product()->get_id();
+					} else {
+						$items[ $key ]['product_parent'] = 0;
+						$items[ $key ]['product_id']     = 0;
+					}
+
+					$items[ $key ]['quantity'] = $order_item->get_quantity() + $qty;
 
 					$items[ $key ]['items'][] = [
 						'shipStation_order_id' => $order->get_id(),
 						'order_item_id'        => $order_item->get_order_item_id(),
+						'sku'                  => $order_item->get_sku(),
 						'wc_order_id'          => $order->get_wc_order_id(),
 						'wc_order_item_id'     => $order_item->get_wc_order_item_id(),
 						'has_inner_message'    => $order_item->has_inner_message(),
@@ -445,7 +457,7 @@ class Order implements JsonSerializable {
 	}
 
 	/**
-	 * @param array $args
+	 * @param  array  $args
 	 *
 	 * @return array
 	 */
@@ -465,8 +477,8 @@ class Order implements JsonSerializable {
 	}
 
 	/**
-	 * @param array $ids
-	 * @param array $args
+	 * @param  array  $ids
+	 * @param  array  $args
 	 *
 	 * @return array|static[]
 	 */
@@ -490,7 +502,7 @@ class Order implements JsonSerializable {
 	/**
 	 * Get orders from ShipStation API
 	 *
-	 * @param array $args
+	 * @param  array  $args
 	 *
 	 * @return array
 	 */
@@ -555,7 +567,7 @@ class Order implements JsonSerializable {
 	}
 
 	/**
-	 * @param array $data
+	 * @param  array  $data
 	 *
 	 * @return array|WP_Error
 	 */
@@ -674,6 +686,17 @@ class Order implements JsonSerializable {
 	 */
 	public function get_store_name(): string {
 		return $this->store_name;
+	}
+
+	public function get_print_shipping_label_url(): string {
+		if ( $this->get_store_id() == SettingPage::get_shipstation_amazon_store_id() ) {
+			return sprintf(
+				'https://sellercentral.amazon.co.uk/orders-v3/order/%s/buy-shipping',
+				$this->data['orderNumber'] ?? ''
+			);
+		}
+
+		return '';
 	}
 
 	/**
