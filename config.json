@@ -9,6 +9,7 @@
       "./resources/admin/common.js",
       "./resources/scss/admin.scss",
       "./resources/admin/ai-content-writer-settings/main.tsx",
+      "./resources/admin/dispatch-timer-settings/main.tsx",
       "./resources/admin/inner-message-editor/main.ts"
     ],
     "designer-profile": [
