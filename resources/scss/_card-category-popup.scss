@@ -1,0 +1,35 @@
+body.admin-bar {
+  @media screen and (min-width: 768px) {
+    .shapla-modal-content {
+      --modal-content-spacing: calc(40px + 32px);
+    }
+  }
+}
+
+.card-category-popup {
+  position: absolute;
+  z-index: 99;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+
+.card-category-popup-content {
+
+  .yousaidit_wishlist {
+    display: inline-flex;
+    cursor: pointer;
+
+    &:before {
+      font-family: "icomoon";
+      content: "\e903";
+      font-size: 1.5rem;
+      @apply text-primary w-8 h-8 justify-center inline-flex items-center;
+    }
+
+    &.is-in-list:before {
+      content: "\e90c";
+    }
+  }
+}

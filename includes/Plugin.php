@@ -11,6 +11,7 @@ use YouSaidItCards\Cli\Command;
 use YouSaidItCards\Frontend\Frontend;
 use YouSaidItCards\Modules\Auth\AuthManager;
 use YouSaidItCards\Modules\CardMerger\CardMergerManager;
+use YouSaidItCards\Modules\CardPopup\CardPopupManager;
 use YouSaidItCards\Modules\ColorTheme\ColorThemeManager;
 use YouSaidItCards\Modules\Customer\CustomerManager;
 use YouSaidItCards\Modules\Designers\DesignersManager;
@@ -153,6 +154,7 @@ class Plugin {
 		$this->container['module_featured_product'] = FeaturedProductsFirst::init();
 		$this->container['module_reminder']         = RemindersManager::init();
 		$this->container['module_dispatch_timer']   = DispatchTimerManager::init();
+		$this->container['module_card_popup']       = CardPopupManager::init();
 	}
 
 	/**

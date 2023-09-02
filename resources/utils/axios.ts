@@ -3,6 +3,7 @@ import axios from 'axios';
 declare global {
   interface Window {
     StackonetToolkit: {
+      ajaxUrl: string
       restRoot: string
       restNonce?: string
       occasions: { slug: string; label: string; menu_order?: number; }[];
