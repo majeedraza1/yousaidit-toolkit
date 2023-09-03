@@ -32,6 +32,10 @@ $wishlist_button = Wishlist::get_wishlist_button( $product->get_id() );
 		?>
     </div>
 
+    <div class="flex font-bold justify-center mb-2 uppercase">
+		<?php echo $product->get_title(); ?>
+    </div>
+
     <div class="flex justify-center">
 		<?php
 		$dispatch_time = Settings::get_next_dispatch_timer_message();
