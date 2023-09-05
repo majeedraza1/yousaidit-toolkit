@@ -46,6 +46,9 @@ class CardPopupManager {
 			$task       = in_array( $task, [ 'remove_from_wishlist', 'add_to_wishlist' ], true ) ? $task : '';
 			$product_id = isset( $_REQUEST['product_id'] ) ? intval( $_REQUEST['product_id'] ) : 0;
 			$wishlist   = WishlistList::get_current_user_wishlist_list();
+			if ( ! $wishlist instanceof WishlistList ) {
+				wp_send_json_error( [ 'Wishlist session is not found.' ], 500 );
+			}
 
 			if ( 'remove_from_wishlist' === $task ) {
 				$wishlist->remove_from_list( $product_id );
@@ -85,9 +88,9 @@ class CardPopupManager {
 			wp_send_json( [
 				'product_id' => $product->get_id(),
 				'popup'      => $popup,
-			] );
+			], 200 );
 		}
-		wp_send_json_error();
+		wp_send_json_error( [ 'message' => 'Product not found for that id.' ], 404 );
 	}
 
 	/**

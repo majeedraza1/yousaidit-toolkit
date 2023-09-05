@@ -140,7 +140,7 @@ class WishlistList extends DatabaseModel {
 			$data['session_id'] = $session_id;
 		}
 
-		if ( empty( $data['user_id'] ) || empty( $data['session_id'] ) ) {
+		if ( empty( $data['user_id'] ) && empty( $data['session_id'] ) ) {
 			return false;
 		}
 
@@ -176,19 +176,21 @@ class WishlistList extends DatabaseModel {
 	/**
 	 * Find by session id
 	 *
-	 * @param  string  $session_id  The session id.
+	 * @param  null|string  $session_id  The session id.
 	 *
 	 * @return false|static
 	 */
-	private static function find_by_session_id( string $session_id ) {
-		global $wpdb;
-		$table = static::get_table_name();
+	private static function find_by_session_id( ?string $session_id ) {
+		if ( is_string( $session_id ) && ! empty( $session_id ) ) {
+			global $wpdb;
+			$table = static::get_table_name();
 
-		$sql    = $wpdb->prepare( "SELECT * FROM $table WHERE session_id = %s", $session_id );
-		$result = $wpdb->get_row( $sql, ARRAY_A );
+			$sql    = $wpdb->prepare( "SELECT * FROM $table WHERE session_id = %s", $session_id );
+			$result = $wpdb->get_row( $sql, ARRAY_A );
 
-		if ( $result ) {
-			return new static( $result );
+			if ( $result ) {
+				return new static( $result );
+			}
 		}
 
 		return false;
@@ -200,8 +202,16 @@ class WishlistList extends DatabaseModel {
 	 * @return array|bool|false
 	 */
 	public static function get_session_data() {
-		if ( class_exists( \YITH_WCWL_Session::class ) ) {
-			return \YITH_WCWL_Session::get_instance()->get_session_cookie();
+		if ( function_exists( 'YITH_WCWL_Session' ) ) {
+			$cookie_instance = YITH_WCWL_Session();
+			$cookie          = $cookie_instance->get_session_cookie();
+			if ( empty( $cookie ) ) {
+				$cookie_instance->init_session_cookie();
+				$cookie = $cookie_instance->get_session_cookie();
+			}
+			if ( is_array( $cookie ) ) {
+				return $cookie;
+			}
 		}
 		$cookies = $_COOKIE;
 		$default = [ 'session_id' => '', 'session_expiration' => 0, 'session_expiring' => 0, 'cookie_hash' => '' ];
@@ -221,9 +231,9 @@ class WishlistList extends DatabaseModel {
 	 * @return string
 	 */
 	public static function get_wishlist_button( int $product_id ): string {
-		$list           = static::get_current_user_wishlist_list();
-		$class          = [ 'yousaidit_wishlist' ];
-		if ( $list->is_product_wishlist( $product_id ) ) {
+		$list  = static::get_current_user_wishlist_list();
+		$class = [ 'yousaidit_wishlist' ];
+		if ( $list instanceof static && $list->is_product_wishlist( $product_id ) ) {
 			$action_text = 'Remove from Wishlist';
 			$class[]     = 'remove-from-wishlist is-in-list';
 			$action_url  = static::get_wishlist_ajax_url( $product_id, 'remove_from_wishlist' );
