@@ -115,6 +115,12 @@ const request = (url: string) => {
   })
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+  const allCookies = document.cookie.split("; ");
+// .find((row) => row.startsWith("test2="));
+  window.console.log(allCookies);
+})
+
 document.addEventListener('click', (event: MouseEvent) => {
   const element = event.target as HTMLElement;
   if (element.classList.contains('card-category-popup')) {

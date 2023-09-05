@@ -17,8 +17,8 @@ class CardPopupManager {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new static();
 
-			add_action( 'wp_ajax_yousaidit_card_category_popup_test', [ self::$instance, 'card_category_popup_test' ] );
 			add_action( 'wp_ajax_yousaidit_wishlist', [ self::$instance, 'toggle_wishlist' ] );
+			add_action( 'wp_ajax_nopriv_yousaidit_wishlist', [ self::$instance, 'toggle_wishlist' ] );
 
 			add_action( 'wp_ajax_yousaidit_loop_product_popup', [ self::$instance, 'loop_item_popup' ] );
 			add_action( 'wp_ajax_nopriv_yousaidit_loop_product_popup', [ self::$instance, 'loop_item_popup' ] );
@@ -32,16 +32,12 @@ class CardPopupManager {
 		return self::$instance;
 	}
 
-	public function card_category_popup_test() {
-		$wishlist = Wishlist::get_wishlist_items();
-		var_dump( $wishlist );
-		die();
-	}
-
+	/**
+	 * Toggle wishlist AJAX action
+	 *
+	 * @return void
+	 */
 	public function toggle_wishlist() {
-		if ( ! current_user_can( 'read' ) ) {
-			wp_send_json_error();
-		}
 		if (
 			isset( $_REQUEST['_wpnonce'] ) &&
 			wp_verify_nonce( $_REQUEST['_wpnonce'], 'yousaidit_wishlist_nonce' )
@@ -49,19 +45,20 @@ class CardPopupManager {
 			$task       = isset( $_REQUEST['task'] ) ? sanitize_text_field( $_REQUEST['task'] ) : '';
 			$task       = in_array( $task, [ 'remove_from_wishlist', 'add_to_wishlist' ], true ) ? $task : '';
 			$product_id = isset( $_REQUEST['product_id'] ) ? intval( $_REQUEST['product_id'] ) : 0;
+			$wishlist   = WishlistList::get_current_user_wishlist_list();
 
 			if ( 'remove_from_wishlist' === $task ) {
-				Wishlist::remove_from_list( $product_id );
+				$wishlist->remove_from_list( $product_id );
 				wp_send_json_success( [
-					'href'     => rawurlencode( Wishlist::get_wishlist_ajax_url( $product_id, 'add_to_wishlist' ) ),
+					'href'     => rawurlencode( WishlistList::get_wishlist_ajax_url( $product_id, 'add_to_wishlist' ) ),
 					'cssClass' => [ 'yousaidit_wishlist' ],
 					'title'    => 'Add to wishlist'
 				] );
 			}
 			if ( 'add_to_wishlist' === $task ) {
-				Wishlist::add_to_list( $product_id );
+				$wishlist->add_to_list( $product_id );
 				wp_send_json_success( [
-					'href'     => rawurlencode( Wishlist::get_wishlist_ajax_url( $product_id,
+					'href'     => rawurlencode( WishlistList::get_wishlist_ajax_url( $product_id,
 						'remove_from_wishlist' ) ),
 					'cssClass' => [ 'yousaidit_wishlist', 'remove-from-wishlist', 'is-in-list' ],
 					'title'    => 'Remove from wishlist'
@@ -72,6 +69,11 @@ class CardPopupManager {
 		wp_send_json_error( null, 422 );
 	}
 
+	/**
+	 * Add loop item
+	 *
+	 * @return void
+	 */
 	public function loop_item_popup() {
 		$id      = isset( $_GET['product_id'] ) ? intval( $_GET['product_id'] ) : 0;
 		$product = wc_get_product( $id );
@@ -80,21 +82,19 @@ class CardPopupManager {
 			include_once dirname( __FILE__ ) . '/template-popup.php';
 			$popup = ob_get_clean();
 
-			ob_start();
-			if ( class_exists( 'YITH_WCWL' ) ) {
-				echo do_shortcode( '[yith_wcwl_add_to_wishlist product_id="' . $product->get_id() . '"]' );
-			}
-			$wishlist = ob_get_clean();
-
 			wp_send_json( [
 				'product_id' => $product->get_id(),
-				'wishlist'   => $wishlist,
 				'popup'      => $popup,
 			] );
 		}
-		die;
+		wp_send_json_error();
 	}
 
+	/**
+	 * Add popup markup
+	 *
+	 * @return void
+	 */
 	public function add_popup_markup() {
 		global $product;
 		if ( $product instanceof \WC_Product ) {

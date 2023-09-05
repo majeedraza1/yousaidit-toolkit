@@ -3,12 +3,10 @@
  * @var WC_Product $product WooCommerce product object.
  */
 
-use YouSaidItCards\Modules\CardPopup\Wishlist;
+use YouSaidItCards\Modules\CardPopup\WishlistList;
 use YouSaidItCards\Modules\DispatchTimer\Settings;
 
 defined( 'ABSPATH' ) || exit;
-
-$wishlist_button = Wishlist::get_wishlist_button( $product->get_id() );
 ?>
 
 <div class="card-category-popup-content">
@@ -16,6 +14,7 @@ $wishlist_button = Wishlist::get_wishlist_button( $product->get_id() );
         <div>
 			<?php
 			if ( class_exists( 'YITH_WCWL' ) ) {
+				$wishlist_button = WishlistList::get_wishlist_button( $product->get_id() );
 				echo $wishlist_button; // phpcs:disable WordPress.XSS.EscapeOutput.OutputNotEscaped
 			}
 			?>
@@ -38,8 +37,11 @@ $wishlist_button = Wishlist::get_wishlist_button( $product->get_id() );
 
     <div class="flex justify-center">
 		<?php
-		$dispatch_time = Settings::get_next_dispatch_timer_message();
-		echo $dispatch_time; // phpcs:disable WordPress.XSS.EscapeOutput.OutputNotEscaped
+		try {
+			$dispatch_time = Settings::get_next_dispatch_timer_message();
+			echo $dispatch_time; // phpcs:disable WordPress.XSS.EscapeOutput.OutputNotEscaped
+		} catch ( Exception $e ) {
+		}
 		?>
     </div>
     <div class="flex justify-center">
