@@ -47,7 +47,7 @@ class DesignerCustomerProfile {
 	}
 
 	/**
-	 * @param \WP_Term[] $terms
+	 * @param  \WP_Term[]  $terms
 	 *
 	 * @return \WP_Term[]
 	 */
@@ -82,7 +82,7 @@ class DesignerCustomerProfile {
 	}
 
 	/**
-	 * @param string $link
+	 * @param  string  $link
 	 *
 	 * @return string
 	 */
@@ -100,7 +100,7 @@ class DesignerCustomerProfile {
 	/**
 	 * Un parse URL
 	 *
-	 * @param array $parsed_url
+	 * @param  array  $parsed_url
 	 *
 	 * @return string
 	 */
@@ -124,7 +124,8 @@ class DesignerCustomerProfile {
 	public static function get_tax_query_data() {
 		$filters = [];
 		foreach ( $_GET as $key => $value ) {
-			if ( ( false !== strpos( $key, 'filter_' ) || 'product_cat' == $key ) && ( $value != 'any' || ! empty( $value ) ) ) {
+			if ( ( false !== strpos( $key,
+						'filter_' ) || 'product_cat' == $key ) && ( $value != 'any' || ! empty( $value ) ) ) {
 				$attr_key             = str_replace( 'filter_', 'pa_', $key );
 				$filters[ $attr_key ] = sanitize_text_field( $value );
 			}
@@ -136,7 +137,7 @@ class DesignerCustomerProfile {
 	/**
 	 * Get categories widget dropdown args
 	 *
-	 * @param array $args
+	 * @param  array  $args
 	 *
 	 * @return array
 	 */
@@ -154,7 +155,7 @@ class DesignerCustomerProfile {
 	}
 
 	/**
-	 * @param \WP_Query $wp_query
+	 * @param  \WP_Query  $wp_query
 	 */
 	public function pre_get_posts( $wp_query ) {
 		// We only want to affect the main query.
@@ -194,13 +195,14 @@ class DesignerCustomerProfile {
 	 * Add custom rewrite rule
 	 */
 	public static function custom_rewrite_rule() {
-		add_rewrite_rule( '^' . static::$endpoint . '/?([^/]*)/?', 'index.php?' . static::$endpoint . '=$matches[1]', 'top' );
+		add_rewrite_rule( '^' . static::$endpoint . '/?([^/]*)/?', 'index.php?' . static::$endpoint . '=$matches[1]',
+			'top' );
 	}
 
 	/**
 	 * Add query var
 	 *
-	 * @param array $vars
+	 * @param  array  $vars
 	 *
 	 * @return array
 	 */
@@ -213,7 +215,7 @@ class DesignerCustomerProfile {
 	/**
 	 * Change document title for designer customer profile page
 	 *
-	 * @param array $title
+	 * @param  array  $title
 	 *
 	 * @return string
 	 */
@@ -223,7 +225,8 @@ class DesignerCustomerProfile {
 			$author = get_queried_object();
 			if ( $author instanceof \WP_User ) {
 				$sep   = apply_filters( 'document_title_separator', '-' );
-				$title = sprintf( "%s $sep %s", $author->display_name, get_bloginfo( 'name', 'display' ) );
+				$title = sprintf( "Greeting card designs by %s $sep %s", $author->display_name,
+					get_bloginfo( 'name', 'display' ) );
 			}
 		}
 

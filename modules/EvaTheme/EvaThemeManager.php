@@ -54,24 +54,24 @@ class EvaThemeManager {
 	 */
 	public static function banner() {
 		?>
-		<div class="pinkbar">
-			<div class="innerbar">
-				<ul>
-					<li>BUY ANY 5 CARDS FOR <strong>£9.99</strong></li>
-					<li>
-						<Strong>
-							<i class="fa fa-star"></i>
-							<i class="fa fa-star"></i>
-							<i class="fa fa-star"></i>
-							<i class="fa fa-star"></i>
-							<i class="fa fa-star"></i>
-						</Strong>
-						5 STAR RATING
-					</li>
-					<li><strong>FREE DELIVERY</strong> OVER £20</li>
-				</ul>
-			</div>
-		</div>
+        <div class="pinkbar">
+            <div class="innerbar">
+                <ul>
+                    <li>BUY ANY 5 CARDS FOR <strong>£9.99</strong></li>
+                    <li>
+                        <Strong>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                        </Strong>
+                        5 STAR RATING
+                    </li>
+                    <li><strong>FREE DELIVERY</strong> OVER £30</li>
+                </ul>
+            </div>
+        </div>
 		<?php
 	}
 
@@ -105,7 +105,7 @@ class EvaThemeManager {
 			$html .= $this->get_dynamic_card_html( $product );
 			$html .= $this->get_inner_message_html( false );
 			$html .= $this->get_video_inner_message_html();
-		} else if ( self::should_show_inner_message( $product ) ) {
+		} elseif ( self::should_show_inner_message( $product ) ) {
 			$html .= $this->get_inner_message_html();
 			$html .= $this->get_video_inner_message_html();
 		}
@@ -126,7 +126,7 @@ class EvaThemeManager {
 	/**
 	 * Should show inner message
 	 *
-	 * @param WC_Product|null $product
+	 * @param  WC_Product|null  $product
 	 *
 	 * @return bool
 	 */
@@ -157,7 +157,7 @@ class EvaThemeManager {
 	}
 
 	/**
-	 * @param bool $show_button
+	 * @param  bool  $show_button
 	 *
 	 * @return string
 	 */
