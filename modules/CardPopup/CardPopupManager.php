@@ -81,7 +81,13 @@ class CardPopupManager {
 		$id      = isset( $_GET['product_id'] ) ? intval( $_GET['product_id'] ) : 0;
 		$product = wc_get_product( $id );
 		if ( $product instanceof \WC_Product ) {
-			ob_start();
+			$extra_fields = [];
+			if ( class_exists( \THWEPO_Utils_Section::class ) ) {
+				$options_extra = \THWEPO_Utils_Section::get_product_sections_and_fields( $product );
+				if ( isset( $options_extra['default'] ) && $options_extra['default'] instanceof \WEPO_Product_Page_Section ) {
+					$extra_fields = $options_extra['default']->fields;
+				}
+			}
 			include_once dirname( __FILE__ ) . '/template-popup.php';
 			$popup = ob_get_clean();
 

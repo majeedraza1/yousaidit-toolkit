@@ -26,7 +26,7 @@ const createModal = () => {
     {id: 'card-category-modal', class: 'shapla-modal',},
     [
       bgEl,
-      createEl('div', {class: 'shapla-modal-content is-medium shapla-modal-box'}),
+      createEl('div', {class: 'shapla-modal-content is-large shapla-modal-box'}),
     ]
   );
 
