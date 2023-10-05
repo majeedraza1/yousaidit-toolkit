@@ -144,6 +144,42 @@ class DispatchTimerManager {
 		];
 
 		$fields[] = [
+			'id'                => 'dispatch_timer_start_time',
+			'type'              => 'time',
+			'title'             => __( 'Timer show (start time)', 'yousaidit-toolkit' ),
+			'priority'          => 6,
+			'panel'             => 'dispatch_timer',
+			'sanitize_callback' => [ Sanitize::class, 'text' ],
+		];
+
+		$fields[] = [
+			'id'                => 'dispatch_timer_end_time',
+			'type'              => 'time',
+			'title'             => __( 'Timer show (end time)', 'yousaidit-toolkit' ),
+			'priority'          => 7,
+			'panel'             => 'dispatch_timer',
+			'sanitize_callback' => [ Sanitize::class, 'text' ],
+		];
+
+		$fields[] = [
+			'id'                => 'dispatch_timer_hide_on',
+			'type'              => 'multi_checkbox',
+			'title'             => __( 'Hide Timer on', 'yousaidit-toolkit' ),
+			'description'       => __( 'Check to hide for those holidays', 'yousaidit-toolkit' ),
+			'priority'          => 9,
+			'panel'             => 'dispatch_timer',
+			'multiple'          => true,
+			'options'           => [
+				'weekly_holiday'         => __( 'Weekly Holiday', 'yousaidit-toolkit' ),
+				'common_public_holidays' => __( 'Common Public Holidays', 'yousaidit-toolkit' ),
+				'special_holidays'       => __( 'Other Holidays', 'yousaidit-toolkit' ),
+			],
+			'sanitize_callback' => function ( $value ) {
+				return $value ? array_map( 'intval', $value ) : '';
+			},
+		];
+
+		$fields[] = [
 			'id'          => 'dispatch_timer_common_public_holidays',
 			'type'        => 'html',
 			'title'       => __( 'Common Public Holidays', 'yousaidit-toolkit' ),
@@ -160,7 +196,7 @@ class DispatchTimerManager {
 			'title'       => __( 'Other Holidays', 'yousaidit-toolkit' ),
 			'description' => __( 'Public Holidays that are not same on every year. Only keep current year and next year dates.',
 				'yousaidit-toolkit' ),
-			'priority'    => 10,
+			'priority'    => 15,
 			'panel'       => 'dispatch_timer',
 			'html'        => '<div id="dispatch_timer_special_holidays_app">Loading via javaScript...</div>',
 		];
