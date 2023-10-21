@@ -20,6 +20,9 @@ class CardPopupManager {
 			add_action( 'wp_ajax_yousaidit_wishlist', [ self::$instance, 'toggle_wishlist' ] );
 			add_action( 'wp_ajax_nopriv_yousaidit_wishlist', [ self::$instance, 'toggle_wishlist' ] );
 
+			add_action( 'wp_ajax_yousaidit_add_to_basket', [ self::$instance, 'add_to_basket' ] );
+			add_action( 'wp_ajax_nopriv_yousaidit_add_to_basket', [ self::$instance, 'add_to_basket' ] );
+
 			add_action( 'wp_ajax_yousaidit_loop_product_popup', [ self::$instance, 'loop_item_popup' ] );
 			add_action( 'wp_ajax_nopriv_yousaidit_loop_product_popup', [ self::$instance, 'loop_item_popup' ] );
 
@@ -30,6 +33,42 @@ class CardPopupManager {
 		}
 
 		return self::$instance;
+	}
+
+	public function add_to_basket() {
+		if (
+			isset( $_REQUEST['_wpnonce'] ) &&
+			wp_verify_nonce( $_REQUEST['_wpnonce'], 'yousaidit_add_to_basket_nonce' )
+		) {
+			$product_id      = isset( $_REQUEST['product_id'] ) ? intval( $_REQUEST['product_id'] ) : 0;
+			$product_qty     = isset( $_REQUEST['product_qty'] ) ? intval( $_REQUEST['product_qty'] ) : 1;
+			$variation_id    = isset( $_REQUEST['variation_id'] ) ? intval( $_REQUEST['variation_id'] ) : 0;
+			$envelope_colour = isset( $_REQUEST['envelope_colour'] ) ? sanitize_text_field( $_REQUEST['envelope_colour'] ) : '';
+
+			$cart = WC()->cart;
+			try {
+				$hash = $cart->add_to_cart( $product_id, max( 1, $product_qty ), $variation_id, [], [
+					'thwepo_options' => [
+						'envelope_colour' => [
+							'field_type'     => 'select',
+							'name'           => 'envelope_colour',
+							'label'          => 'Envelope Colour',
+							'value'          => $envelope_colour,
+							'price'          => '',
+							'price_type'     => '',
+							'price_unit'     => 0,
+							'price_min_unit' => '',
+							'quantity'       => false,
+							'price_field'    => false,
+						]
+					]
+				] );
+				wp_send_json_success( $hash, 200 );
+			} catch ( \Exception $e ) {
+				wp_send_json_error( $e->getMessage(), 422 );
+			}
+		}
+		wp_send_json_error( '', 400 );
 	}
 
 	/**

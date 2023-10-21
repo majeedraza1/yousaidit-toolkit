@@ -8,6 +8,15 @@ use YouSaidItCards\Modules\CardPopup\WishlistList;
 use YouSaidItCards\Modules\DispatchTimer\Settings;
 
 defined( 'ABSPATH' ) || exit;
+
+$form_action = wp_nonce_url(
+	add_query_arg( [
+		'action'     => 'yousaidit_add_to_basket',
+		'product_id' => $product->get_id()
+	],
+		admin_url( 'admin-ajax.php' ) ),
+	'yousaidit_add_to_basket_nonce'
+);
 ?>
 
 <div class="card-category-popup-content">
@@ -50,43 +59,45 @@ defined( 'ABSPATH' ) || exit;
 				}
 				?>
             </div>
-            <div class="mb-2">
-				<?php
-				$html = '';
-				foreach ( $extra_fields as $field ) {
-					if ( $field instanceof \WEPO_Product_Field_Select ) {
-						?>
-                        <div class="flex space-x-2 items-center">
-                            <div class="font-bold"><?php echo esc_html( $field->title ); ?></div>
-                            <div class="flex-grow">
-                                <select class="m-0" name="<?php echo esc_attr( $field->name ); ?>"
-                                        id="<?php echo esc_attr( $field->id ); ?>">
-									<?php
-									foreach ( $field->options as $option ) {
-										echo '<option value="' . esc_attr( $option['key'] ) . '">' . esc_attr( $option['text'] ) . '</option>';
-									}
-									?>
-                                </select>
+            <form action="<?php echo $form_action ?>" method="post" class="card-popup-form">
+                <div class="mb-2">
+					<?php
+					$html = '';
+					foreach ( $extra_fields as $field ) {
+						if ( $field instanceof \WEPO_Product_Field_Select ) {
+							?>
+                            <div class="flex space-x-2 items-center">
+                                <div class="font-bold"><?php echo esc_html( $field->title ); ?></div>
+                                <div class="flex-grow">
+                                    <select class="m-0" name="<?php echo esc_attr( $field->name ); ?>"
+                                            id="<?php echo esc_attr( $field->id ); ?>">
+										<?php
+										foreach ( $field->options as $option ) {
+											echo '<option value="' . esc_attr( $option['key'] ) . '">' . esc_attr( $option['text'] ) . '</option>';
+										}
+										?>
+                                    </select>
+                                </div>
                             </div>
-                        </div>
-						<?php
+							<?php
+						}
 					}
-				}
-				echo $html;
-				?>
-            </div>
-            <div class="my-4 flex justify-center items-center space-x-2">
-                <div class="max-w-[50px]">
-                    <input type="number" name="product_qty" class="input-text qty text h-[56px] text-center mb-0"
-                           min="1" step="1" value="1">
+					echo $html;
+					?>
                 </div>
-                <a href="<?php echo $product->get_permalink() ?>" class="button btn1 bshadow">
-                    <span><?php esc_html_e( 'Add a message', 'yousaidit-toolkit' ); ?></span>
-                </a>
-                <a href="<?php echo $product->get_permalink() ?>" class="button btn1 checkout wc-forward bshadow">
-                    <span><?php esc_html_e( 'Add to Basket', 'yousaidit-toolkit' ); ?></span>
-                </a>
-            </div>
+                <div class="my-4 flex justify-center items-center space-x-2">
+                    <div class="max-w-[50px]">
+                        <input type="number" name="product_qty" class="input-text qty text h-[56px] text-center mb-0"
+                               min="1" step="1" value="1">
+                    </div>
+                    <a href="#" class="button btn1 bshadow card-popup-add-a-message">
+                        <span><?php esc_html_e( 'Add a message', 'yousaidit-toolkit' ); ?></span>
+                    </a>
+                    <a href="#" class="button btn1 checkout wc-forward bshadow card-popup-add-to-cart">
+                        <span><?php esc_html_e( 'Add to Basket', 'yousaidit-toolkit' ); ?></span>
+                    </a>
+                </div>
+            </form>
             <div class="flex justify-center">
                 <a href="<?php echo $product->get_permalink() ?>" class="font-medium">
                     <span><?php esc_html_e( 'More information', 'yousaidit-toolkit' ); ?></span>

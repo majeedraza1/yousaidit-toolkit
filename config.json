@@ -21,7 +21,8 @@
       "./resources/frontend/main.js",
       "./resources/frontend/multistep-checkout.js",
       "./resources/frontend/reminders/main.js",
-      "./resources/frontend/card-category-popup.ts",
+      "./resources/frontend/card-popup/card-category-popup.ts",
+      "./resources/frontend/card-popup/add-to-cart.ts",
       "./resources/scss/_multistep-checkout.scss",
       "./resources/scss/frontend.scss"
     ],
