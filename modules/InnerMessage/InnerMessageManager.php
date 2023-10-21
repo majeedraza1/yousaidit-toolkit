@@ -34,7 +34,7 @@ class InnerMessageManager {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self();
 
-			add_action( 'wp_footer', [ self::$instance, 'add_editor' ], 1 );
+			add_action( 'wp_footer', [ self::$instance, 'add_editor' ], 2 );
 			add_action( 'wp_enqueue_scripts', [ self::$instance, 'load_scripts' ] );
 
 			add_action( 'wp_ajax_inner_message_preview_test', [ self::$instance, 'inner_message_preview_test' ] );
@@ -106,7 +106,7 @@ class InnerMessageManager {
 	/**
 	 * Add query variable
 	 *
-	 * @param array $vars
+	 * @param  array  $vars
 	 *
 	 * @return array
 	 */
@@ -256,7 +256,7 @@ class InnerMessageManager {
 	/**
 	 * Add settings panels
 	 *
-	 * @param array $panels The panels.
+	 * @param  array  $panels  The panels.
 	 *
 	 * @return array
 	 */
@@ -273,7 +273,7 @@ class InnerMessageManager {
 	/**
 	 * Add settings sections
 	 *
-	 * @param array $sections Array of sections.
+	 * @param  array  $sections  Array of sections.
 	 *
 	 * @return array
 	 */
@@ -297,7 +297,7 @@ class InnerMessageManager {
 	/**
 	 * Add settings fields
 	 *
-	 * @param array $fields Array of fields.
+	 * @param  array  $fields  Array of fields.
 	 *
 	 * @return array
 	 */
@@ -451,14 +451,14 @@ class InnerMessageManager {
 	}
 
 	/**
-	 * @param WC_Order $order
+	 * @param  WC_Order  $order
 	 */
 	public function process_custom_order_action( $order ) {
 		BackgroundInnerMessagePdfGenerator::generate_for_order( $order, true );
 	}
 
 	public function load_scripts() {
-		if ( is_single() || is_cart() ) {
+		if ( is_single() || is_cart() || is_shop() ) {
 			wp_enqueue_script( 'stackonet-inner-message' );
 			wp_enqueue_style( 'stackonet-inner-message' );
 		}
@@ -482,7 +482,7 @@ class InnerMessageManager {
 	/**
 	 * Add custom data to cart
 	 *
-	 * @param array $cart_item_data
+	 * @param  array  $cart_item_data
 	 *
 	 * @return array
 	 */
@@ -502,7 +502,7 @@ class InnerMessageManager {
 	/**
 	 * Before calculate totals
 	 *
-	 * @param WC_Cart $cart
+	 * @param  WC_Cart  $cart
 	 */
 	public function add_inner_message_extra_cost( WC_Cart $cart ) {
 		$options = (array) get_option( '_stackonet_toolkit' );
@@ -531,7 +531,7 @@ class InnerMessageManager {
 	/**
 	 * Before calculate totals
 	 *
-	 * @param WC_Cart $cart
+	 * @param  WC_Cart  $cart
 	 */
 	public function add_video_message_extra_cost( WC_Cart $cart ) {
 		$options = (array) get_option( '_stackonet_toolkit' );
@@ -571,8 +571,8 @@ class InnerMessageManager {
 	/**
 	 * Display information as Meta on Cart & Checkout page
 	 *
-	 * @param array $item_data
-	 * @param array $cart_item
+	 * @param  array  $item_data
+	 * @param  array  $cart_item
 	 *
 	 * @return array
 	 */
@@ -671,10 +671,10 @@ class InnerMessageManager {
 	/**
 	 * Add custom data to order line item
 	 *
-	 * @param WC_Order_Item_Product $item
-	 * @param string $cart_item_key
-	 * @param array $values
-	 * @param WC_Order $order
+	 * @param  WC_Order_Item_Product  $item
+	 * @param  string  $cart_item_key
+	 * @param  array  $values
+	 * @param  WC_Order  $order
 	 */
 	public function create_order_line_item( $item, $cart_item_key, $values, $order ) {
 		if ( array_key_exists( '_inner_message', $values ) ) {
@@ -703,7 +703,7 @@ class InnerMessageManager {
 	/**
 	 * Generate inner message pdf
 	 *
-	 * @param WC_Order $order
+	 * @param  WC_Order  $order
 	 *
 	 * @return void
 	 */
@@ -714,8 +714,8 @@ class InnerMessageManager {
 	/**
 	 * Display on Order detail page and (Order received / Thank you page)
 	 *
-	 * @param array $formatted_meta
-	 * @param WC_Order_Item_Product $order_item
+	 * @param  array  $formatted_meta
+	 * @param  WC_Order_Item_Product  $order_item
 	 *
 	 * @return mixed
 	 */
@@ -746,8 +746,8 @@ class InnerMessageManager {
 	}
 
 	/**
-	 * @param mixed $data The data to be sanitized.
-	 * @param bool $contains_video_data Is it contain video data?
+	 * @param  mixed  $data  The data to be sanitized.
+	 * @param  bool  $contains_video_data  Is it contain video data?
 	 *
 	 * @return array
 	 */

@@ -1,6 +1,6 @@
 import {createEl} from "../utils";
 
-const createModal = (id: string = null, type: string = 'box') => {
+const createModal = (appendTo: HTMLElement | null = null, id: string = null, type: string = 'box') => {
   const modalId = id ? id.replace('#', '') : 'shapla-modal';
   const bgEl = createEl('div', {class: 'shapla-modal-background is-dark'});
   const closeEl = createEl('span', {class: 'shapla-delete-icon is-large is-fixed', 'aria-label': 'close'});
@@ -13,7 +13,11 @@ const createModal = (id: string = null, type: string = 'box') => {
     ]
   );
 
-  document.body.append(modal);
+  if (appendTo) {
+    appendTo.append(modal)
+  } else {
+    document.body.append(modal);
+  }
 
   [bgEl, closeEl].forEach(element => {
     element.addEventListener('click', () => {

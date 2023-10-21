@@ -17,6 +17,9 @@ $form_action = wp_nonce_url(
 		admin_url( 'admin-ajax.php' ) ),
 	'yousaidit_add_to_basket_nonce'
 );
+
+$card_size = $product->get_meta( '_card_size', true );
+$card_size = ! empty( $card_size ) ? $card_size : 'square';
 ?>
 
 <div class="card-category-popup-content">
@@ -60,6 +63,8 @@ $form_action = wp_nonce_url(
 				?>
             </div>
             <form action="<?php echo $form_action ?>" method="post" class="card-popup-form">
+                <input type="hidden" name="product_id" value="<?php echo esc_attr( $product->get_id() ) ?>">
+                <input type="hidden" name="attribute_pa_size" value="<?php echo esc_attr( $card_size ) ?>">
                 <div class="mb-2">
 					<?php
 					$html = '';
@@ -85,6 +90,9 @@ $form_action = wp_nonce_url(
 					echo $html;
 					?>
                 </div>
+				<?php
+				do_action( 'yousaidit_toolkit/card_popup', $product, 'popup' );
+				?>
                 <div class="my-4 flex justify-center items-center space-x-2">
                     <div class="max-w-[50px]">
                         <input type="number" name="product_qty" class="input-text qty text h-[56px] text-center mb-0"

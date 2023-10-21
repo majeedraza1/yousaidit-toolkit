@@ -2,6 +2,8 @@
 
 namespace YouSaidItCards\Modules\CardPopup;
 
+use YouSaidItCards\Modules\InnerMessage\InnerMessageManager;
+
 /**
  * CardPopupManager class
  */
@@ -30,9 +32,15 @@ class CardPopupManager {
 			add_filter( 'yousaidit_toolkit/settings/fields', [ self::$instance, 'add_settings_fields' ] );
 
 			add_action( 'woocommerce_before_shop_loop_item', [ self::$instance, 'add_popup_markup' ] );
+
+			add_action( 'wp_footer', [ self::$instance, 'add_card_category_popup_container' ], 1 );
 		}
 
 		return self::$instance;
+	}
+
+	public function add_card_category_popup_container() {
+		echo '<div id="card-category-popup-container"></div>';
 	}
 
 	public function add_to_basket() {
@@ -40,15 +48,17 @@ class CardPopupManager {
 			isset( $_REQUEST['_wpnonce'] ) &&
 			wp_verify_nonce( $_REQUEST['_wpnonce'], 'yousaidit_add_to_basket_nonce' )
 		) {
-			$product_id      = isset( $_REQUEST['product_id'] ) ? intval( $_REQUEST['product_id'] ) : 0;
-			$product_qty     = isset( $_REQUEST['product_qty'] ) ? intval( $_REQUEST['product_qty'] ) : 1;
-			$variation_id    = isset( $_REQUEST['variation_id'] ) ? intval( $_REQUEST['variation_id'] ) : 0;
-			$envelope_colour = isset( $_REQUEST['envelope_colour'] ) ? sanitize_text_field( $_REQUEST['envelope_colour'] ) : '';
+			$product_id          = isset( $_REQUEST['product_id'] ) ? intval( $_REQUEST['product_id'] ) : 0;
+			$product_qty         = isset( $_REQUEST['product_qty'] ) ? intval( $_REQUEST['product_qty'] ) : 1;
+			$variation_id        = isset( $_REQUEST['variation_id'] ) ? intval( $_REQUEST['variation_id'] ) : 0;
+			$envelope_colour     = isset( $_REQUEST['envelope_colour'] ) ? sanitize_text_field( $_REQUEST['envelope_colour'] ) : '';
+			$inner_message       = $_REQUEST['_inner_message'] ?? [];
+			$video_inner_message = $_REQUEST['_video_inner_message'] ?? [];
 
 			$cart = WC()->cart;
 			try {
-				$hash = $cart->add_to_cart( $product_id, max( 1, $product_qty ), $variation_id, [], [
-					'thwepo_options' => [
+				$cart_item_data = [
+					'thwepo_options'       => [
 						'envelope_colour' => [
 							'field_type'     => 'select',
 							'name'           => 'envelope_colour',
@@ -61,8 +71,13 @@ class CardPopupManager {
 							'quantity'       => false,
 							'price_field'    => false,
 						]
-					]
-				] );
+					],
+					'_inner_message'       => InnerMessageManager::sanitize_inner_message_data( $inner_message ),
+					'_video_inner_message' => InnerMessageManager::sanitize_inner_message_data( $video_inner_message,
+						true ),
+				];
+
+				$hash = $cart->add_to_cart( $product_id, max( 1, $product_qty ), $variation_id, [], $cart_item_data );
 				wp_send_json_success( $hash, 200 );
 			} catch ( \Exception $e ) {
 				wp_send_json_error( $e->getMessage(), 422 );

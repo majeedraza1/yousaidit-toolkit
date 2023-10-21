@@ -30,6 +30,7 @@ class EvaThemeManager {
 
 			// Modify title design
 			add_action( 'woocommerce_after_add_to_cart_quantity', [ self::$instance, 'inner_message' ] );
+			add_action( 'yousaidit_toolkit/card_popup', [ self::$instance, 'inner_message' ], 10, 2 );
 			add_filter( 'woocommerce_product_single_add_to_cart_text',
 				[ self::$instance, 'single_add_to_cart_text' ], 10, 2 );
 		}
@@ -87,8 +88,10 @@ class EvaThemeManager {
 	/**
 	 * Inner message
 	 */
-	public function inner_message() {
-		global $product;
+	public function inner_message( $product = null, string $ui = 'default' ) {
+		if ( ! $product ) {
+			global $product;
+		}
 		$options = (array) get_option( '_stackonet_toolkit' );
 		$price   = isset( $options['inner_message_price'] ) ? floatval( $options['inner_message_price'] ) : 0;
 
@@ -106,7 +109,7 @@ class EvaThemeManager {
 			$html .= $this->get_inner_message_html( false );
 			$html .= $this->get_video_inner_message_html();
 		} elseif ( self::should_show_inner_message( $product ) ) {
-			$html .= $this->get_inner_message_html();
+			$html .= $this->get_inner_message_html( ! ( 'popup' === $ui ) );
 			$html .= $this->get_video_inner_message_html();
 		}
 		if ( $price > 0 ) {

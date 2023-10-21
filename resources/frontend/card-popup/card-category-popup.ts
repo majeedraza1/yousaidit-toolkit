@@ -1,18 +1,11 @@
 import {getRequest} from './utils';
 import {createModal, Spinner} from "./components";
 
-const showSpinner = () => {
-  Spinner.show('card-category-spinner');
-}
-
-const hideSpinner = () => {
-  Spinner.hide('card-category-spinner')
-}
-
 const openContentOnModal = (content: string) => {
   let modal = document.querySelector('#card-category-modal');
   if (!modal) {
-    modal = createModal('card-category-modal');
+  let container = document.querySelector('#card-category-popup-container');
+    modal = createModal(container,'card-category-modal');
   }
 
   const modalContent = modal.querySelector('.shapla-modal-content') as HTMLElement;
