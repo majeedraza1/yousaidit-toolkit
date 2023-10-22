@@ -13,8 +13,9 @@ class Setting {
 	 * @var array
 	 */
 	protected static $default = [
-		'ecologi_api_key'                          => '680fefd3-fc30-0baa-483b-aecd33d6e0e5',
+		'ecologi_api_key'                          => '',
 		'ecologi_purchase_tree_after_total_orders' => 20,
+		'ecologi_number_of_tree_to_purchase'       => 1,
 		'ecologi_funded_by'                        => '',
 		'ecologi_is_test_mode'                     => 'yes',
 	];
@@ -84,6 +85,12 @@ class Setting {
 
 	public static function purchase_tree_after_total_orders(): int {
 		$number = (int) static::get( 'ecologi_purchase_tree_after_total_orders' );
+
+		return max( 1, $number );
+	}
+
+	public static function number_of_tree_to_purchase(): int {
+		$number = (int) static::get( 'ecologi_number_of_tree_to_purchase' );
 
 		return max( 1, $number );
 	}

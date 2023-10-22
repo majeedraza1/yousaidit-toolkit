@@ -23,7 +23,11 @@ class EcologiClient extends RestClient {
 	 * @return array|\WP_Error
 	 * @link https://docs.ecologi.com/docs/public-api-docs/004342d262f93-purchase-trees
 	 */
-	public static function purchase_tree( int $number = 1 ) {
+	public static function purchase_tree( int $number = 0 ) {
+		if ( ! $number ) {
+			$number = Setting::number_of_tree_to_purchase();
+		}
+
 		return ( new static() )->post( 'impact/trees', wp_json_encode( [
 			'number' => $number,
 			'name'   => Setting::funded_by(),

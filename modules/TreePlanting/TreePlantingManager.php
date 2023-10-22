@@ -20,10 +20,77 @@ class TreePlantingManager {
 
 			add_action( 'woocommerce_new_order', [ self::$instance, 'woocommerce_new_order' ] );
 			add_action( 'admin_init', [ TreePlanting::class, 'create_tables' ] );
+			add_filter( 'yousaidit_toolkit/settings/sections', [ self::$instance, 'add_setting_sections' ] );
+			add_filter( 'yousaidit_toolkit/settings/fields', [ self::$instance, 'add_setting_fields' ] );
 			BackgroundPurchaseTree::init();
 		}
 
 		return self::$instance;
+	}
+
+	public function add_setting_sections( array $sections ): array {
+		$sections[] = [
+			'id'          => 'section_ecologi_api_settings',
+			'title'       => __( 'Ecologi Api', 'dialog-contact-form' ),
+			'description' => __( 'Ecologi Api settings', 'dialog-contact-form' ),
+			'panel'       => 'integrations',
+			'priority'    => 50,
+		];
+
+		return $sections;
+	}
+
+	public function add_setting_fields( array $fields ): array {
+		$fields[] = [
+			'section'           => 'section_ecologi_api_settings',
+			'id'                => 'ecologi_api_key',
+			'type'              => 'text',
+			'title'             => __( 'Api key' ),
+			'description'       => __( 'Ecologi api key' ),
+			'default'           => '',
+			'priority'          => 10,
+			'sanitize_callback' => 'sanitize_text_field',
+		];
+		$fields[] = [
+			'section'           => 'section_ecologi_api_settings',
+			'id'                => 'ecologi_is_test_mode',
+			'type'              => 'checkbox',
+			'title'             => __( 'Is sandbox mode?' ),
+			'priority'          => 15,
+			'default'           => '1',
+			'sanitize_callback' => 'sanitize_text_field',
+		];
+		$fields[] = [
+			'section'           => 'section_ecologi_api_settings',
+			'id'                => 'ecologi_funded_by',
+			'type'              => 'text',
+			'title'             => __( 'Funded By' ),
+			'description'       => __( 'Will be used by API. Leave empty to use site title.' ),
+			'default'           => '',
+			'priority'          => 20,
+			'sanitize_callback' => 'sanitize_text_field',
+		];
+		$fields[] = [
+			'section'           => 'section_ecologi_api_settings',
+			'id'                => 'ecologi_purchase_tree_after_total_orders',
+			'type'              => 'number',
+			'title'             => __( 'Purchase tree after' ),
+			'description'       => __( 'Set after how many orders it should purchase tree' ),
+			'default'           => '20',
+			'priority'          => 30,
+			'sanitize_callback' => 'sanitize_text_field',
+		];
+		$fields[] = [
+			'section'           => 'section_ecologi_api_settings',
+			'id'                => 'ecologi_number_of_tree_to_purchase',
+			'type'              => 'number',
+			'title'             => __( 'How many trees to purchase' ),
+			'default'           => '1',
+			'priority'          => 40,
+			'sanitize_callback' => 'sanitize_text_field',
+		];
+
+		return $fields;
 	}
 
 	/**
