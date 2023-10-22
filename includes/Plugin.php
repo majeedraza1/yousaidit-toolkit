@@ -25,6 +25,7 @@ use YouSaidItCards\Modules\InnerMessage\InnerMessageManager;
 use YouSaidItCards\Modules\MultistepCheckout\MultistepCheckout;
 use YouSaidItCards\Modules\OrderDispatcher\OrderDispatcherManager;
 use YouSaidItCards\Modules\PackingSlip\PackingSlipManager;
+use YouSaidItCards\Modules\TreePlanting\TreePlantingManager;
 use YouSaidItCards\Modules\Reminders\RemindersManager;
 use YouSaidItCards\Modules\RudeProduct\RudeProductManager;
 use YouSaidItCards\Modules\TradeSite\TradeSiteManager;
@@ -155,6 +156,7 @@ class Plugin {
 		$this->container['module_reminder']         = RemindersManager::init();
 		$this->container['module_dispatch_timer']   = DispatchTimerManager::init();
 		$this->container['module_card_popup']       = CardPopupManager::init();
+		$this->container['module_plant_trees']      = TreePlantingManager::init();
 	}
 
 	/**
