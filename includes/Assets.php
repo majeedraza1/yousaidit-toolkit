@@ -191,23 +191,28 @@ class Assets {
 	 */
 	public function get_scripts(): array {
 		return [
+			'yousaidit-toolkit-vendors'  => [
+				'src'       => static::get_assets_url() . '/js/vendors.js',
+				'in_footer' => true
+			],
 			'stackonet-inner-message'    => [
 				'src'       => static::get_assets_url() . '/js/inner-message.js',
-				'deps'      => [ 'wp-tinymce' ],
+				'deps'      => [ 'wp-tinymce', 'yousaidit-toolkit-vendors' ],
 				'in_footer' => true
 			],
 			'stackonet-toolkit-frontend' => [
 				'src'       => static::get_assets_url() . '/js/frontend.js',
-				'deps'      => [ 'jquery' ],
+				'deps'      => [ 'jquery', 'yousaidit-toolkit-vendors' ],
 				'in_footer' => true
 			],
 			'stackonet-designer-profile' => [
 				'src'       => static::get_assets_url() . '/js/designer-profile.js',
+				'deps'      => [ 'yousaidit-toolkit-vendors' ],
 				'in_footer' => true
 			],
 			'stackonet-toolkit-admin'    => [
 				'src'       => static::get_assets_url() . '/js/admin.js',
-				'deps'      => [ 'jquery', 'react', 'react-dom' ],
+				'deps'      => [ 'jquery', 'react', 'react-dom', 'yousaidit-toolkit-vendors' ],
 				'in_footer' => true
 			],
 		];
@@ -218,7 +223,7 @@ class Assets {
 	 *
 	 * @return array
 	 */
-	public function get_styles() {
+	public function get_styles(): array {
 		return [
 			'stackonet-inner-message'    => [
 				'src' => static::get_assets_url() . '/css/inner-message.css'

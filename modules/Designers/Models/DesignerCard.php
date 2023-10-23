@@ -60,6 +60,7 @@ class DesignerCard extends DatabaseModel {
 	 * @var array
 	 */
 	protected static $valid_statuses = [ 'processing', 'accepted', 'rejected', 'need-modification' ];
+	protected static $valid_card_types = [ 'dynamic', 'static' ];
 
 	/**
 	 * @var CardDesigner
@@ -372,8 +373,8 @@ class DesignerCard extends DatabaseModel {
 	/**
 	 * Get commission
 	 *
-	 * @param string $size
-	 * @param string|null $marketplace
+	 * @param  string  $size
+	 * @param  string|null  $marketplace
 	 *
 	 * @return float|int
 	 */
@@ -562,7 +563,7 @@ class DesignerCard extends DatabaseModel {
 	/**
 	 * Get gallery images
 	 *
-	 * @param string $size
+	 * @param  string  $size
 	 *
 	 * @return array|ArrayObject
 	 */
@@ -592,7 +593,7 @@ class DesignerCard extends DatabaseModel {
 	/**
 	 * Get gallery images
 	 *
-	 * @param string $size
+	 * @param  string  $size
 	 *
 	 * @return array
 	 */
@@ -642,7 +643,7 @@ class DesignerCard extends DatabaseModel {
 	/**
 	 * Get pdf id for a size
 	 *
-	 * @param string $size
+	 * @param  string  $size
 	 *
 	 * @return int
 	 */
@@ -655,14 +656,15 @@ class DesignerCard extends DatabaseModel {
 	/**
 	 * Find multiple records from database
 	 *
-	 * @param array $args
+	 * @param  array  $args
 	 *
 	 * @return array
 	 */
 	public function find( $args = [] ) {
 		list( $per_page, $offset, $orderby, $order ) = $this->get_pagination_and_order_data( $args );
-		$search = isset( $args['search'] ) ? esc_sql( $args['search'] ) : '';
-		$status = isset( $args['status'] ) ? $args['status'] : 'all';
+		$search    = isset( $args['search'] ) ? esc_sql( $args['search'] ) : '';
+		$status    = $args['status'] ?? 'all';
+		$card_type = $args['card_type'] ?? 'all';
 
 		global $wpdb;
 		$table = $wpdb->prefix . $this->table;
@@ -686,8 +688,12 @@ class DesignerCard extends DatabaseModel {
 			$query .= " AND {$this->deleted_at} IS NULL";
 		}
 
-		if ( in_array( $status, static::$valid_statuses ) ) {
+		if ( in_array( $status, static::$valid_statuses, true ) ) {
 			$query .= $wpdb->prepare( " AND status = %s", $status );
+		}
+
+		if ( in_array( $card_type, static::$valid_card_types, true ) ) {
+			$query .= $wpdb->prepare( " AND card_type = %s", $card_type );
 		}
 
 		$query   .= " ORDER BY {$orderby} {$order}";
@@ -705,7 +711,7 @@ class DesignerCard extends DatabaseModel {
 	/**
 	 * Find record by id
 	 *
-	 * @param int $id
+	 * @param  int  $id
 	 *
 	 * @return self|ArrayObject
 	 */
@@ -721,7 +727,7 @@ class DesignerCard extends DatabaseModel {
 	/**
 	 * Reset product id
 	 *
-	 * @param int $product_id
+	 * @param  int  $product_id
 	 */
 	public function reset_product_id( $product_id ) {
 		global $wpdb;
@@ -732,7 +738,7 @@ class DesignerCard extends DatabaseModel {
 	/**
 	 * Increase sales count
 	 *
-	 * @param \WC_Order_Item_Product $product_item
+	 * @param  \WC_Order_Item_Product  $product_item
 	 */
 	public function increase_sales_count( $product_item ) {
 		$size     = static::get_order_item_card_size( $product_item );
@@ -753,7 +759,7 @@ class DesignerCard extends DatabaseModel {
 	/**
 	 * Get user cards categories ids
 	 *
-	 * @param int $user_id
+	 * @param  int  $user_id
 	 *
 	 * @return array
 	 */
@@ -851,7 +857,7 @@ class DesignerCard extends DatabaseModel {
 	}
 
 	/**
-	 * @param \WC_Order_Item_Product $product_item
+	 * @param  \WC_Order_Item_Product  $product_item
 	 *
 	 * @return bool|string
 	 */
@@ -871,7 +877,7 @@ class DesignerCard extends DatabaseModel {
 	}
 
 	/**
-	 * @param string $size
+	 * @param  string  $size
 	 *
 	 * @return bool|float
 	 */
@@ -890,7 +896,7 @@ class DesignerCard extends DatabaseModel {
 	}
 
 	/**
-	 * @param \WC_Order_Item_Product $product_item
+	 * @param  \WC_Order_Item_Product  $product_item
 	 *
 	 * @return float
 	 */

@@ -20,7 +20,7 @@ export class DynamicCardLayer extends LitElement {
 		cursor: pointer; transition: 300ms all ease-in-out;
     }
     .section-edit-icon:hover {border-radius: 16px;}
-    .section-edit-icon svg {display: block; fill: currentColor;}
+    .section-edit-icon svg {display: block; fill: #323232;}
   `;
 
 	// Creates a reactive property that triggers rendering
