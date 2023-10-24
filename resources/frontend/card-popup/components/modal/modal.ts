@@ -1,6 +1,18 @@
-import {createEl} from "../utils";
+import {createEl} from "../../utils";
 
-const createModal = (appendTo: HTMLElement | null = null, id: string = null, type: string = 'box') => {
+const refreshBodyClass = (active: boolean) => {
+  const body = document.querySelector("body") as HTMLBodyElement;
+  if (active) {
+    return body.classList.add("has-shapla-modal");
+  }
+  setTimeout(() => {
+    if (document.querySelectorAll(".shapla-modal.is-active").length === 0) {
+      body.classList.remove("has-shapla-modal");
+    }
+  }, 50);
+};
+
+const createModal = (appendTo: HTMLElement | null = null, id: null | string = null, type: string = 'box') => {
   const modalId = id ? id.replace('#', '') : 'shapla-modal';
   const bgEl = createEl('div', {class: 'shapla-modal-background is-dark'});
   const closeEl = createEl('span', {class: 'shapla-delete-icon is-large is-fixed', 'aria-label': 'close'});
@@ -23,6 +35,7 @@ const createModal = (appendTo: HTMLElement | null = null, id: string = null, typ
     element.addEventListener('click', () => {
       if (modal.classList.contains('is-active')) {
         modal.classList.remove('is-active');
+        refreshBodyClass(false);
       }
     })
   })
@@ -39,6 +52,7 @@ document.addEventListener('click', (event: MouseEvent) => {
     const closestModal = element.closest('.shapla-modal');
     if (closestModal && closestModal.classList.contains('is-active')) {
       closestModal.classList.remove('is-active');
+      refreshBodyClass(false);
     }
   }
 });

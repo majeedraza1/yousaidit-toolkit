@@ -1,7 +1,7 @@
 import {createEl} from "../../utils";
 import {NotificationContainerPropsInterface} from "./interfaces";
 
-const createNotificationContainer = (props: NotificationContainerPropsInterface) => {
+const createNotificationContainer = (props: NotificationContainerPropsInterface = {}) => {
   const defaults = {showDismisses: true, timeout: 4000, position: 'top-right'};
   const args = Object.assign(defaults, props)
   const position = args.position.split("-");

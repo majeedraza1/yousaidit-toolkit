@@ -2,6 +2,7 @@
 
 namespace YouSaidItCards\Modules\CardPopup;
 
+use YouSaidItCards\Modules\DynamicCard\DynamicCardManager;
 use YouSaidItCards\Modules\InnerMessage\InnerMessageManager;
 
 /**
@@ -54,6 +55,7 @@ class CardPopupManager {
 			$envelope_colour     = isset( $_REQUEST['envelope_colour'] ) ? sanitize_text_field( $_REQUEST['envelope_colour'] ) : '';
 			$inner_message       = $_REQUEST['_inner_message'] ?? [];
 			$video_inner_message = $_REQUEST['_video_inner_message'] ?? [];
+			$dynamic_card        = $_REQUEST['_dynamic_card'] ?? [];
 
 			$cart = WC()->cart;
 			try {
@@ -76,6 +78,10 @@ class CardPopupManager {
 					'_video_inner_message' => InnerMessageManager::sanitize_inner_message_data( $video_inner_message,
 						true ),
 				];
+
+				if ( ! empty( $dynamic_card ) ) {
+					$cart_item_data['_dynamic_card'] = DynamicCardManager::sanitize_dynamic_card( $dynamic_card );
+				}
 
 				$hash = $cart->add_to_cart( $product_id, max( 1, $product_qty ), $variation_id, [], $cart_item_data );
 				wp_send_json_success( $hash, 200 );

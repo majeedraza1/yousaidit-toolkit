@@ -3,14 +3,22 @@ import {createModal, Spinner} from "./components";
 
 const openContentOnModal = (content: string) => {
   let modal = document.querySelector('#card-category-modal');
+  let container = document.querySelector('#card-category-popup-container') as HTMLElement;
   if (!modal) {
-  let container = document.querySelector('#card-category-popup-container');
-    modal = createModal(container,'card-category-modal');
+    modal = createModal(container, 'card-category-modal');
   }
 
   const modalContent = modal.querySelector('.shapla-modal-content') as HTMLElement;
   modalContent.innerHTML = content;
   modal.classList.add('is-active');
+
+  document.dispatchEvent(new CustomEvent('show.CardCategoryPopup', {
+    detail: {
+      card_type: (modalContent.querySelector('[name="card_type"]') as HTMLInputElement).value,
+      card_size: (modalContent.querySelector('[name="attribute_pa_size"]') as HTMLInputElement).value,
+      product_id: (modalContent.querySelector('[name="product_id"]') as HTMLInputElement).value,
+    }
+  }))
 }
 const getAjaxUrl = (productId: number) => {
   const url = new URL(window.StackonetToolkit.ajaxUrl);

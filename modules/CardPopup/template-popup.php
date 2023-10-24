@@ -20,6 +20,8 @@ $form_action = wp_nonce_url(
 
 $card_size = $product->get_meta( '_card_size', true );
 $card_size = ! empty( $card_size ) ? $card_size : 'square';
+$card_type = $product->get_meta( '_card_type', true );
+$card_type = 'dynamic' === $card_type ? 'dynamic' : 'static';
 ?>
 
 <div class="card-category-popup-content">
@@ -65,6 +67,7 @@ $card_size = ! empty( $card_size ) ? $card_size : 'square';
             <form action="<?php echo $form_action ?>" method="post" class="card-popup-form">
                 <input type="hidden" name="product_id" value="<?php echo esc_attr( $product->get_id() ) ?>">
                 <input type="hidden" name="attribute_pa_size" value="<?php echo esc_attr( $card_size ) ?>">
+                <input type="hidden" name="card_type" value="<?php echo esc_attr( $card_type ) ?>">
                 <div class="mb-2">
 					<?php
 					$html = '';
@@ -98,9 +101,16 @@ $card_size = ! empty( $card_size ) ? $card_size : 'square';
                         <input type="number" name="product_qty" class="input-text qty text h-[56px] text-center mb-0"
                                min="1" step="1" value="1">
                     </div>
-                    <a href="#" class="button btn1 bshadow card-popup-add-a-message">
-                        <span><?php esc_html_e( 'Add a message', 'yousaidit-toolkit' ); ?></span>
-                    </a>
+					<?php if ( 'dynamic' === $card_type ) { ?>
+                        <a href="#" class="button btn1 bshadow card-popup-customize-dynamic-card">
+                            <span><?php esc_html_e( 'Personalise', 'yousaidit-toolkit' ); ?></span>
+                        </a>
+					<?php } else { ?>
+                        <a href="#" class="button btn1 bshadow card-popup-add-a-message">
+                            <span><?php esc_html_e( 'Add a message', 'yousaidit-toolkit' ); ?></span>
+                        </a>
+					<?php } ?>
+
                     <a href="#" class="button btn1 checkout wc-forward bshadow card-popup-add-to-cart">
                         <span><?php esc_html_e( 'Add to Basket', 'yousaidit-toolkit' ); ?></span>
                     </a>

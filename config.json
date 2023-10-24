@@ -29,6 +29,11 @@
     "inner-message": [
       "./resources/frontend/inner-message/main.js",
       "./resources/frontend/dynamic-card/main.js"
+    ],
+    "web-components": [
+      "./resources/web-components/DynamicCardLayer.js",
+      "./resources/web-components/DynamicCardBackground.js",
+      "./resources/web-components/DynamicCardCanvas.js"
     ]
   }
 }

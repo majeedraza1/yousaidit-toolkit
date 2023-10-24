@@ -16,9 +16,9 @@ const notificationItem = (props: NotificationItemPropsInterface = {}): HTMLEleme
   const titleEl = createEl('div', {class: 'shapla-notification__title'}, [args.title as string])
   const messageEl = createEl('div', {class: 'shapla-notification__message'}, [args.message as string])
   const item = createEl('div', {class: `shapla-notification has-${args.type}`}, [
-    (args.showDismisses ? removeEl : ''),
-    (args.title?.length ? titleEl : ''),
-    (args.message?.length ? messageEl : '')
+    (args.showDismisses ? removeEl : '') as HTMLElement,
+    (args.title?.length ? titleEl : '') as HTMLElement,
+    (args.message?.length ? messageEl : '') as HTMLElement
   ])
 
   removeEl.addEventListener('click', () => {

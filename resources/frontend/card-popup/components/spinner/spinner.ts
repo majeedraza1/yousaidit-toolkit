@@ -1,4 +1,4 @@
-import {createEl} from "../utils";
+import {createEl} from "../../utils";
 
 const createSpinnerLayer = (index: number) => {
   return createEl('div', {class: `shapla-spinner__layer shapla-spinner__layer-${index}`}, [
@@ -14,7 +14,7 @@ const createSpinnerLayer = (index: number) => {
   ])
 }
 
-const createSpinner = (id: string) => {
+const createSpinner = (id: string = '') => {
   const spinner = createEl('div',
     {
       id: id ? id.replace('#', '') : 'shapla-spinner-container',
@@ -35,11 +35,11 @@ const createSpinner = (id: string) => {
   document.body.append(spinner);
 }
 
-const showSpinner = (id: string = null) => {
+const showSpinner = (id: string = '') => {
   createSpinner(id);
 }
 
-const hideSpinner = (id: string = null) => {
+const hideSpinner = (id: string = '') => {
   const spinner = document.querySelector(id ? `#${id}` : '#shapla-spinner-container');
   if (spinner) {
     spinner.remove();
@@ -47,11 +47,11 @@ const hideSpinner = (id: string = null) => {
 }
 
 class Spinner {
-  static show(id: string = null) {
+  static show(id: string = '') {
     showSpinner(id)
   }
 
-  static hide(id: string = null) {
+  static hide(id: string = '') {
     hideSpinner(id);
   }
 }

@@ -162,10 +162,12 @@ export class DynamicCardLayer extends LitElement {
 		if (-1 !== [true, 'true', 1, '1', 'yes'].indexOf(this.active)) classes.push('is-active');
 		if (showEditIcon && 'input-text' === this.section.section_type) classes.push('is-text-edit');
 		return html`
-			<div class="${classes.join(' ')}">
-				${showEditIcon ? this.iconTemplate() : ''}
-				${this.section.text ? this.replaceInvertedComma(this.section.text) : this.replaceInvertedComma(this.section.placeholder)}
-			</div>`
+            <div class="${classes.join(' ')}">
+                ${showEditIcon ? this.iconTemplate() : ''}
+                <div style="padding:0 8px;">
+                    ${this.section.text ? this.replaceInvertedComma(this.section.text) : this.replaceInvertedComma(this.section.placeholder)}
+                </div>
+            </div>`
 	}
 
 	// Replace 'DOUBLE_INVERTED_COMMA' with '"' and 'SINGLE_INVERTED_COMMA' with "'"

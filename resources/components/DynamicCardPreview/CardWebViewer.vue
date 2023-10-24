@@ -105,8 +105,6 @@
 </template>
 
 <script>
-import "@/web-components/DynamicCardBackground";
-import "@/web-components/DynamicCardLayer";
 import Popover from '@/shapla/popover';
 import {shaplaButton, iconContainer, FileUploader, deleteIcon} from "shapla-vue-components";
 import {_FeaturedImage as FeaturedImage, _MediaModal as MediaModal} from "shapla-vue-components";

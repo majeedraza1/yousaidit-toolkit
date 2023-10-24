@@ -6,7 +6,7 @@
  * @param {array} children
  * @returns {HTMLElement}
  */
-const createEl = (tagName: string, attributes: Record<string, string> = {}, children: string[] | Node[] = []): HTMLElement => {
+const createEl = (tagName: string, attributes: Record<string, string> = {}, children: string[] | Node[] | HTMLElement[] = []): HTMLElement => {
   let el = document.createElement(tagName);
   if (Object.keys(attributes).length) {
     Object.entries(attributes).forEach(([key, value]) => {

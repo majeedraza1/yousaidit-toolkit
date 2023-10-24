@@ -105,7 +105,7 @@ class EvaThemeManager {
 		}
 
 		if ( 'dynamic' == $_card_type ) {
-			$html .= $this->get_dynamic_card_html( $product );
+			$html .= $this->get_dynamic_card_html( $product, 'popup' !== $ui );
 			$html .= $this->get_inner_message_html( false );
 			$html .= $this->get_video_inner_message_html();
 		} elseif ( self::should_show_inner_message( $product ) ) {
@@ -204,8 +204,10 @@ class EvaThemeManager {
 	 *
 	 * @return string
 	 */
-	protected function get_dynamic_card_html( $product ): string {
-		$html = '<button type="submit" class="button btn1 bshadow button--customize-dynamic-card" disabled><span>Personalise</span></button>';
+	protected function get_dynamic_card_html( $product, bool $show_button = true ): string {
+		if ( $show_button ) {
+			$html = '<button type="submit" class="button btn1 bshadow button--customize-dynamic-card" disabled><span>Personalise</span></button>';
+		}
 
 		$payload = $product->get_meta( '_dynamic_card_payload', true );
 		$items   = $payload['card_items'] ?? [];

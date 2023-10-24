@@ -191,26 +191,31 @@ class Assets {
 	 */
 	public function get_scripts(): array {
 		return [
-			'yousaidit-toolkit-vendors'  => [
+			'yousaidit-toolkit-vendors'        => [
 				'src'       => static::get_assets_url() . '/js/vendors.js',
 				'in_footer' => true
 			],
-			'stackonet-inner-message'    => [
+			'yousaidit-toolkit-web-components' => [
+				'src'       => static::get_assets_url() . '/js/web-components.js',
+				'deps'      => [ 'yousaidit-toolkit-vendors' ],
+				'in_footer' => true
+			],
+			'stackonet-inner-message'          => [
 				'src'       => static::get_assets_url() . '/js/inner-message.js',
-				'deps'      => [ 'wp-tinymce', 'yousaidit-toolkit-vendors' ],
+				'deps'      => [ 'wp-tinymce', 'yousaidit-toolkit-vendors', 'yousaidit-toolkit-web-components' ],
 				'in_footer' => true
 			],
-			'stackonet-toolkit-frontend' => [
+			'stackonet-toolkit-frontend'       => [
 				'src'       => static::get_assets_url() . '/js/frontend.js',
-				'deps'      => [ 'jquery', 'yousaidit-toolkit-vendors' ],
+				'deps'      => [ 'jquery', 'yousaidit-toolkit-vendors', 'yousaidit-toolkit-web-components' ],
 				'in_footer' => true
 			],
-			'stackonet-designer-profile' => [
+			'stackonet-designer-profile'       => [
 				'src'       => static::get_assets_url() . '/js/designer-profile.js',
 				'deps'      => [ 'yousaidit-toolkit-vendors' ],
 				'in_footer' => true
 			],
-			'stackonet-toolkit-admin'    => [
+			'stackonet-toolkit-admin'          => [
 				'src'       => static::get_assets_url() . '/js/admin.js',
 				'deps'      => [ 'jquery', 'react', 'react-dom', 'yousaidit-toolkit-vendors' ],
 				'in_footer' => true
