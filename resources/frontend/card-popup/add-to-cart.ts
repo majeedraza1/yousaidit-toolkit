@@ -6,6 +6,7 @@ import {Notify, Spinner} from "./components";
 import {createEl, postRequest} from "./utils";
 import {DynamicCardPayloadInterface} from "../../utils/interfaces";
 import axios from "axios";
+import {refreshBodyClass} from "./components/modal/modal";
 
 if (window.StackonetToolkit && window.StackonetToolkit.restNonce) {
   axios.defaults.headers.common['X-WP-Nonce'] = window.StackonetToolkit.restNonce;
@@ -53,6 +54,7 @@ const addToCart = (element: HTMLElement) => {
         modal.classList.remove('is-active');
       }
     }
+    refreshBodyClass();
   }).catch(error => {
     Notify.warning('Something went wrong', 'Error!');
   }).finally(() => {
@@ -66,21 +68,29 @@ const dynamicCardContainer = (product_id: number | string, card_size: string): P
     let el = document.querySelector('#dynamic-card-container');
     if (el) {
       resolve(el);
-    }
-    el = createEl('div',
-      {
-        id: 'dynamic-card-container',
-        'data-card-size': card_size,
-        'data-product-id': product_id.toString(),
-      },
-      [
-        createEl('div', {id: 'dynamic-card'})
-      ]
-    )
+    } else {
+      el = createEl('div',
+        {
+          id: 'dynamic-card-container',
+          'data-card-size': card_size,
+          'data-product-id': product_id.toString(),
+        },
+        [
+          createEl('div', {id: 'dynamic-card'})
+        ]
+      )
 
-    document.body.append(el);
-    resolve(el);
+      document.body.append(el);
+      resolve(el);
+    }
   })
+}
+
+const removeDynamicCardContainerIfExists = () => {
+  let el = document.body.querySelector('#dynamic-card-container');
+  if (el) {
+    el.remove();
+  }
 }
 
 const addAMessage = (element: HTMLElement) => {
@@ -161,7 +171,7 @@ const submitFormToServer = (data: InnerMessagePropsInterface | DynamicCardPropsI
       inputEl.value = value;
     }
   }
-  if (data.payload){
+  if (data.payload) {
     let fieldsContainer = form.querySelector('#_dynamic_card_fields');
     data.payload.card_items.forEach((item, index) => {
       let inputId = `#_dynamic_card_input-${index}`
@@ -184,7 +194,8 @@ const submitFormToServer = (data: InnerMessagePropsInterface | DynamicCardPropsI
         modal.classList.remove('is-active');
       }
     }
-  }).catch(error => {
+    refreshBodyClass();
+  }).catch(() => {
     Notify.warning('Something went wrong', 'Error!');
   }).finally(() => {
     window.jQuery(document.body).trigger('wc_fragment_refresh');
@@ -215,10 +226,6 @@ document.addEventListener('show.CardCategoryPopup', (event: CustomEvent) => {
   }
 })
 
-document.addEventListener('hide.CardCategoryPopup', (event: CustomEvent) => {
-  window.console.log('Remove dynamic card modal.');
-  let el = document.querySelector('#dynamic-card-container');
-  if (el) {
-    el.remove();
-  }
+document.addEventListener('close.CardCategoryModal', () => {
+  removeDynamicCardContainerIfExists()
 })

@@ -68,7 +68,7 @@ $card_type = 'dynamic' === $card_type ? 'dynamic' : 'static';
                 <input type="hidden" name="product_id" value="<?php echo esc_attr( $product->get_id() ) ?>">
                 <input type="hidden" name="attribute_pa_size" value="<?php echo esc_attr( $card_size ) ?>">
                 <input type="hidden" name="card_type" value="<?php echo esc_attr( $card_type ) ?>">
-                <div class="mb-2">
+                <div class="mb-8">
 					<?php
 					$html = '';
 					foreach ( $extra_fields as $field ) {
@@ -96,6 +96,7 @@ $card_type = 'dynamic' === $card_type ? 'dynamic' : 'static';
 				<?php
 				do_action( 'yousaidit_toolkit/card_popup', $product, 'popup' );
 				?>
+                <div class="flex-grow"></div>
                 <div class="my-4 flex justify-center items-center space-x-2">
                     <div class="max-w-[50px]">
                         <input type="number" name="product_qty" class="input-text qty text h-[56px] text-center mb-0"
@@ -109,11 +110,10 @@ $card_type = 'dynamic' === $card_type ? 'dynamic' : 'static';
                         <a href="#" class="button btn1 bshadow card-popup-add-a-message">
                             <span><?php esc_html_e( 'Add a message', 'yousaidit-toolkit' ); ?></span>
                         </a>
+                        <a href="#" class="button btn1 checkout wc-forward bshadow card-popup-add-to-cart">
+                            <span><?php esc_html_e( 'Add to Basket', 'yousaidit-toolkit' ); ?></span>
+                        </a>
 					<?php } ?>
-
-                    <a href="#" class="button btn1 checkout wc-forward bshadow card-popup-add-to-cart">
-                        <span><?php esc_html_e( 'Add to Basket', 'yousaidit-toolkit' ); ?></span>
-                    </a>
                 </div>
             </form>
             <div class="flex justify-center">

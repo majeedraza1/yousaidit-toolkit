@@ -1,12 +1,12 @@
 import {createEl} from "../../utils";
 
-const refreshBodyClass = (active: boolean) => {
+const refreshBodyClass = (active: boolean = false) => {
   const body = document.querySelector("body") as HTMLBodyElement;
   if (active) {
     return body.classList.add("has-shapla-modal");
   }
   setTimeout(() => {
-    if (document.querySelectorAll(".shapla-modal.is-active").length === 0) {
+    if (body.querySelectorAll(".shapla-modal.is-active").length === 0) {
       body.classList.remove("has-shapla-modal");
     }
   }, 50);
@@ -35,6 +35,7 @@ const createModal = (appendTo: HTMLElement | null = null, id: null | string = nu
     element.addEventListener('click', () => {
       if (modal.classList.contains('is-active')) {
         modal.classList.remove('is-active');
+        modal.dispatchEvent(new CustomEvent('close'));
         refreshBodyClass(false);
       }
     })
@@ -57,4 +58,5 @@ document.addEventListener('click', (event: MouseEvent) => {
   }
 });
 
+export {refreshBodyClass}
 export default createModal;

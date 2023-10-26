@@ -33,3 +33,25 @@ body.admin-bar {
     }
   }
 }
+
+.btn1.card-popup-add-a-message {
+  color: #000;
+  background-color: rgba(0, 0, 0, 0);
+  box-shadow: none;
+
+  &:hover {
+    @apply shadow;
+  }
+
+  &:before, &:after {
+    width: 100%;
+  }
+
+  span {
+    color: currentColor;
+
+    &:before, &:after {
+      height: 100% !important;
+    }
+  }
+}

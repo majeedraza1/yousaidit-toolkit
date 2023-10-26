@@ -6,6 +6,9 @@ const openContentOnModal = (content: string) => {
   let container = document.querySelector('#card-category-popup-container') as HTMLElement;
   if (!modal) {
     modal = createModal(container, 'card-category-modal');
+    modal.addEventListener('close',()=>{
+      document.dispatchEvent(new CustomEvent('close.CardCategoryModal'));
+    })
   }
 
   const modalContent = modal.querySelector('.shapla-modal-content') as HTMLElement;

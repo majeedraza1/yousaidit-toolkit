@@ -165,7 +165,7 @@ class EvaThemeManager {
 	 * @return string
 	 */
 	protected function get_inner_message_html( bool $show_button = true ): string {
-		$html = '<div id="_inner_message_fields" style="visibility: hidden; position: absolute; width: 1px; height: 1px">';
+		$html = '<div id="_inner_message_fields" style="visibility: hidden; position: absolute; width: 1px; height: 1px; overflow: hidden;">';
 		$html .= '<textarea id="_inner_message_content" name="_inner_message[content]"></textarea>';
 		$html .= '<input type="text" id="_inner_message_font" name="_inner_message[font]"/>';
 		$html .= '<input type="text" id="_inner_message_size" name="_inner_message[size]"/>';
@@ -186,7 +186,7 @@ class EvaThemeManager {
 	 * @return string
 	 */
 	protected function get_video_inner_message_html(): string {
-		$html = '<div id="_video_inner_message_fields" style="visibility: hidden; position: absolute; width: 1px; height: 1px">';
+		$html = '<div id="_video_inner_message_fields" style="visibility: hidden; position: absolute; width: 1px; height: 1px;overflow: hidden;">';
 		$html .= '<input type="text" id="_inner_message2_type" name="_video_inner_message[type]"/>';
 		$html .= '<input type="text" id="_inner_message2_video_id" name="_video_inner_message[video_id]"/>';
 		$html .= '<textarea id="_inner_message2_content" name="_video_inner_message[content]"></textarea>';
@@ -211,7 +211,7 @@ class EvaThemeManager {
 
 		$payload = $product->get_meta( '_dynamic_card_payload', true );
 		$items   = $payload['card_items'] ?? [];
-		$html    .= '<div id="_dynamic_card_fields" style="visibility: hidden; position: absolute; width: 1px; height: 1px">';
+		$html    .= '<div id="_dynamic_card_fields" style="visibility: hidden; position: absolute; width: 1px; height: 1px;overflow: hidden;">';
 		foreach ( $items as $index => $item ) {
 			$html .= sprintf( '<input type="text" id="%s" name="_dynamic_card[%s][value]"/>',
 				"_dynamic_card_input-$index", $index );

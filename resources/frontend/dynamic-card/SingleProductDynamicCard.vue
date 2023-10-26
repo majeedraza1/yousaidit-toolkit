@@ -474,7 +474,6 @@ export default {
     document.addEventListener('show.DynamicCardModal', () => {
       this.show_dynamic_card_editor = true;
       this.is_card_category_popup = true;
-      window.console.log('Card Category Popup: show dynamic card modal.');
     })
   }
 }
