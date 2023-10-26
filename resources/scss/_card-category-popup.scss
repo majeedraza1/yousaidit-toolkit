@@ -36,8 +36,8 @@ body.admin-bar {
 
 .btn1.card-popup-add-a-message {
   color: #000;
-  background-color: rgba(0, 0, 0, 0);
-  box-shadow: none;
+  background-color: rgba(0, 0, 0, 0) !important;
+  box-shadow: none !important;
 
   &:hover {
     @apply shadow;
@@ -52,6 +52,24 @@ body.admin-bar {
 
     &:before, &:after {
       height: 100% !important;
+    }
+  }
+}
+
+#card-category-modal {
+  --modal-content-spacing: 2rem;
+
+  body.admin-bar & {
+    .shapla-modal-content {
+      --modal-content-spacing: calc(2rem + 46px); // 40px + 46px (for wp admin bar)
+      margin-top: 46px;
+    }
+
+    @media screen and (min-width: 768px) {
+      .shapla-modal-content {
+        --modal-content-spacing: calc(2rem + 32px); // 40px + 32px (for wp admin bar)
+        margin-top: 32px;
+      }
     }
   }
 }

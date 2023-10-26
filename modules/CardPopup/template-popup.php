@@ -49,26 +49,28 @@ $card_type = 'dynamic' === $card_type ? 'dynamic' : 'static';
             </div>
         </div>
         <div class="w-full lg:w-1/2">
-            <div class="flex font-medium mb-2 uppercase text-3xl">
+            <div class="flex font-medium mb-2 uppercase text-xl lg:text-3xl">
 				<?php echo $product->get_title(); ?>
             </div>
-            <div class="text-3xl">
+            <div class="font-medium text-xl lg:text-3xl">
 				<?php echo $product->get_price_html() ?>
             </div>
-            <div class="flex justify-center my-4">
-				<?php
-				try {
-					$dispatch_time = Settings::get_next_dispatch_timer_message();
+			<?php
+			try {
+				$dispatch_time = Settings::get_next_dispatch_timer_message();
+				if ( ! empty( $dispatch_time ) ) {
+					echo '<div class="flex justify-center my-4">';
 					echo $dispatch_time; // phpcs:disable WordPress.XSS.EscapeOutput.OutputNotEscaped
-				} catch ( Exception $e ) {
+					echo '</div>';
 				}
-				?>
-            </div>
+			} catch ( Exception $e ) {
+			}
+			?>
             <form action="<?php echo $form_action ?>" method="post" class="card-popup-form">
                 <input type="hidden" name="product_id" value="<?php echo esc_attr( $product->get_id() ) ?>">
                 <input type="hidden" name="attribute_pa_size" value="<?php echo esc_attr( $card_size ) ?>">
                 <input type="hidden" name="card_type" value="<?php echo esc_attr( $card_type ) ?>">
-                <div class="mb-8">
+                <div class="mb-6 lg:mb-8">
 					<?php
 					$html = '';
 					foreach ( $extra_fields as $field ) {
