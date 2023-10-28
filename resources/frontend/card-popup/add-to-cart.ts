@@ -4,40 +4,17 @@ import dynamicCardStore from "../dynamic-card/store";
 
 import {Notify, Spinner} from "./components";
 import {createEl, postRequest} from "./utils";
-import {DynamicCardPayloadInterface} from "../../utils/interfaces";
+import {
+  DynamicCardPropsInterface,
+  InnerMessagePropsInterface,
+  LeftInnerMessagePropsInterface,
+  RightInnerMessagePropsInterface
+} from "../../utils/interfaces";
 import axios from "axios";
-import {refreshBodyClass} from "./components/modal/modal";
+import {closeModal, refreshBodyClass} from "./components/modal/modal";
 
 if (window.StackonetToolkit && window.StackonetToolkit.restNonce) {
   axios.defaults.headers.common['X-WP-Nonce'] = window.StackonetToolkit.restNonce;
-}
-
-interface LeftInnerMessagePropsInterface {
-  alignment: string;
-  color: string;
-  font_family: string;
-  font_size: string;
-  message: string;
-}
-
-interface RightInnerMessagePropsInterface extends LeftInnerMessagePropsInterface {
-  type: string
-  video_id: number;
-}
-
-interface InnerMessagePropsInterface {
-  left: LeftInnerMessagePropsInterface,
-  right: RightInnerMessagePropsInterface
-}
-
-interface DynamicCardPropsInterface extends InnerMessagePropsInterface {
-  payload: DynamicCardPayloadInterface;
-}
-
-declare global {
-  interface GlobalEventHandlersEventMap {
-    "update.CardCategoryPopup": CustomEvent<InnerMessagePropsInterface>;
-  }
 }
 
 
@@ -156,7 +133,7 @@ const key_to_field = {
 const submitFormToServer = (data: InnerMessagePropsInterface | DynamicCardPropsInterface) => {
   const form = document.querySelector('.card-popup-form') as HTMLFormElement;
   for (const [key, value] of Object.entries(data.right)) {
-    let suffix = Object.keys(key_to_field).includes(key) ? key_to_field[key as keyof LeftInnerMessagePropsInterface] : key,
+    let suffix = Object.keys(key_to_field).includes(key) ? key_to_field[key as keyof RightInnerMessagePropsInterface] : key,
       idAttribute = `#_inner_message_${suffix}`;
     const inputEl = form.querySelector(idAttribute) as HTMLInputElement;
     if (inputEl) {
@@ -189,12 +166,9 @@ const submitFormToServer = (data: InnerMessagePropsInterface | DynamicCardPropsI
   postRequest(url, formData).then(response => {
     Notify.primary('Product has been added to cart', 'Success!');
     const modal = form.closest('.shapla-modal');
-    if (modal) {
-      if (modal.classList.contains('is-active')) {
-        modal.classList.remove('is-active');
-      }
-    }
+    closeModal(modal);
     refreshBodyClass();
+    removeDynamicCardContainerIfExists();
   }).catch(() => {
     Notify.warning('Something went wrong', 'Error!');
   }).finally(() => {

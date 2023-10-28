@@ -6,8 +6,8 @@ const openContentOnModal = (content: string) => {
   let container = document.querySelector('#card-category-popup-container') as HTMLElement;
   if (!modal) {
     modal = createModal(container, 'card-category-modal');
-    modal.addEventListener('close',()=>{
-      document.dispatchEvent(new CustomEvent('close.CardCategoryModal'));
+    modal.addEventListener('close.ShaplaModal', (event: CustomEvent) => {
+      document.dispatchEvent(new CustomEvent('close.CardCategoryModal', {detail: event.detail}));
     })
   }
 
@@ -39,7 +39,7 @@ document.addEventListener('click', (event: MouseEvent) => {
     if (productId) {
       Spinner.show();
       getRequest(getAjaxUrl(productId))
-        .then(data => {
+        .then((data) => {
           openContentOnModal(data.popup as string);
         })
         .finally(() => {

@@ -87,6 +87,31 @@ interface DynamicCardPayloadInterface {
   card_items: DynamicCardSectionInterface[];
 }
 
+interface LeftInnerMessagePropsInterface {
+  alignment: string;
+  color: string;
+  font_family: string;
+  font_size: string;
+  message: string;
+}
+
+interface RightInnerMessagePropsInterface extends LeftInnerMessagePropsInterface {
+  type: string
+  video_id: number;
+}
+
+interface InnerMessagePropsInterface {
+  left: LeftInnerMessagePropsInterface,
+  right: RightInnerMessagePropsInterface
+}
+
+interface DynamicCardPropsInterface extends InnerMessagePropsInterface {
+  payload: DynamicCardPayloadInterface;
+}
+
 export type {
-  DynamicCardPayloadInterface
+  LeftInnerMessagePropsInterface,
+  RightInnerMessagePropsInterface,
+  InnerMessagePropsInterface,
+  DynamicCardPropsInterface
 }
