@@ -99,24 +99,28 @@ $card_type = 'dynamic' === $card_type ? 'dynamic' : 'static';
 				do_action( 'yousaidit_toolkit/card_popup', $product, 'popup' );
 				?>
                 <div class="flex-grow"></div>
-                <div class="my-4 flex justify-center items-center space-x-2">
-                    <div class="max-w-[50px]">
-                        <input type="number" name="product_qty" class="input-text qty text h-[56px] text-center mb-0"
-                               min="1" step="1" value="1">
-                    </div>
-					<?php if ( 'dynamic' === $card_type ) { ?>
+				<?php if ( 'dynamic' === $card_type ) { ?>
+                    <div class="mt-4 lg:mt-12 mb-4 flex justify-center items-center space-x-2">
+                        <input type="hidden" name="product_qty" min="1" step="1" value="1"
+                               class="dynamic-card-qty input-text qty text h-[56px] text-center mb-0">
                         <a href="#" class="button btn1 bshadow card-popup-customize-dynamic-card">
                             <span><?php esc_html_e( 'Personalise', 'yousaidit-toolkit' ); ?></span>
                         </a>
-					<?php } else { ?>
+                    </div>
+				<?php } else { ?>
+                    <div class="my-4 flex justify-center items-center space-x-2">
+                        <div class="max-w-[50px]">
+                            <input type="number" name="product_qty" min="1" step="1" value="1"
+                                   class="static-card-qty input-text qty text h-[56px] text-center mb-0">
+                        </div>
                         <a href="#" class="button btn1 bshadow card-popup-add-a-message">
                             <span><?php esc_html_e( 'Add a message', 'yousaidit-toolkit' ); ?></span>
                         </a>
                         <a href="#" class="button btn1 checkout wc-forward bshadow card-popup-add-to-cart">
                             <span><?php esc_html_e( 'Add to Basket', 'yousaidit-toolkit' ); ?></span>
                         </a>
-					<?php } ?>
-                </div>
+                    </div>
+				<?php } ?>
             </form>
             <div class="flex justify-center">
                 <a href="<?php echo $product->get_permalink() ?>" class="font-medium">

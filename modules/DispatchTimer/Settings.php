@@ -258,7 +258,7 @@ class Settings {
 	 */
 	public static function get_common_holiday_for_year( int $year = 0 ): array {
 		$datetime = new DateTime( 'now', wp_timezone() );
-		$datetime->modify( '1st day of the year' );
+		$datetime->setDate( $datetime->format( 'Y' ), '01', '01' );
 		if ( $year && strlen( strval( $year ) ) === 4 ) {
 			$datetime->setDate( $year, $datetime->format( 'm' ), $datetime->format( 'd' ) );
 		}

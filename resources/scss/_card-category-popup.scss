@@ -52,7 +52,25 @@ body.admin-bar {
 
     &:before, &:after {
       height: 100% !important;
+      content: '';
+      width: 2px;
+      position: absolute;
+      transition: all 0.2s linear;
+      background: #000;
     }
+  }
+}
+
+.btn1.card-popup-customize-dynamic-card {
+  display: inline-flex;
+  text-align: center;
+  justify-content: center;
+  flex-grow: 1;
+  min-width: 200px;
+  margin: 0 1.5rem !important;
+
+  @media screen and (min-width: 768px) {
+    margin: 0 !important;
   }
 }
 
@@ -71,5 +89,13 @@ body.admin-bar {
         margin-top: 32px;
       }
     }
+  }
+}
+
+.qty.dynamic-card-qty {
+  display: none;
+
+  @media screen and (min-width: 768px) {
+    display: block;
   }
 }
