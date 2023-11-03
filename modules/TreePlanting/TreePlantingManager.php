@@ -18,11 +18,15 @@ class TreePlantingManager {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self();
 
+			add_action( 'wp_ajax_test_tree_planting', [ self::$instance, 'test_tree_planting' ] );
 			add_action( 'woocommerce_new_order', [ self::$instance, 'woocommerce_new_order' ] );
 			add_action( 'admin_init', [ TreePlanting::class, 'create_tables' ] );
+			add_action( 'admin_init', [ ShipStationOrder::class, 'create_tables' ] );
 			add_filter( 'yousaidit_toolkit/settings/sections', [ self::$instance, 'add_setting_sections' ] );
 			add_filter( 'yousaidit_toolkit/settings/fields', [ self::$instance, 'add_setting_fields' ] );
 			BackgroundPurchaseTree::init();
+			Admin::init();
+			AdminApiController::init();
 		}
 
 		return self::$instance;
@@ -113,5 +117,16 @@ class TreePlantingManager {
 			}
 		}
 		Setting::update_cumulative_orders_ids( $orders_ids );
+	}
+
+	public function test_tree_planting() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( __( 'Sorry. This link only for developer to do some testing.', 'yousaidit-toolkit' ) );
+		}
+
+		$response = BackgroundPurchaseTree::sync();
+
+		var_dump( $response );
+		wp_die();
 	}
 }

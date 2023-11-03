@@ -54,4 +54,47 @@ class BackgroundPurchaseTree extends BackgroundProcessWithUiHelper {
 
 		return false;
 	}
+
+	/**
+	 * Sync tree planting
+	 *
+	 * @return array
+	 */
+	public static function sync(): array {
+		$orders                = ShipStationOrder::find_for_tree_planting();
+		$purchase_orders_count = Setting::purchase_tree_after_total_orders();
+		$in_queue              = [];
+		$in_sync               = [];
+		if ( count( $orders ) >= $purchase_orders_count ) {
+			$chunks = array_chunk( $orders, $purchase_orders_count );
+			/** @var ShipStationOrder[] $chunk */
+			foreach ( $chunks as $chunk ) {
+				$orders_ids = wp_list_pluck( $chunk, 'shipstation_order_id' );
+				if ( count( $chunk ) === $purchase_orders_count ) {
+					$id = TreePlanting::create( [
+						'orders_ids' => $orders_ids,
+					] );
+
+					if ( $id ) {
+						$to_update = [];
+						foreach ( $chunk as $item ) {
+							$to_update[] = [ 'id' => $item->get_id(), 'tree_planting_id' => $id ];
+						}
+						if ( count( $to_update ) ) {
+							ShipStationOrder::update_multiple( $to_update );
+						}
+						static::init()->push_to_queue( [ 'id' => $id ] );
+					}
+					$in_sync = array_merge( $in_sync, $orders_ids );
+				} else {
+					$in_queue = array_merge( $in_queue, $orders_ids );
+				}
+			}
+		}
+
+		return [
+			'in_sync'  => $in_sync,
+			'in_queue' => $in_queue,
+		];
+	}
 }

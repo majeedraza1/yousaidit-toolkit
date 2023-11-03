@@ -10,7 +10,8 @@
       "./resources/scss/admin.scss",
       "./resources/admin/ai-content-writer-settings/main.tsx",
       "./resources/admin/dispatch-timer-settings/main.tsx",
-      "./resources/admin/inner-message-editor/main.ts"
+      "./resources/admin/inner-message-editor/main.ts",
+      "./resources/admin/tree-planting/main.js"
     ],
     "designer-profile": [
       "./resources/frontend/designers/main.js",

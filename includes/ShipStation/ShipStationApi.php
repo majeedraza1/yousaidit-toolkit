@@ -5,6 +5,7 @@ namespace YouSaidItCards\ShipStation;
 use Stackonet\WP\Framework\Supports\RestClient;
 use Stackonet\WP\Framework\Traits\Cacheable;
 use YouSaidItCards\Admin\SettingPage;
+use YouSaidItCards\Modules\TreePlanting\ShipStationOrder;
 
 class ShipStationApi extends RestClient {
 
@@ -51,8 +52,8 @@ class ShipStationApi extends RestClient {
 	/**
 	 * ShipStationApi constructor.
 	 *
-	 * @param null $api_key
-	 * @param null $api_secret
+	 * @param  null  $api_key
+	 * @param  null  $api_secret
 	 */
 	public function __construct( $api_key = null, $api_secret = null ) {
 		$this->add_auth_header( base64_encode( $api_key . ':' . $api_secret ) );
@@ -61,8 +62,8 @@ class ShipStationApi extends RestClient {
 	}
 
 	/**
-	 * @param int $wc_order_id
-	 * @param bool $force
+	 * @param  int  $wc_order_id
+	 * @param  bool  $force
 	 *
 	 * @return array|\WP_Error|Order
 	 */
@@ -96,7 +97,7 @@ class ShipStationApi extends RestClient {
 	/**
 	 * Get orders from ShipStation API
 	 *
-	 * @param array $args
+	 * @param  array  $args
 	 *
 	 * @return array|mixed|object
 	 */
@@ -128,7 +129,7 @@ class ShipStationApi extends RestClient {
 	/**
 	 * Get orders from ShipStation API
 	 *
-	 * @param array $args
+	 * @param  array  $args
 	 *
 	 * @return array|mixed|object
 	 */
@@ -154,13 +155,17 @@ class ShipStationApi extends RestClient {
 			return [];
 		}
 
+		if ( isset( $orders['orders'] ) && is_array( $orders['orders'] ) ) {
+			ShipStationOrder::create_if_not_exists( $orders['orders'] );
+		}
+
 		return $orders;
 	}
 
 	/**
 	 * Get order from ShipStation API by order id
 	 *
-	 * @param int $order_id ShipStation order id.
+	 * @param  int  $order_id  ShipStation order id.
 	 *
 	 * @return array|object
 	 */
@@ -178,7 +183,7 @@ class ShipStationApi extends RestClient {
 	/**
 	 * Update an existing order
 	 *
-	 * @param array $data
+	 * @param  array  $data
 	 *
 	 * @return array|\WP_Error
 	 */
