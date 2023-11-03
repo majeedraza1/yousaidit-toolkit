@@ -10,7 +10,8 @@
       "./resources/scss/admin.scss",
       "./resources/admin/ai-content-writer-settings/main.tsx",
       "./resources/admin/dispatch-timer-settings/main.tsx",
-      "./resources/admin/inner-message-editor/main.ts"
+      "./resources/admin/inner-message-editor/main.ts",
+      "./resources/admin/tree-planting/main.js"
     ],
     "designer-profile": [
       "./resources/frontend/designers/main.js",
@@ -21,12 +22,19 @@
       "./resources/frontend/main.js",
       "./resources/frontend/multistep-checkout.js",
       "./resources/frontend/reminders/main.js",
+      "./resources/frontend/card-popup/card-category-popup.ts",
+      "./resources/frontend/card-popup/add-to-cart.ts",
       "./resources/scss/_multistep-checkout.scss",
       "./resources/scss/frontend.scss"
     ],
     "inner-message": [
       "./resources/frontend/inner-message/main.js",
       "./resources/frontend/dynamic-card/main.js"
+    ],
+    "web-components": [
+      "./resources/web-components/DynamicCardLayer.js",
+      "./resources/web-components/DynamicCardBackground.js",
+      "./resources/web-components/DynamicCardCanvas.js"
     ]
   }
 }

@@ -28,6 +28,11 @@ class Settings {
 		[ 'label' => 'Boxing Day', 'date_string' => 'December 26th' ],
 	];
 
+	const WEEKLY_HOLIDAY = 'weekly_holiday';
+	const COMMON_PUBLIC_HOLIDAY = 'common_public_holidays';
+	const SPECIAL_HOLIDAY = 'special_holidays';
+
+	const HIDE_TIMER_ON = [ self::WEEKLY_HOLIDAY, self::COMMON_PUBLIC_HOLIDAY, self::SPECIAL_HOLIDAY ];
 
 	/**
 	 * Get options
@@ -38,11 +43,19 @@ class Settings {
 		$defaults = [
 			'dispatch_timer_weekly_holiday'   => [ 6, 7 ],
 			'dispatch_timer_get_cut_off_time' => '14:00',
+			'dispatch_timer_start_time'       => '',
+			'dispatch_timer_end_time'         => '',
+			'dispatch_timer_hide_on'          => [],
 		];
 		$options  = get_option( '_stackonet_toolkit' );
 		$options  = is_array( $options ) ? $options : [];
 
-		return wp_parse_args( $options, $defaults );
+		$settings = [];
+		foreach ( $defaults as $key => $default ) {
+			$settings[ $key ] = $options[ $key ] ?? $default;
+		}
+
+		return $settings;
 	}
 
 	/**
@@ -106,6 +119,101 @@ class Settings {
 	}
 
 	/**
+	 * Get cut off time
+	 *
+	 * @return string
+	 */
+	public static function get_dispatch_timer_start_time(): string {
+		return static::get_option( 'dispatch_timer_start_time' );
+	}
+
+	/**
+	 * Get cut off time
+	 *
+	 * @return string
+	 */
+	public static function get_dispatch_timer_end_time(): string {
+		return static::get_option( 'dispatch_timer_end_time' );
+	}
+
+	/**
+	 * Get special holiday group by year
+	 *
+	 * @return array[]
+	 */
+	public static function get_dispatch_timer_hide_on(): array {
+		$holidays = static::get_option( 'dispatch_timer_hide_on', [] );
+
+		return is_array( $holidays ) ? $holidays : [];
+	}
+
+	/**
+	 * Validate time
+	 *
+	 * @param  string|mixed  $time  The time string
+	 *
+	 * @return bool
+	 */
+	public static function validate_time( $time ): bool {
+		if ( is_string( $time ) ) {
+			return (bool) preg_match( '/([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?/', $time );
+		}
+
+		return false;
+	}
+
+	private static function should_hide_timer( DateTime $datetime ): bool {
+		$hide_on    = static::get_dispatch_timer_hide_on();
+		$start_time = static::get_dispatch_timer_start_time();
+		$end_time   = static::get_dispatch_timer_end_time();
+
+		if ( count( $hide_on ) ) {
+			// Hide on weekly holidays.
+			if ( in_array( static::WEEKLY_HOLIDAY, $hide_on, true ) ) {
+				$holidays = static::get_weekly_holiday_dates( $datetime->format( 'Y-m-d' ) );
+				if ( in_array( $datetime->format( 'Y-m-d' ), $holidays, true ) ) {
+					return true;
+				}
+			}
+			// Hide on common public holidays.
+			if ( in_array( static::COMMON_PUBLIC_HOLIDAY, $hide_on, true ) ) {
+				$holidays = static::get_common_holiday_for_year( $datetime->format( 'Y' ) );
+				if ( in_array( $datetime->format( 'Y-m-d' ), $holidays, true ) ) {
+					return true;
+				}
+			}
+			// Hide on special holidays.
+			if ( in_array( static::SPECIAL_HOLIDAY, $hide_on, true ) ) {
+				$holidays = static::get_special_holidays_dates();
+				if ( in_array( $datetime->format( 'Y-m-d' ), $holidays, true ) ) {
+					return true;
+				}
+			}
+		}
+
+		// Only do compare when both start time and end time are valid.
+		if ( static::validate_time( $start_time ) && static::validate_time( $end_time ) ) {
+			list( $min_hour, $min_minute ) = explode( ':', $start_time );
+			$min_datetime = clone $datetime;
+			$min_datetime->setTime( $min_hour, $min_minute );
+			list( $max_hour, $max_minute ) = explode( ':', $end_time );
+			$max_datetime = clone $datetime;
+			$max_datetime->setTime( $max_hour, $max_minute );
+
+			// Minimum date cannot be bigger than maximum date.
+			if ( $min_datetime > $max_datetime ) {
+				return false;
+			}
+
+			if ( ! ( $datetime > $min_datetime && $datetime < $max_datetime ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Get weekly holiday dates
 	 *
 	 * @param  string|null  $start_date  Start date with format YYYY-MM-DD
@@ -150,7 +258,7 @@ class Settings {
 	 */
 	public static function get_common_holiday_for_year( int $year = 0 ): array {
 		$datetime = new DateTime( 'now', wp_timezone() );
-		$datetime->modify( '1st day of the year' );
+		$datetime->setDate( $datetime->format( 'Y' ), '01', '01' );
 		if ( $year && strlen( strval( $year ) ) === 4 ) {
 			$datetime->setDate( $year, $datetime->format( 'm' ), $datetime->format( 'd' ) );
 		}
@@ -287,8 +395,11 @@ class Settings {
 	 * @throws Exception
 	 */
 	public static function get_next_dispatch_timer_message(): string {
-		$datetime      = new \DateTime( 'now', wp_timezone() );
-		$next_dispatch = Settings::get_next_dispatch_datetime( $datetime );
+		$datetime = new \DateTime( 'now', wp_timezone() );
+		if ( static::should_hide_timer( $datetime ) ) {
+			return '';
+		}
+		$next_dispatch = static::get_next_dispatch_datetime( $datetime );
 		if ( $datetime->format( 'Y-m-d' ) === $next_dispatch->format( 'Y-m-d' ) ) {
 			$dif     = $next_dispatch->diff( $datetime );
 			$message = sprintf( 'Order within <strong>%s hrs %s mins</strong> for same day dispatch', $dif->h,

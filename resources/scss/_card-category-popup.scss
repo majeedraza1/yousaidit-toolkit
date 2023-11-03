@@ -1,0 +1,101 @@
+body.admin-bar {
+  @media screen and (min-width: 768px) {
+    .shapla-modal-content {
+      --modal-content-spacing: calc(40px + 32px);
+    }
+  }
+}
+
+.card-category-popup {
+  position: absolute;
+  z-index: 99;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+
+.card-category-popup-content {
+
+  .yousaidit_wishlist {
+    display: inline-flex;
+    cursor: pointer;
+
+    &:before {
+      font-family: "icomoon";
+      content: "\e903";
+      font-size: 1.5rem;
+      @apply text-primary w-8 h-8 justify-center inline-flex items-center;
+    }
+
+    &.is-in-list:before {
+      content: "\e90c";
+    }
+  }
+}
+
+.btn1.card-popup-add-a-message {
+  color: #000;
+  background-color: rgba(0, 0, 0, 0) !important;
+  box-shadow: none !important;
+
+  &:hover {
+    @apply shadow;
+  }
+
+  &:before, &:after {
+    width: 100%;
+  }
+
+  span {
+    color: currentColor;
+
+    &:before, &:after {
+      height: 100% !important;
+      content: '';
+      width: 2px;
+      position: absolute;
+      transition: all 0.2s linear;
+      background: #000;
+    }
+  }
+}
+
+.btn1.card-popup-customize-dynamic-card {
+  display: inline-flex;
+  text-align: center;
+  justify-content: center;
+  flex-grow: 1;
+  min-width: 200px;
+  margin: 0 1.5rem !important;
+
+  @media screen and (min-width: 768px) {
+    margin: 0 !important;
+  }
+}
+
+#card-category-modal {
+  --modal-content-spacing: 2rem;
+
+  body.admin-bar & {
+    .shapla-modal-content {
+      --modal-content-spacing: calc(2rem + 46px); // 40px + 46px (for wp admin bar)
+      margin-top: 46px;
+    }
+
+    @media screen and (min-width: 768px) {
+      .shapla-modal-content {
+        --modal-content-spacing: calc(2rem + 32px); // 40px + 32px (for wp admin bar)
+        margin-top: 32px;
+      }
+    }
+  }
+}
+
+.qty.dynamic-card-qty {
+  display: none;
+
+  @media screen and (min-width: 768px) {
+    display: block;
+  }
+}

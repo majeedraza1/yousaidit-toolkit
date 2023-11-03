@@ -90,7 +90,7 @@ class DesignerCardAdminController extends ApiController {
 	/**
 	 * Retrieves a collection of items.
 	 *
-	 * @param WP_REST_Request $request Full data about the request.
+	 * @param  WP_REST_Request  $request  Full data about the request.
 	 *
 	 * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
 	 */
@@ -102,15 +102,18 @@ class DesignerCardAdminController extends ApiController {
 		$page        = $request->get_param( 'page' );
 		$per_page    = $request->get_param( 'per_page' );
 		$search      = $request->get_param( 'search' );
-		$status      = $request->get_param( 'status' );
 		$designer_id = (int) $request->get_param( 'designer_id' );
-		$status      = in_array( $status, DesignerCard::get_valid_statuses() ) ? $status : 'all';
+		$status      = $request->get_param( 'status' );
+		$status      = in_array( $status, DesignerCard::get_valid_statuses(), true ) ? $status : 'all';
+		$card_type   = $request->get_param( 'card_type' );
+		$card_type   = in_array( $card_type, [ 'dynamic', 'static' ], true ) ? $card_type : 'all';
 
 		$items = ( new DesignerCard() )->find( [
 			'search'           => $search,
 			'per_page'         => $per_page,
 			'paged'            => $page,
 			'status'           => $status,
+			'card_type'        => $card_type,
 			'designer_user_id' => $designer_id > 0 ? $designer_id : '',
 		] );
 
@@ -127,7 +130,7 @@ class DesignerCardAdminController extends ApiController {
 	/**
 	 * Retrieves one item from the collection.
 	 *
-	 * @param WP_REST_Request $request Full data about the request.
+	 * @param  WP_REST_Request  $request  Full data about the request.
 	 *
 	 * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
 	 */
@@ -168,7 +171,7 @@ class DesignerCardAdminController extends ApiController {
 	/**
 	 * Updates one item from the collection.
 	 *
-	 * @param WP_REST_Request $request Full data about the request.
+	 * @param  WP_REST_Request  $request  Full data about the request.
 	 *
 	 * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
 	 */
@@ -291,7 +294,7 @@ class DesignerCardAdminController extends ApiController {
 	/**
 	 * Deletes one item from the collection.
 	 *
-	 * @param WP_REST_Request $request Full data about the request.
+	 * @param  WP_REST_Request  $request  Full data about the request.
 	 *
 	 * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
 	 */
@@ -317,7 +320,7 @@ class DesignerCardAdminController extends ApiController {
 	/**
 	 * Deletes one item from the collection.
 	 *
-	 * @param WP_REST_Request $request Full data about the request.
+	 * @param  WP_REST_Request  $request  Full data about the request.
 	 *
 	 * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
 	 */
@@ -349,8 +352,8 @@ class DesignerCardAdminController extends ApiController {
 	/**
 	 * Get statuses data with count
 	 *
-	 * @param array $counts
-	 * @param string $status
+	 * @param  array  $counts
+	 * @param  string  $status
 	 *
 	 * @return array
 	 */
@@ -358,18 +361,20 @@ class DesignerCardAdminController extends ApiController {
 		$_statuses = DesignerCard::get_available_statuses();
 		$statuses  = [
 			[
-				'key'    => 'all',
-				'label'  => 'All',
-				'count'  => isset( $counts['all'] ) ? $counts['all'] : 0,
-				'active' => 'all' == $status,
+				'key'              => 'all',
+				'label'            => 'All',
+				'count'            => $counts['all'] ?? 0,
+				'active'           => 'all' == $status,
+				'label_with_count' => sprintf( 'All (%s)', ( $counts['all'] ?? 0 ) )
 			]
 		];
 		foreach ( $_statuses as $key => $label ) {
 			$statuses[] = [
-				'key'    => $key,
-				'label'  => $label,
-				'count'  => isset( $counts[ $key ] ) ? $counts[ $key ] : 0,
-				'active' => $key == $status,
+				'key'              => $key,
+				'label'            => $label,
+				'count'            => $counts[ $key ] ?? 0,
+				'active'           => $key == $status,
+				'label_with_count' => sprintf( '%s (%s)', $label, ( $counts[ $key ] ?? 0 ) )
 			];
 		}
 

@@ -58,3 +58,60 @@ interface CardOptionsPropsInterfaces {
   gift?: string; // Enter the gift if you want to mention it in the card content
   topic?: string | keyof typeof ThemeEnum;
 }
+
+interface DynamicCardSectionInterface {
+  label: string;
+  placeholder: string;
+  text: string;
+  imageOptions: {
+    align: 'left' | 'center' | 'right';
+    width: number;
+    height: number;
+    img: { id: number; width: number; height: number; src: string; };
+  };
+  textOptions: {
+    align: 'left' | 'center' | 'right';
+    color: string;
+    fontFamily: string;
+    size: string | number;
+  };
+  position: { left: number | string; top: string | number }
+  section_type: 'input-text' | 'input-image' | 'static-text' | 'static-image';
+}
+
+interface DynamicCardPayloadInterface {
+  card_background: { id: number; width: number; height: number; src: string; };
+  card_bg_color: string;
+  card_bg_type: 'image' | 'color';
+  card_size: string;
+  card_items: DynamicCardSectionInterface[];
+}
+
+interface LeftInnerMessagePropsInterface {
+  alignment: string;
+  color: string;
+  font_family: string;
+  font_size: string;
+  message: string;
+}
+
+interface RightInnerMessagePropsInterface extends LeftInnerMessagePropsInterface {
+  type: string
+  video_id: number;
+}
+
+interface InnerMessagePropsInterface {
+  left: LeftInnerMessagePropsInterface,
+  right: RightInnerMessagePropsInterface
+}
+
+interface DynamicCardPropsInterface extends InnerMessagePropsInterface {
+  payload: DynamicCardPayloadInterface;
+}
+
+export type {
+  LeftInnerMessagePropsInterface,
+  RightInnerMessagePropsInterface,
+  InnerMessagePropsInterface,
+  DynamicCardPropsInterface
+}

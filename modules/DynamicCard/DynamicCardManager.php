@@ -141,6 +141,9 @@ class DynamicCardManager {
 	}
 
 	public function add_editor() {
+		if ( ! is_singular( 'product' ) ) {
+			return;
+		}
 		global $product;
 		if ( ! $product instanceof \WC_Product ) {
 			return;
@@ -158,7 +161,7 @@ class DynamicCardManager {
 	/**
 	 * Add custom data to cart
 	 *
-	 * @param array $cart_item_data
+	 * @param  array  $cart_item_data
 	 *
 	 * @return array
 	 */
@@ -173,9 +176,9 @@ class DynamicCardManager {
 	/**
 	 * Add custom data to order line item
 	 *
-	 * @param WC_Order_Item_Product $item
-	 * @param string $cart_item_key
-	 * @param array $values
+	 * @param  WC_Order_Item_Product  $item
+	 * @param  string  $cart_item_key
+	 * @param  array  $values
 	 */
 	public function create_order_line_item( $item, $cart_item_key, $values ) {
 		if ( array_key_exists( '_dynamic_card', $values ) ) {
@@ -198,7 +201,7 @@ class DynamicCardManager {
 	/**
 	 * Set background task for dynamic card
 	 *
-	 * @param WC_Order $order The order object.
+	 * @param  WC_Order  $order  The order object.
 	 *
 	 * @return void
 	 */
@@ -222,7 +225,7 @@ class DynamicCardManager {
 	/**
 	 * Sanitize dynamic card
 	 *
-	 * @param array $data
+	 * @param  array  $data
 	 *
 	 * @return array
 	 */

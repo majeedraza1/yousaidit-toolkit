@@ -1,7 +1,4 @@
 import './variation-swatches';
-// import '@/web-components/DynamicCardCanvas.js'
-// import '@/web-components/DynamicCardBackground.js'
-// import '@/web-components/DynamicCardLayer.js'
 
 let $ = window.jQuery;
 

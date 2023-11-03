@@ -30,6 +30,7 @@ class EvaThemeManager {
 
 			// Modify title design
 			add_action( 'woocommerce_after_add_to_cart_quantity', [ self::$instance, 'inner_message' ] );
+			add_action( 'yousaidit_toolkit/card_popup', [ self::$instance, 'inner_message' ], 10, 2 );
 			add_filter( 'woocommerce_product_single_add_to_cart_text',
 				[ self::$instance, 'single_add_to_cart_text' ], 10, 2 );
 		}
@@ -54,24 +55,24 @@ class EvaThemeManager {
 	 */
 	public static function banner() {
 		?>
-		<div class="pinkbar">
-			<div class="innerbar">
-				<ul>
-					<li>BUY ANY 5 CARDS FOR <strong>£9.99</strong></li>
-					<li>
-						<Strong>
-							<i class="fa fa-star"></i>
-							<i class="fa fa-star"></i>
-							<i class="fa fa-star"></i>
-							<i class="fa fa-star"></i>
-							<i class="fa fa-star"></i>
-						</Strong>
-						5 STAR RATING
-					</li>
-					<li><strong>FREE DELIVERY</strong> OVER £20</li>
-				</ul>
-			</div>
-		</div>
+        <div class="pinkbar">
+            <div class="innerbar">
+                <ul>
+                    <li>BUY ANY 5 CARDS FOR <strong>£9.99</strong></li>
+                    <li>
+                        <Strong>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                        </Strong>
+                        5 STAR RATING
+                    </li>
+                    <li><strong>FREE DELIVERY</strong> OVER £30</li>
+                </ul>
+            </div>
+        </div>
 		<?php
 	}
 
@@ -87,8 +88,10 @@ class EvaThemeManager {
 	/**
 	 * Inner message
 	 */
-	public function inner_message() {
-		global $product;
+	public function inner_message( $product = null, string $ui = 'default' ) {
+		if ( ! $product ) {
+			global $product;
+		}
 		$options = (array) get_option( '_stackonet_toolkit' );
 		$price   = isset( $options['inner_message_price'] ) ? floatval( $options['inner_message_price'] ) : 0;
 
@@ -102,11 +105,11 @@ class EvaThemeManager {
 		}
 
 		if ( 'dynamic' == $_card_type ) {
-			$html .= $this->get_dynamic_card_html( $product );
+			$html .= $this->get_dynamic_card_html( $product, 'popup' !== $ui );
 			$html .= $this->get_inner_message_html( false );
 			$html .= $this->get_video_inner_message_html();
-		} else if ( self::should_show_inner_message( $product ) ) {
-			$html .= $this->get_inner_message_html();
+		} elseif ( self::should_show_inner_message( $product ) ) {
+			$html .= $this->get_inner_message_html( ! ( 'popup' === $ui ) );
 			$html .= $this->get_video_inner_message_html();
 		}
 		if ( $price > 0 ) {
@@ -126,7 +129,7 @@ class EvaThemeManager {
 	/**
 	 * Should show inner message
 	 *
-	 * @param WC_Product|null $product
+	 * @param  WC_Product|null  $product
 	 *
 	 * @return bool
 	 */
@@ -157,12 +160,12 @@ class EvaThemeManager {
 	}
 
 	/**
-	 * @param bool $show_button
+	 * @param  bool  $show_button
 	 *
 	 * @return string
 	 */
 	protected function get_inner_message_html( bool $show_button = true ): string {
-		$html = '<div id="_inner_message_fields" style="visibility: hidden; position: absolute; width: 1px; height: 1px">';
+		$html = '<div id="_inner_message_fields" style="visibility: hidden; position: absolute; width: 1px; height: 1px; overflow: hidden;">';
 		$html .= '<textarea id="_inner_message_content" name="_inner_message[content]"></textarea>';
 		$html .= '<input type="text" id="_inner_message_font" name="_inner_message[font]"/>';
 		$html .= '<input type="text" id="_inner_message_size" name="_inner_message[size]"/>';
@@ -183,7 +186,7 @@ class EvaThemeManager {
 	 * @return string
 	 */
 	protected function get_video_inner_message_html(): string {
-		$html = '<div id="_video_inner_message_fields" style="visibility: hidden; position: absolute; width: 1px; height: 1px">';
+		$html = '<div id="_video_inner_message_fields" style="visibility: hidden; position: absolute; width: 1px; height: 1px;overflow: hidden;">';
 		$html .= '<input type="text" id="_inner_message2_type" name="_video_inner_message[type]"/>';
 		$html .= '<input type="text" id="_inner_message2_video_id" name="_video_inner_message[video_id]"/>';
 		$html .= '<textarea id="_inner_message2_content" name="_video_inner_message[content]"></textarea>';
@@ -201,12 +204,14 @@ class EvaThemeManager {
 	 *
 	 * @return string
 	 */
-	protected function get_dynamic_card_html( $product ): string {
-		$html = '<button type="submit" class="button btn1 bshadow button--customize-dynamic-card" disabled><span>Personalise</span></button>';
+	protected function get_dynamic_card_html( $product, bool $show_button = true ): string {
+		if ( $show_button ) {
+			$html = '<button type="submit" class="button btn1 bshadow button--customize-dynamic-card" disabled><span>Personalise</span></button>';
+		}
 
 		$payload = $product->get_meta( '_dynamic_card_payload', true );
 		$items   = $payload['card_items'] ?? [];
-		$html    .= '<div id="_dynamic_card_fields" style="visibility: hidden; position: absolute; width: 1px; height: 1px">';
+		$html    .= '<div id="_dynamic_card_fields" style="visibility: hidden; position: absolute; width: 1px; height: 1px;overflow: hidden;">';
 		foreach ( $items as $index => $item ) {
 			$html .= sprintf( '<input type="text" id="%s" name="_dynamic_card[%s][value]"/>',
 				"_dynamic_card_input-$index", $index );
