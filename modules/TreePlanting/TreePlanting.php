@@ -17,6 +17,15 @@ class TreePlanting extends DatabaseModel {
 		return $data;
 	}
 
+	/**
+	 * Is in complete status
+	 *
+	 * @return bool
+	 */
+	public function is_complete(): bool {
+		return 'complete' === $this->get_prop( 'status' );
+	}
+
 	public static function create_tables() {
 		global $wpdb;
 		$self       = new static;

@@ -135,6 +135,9 @@ class AdminApiController extends ApiController {
 		if ( ! $tree_planting instanceof TreePlanting ) {
 			return $this->respondNotFound();
 		}
+		if ( $tree_planting->is_complete() ) {
+			return $this->respondUnprocessableEntity();
+		}
 		$response = EcologiClient::purchase_tree();
 		if ( is_wp_error( $response ) ) {
 			TreePlanting::update( [

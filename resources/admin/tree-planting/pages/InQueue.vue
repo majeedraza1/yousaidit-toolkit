@@ -18,7 +18,7 @@ export default {
         this.pagination = data.pagination;
       })
     },
-    syncPurchases(){
+    syncPurchases() {
       syncPurchases();
     }
   },
@@ -34,7 +34,7 @@ export default {
     <hr class="wp-header-end">
     <div class="flex mb-4 space-x-2">
       <div class="flex-grow"></div>
-      <shapla-button size="small" theme="primary" outline @click="getItems">Refresh</shapla-button>
+      <shapla-button size="small" theme="primary" outline @click="()=> getItems()">Refresh</shapla-button>
       <shapla-button size="small" theme="primary" @click="syncPurchases">Sync for new Purchase</shapla-button>
     </div>
     <div class="mb-4">
