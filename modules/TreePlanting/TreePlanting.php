@@ -10,6 +10,13 @@ use Stackonet\WP\Framework\Abstracts\DatabaseModel;
 class TreePlanting extends DatabaseModel {
 	protected $table = 'tree_planting_log';
 
+	public function to_array(): array {
+		$data            = parent::to_array();
+		$data['message'] = sprintf( 'Planting tree for orders: %s', implode( ', ', $data['orders_ids'] ) );
+
+		return $data;
+	}
+
 	public static function create_tables() {
 		global $wpdb;
 		$self       = new static;

@@ -24,6 +24,8 @@ class TreePlantingManager {
 			add_action( 'admin_init', [ ShipStationOrder::class, 'create_tables' ] );
 			add_filter( 'yousaidit_toolkit/settings/sections', [ self::$instance, 'add_setting_sections' ] );
 			add_filter( 'yousaidit_toolkit/settings/fields', [ self::$instance, 'add_setting_fields' ] );
+			add_action( 'wp', [ self::$instance, 'schedule_cron_event' ] );
+			add_action( 'yousaidit/sync_tree_planting', [ self::$instance, 'sync_tree_planting' ] );
 			BackgroundPurchaseTree::init();
 			Admin::init();
 			AdminApiController::init();
@@ -119,6 +121,29 @@ class TreePlantingManager {
 		Setting::update_cumulative_orders_ids( $orders_ids );
 	}
 
+	/**
+	 * Schedule cron event
+	 */
+	public static function schedule_cron_event() {
+		if ( ! wp_next_scheduled( 'yousaidit/sync_tree_planting' ) ) {
+			wp_schedule_event( current_time( 'timestamp' ), 'hourly', 'yousaidit/sync_tree_planting' );
+		}
+	}
+
+	/**
+	 * Sync tree planting
+	 *
+	 * @return void
+	 */
+	public function sync_tree_planting() {
+		BackgroundPurchaseTree::sync();
+	}
+
+	/**
+	 * Tree Planting test
+	 *
+	 * @return void
+	 */
 	public function test_tree_planting() {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( __( 'Sorry. This link only for developer to do some testing.', 'yousaidit-toolkit' ) );

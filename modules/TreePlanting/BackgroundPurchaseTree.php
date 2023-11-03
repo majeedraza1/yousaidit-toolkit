@@ -60,7 +60,7 @@ class BackgroundPurchaseTree extends BackgroundProcessWithUiHelper {
 	 *
 	 * @return array
 	 */
-	public static function sync(): array {
+	public static function sync( bool $force = false ): array {
 		$orders                = ShipStationOrder::find_for_tree_planting();
 		$purchase_orders_count = Setting::purchase_tree_after_total_orders();
 		$in_queue              = [];
@@ -83,7 +83,11 @@ class BackgroundPurchaseTree extends BackgroundProcessWithUiHelper {
 						if ( count( $to_update ) ) {
 							ShipStationOrder::update_multiple( $to_update );
 						}
-						static::init()->push_to_queue( [ 'id' => $id ] );
+						if ( $force ) {
+							static::init()->task( [ 'id' => $id ] );
+						} else {
+							static::init()->push_to_queue( [ 'id' => $id ] );
+						}
 					}
 					$in_sync = array_merge( $in_sync, $orders_ids );
 				} else {
