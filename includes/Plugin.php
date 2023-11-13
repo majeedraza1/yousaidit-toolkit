@@ -20,15 +20,16 @@ use YouSaidItCards\Modules\DynamicCard\DynamicCardManager;
 use YouSaidItCards\Modules\EvaTheme\EvaThemeManager;
 use YouSaidItCards\Modules\Faq\FaqManager;
 use YouSaidItCards\Modules\FeaturedProductsFirst\FeaturedProductsFirst;
+use YouSaidItCards\Modules\FontManager\FontManager;
 use YouSaidItCards\Modules\HideProductsFromShop\HideProductsFromShop;
 use YouSaidItCards\Modules\InnerMessage\InnerMessageManager;
 use YouSaidItCards\Modules\MultistepCheckout\MultistepCheckout;
 use YouSaidItCards\Modules\OrderDispatcher\OrderDispatcherManager;
 use YouSaidItCards\Modules\PackingSlip\PackingSlipManager;
-use YouSaidItCards\Modules\TreePlanting\TreePlantingManager;
 use YouSaidItCards\Modules\Reminders\RemindersManager;
 use YouSaidItCards\Modules\RudeProduct\RudeProductManager;
 use YouSaidItCards\Modules\TradeSite\TradeSiteManager;
+use YouSaidItCards\Modules\TreePlanting\TreePlantingManager;
 use YouSaidItCards\Modules\WooCommerce\WooCommerceManager;
 use YouSaidItCards\OpenAI\CardContentController;
 use YouSaidItCards\REST\ContactController;
@@ -157,6 +158,7 @@ class Plugin {
 		$this->container['module_dispatch_timer']   = DispatchTimerManager::init();
 		$this->container['module_card_popup']       = CardPopupManager::init();
 		$this->container['module_plant_trees']      = TreePlantingManager::init();
+		$this->container['module_font_manager']     = FontManager::init();
 	}
 
 	/**
