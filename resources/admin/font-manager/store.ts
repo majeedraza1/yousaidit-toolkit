@@ -19,6 +19,24 @@ const getItems = () => {
       })
   })
 }
+const getExtraFonts = () => {
+  return new Promise(resolve => {
+    Spinner.show();
+    axios.get('fonts/custom')
+      .then(response => {
+        resolve(response.data.data);
+      })
+      .catch(error => {
+        const responseData = error.response.data;
+        if (responseData.message) {
+          Notify.error(responseData.message, 'Error!');
+        }
+      })
+      .finally(() => {
+        Spinner.hide();
+      })
+  })
+}
 
 const updatePreInstalledFont = (data) => {
   return new Promise(resolve => {
@@ -40,7 +58,56 @@ const updatePreInstalledFont = (data) => {
   })
 }
 
+const createNewFont = (data: Record<string, string>) => {
+  return new Promise(resolve => {
+    Spinner.show();
+    axios.post('fonts/custom', data, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+      .then(response => {
+        resolve(response.data.data);
+        Notify.success('Font setting has been updated.', 'Success!');
+      })
+      .catch(error => {
+        const responseData = error.response.data;
+        if (responseData.message) {
+          Notify.error(responseData.message, 'Error!');
+        }
+      })
+      .finally(() => {
+        Spinner.hide();
+      })
+  })
+}
+
+const deleteExtraFont = (slug: string) => {
+  return new Promise(resolve => {
+    Spinner.show();
+    axios.delete('fonts/custom', {
+      params: {slug}
+    })
+      .then(response => {
+        resolve(response.data.data);
+        Notify.success('Font has been deleted.', 'Success!');
+      })
+      .catch(error => {
+        const responseData = error.response.data;
+        if (responseData.message) {
+          Notify.error(responseData.message, 'Error!');
+        }
+      })
+      .finally(() => {
+        Spinner.hide();
+      })
+  })
+}
+
 export {
   getItems,
-  updatePreInstalledFont
+  updatePreInstalledFont,
+  getExtraFonts,
+  createNewFont,
+  deleteExtraFont
 }

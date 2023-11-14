@@ -4,7 +4,6 @@ namespace YouSaidItCards\Modules\FontManager;
 
 class FontManager {
 
-
 	/**
 	 * The instance of the class
 	 *
@@ -42,6 +41,7 @@ class FontManager {
 			[ self::$instance, 'menu_page_callback' ], 'dashicons-admin-customizer', 6 );
 		$menus      = [
 			[ 'title' => __( 'Pre-installed', 'yousaidit-toolkit' ), 'slug' => '#/' ],
+			[ 'title' => __( 'Extra fonts', 'yousaidit-toolkit' ), 'slug' => '#/extra' ],
 		];
 		if ( current_user_can( $capability ) ) {
 			foreach ( $menus as $menu ) {

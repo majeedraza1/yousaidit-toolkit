@@ -2,6 +2,8 @@
 
 namespace YouSaidItCards\Modules\FontManager;
 
+use YouSaidItCards\Utilities\Filesystem;
+
 class Font {
 	/**
 	 * Get sans serif fonts
@@ -63,6 +65,15 @@ class Font {
 	}
 
 	/**
+	 * Get base directory
+	 *
+	 * @return string
+	 */
+	public static function get_base_directory(): string {
+		return join( DIRECTORY_SEPARATOR, [ WP_CONTENT_DIR, 'uploads', 'yousaidit-web-fonts' ] );
+	}
+
+	/**
 	 * Get font info
 	 *
 	 * @param  array  $font_info  Font info array.
@@ -71,9 +82,8 @@ class Font {
 	 * @return array
 	 */
 	public static function get_font_info( array $font_info, string $group ): array {
-		$base_dir = join( DIRECTORY_SEPARATOR, [ WP_CONTENT_DIR, 'uploads', 'yousaidit-web-fonts' ] );
-		$path     = join( DIRECTORY_SEPARATOR, [ $base_dir, $font_info['file_name'] ] );
-		$url      = str_replace( WP_CONTENT_DIR, WP_CONTENT_URL, $path );
+		$path = join( DIRECTORY_SEPARATOR, [ static::get_base_directory(), $font_info['file_name'] ] );
+		$url  = str_replace( WP_CONTENT_DIR, WP_CONTENT_URL, $path );
 
 		return [
 			'slug'        => $font_info['slug'],
@@ -93,18 +103,27 @@ class Font {
 	public static function pre_installed_fonts(): array {
 		$list = [];
 		foreach ( static::_sans_serif_fonts() as $slug => $font ) {
-			$list[] = static::get_font_info( array_merge( $font, [ 'slug' => $slug ] ), 'sans-serif' );
+			$list[ $slug ] = static::get_font_info( array_merge( $font, [ 'slug' => $slug ] ), 'sans-serif' );
 		}
 		foreach ( static::_serif_fonts() as $slug => $font ) {
-			$list[] = static::get_font_info( array_merge( $font, [ 'slug' => $slug ] ), 'serif' );
+			$list[ $slug ] = static::get_font_info( array_merge( $font, [ 'slug' => $slug ] ), 'serif' );
 		}
 		foreach ( static::_cursive_fonts() as $slug => $font ) {
-			$list[] = static::get_font_info( array_merge( $font, [ 'slug' => $slug ] ), 'cursive' );
+			$list[ $slug ] = static::get_font_info( array_merge( $font, [ 'slug' => $slug ] ), 'cursive' );
 		}
 
 		return $list;
 	}
 
+	public static function is_pre_installed_font( string $slug ): bool {
+		return array_key_exists( $slug, static::pre_installed_fonts() );
+	}
+
+	/**
+	 * Get pre-installed fonts with permissions
+	 *
+	 * @return array
+	 */
 	public static function get_pre_installed_fonts_with_permissions(): array {
 		$default    = [ 'for_public' => true, 'for_designer' => true ];
 		$options    = get_option( 'pre_installed_fonts_permissions' );
@@ -123,7 +142,15 @@ class Font {
 		return $final_list;
 	}
 
-	public static function update_pre_installed_fonts_permissions( string $slug, array $data ) {
+	/**
+	 * Update pre-installed fonts permissions
+	 *
+	 * @param  string  $slug  font unique slug.
+	 * @param  array  $data  Font data.
+	 *
+	 * @return array
+	 */
+	public static function update_pre_installed_fonts_permissions( string $slug, array $data ): array {
 		$default = [ 'for_public' => true, 'for_designer' => true ];
 		$data    = wp_parse_args( $data, $default );
 
@@ -135,5 +162,107 @@ class Font {
 		update_option( 'pre_installed_fonts_permissions', $options, true );
 
 		return $options;
+	}
+
+	public static function get_extra_fonts(): array {
+		$options = get_option( 'extra_fonts_with_permissions' );
+
+		return is_array( $options ) ? $options : [];
+	}
+
+	public static function get_extra_fonts_with_permissions(): array {
+		$fonts = [];
+		foreach ( static::get_extra_fonts() as $font ) {
+			$path = join( DIRECTORY_SEPARATOR, [ static::get_base_directory(), $font['font_file'] ] );
+			if ( ! file_exists( $path ) ) {
+				continue;
+			}
+			$fonts[] = $font;
+		}
+
+		return $fonts;
+	}
+
+	public static function add_extra_font( array $data ): array {
+		$fonts   = static::get_extra_fonts_with_permissions();
+		$fonts[] = $data;
+		update_option( 'extra_fonts_with_permissions', $fonts, true );
+
+		return $fonts;
+	}
+
+	public static function update_extra_font_permission( string $slug, array $data ): array {
+		$fonts = static::get_extra_fonts_with_permissions();
+		$slugs = wp_list_pluck( $fonts, 'slug' );
+		$index = array_search( $slug, $slugs, true );
+		if ( false !== $index ) {
+			if ( isset( $data['for_designer'] ) ) {
+				$fonts[ $index ]['for_designer'] = $data['for_designer'];
+			}
+			if ( isset( $data['for_public'] ) ) {
+				$fonts[ $index ]['for_public'] = $data['for_public'];
+			}
+		}
+		update_option( 'extra_fonts_with_permissions', $fonts, true );
+
+		return $fonts;
+	}
+
+	public static function delete_extra_font( string $slug ): array {
+		$fonts = static::get_extra_fonts_with_permissions();
+		$slugs = wp_list_pluck( $fonts, 'slug' );
+		$index = array_search( $slug, $slugs, true );
+		if ( false !== $index ) {
+			$file_path = join( DIRECTORY_SEPARATOR, [ static::get_base_directory(), $fonts[ $index ]['font_file'] ] );
+			$deleted   = Filesystem::get_filesystem()->delete( $file_path );
+			if ( $deleted ) {
+				unset( $fonts[ $index ] );
+			}
+		}
+		update_option( 'extra_fonts_with_permissions', $fonts, true );
+
+		return $fonts;
+	}
+
+	public static function get_fonts_with_permissions(): array {
+		$pre_installed = static::get_pre_installed_fonts_with_permissions();
+		$extra_fonts   = static::get_extra_fonts_with_permissions();
+
+		return array_merge( $pre_installed, $extra_fonts );
+	}
+
+	/**
+	 * Get font face rules
+	 *
+	 * @return string
+	 */
+	public static function get_font_face_rules(): string {
+		$fonts         = self::get_fonts_with_permissions();
+		$js_fonts_list = [];
+
+		$css = "<style id='yousaidit-inline-font-face-css' type='text/css'>";
+		foreach ( $fonts as $font ) {
+			$css .= '@font-face {' . PHP_EOL;
+			$css .= sprintf(
+				        "font-family: '%s'; font-style: normal; font-weight: 400;font-display: swap;",
+				        $font['font_family']
+			        ) . PHP_EOL;
+			$css .= sprintf(
+				        "src: url(%s) format('truetype');",
+				        $font['url']
+			        ) . PHP_EOL;
+			$css .= '}' . PHP_EOL;
+
+			$js_fonts_list[] = [
+				'label'      => $font['font_family'],
+				'fontFamily' => $font['font_family']
+			];
+		}
+		$css .= '</style>' . PHP_EOL;
+		$css .= "<script id='yousaidit-inline-font-face-js' type='text/javascript'>" . PHP_EOL;
+		$css .= 'window.YousaiditFontsList = ' . wp_json_encode( $js_fonts_list ) . PHP_EOL;
+		$css .= '</script>' . PHP_EOL;
+
+		return $css;
 	}
 }
