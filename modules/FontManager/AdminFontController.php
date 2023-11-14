@@ -76,7 +76,7 @@ class AdminFontController extends ApiController {
 	public function get_items( $request ) {
 		return $this->respondOK( [
 			'default_fonts' => Font::get_pre_installed_fonts_with_permissions(),
-			'extra_fonts'   => Font::get_extra_fonts_with_permissions(),
+			'extra_fonts'   => Font::get_extra_fonts_with_path_and_url(),
 		] );
 	}
 
@@ -106,7 +106,7 @@ class AdminFontController extends ApiController {
 
 		return $this->respondCreated( [
 			'default_fonts' => Font::get_pre_installed_fonts_with_permissions(),
-			'extra_fonts'   => Font::get_extra_fonts_with_permissions(),
+			'extra_fonts'   => Font::get_extra_fonts_with_path_and_url(),
 		] );
 	}
 
@@ -128,7 +128,7 @@ class AdminFontController extends ApiController {
 			return $this->respondUnprocessableEntity( null, 'Font family cannot be empty.' );
 		}
 
-		$extra_fonts = Font::get_extra_fonts_with_permissions();
+		$extra_fonts = Font::get_extra_fonts_with_path_and_url();
 		$slug        = sanitize_title_with_dashes( $font_family, '', 'save' );
 		if ( isset( $extra_fonts[ $slug ] ) ) {
 			return $this->respondUnprocessableEntity( null, 'Already a font exists with that name.' );
@@ -166,7 +166,7 @@ class AdminFontController extends ApiController {
 
 	public function delete_custom_font( WP_REST_Request $request ) {
 		$slug        = $request->get_param( 'slug' );
-		$extra_fonts = Font::get_extra_fonts_with_permissions();
+		$extra_fonts = Font::get_extra_fonts_with_path_and_url();
 		$slugs       = wp_list_pluck( $extra_fonts, 'slug' );
 		if ( ! in_array( $slug, $slugs, true ) ) {
 			return $this->respondUnprocessableEntity( null, 'Already a font exists with that name.' );

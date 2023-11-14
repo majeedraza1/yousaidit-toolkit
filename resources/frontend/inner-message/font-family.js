@@ -1,16 +1,25 @@
-const fontFamilies = window.YousaiditFontsList || [
-	{label: "Josefin Slab", fontFamily: "'Josefin Slab', serif"},
-	{label: "Prata", fontFamily: "'Prata', serif"},
-	{label: "Indie Flower", fontFamily: "'Indie Flower', cursive"},
-	{label: "Amatic SC", fontFamily: "'Amatic SC', cursive"},
-	{label: "Caveat", fontFamily: "'Caveat', cursive"},
-	{label: "Cedarville Cursive", fontFamily: "'Cedarville Cursive', cursive"},
-	{label: "Fontdiner Swanky", fontFamily: "'Fontdiner Swanky', cursive"},
-	{label: "Handlee", fontFamily: "'Handlee', cursive"},
-	{label: "Kranky", fontFamily: "'Kranky', cursive"},
-	{label: "Lovers Quarrel", fontFamily: "'Lovers Quarrel', cursive"},
-	{label: "Mountains of Christmas", fontFamily: "'Mountains of Christmas', cursive"},
-	{label: "Sacramento", fontFamily: "'Sacramento', cursive"},
-];
+const fontFamilies = window.YousaiditFontsList || [{label: "Open Sans", fontFamily: "Open Sans"}];
 
+const createFontFaceCss = () => {
+    const el = document.querySelector('#yousaidit-inline-font-face-css');
+    if (el) {
+        return;
+    }
+    const styleTag = document.createElement('style');
+    styleTag.setAttribute('id', 'yousaidit-inline-font-face-css');
+    styleTag.setAttribute('type', 'text/css');
+
+    let style = '';
+    fontFamilies.forEach(font => {
+        style += `@font-face {font-family: '${font.fontFamily}'; font-style: normal; font-weight: 400;font-display: swap; src: url(${font.url}) format('truetype');}\n`
+    })
+    styleTag.innerHTML = style;
+
+    document.body.append(styleTag);
+}
+
+window.addEventListener("load", () => {
+    // createFontFaceCss();
+});
+export {createFontFaceCss}
 export default fontFamilies;

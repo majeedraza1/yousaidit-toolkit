@@ -1,9 +1,11 @@
 <template>
-  <div class="tree-planting-container">
-    <router-view/>
-    <confirm-dialog/>
-    <notification :options="notification"/>
-    <spinner :active="loading"/>
+  <div class="wrap">
+    <div class="tree-planting-container">
+      <router-view/>
+      <confirm-dialog/>
+      <notification :options="notification"/>
+      <spinner :active="loading"/>
+    </div>
   </div>
 </template>
 

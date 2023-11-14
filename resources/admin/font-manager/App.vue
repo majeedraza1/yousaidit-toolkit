@@ -9,9 +9,11 @@ export default defineComponent({
 </script>
 
 <template>
-  <div class="font-manager-container border-box-all">
-    <router-view/>
-    <confirm-dialog/>
+  <div class="wrap">
+    <div class="font-manager-container border-box-all">
+      <router-view/>
+      <confirm-dialog/>
+    </div>
   </div>
 </template>
 
