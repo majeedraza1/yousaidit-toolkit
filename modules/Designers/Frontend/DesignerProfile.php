@@ -10,7 +10,7 @@ use YouSaidItCards\Assets;
 use YouSaidItCards\Modules\Designers\Admin\Settings;
 use YouSaidItCards\Modules\Designers\Models\CardDesigner;
 use YouSaidItCards\Modules\Designers\Models\DesignerCard;
-use YouSaidItCards\Modules\InnerMessage\Fonts;
+use YouSaidItCards\Modules\FontManager\Font;
 use YouSaidItCards\Session\Session;
 use YouSaidItCards\Utilities\MarketPlace;
 
@@ -63,8 +63,8 @@ class DesignerProfile {
 	}
 
 	/**
-	 * @param array $query
-	 * @param array $query_vars
+	 * @param  array  $query
+	 * @param  array  $query_vars
 	 *
 	 * @return mixed
 	 */
@@ -214,7 +214,7 @@ class DesignerProfile {
 	}
 
 	/**
-	 * @param array $data
+	 * @param  array  $data
 	 */
 	protected static function add_product_categories( array &$data ) {
 		/** @var WP_Term[] $cats */
@@ -233,7 +233,7 @@ class DesignerProfile {
 	}
 
 	/**
-	 * @param array $data
+	 * @param  array  $data
 	 */
 	protected static function add_product_tags( array &$data ) {
 		/** @var WP_Term[] $cats */
@@ -248,7 +248,7 @@ class DesignerProfile {
 	}
 
 	/**
-	 * @param array $data
+	 * @param  array  $data
 	 */
 	private static function add_card_sizes( array &$data ) {
 		$options        = (array) get_option( 'yousaiditcard_designers_settings' );
@@ -295,7 +295,7 @@ class DesignerProfile {
 	/**
 	 * Add inline scripts
 	 *
-	 * @param null|WP_User $current_user
+	 * @param  null|WP_User  $current_user
 	 */
 	public static function add_inline_scripts( $current_user = null ) {
 		if ( ! $current_user instanceof WP_User ) {
@@ -350,7 +350,7 @@ class DesignerProfile {
 			$data['user_card_categories'] = ( new DesignerCard() )->get_user_cards_categories_ids( $current_user->ID );
 			$data['order_statuses']       = wc_get_order_statuses();
 			$data['marketPlaces']         = MarketPlace::all();
-			$data['fonts']                = Fonts::get_list_for_web();
+			$data['fonts']                = Font::get_fonts_for_designer();
 			$data['templates']            = [
 				'ps' => Assets::get_assets_url( 'static-images/Square Template - You Said It Cards.psd' ),
 				'ai' => Assets::get_assets_url( 'static-images/Square Template - You Said It Cards.ai' ),

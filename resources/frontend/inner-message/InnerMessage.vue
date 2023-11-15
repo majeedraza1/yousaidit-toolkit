@@ -222,11 +222,11 @@ export default {
           .then(response => {
             const _data = response.data;
             this.$store.commit('SET_LOADING_STATUS', false);
-            if (_data._inner_message && _data._inner_message.content.length) {
+            if (_data._inner_message && _data._inner_message.content) {
               this.innerMessage = _data._inner_message;
               this.hasRightPageContent = true;
             }
-            if (_data._video_inner_message && _data._video_inner_message.content.length) {
+            if (_data._video_inner_message && _data._video_inner_message.content) {
               this.videoInnerMessage = _data._video_inner_message;
               this.hasLeftPageContent = true;
             }

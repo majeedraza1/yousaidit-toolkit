@@ -2,6 +2,7 @@
 
 namespace YouSaidItCards\Modules\FontManager;
 
+use YouSaidItCards\Modules\FontManager\Models\FontInfo;
 use YouSaidItCards\Utilities\Filesystem;
 
 class Font {
@@ -170,8 +171,8 @@ class Font {
 			'font_family'  => '',
 			'font_file'    => '',
 			'group'        => '',
-			'for_public'   => '',
-			'for_designer' => '',
+			'for_public'   => true,
+			'for_designer' => true,
 		];
 	}
 
@@ -217,7 +218,7 @@ class Font {
 
 	public static function add_extra_font( array $data ): array {
 		$fonts   = static::get_extra_fonts();
-		$fonts[] = $data;
+		$fonts[] = wp_parse_args( $data, static::get_extra_font_default_args() );
 		update_option( 'extra_fonts_with_permissions', $fonts, true );
 
 		return $fonts;
@@ -263,6 +264,29 @@ class Font {
 		return array_merge( $pre_installed, $extra_fonts );
 	}
 
+	public static function get_fonts_for_designer(): array {
+		$_fonts = static::get_fonts_with_permissions();
+		$fonts  = [];
+		foreach ( $_fonts as $font ) {
+			$_font = [
+				'key'          => $font['slug'],
+				'label'        => $font['font_family'],
+				'fontUrl'      => $font['url'],
+				'for_public'   => $font['for_public'],
+				'for_designer' => $font['for_designer'],
+			];
+			if ( isset( $font['for_public'] ) && true === $font['for_public'] ) {
+				$fonts[] = $_font;
+				continue;
+			}
+			if ( isset( $font['for_designer'] ) && true === $font['for_designer'] ) {
+				$fonts[] = $_font;
+			}
+		}
+
+		return $fonts;
+	}
+
 	/**
 	 * Get font face rules
 	 *
@@ -286,8 +310,10 @@ class Font {
 			$css .= '}' . PHP_EOL;
 
 			$js_fonts_list[] = [
-				'label'      => $font['font_family'],
-				'fontFamily' => $font['font_family'],
+				'label'        => $font['font_family'],
+				'fontFamily'   => $font['font_family'],
+				'for_public'   => $font['for_public'],
+				'for_designer' => $font['for_designer'],
 			];
 		}
 		$css .= '</style>' . PHP_EOL;
@@ -301,5 +327,46 @@ class Font {
 
 	public static function print_font_face_rules() {
 		echo static::get_font_face_rules();
+	}
+
+	/**
+	 * Get fonts info
+	 *
+	 * @return FontInfo[]
+	 */
+	public static function get_fonts_info(): array {
+		$_fonts = static::get_fonts_with_permissions();
+		$fonts  = [];
+		foreach ( $_fonts as $font ) {
+			$fonts[ $font['slug'] ] = new FontInfo( $font );
+		}
+
+		return $fonts;
+	}
+
+	public static function find_font( string $font_family_or_slug ) {
+		$toArray             = explode( ",", $font_family_or_slug );
+		$font_family_or_slug = trim( str_replace( [ "'", '"' ], '', $toArray[0] ) );
+		$_fonts              = static::get_fonts_info();
+		if ( array_key_exists( $font_family_or_slug, $_fonts ) ) {
+			return $_fonts[ $font_family_or_slug ];
+		}
+
+		foreach ( $_fonts as $font ) {
+			if ( $font->get_font_family() === $font_family_or_slug ) {
+				return $font;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * @param  string  $font_family_or_slug
+	 *
+	 * @return FontInfo|false
+	 */
+	public static function find_font_info( string $font_family_or_slug ) {
+		return static::find_font( $font_family_or_slug );
 	}
 }

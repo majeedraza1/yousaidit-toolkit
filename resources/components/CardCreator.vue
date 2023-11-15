@@ -259,9 +259,6 @@ export default {
 		}
 	},
 	computed: {
-		font_families() {
-			return DesignerProfile.fonts;
-		},
 		has_card_size() {
 			return ['square', 'a5', 'a6'].indexOf(this.card_size) !== -1;
 		},

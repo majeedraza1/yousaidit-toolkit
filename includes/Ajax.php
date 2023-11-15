@@ -12,8 +12,8 @@ use WC_Product;
 use YouSaidItCards\Modules\Designers\DynamicCard;
 use YouSaidItCards\Modules\Designers\Models\DesignerCard;
 use YouSaidItCards\Modules\DynamicCard\EnvelopeColours;
+use YouSaidItCards\Modules\FontManager\Font;
 use YouSaidItCards\Modules\InnerMessage\Fonts;
-use YouSaidItCards\Providers\AWSRekognition;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -65,15 +65,9 @@ class Ajax {
 
 		// Job1 Adult: cb9d24dcddc35ff5975eed45ca4ccb0056681b5351135452d18204854ffdbf1b
 		// Job1 Not Adult: eba84590eee4ea3449862063106c7b788025b8db5ec3614397e527f565681e71
-		$job      = AWSRekognition::get_job( 'cb9d24dcddc35ff5975eed45ca4ccb0056681b5351135452d18204854ffdbf1b' );
-		$is_adult = AWSRekognition::is_adult( $job );
-//		$job2     = AWSRekognition::create_job( 'dist/d413709f-c299-640a-3cae-175c030909ec--2--40jla3irjd88xc4w4r59skm.mp4' );
-		$job      = AWSRekognition::get_job( 'ac2ced09a07138ca27f155dbecae6a98d2abff35dbdd6487cf0a46cefe293a13' );
-		$is_adult = AWSRekognition::is_adult( $job );
+		$job = Font::find_font( "'Open Sans', sens-serif" );
 		var_dump( [
-			'is_adult' => $is_adult,
-			'job'      => $job,
-//			'job2'     => $job2
+			'is_adult' => $job
 		] );
 
 		die();
@@ -445,9 +439,8 @@ class Ajax {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( __( 'Sorry. This link only for admin.', 'yousaidit-toolkit' ) );
 		}
-		foreach ( Fonts::get_list() as $item ) {
-			$fontFamily = str_replace( ' ', '_', strtolower( $item['label'] ) );
-			$path       = $item['fontFilePath'];
+		foreach ( Font::get_fonts_info() as $item ) {
+			$path = $item->get_font_path();
 			if ( ! file_exists( $path ) ) {
 				echo 'Source file is not available: ' . $item['fontFilePath'];
 				continue;
@@ -455,8 +448,8 @@ class Ajax {
 
 			try {
 				echo '<pre><code>';
-				Fonts::install_font_family( $fontFamily, $path, $path, $path, $path );
-				echo '</code>Font file generated successfully for font: ' . $item['label'] . '<code>';
+				Fonts::install_font_family( $item->get_font_family_for_dompdf(), $path, $path, $path, $path );
+				echo '</code>Font file generated successfully for font: ' . $item->get_font_family() . '<code>';
 				echo '</code></pre>';
 			} catch ( Exception $e ) {
 				Logger::log( $e );
@@ -476,18 +469,17 @@ class Ajax {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( __( 'Sorry. This link only for admin.', 'yousaidit-toolkit' ) );
 		}
-		$fonts     = Fonts::get_list();
 		$base_path = YOUSAIDIT_TOOLKIT_PATH . '/vendor/setasign/tfpdf/font/unifont/';
 		if ( ! is_writable( $base_path ) ) {
 			echo 'Target directory is not writable: ' . $base_path;
 			die;
 		}
-		foreach ( $fonts as $font ) {
-			if ( ! file_exists( $font['fontFilePath'] ) ) {
-				echo 'Source file is not available: ' . $font['fontFilePath'];
+		foreach ( Font::get_fonts_info() as $font ) {
+			if ( ! file_exists( $font->get_font_path() ) ) {
+				echo 'Source file is not available: ' . $font->get_font_path();
 				continue;
 			}
-			if ( ! copy( $font['fontFilePath'], $base_path . $font['fileName'] ) ) {
+			if ( ! copy( $font['fontFilePath'], $base_path . $font->get_font_file() ) ) {
 				echo 'Fail to copy file: ' . $font['fontFilePath'];
 			}
 		}

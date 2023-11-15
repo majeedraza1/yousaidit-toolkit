@@ -5,6 +5,7 @@ namespace YouSaidItCards\Cli;
 use Dompdf\Exception;
 use Stackonet\WP\Framework\Supports\Logger;
 use WP_CLI;
+use YouSaidItCards\Modules\FontManager\Font;
 use YouSaidItCards\Modules\InnerMessage\Fonts;
 
 class Command {
@@ -14,16 +15,15 @@ class Command {
 	 * @subcommand dompdf_install_font
 	 */
 	public function dompdf_install_font() {
-		foreach ( Fonts::get_list() as $item ) {
-			$fontFamily = str_replace( ' ', '_', strtolower( $item['label'] ) );
-			$path       = $item['fontFilePath'];
+		foreach ( Font::get_fonts_info() as $item ) {
+			$path = $item->get_font_path();
 			if ( ! file_exists( $path ) ) {
 				WP_CLI::line( 'Font file not found: ' . $path );
 			}
 
 			try {
-				Fonts::install_font_family( $fontFamily, $path, $path, $path, $path );
-				WP_CLI::line( 'Font file generated successfully for font: ' . $fontFamily );
+				Fonts::install_font_family( $item->get_font_family_for_dompdf(), $path, $path, $path, $path );
+				WP_CLI::line( 'Font file generated successfully for font: ' . $item->get_font_family_for_dompdf() );
 			} catch ( Exception $e ) {
 				Logger::log( $e );
 			}
@@ -37,10 +37,9 @@ class Command {
 	 * @subcommand tfpdf_install_font
 	 */
 	public function tfpdf_install_font() {
-		$fonts     = Fonts::get_list();
 		$base_path = YOUSAIDIT_TOOLKIT_PATH . '/vendor/setasign/tfpdf/font/unifont/';
-		foreach ( $fonts as $font_key => $font ) {
-			copy( $font['fontFilePath'], $base_path . $font['fileName'] );
+		foreach ( Font::get_fonts_info() as $font_key => $font ) {
+			copy( $font->get_font_path(), $base_path . $font->get_font_file() );
 		}
 	}
 
@@ -63,7 +62,8 @@ class Command {
 		}
 		WP_CLI::success(
 			sprintf(
-				_n( '%s cache file has been cleaned.', '%s cache files have been cleaned.', count( $sections_values ), 'yousaidit-toolkit' ),
+				_n( '%s cache file has been cleaned.', '%s cache files have been cleaned.', count( $sections_values ),
+					'yousaidit-toolkit' ),
 				number_format_i18n( count( $sections_values ) )
 			)
 		);

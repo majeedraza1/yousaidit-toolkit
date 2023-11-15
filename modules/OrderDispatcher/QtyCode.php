@@ -5,14 +5,15 @@ namespace YouSaidItCards\Modules\OrderDispatcher;
 use Imagick;
 use ImagickDraw;
 use ImagickPixel;
-use YouSaidItCards\Modules\InnerMessage\Fonts;
+use YouSaidItCards\Modules\FontManager\Font;
+use YouSaidItCards\Modules\FontManager\Models\FontInfo;
 use YouSaidItCards\Utilities\Filesystem;
 
 class QtyCode {
 	/**
-	 * @param string|int $qty
+	 * @param  string|int  $qty
 	 * @param $fileName
-	 * @param int $size
+	 * @param  int  $size
 	 *
 	 * @return string
 	 */
@@ -30,7 +31,7 @@ class QtyCode {
 	/**
 	 * Get QR code file
 	 *
-	 * @param int|string $qty
+	 * @param  int|string  $qty
 	 *
 	 * @return string
 	 */
@@ -55,8 +56,8 @@ class QtyCode {
 	/**
 	 * Get dynamic image
 	 *
-	 * @param int $font_size
-	 * @param string $text
+	 * @param  int  $font_size
+	 * @param  string  $text
 	 *
 	 * @return string
 	 */
@@ -64,9 +65,11 @@ class QtyCode {
 		$image_width  = $font_size * strlen( $text );
 		$image_height = $font_size;
 
-		$path = Fonts::get_font_path( 'Open Sans' );
-		$draw = new ImagickDraw();
-		$draw->setFont( $path );
+		$draw      = new ImagickDraw();
+		$font_info = Font::find_font_info( 'Open Sans' );
+		if ( $font_info instanceof FontInfo && $font_info->is_valid() ) {
+			$draw->setFont( $font_info->get_font_path() );
+		}
 		$draw->setFontSize( $font_size );
 		$draw->setStrokeAntialias( true );
 		$draw->setTextAntialias( true );

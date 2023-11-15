@@ -3,6 +3,8 @@
 namespace YouSaidItCards;
 
 use tFPDF;
+use YouSaidItCards\Modules\FontManager\Font;
+use YouSaidItCards\Modules\FontManager\Models\FontInfo;
 use YouSaidItCards\Modules\InnerMessage\Fonts;
 use YouSaidItCards\Utilities\FreePdfBase;
 
@@ -11,10 +13,10 @@ defined( 'ABSPATH' ) || exit;
 class FreePdf extends FreePdfBase {
 
 	/**
-	 * @param string|array $pdf_size
-	 * @param array $layers
-	 * @param array $bg
-	 * @param array $args
+	 * @param  string|array  $pdf_size
+	 * @param  array  $layers
+	 * @param  array  $bg
+	 * @param  array  $args
 	 */
 	public function generate( $pdf_size, array $layers, array $bg = [], array $args = [] ) {
 		$this->set_size( $pdf_size );
@@ -30,19 +32,20 @@ class FreePdf extends FreePdfBase {
 		$fpd = new tFPDF( 'P', 'mm', [ $option['front_width'], $option['height'] ] );
 
 		// Add custom fonts
-		$fonts_list  = Fonts::get_list();
 		$added_fonts = [];
 		foreach ( $items as $item ) {
 			if ( ! in_array( $item['section_type'], [ 'static-text', 'input-text' ] ) ) {
 				continue;
 			}
-			$font_family = str_replace( ' ', '', $item['textOptions']['fontFamily'] );
-			if ( in_array( $font_family, $added_fonts ) ) {
+			$font = Font::find_font_info( $item['textOptions']['fontFamily'] );
+			if ( ! $font instanceof FontInfo ) {
 				continue;
 			}
-			$added_fonts[] = $font_family;
-			$font          = $fonts_list[ $font_family ];
-			$fpd->AddFont( $font_family, '', $font['fileName'], true );
+			if ( in_array( $font->get_font_family_for_dompdf(), $added_fonts ) ) {
+				continue;
+			}
+			$added_fonts[] = $font->get_font_family_for_dompdf();
+			$fpd->AddFont( $font->get_font_family_for_dompdf(), '', $font->get_font_file(), true );
 		}
 
 		$fpd->AddPage();
@@ -81,8 +84,8 @@ class FreePdf extends FreePdfBase {
 	}
 
 	/**
-	 * @param tFPDF $fpd
-	 * @param array $item
+	 * @param  tFPDF  $fpd
+	 * @param  array  $item
 	 */
 	public function add_text( tFPDF &$fpd, array $item ) {
 		$textOptions = $item['textOptions'] ?? [];
@@ -110,8 +113,8 @@ class FreePdf extends FreePdfBase {
 	/**
 	 * Add Image
 	 *
-	 * @param tFPDF $fpd
-	 * @param array $item
+	 * @param  tFPDF  $fpd
+	 * @param  array  $item
 	 */
 	private function add_image( tFPDF $fpd, array $item ) {
 		$option = $this->get_option();

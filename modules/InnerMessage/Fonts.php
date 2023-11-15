@@ -130,103 +130,21 @@ class Fonts {
 	}
 
 	/**
-	 * Get fonts list
-	 *
-	 * @return array
-	 */
-	public static function get_list(): array {
-		$fonts                         = [];
-		$fonts['OpenSans']             = static::get_font_info( 'Open Sans', 'sans-serif' );
-		$fonts['OpenSansLight']        = static::get_font_info( 'Open Sans Light', 'sans-serif' );
-		$fonts['JosefinSlab']          = static::get_font_info( 'Josefin Slab', 'serif' );
-		$fonts['Prata']                = static::get_font_info( 'Prata', 'serif' );
-		$fonts['IndieFlower']          = static::get_font_info( 'Indie Flower', 'cursive' );
-		$fonts['AmaticSC']             = static::get_font_info( 'Amatic SC', 'cursive' );
-		$fonts['Caveat']               = static::get_font_info( 'Caveat', 'cursive' );
-		$fonts['CedarvilleCursive']    = static::get_font_info( 'Cedarville Cursive', 'cursive' );
-		$fonts['FontdinerSwanky']      = static::get_font_info( 'Fontdiner Swanky', 'cursive' );
-		$fonts['Handlee']              = static::get_font_info( 'Handlee', 'cursive' );
-		$fonts['Kranky']               = static::get_font_info( 'Kranky', 'cursive' );
-		$fonts['LoversQuarrel']        = static::get_font_info( 'Lovers Quarrel', 'cursive' );
-		$fonts['MountainsofChristmas'] = static::get_font_info( 'Mountains of Christmas', 'cursive' );
-		$fonts['Sacramento']           = static::get_font_info( 'Sacramento', 'cursive' );
-		$fonts['NotoEmoji']            = static::get_font_info( 'Noto Emoji', 'sans-serif' );
-		$fonts['BigMom']               = static::get_font_info( 'BigMom', 'sans-serif' );
-		$fonts['Dekar']                = static::get_font_info( 'Dekar', 'sans-serif' );
-		$fonts['EllieBellie']          = static::get_font_info( 'EllieBellie', 'cursive' );
-		$fonts['Gagalin']              = static::get_font_info( 'Gagalin', 'sans-serif' );
-		$fonts['Hatton']               = static::get_font_info( 'Hatton', 'sans-serif' );
-		$fonts['JunkDog']              = static::get_font_info( 'JunkDog', 'sans-serif' );
-		$fonts['LovileTypeBold']       = static::get_font_info( 'Lovile Type Bold', 'sans-serif' );
-		$fonts['MoonFlower']           = static::get_font_info( 'Moon Flower', 'sans-serif' );
-		$fonts['MoonFlowerBold']       = static::get_font_info( 'Moon Flower Bold', 'sans-serif' );
-		$fonts['Simplicity']           = static::get_font_info( 'Simplicity', 'sans-serif' );
-		$fonts['Sovereign']            = static::get_font_info( 'Sovereign', 'sans-serif' );
-		$fonts['sunday']               = static::get_font_info( 'sunday', 'serif' );
-
-		return $fonts;
-	}
-
-	/**
 	 * Get list for the web
 	 *
 	 * @return array
 	 */
 	public static function get_list_for_web(): array {
 		$items = [];
-		foreach ( self::get_list() as $key => $item ) {
-			$items[] = [ 'key' => $key, 'label' => $item['label'], 'fontUrl' => $item['fontUrl'] ];
+		foreach ( \YouSaidItCards\Modules\FontManager\Font::get_fonts_info() as $font ) {
+			$items[] = [
+				'key'     => $font->get_slug(),
+				'label'   => $font->get_font_family(),
+				'fontUrl' => $font->get_font_url()
+			];
 		}
 
 		return $items;
-	}
-
-	/**
-	 * Get font info
-	 *
-	 * @param  string  $fontFamily
-	 * @param  string|null  $group
-	 *
-	 * @return array
-	 */
-	public static function get_font_info( $fontFamily, $group = null ): array {
-		$toArray = explode( ",", $fontFamily );
-		if ( count( $toArray ) > 1 ) {
-			$fontFamily = str_replace( [ "'", '"' ], '', $toArray[0] );
-			$group      = $toArray[ count( $toArray ) - 1 ];
-		}
-
-		$path = static::get_font_path( $fontFamily );
-		$url  = str_replace( WP_CONTENT_DIR, WP_CONTENT_URL, $path );
-
-		return [
-			"label"        => $fontFamily,
-			"fontFamily"   => sprintf( "'%s', %s", $fontFamily, $group ),
-			"fileName"     => basename( $path ),
-			"fontFilePath" => $path,
-			"fontUrl"      => $url,
-		];
-	}
-
-	/**
-	 * Get font path
-	 *
-	 * @param  string  $fontFamily
-	 *
-	 * @return string
-	 */
-	public static function get_font_path( string $fontFamily ): string {
-		$toArray    = explode( ",", $fontFamily );
-		$fontFamily = str_replace( [ "'", '"' ], '', $toArray[0] );
-		$file       = str_replace( " ", "", $fontFamily );
-		$filename   = sprintf( "%s.ttf", $file );
-
-		$in_content_dir = join( DIRECTORY_SEPARATOR, [ WP_CONTENT_DIR, 'uploads', 'yousaidit-web-fonts', $filename ] );
-		if ( file_exists( $in_content_dir ) ) {
-			return $in_content_dir;
-		}
-
-		return join( '/', [ YOUSAIDIT_TOOLKIT_PATH . '/assets/web-fonts', $filename ] );
 	}
 
 	public static function tfpdf_clear_fonts_cache() {
@@ -253,44 +171,5 @@ class Fonts {
 			),
 			number_format_i18n( count( $sections_values ) )
 		);
-	}
-
-	/**
-	 * Get font face rules
-	 *
-	 * @return string
-	 */
-	public static function get_font_face_rules(): string {
-		$fonts         = self::get_list();
-		$js_fonts_list = [];
-
-		$css = "<style id='yousaidit-inline-font-face-css' type='text/css'>";
-		foreach ( $fonts as $key => $font ) {
-			if ( 'NotoEmoji' === $key ) {
-				continue;
-			}
-
-			$css .= '@font-face {' . PHP_EOL;
-			$css .= sprintf(
-				        "font-family: '%s'; font-style: normal; font-weight: 400;font-display: swap;",
-				        $font['label']
-			        ) . PHP_EOL;
-			$css .= sprintf(
-				        "src: url(%s) format('truetype');",
-				        $font['fontUrl']
-			        ) . PHP_EOL;
-			$css .= '}' . PHP_EOL;
-
-			$js_fonts_list[] = [
-				'label'      => $font['label'],
-				'fontFamily' => $font['fontFamily']
-			];
-		}
-		$css .= '</style>' . PHP_EOL;
-		$css .= "<script id='yousaidit-inline-font-face-js' type='text/javascript'>" . PHP_EOL;
-		$css .= 'window.YousaiditFontsList = ' . wp_json_encode( $js_fonts_list ) . PHP_EOL;
-		$css .= '</script>' . PHP_EOL;
-
-		return $css;
 	}
 }

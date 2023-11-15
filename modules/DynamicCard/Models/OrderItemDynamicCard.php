@@ -6,6 +6,8 @@ use tFPDF;
 use WC_Order;
 use WC_Order_Item_Product;
 use YouSaidItCards\Assets;
+use YouSaidItCards\Modules\FontManager\Font;
+use YouSaidItCards\Modules\FontManager\Models\FontInfo;
 use YouSaidItCards\Modules\InnerMessage\Fonts;
 use YouSaidItCards\Modules\OrderDispatcher\QrCode;
 use YouSaidItCards\ShipStation\Order;
@@ -46,8 +48,8 @@ class OrderItemDynamicCard {
 	}
 
 	/**
-	 * @param int $ship_station_id
-	 * @param bool $update_order
+	 * @param  int  $ship_station_id
+	 * @param  bool  $update_order
 	 */
 	public function set_ship_station_id( int $ship_station_id, bool $update_order = false ) {
 		$this->ship_station_id = $ship_station_id;
@@ -191,7 +193,7 @@ class OrderItemDynamicCard {
 	}
 
 	/**
-	 * @param tFPDF $fpd
+	 * @param  tFPDF  $fpd
 	 *
 	 * @return void
 	 */
@@ -206,7 +208,7 @@ class OrderItemDynamicCard {
 	}
 
 	/**
-	 * @param tFPDF $fpd
+	 * @param  tFPDF  $fpd
 	 *
 	 * @return void
 	 */
@@ -220,7 +222,7 @@ class OrderItemDynamicCard {
 	}
 
 	/**
-	 * @param tFPDF $fpd
+	 * @param  tFPDF  $fpd
 	 */
 	private function addTotalQty( tFPDF &$fpd ): void {
 		$text  = sprintf( "%s - %s", $this->get_total_quantities_in_order(), $this->get_ship_station_id() );
@@ -229,7 +231,7 @@ class OrderItemDynamicCard {
 	}
 
 	/**
-	 * @param tFPDF $pdf
+	 * @param  tFPDF  $pdf
 	 */
 	private function addQrCode( tFPDF &$pdf ) {
 		$qr_size = 10;
@@ -244,7 +246,7 @@ class OrderItemDynamicCard {
 	}
 
 	/**
-	 * @param tFPDF $fpd
+	 * @param  tFPDF  $fpd
 	 */
 	private function addDesignerLogo( tFPDF &$fpd ) {
 		$designer_logo = $this->get_designer_logo();
@@ -267,7 +269,7 @@ class OrderItemDynamicCard {
 	}
 
 	/**
-	 * @param tFPDF $fpd
+	 * @param  tFPDF  $fpd
 	 */
 	private function addBackground( tFPDF &$fpd ): void {
 		if ( ! $this->background instanceof CardBackgroundOption ) {
@@ -348,29 +350,30 @@ class OrderItemDynamicCard {
 	}
 
 	/**
-	 * @param tFPDF $fpd
+	 * @param  tFPDF  $fpd
 	 */
 	private function addCustomFonts( tFPDF &$fpd ) {
-		$fonts_list  = Fonts::get_list();
 		$added_fonts = [];
 		foreach ( $this->card_sections as $item ) {
 			if ( ! in_array( $item['section_type'], [ 'static-text', 'input-text' ] ) ) {
 				continue;
 			}
-			$font_family = str_replace( ' ', '', $item['textOptions']['fontFamily'] );
-			if ( in_array( $font_family, $added_fonts ) ) {
+			$font = Font::find_font_info( $item['textOptions']['fontFamily'] );
+			if ( ! $font instanceof FontInfo ) {
 				continue;
 			}
-			$added_fonts[] = $font_family;
-			$font          = $fonts_list[ $font_family ];
-			$fpd->AddFont( $font_family, '', $font['fileName'], true );
+			if ( in_array( $font->get_font_family_for_dompdf(), $added_fonts ) ) {
+				continue;
+			}
+			$added_fonts[] = $font->get_font_family_for_dompdf();
+			$fpd->AddFont( $font->get_font_family_for_dompdf(), '', $font->get_font_file(), true );
 		}
 	}
 
 	/**
 	 * Add color to background for testing purpose
 	 *
-	 * @param tFPDF $fpd
+	 * @param  tFPDF  $fpd
 	 *
 	 * @return void
 	 */
