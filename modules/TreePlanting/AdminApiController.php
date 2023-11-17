@@ -60,6 +60,11 @@ class AdminApiController extends ApiController {
 			'permission_callback' => [ $this, 'is_logged_in' ],
 			'args'                => $this->get_collection_params(),
 		] );
+		register_rest_route( $this->namespace, 'tree-planting/batch', [
+			'methods'             => WP_REST_Server::CREATABLE,
+			'callback'            => [ $this, 'perform_batch_operation' ],
+			'permission_callback' => [ $this, 'batch_operation_permissions_check' ],
+		] );
 	}
 
 	/**
@@ -72,19 +77,36 @@ class AdminApiController extends ApiController {
 	public function get_items( $request ) {
 		$page     = (int) $request->get_param( 'page' );
 		$per_page = (int) $request->get_param( 'per_page' );
+		$status   = (string) $request->get_param( 'status' );
+		$status   = in_array( $status, [ 'complete', 'processing', 'error' ], true ) ? $status : 'complete';
 
 		$items = TreePlanting::find_multiple( [
 			'page'     => $page,
 			'per_page' => $per_page,
+			'status'   => $status,
 		] );
 
 		$total_items = TreePlanting::count_records();
-		$pagination  = self::get_pagination_data( $total_items, $per_page, $page );
+		$pagination  = self::get_pagination_data( $total_items[ $status ], $per_page, $page );
+
+		$statuses = [];
+		foreach ( $total_items as $key => $count ) {
+			if ( 'all' === $key ) {
+				continue;
+			}
+			$statuses[] = [
+				'key'    => $key,
+				'label'  => ucfirst( $key ),
+				'count'  => $count,
+				'active' => $key === $status,
+			];
+		}
 
 
 		return $this->respondOK( [
 			'items'      => $items,
-			'pagination' => $pagination
+			'pagination' => $pagination,
+			'statuses'   => $statuses
 		] );
 	}
 
@@ -136,7 +158,7 @@ class AdminApiController extends ApiController {
 			return $this->respondNotFound();
 		}
 		if ( $tree_planting->is_complete() ) {
-			return $this->respondUnprocessableEntity();
+			return $this->respondUnprocessableEntity( null, 'Already synced complete.' );
 		}
 		$response = EcologiClient::purchase_tree();
 		if ( is_wp_error( $response ) ) {
@@ -149,6 +171,28 @@ class AdminApiController extends ApiController {
 			return $this->respondWithWpError( $response );
 		}
 
-		return $this->respondOK();
+		TreePlanting::update( [
+			'id'              => $tree_planting->get_id(),
+			'status'          => 'complete',
+			'amount'          => $response['amount'],
+			'currency'        => $response['currency'],
+			'tree_url'        => $response['treeUrl'],
+			'name'            => $response['name'],
+			'project_details' => $response['projectDetails'],
+		] );
+
+		return $this->respondOK( $response );
+	}
+
+	public function perform_batch_operation( WP_REST_Request $request ) {
+		$action  = $request->get_param( 'action' );
+		$payload = $request->get_param( 'payload' );
+
+		if ( 'delete' === $action ) {
+			$ids = array_map( 'intval', (array) $payload );
+			TreePlanting::batch_delete( $ids );
+		}
+
+		return $this->respondAccepted();
 	}
 }

@@ -31,6 +31,11 @@ class BackgroundPurchaseTree extends BackgroundProcessWithUiHelper {
 			return false;
 		}
 
+		// Its status is already complete.
+		if ( $tree_planting->is_complete() ) {
+			return false;
+		}
+
 		$response = EcologiClient::purchase_tree();
 		if ( is_wp_error( $response ) ) {
 			TreePlanting::update( [
@@ -86,7 +91,7 @@ class BackgroundPurchaseTree extends BackgroundProcessWithUiHelper {
 						if ( $force ) {
 							static::init()->task( [ 'id' => $id ] );
 						} else {
-							static::init()->push_to_queue( [ 'id' => $id ] );
+							static::init()->push_to_queue( [ 'id' => $id ] )->save()->dispatch();
 						}
 					}
 					$in_sync = array_merge( $in_sync, $orders_ids );
