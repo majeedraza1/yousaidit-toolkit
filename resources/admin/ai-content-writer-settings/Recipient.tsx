@@ -1,14 +1,7 @@
 import {Component, HTMLAttributes, ReactNode} from "react";
 import axios from "../../utils/axios";
-import {
-  Dialog,
-  DialogContainer,
-  Modal,
-  NotificationContainer,
-  Notify,
-  Spinner,
-  SpinnerContainer
-} from "@shapla/react-components";
+import {Modal} from "@shapla/react-components";
+import {Dialog, Notify, Spinner} from "@shapla/vanilla-components";
 
 interface RecipientItemInterface {
   slug: string;
@@ -219,9 +212,6 @@ export default class Recipient extends Component<RecipientPropsInterface, Recipi
             </tbody>
           </table>
         </Modal>
-        <NotificationContainer/>
-        <DialogContainer/>
-        <SpinnerContainer isRootSpinner={true}/>
       </div>
     );
   }
