@@ -5,8 +5,8 @@ namespace YouSaidItCards;
 class FreePdfExtended extends \tFPDF {
 
 	protected int $angle = 0;
-	protected float $FontSpacingPt = 0;      // current font spacing in points
-	protected float $FontSpacing = 0;        // current font spacing in user units
+	protected float $FontSpacingPt = 0; // current font spacing in points
+	protected float $FontSpacing = 0; // current font spacing in user units
 
 	public function SetFontSpacing( float $size ) {
 		if ( $this->FontSpacingPt == $size ) {
@@ -31,7 +31,8 @@ class FreePdfExtended extends \tFPDF {
 			- $ut / 1000 * $this->FontSizePt );
 	}
 
-	public function RotatedText( $x, $y, $txt, $angle ) {
+	public function RotatedText( $x, $y, $txt, $angle = 0 ) {
+		$angle = - $angle;
 		$this->Rotate( $angle, $x, $y );
 		$this->Text( $x, $y, $txt );
 		$this->Rotate( 0 );

@@ -3,7 +3,7 @@
     <side-navigation :active="active" @close="cancel" position="right">
       <div class="layer-options-inside">
         <div class="layer-options-head">{{ title }}</div>
-        <div class="layer-options-body">
+        <div class="layer-options-body mb-12">
           <columns multiline>
             <column :tablet="12">
               <div class="mb-2">
@@ -60,6 +60,9 @@
                                 v-model="options.textOptions.size"/>
                   </div>
                   <div class="w-full p-1 flex">
+                    <text-field type="number" label="Letter Spacing (pt)" v-model="options.textOptions.spacing"/>
+                  </div>
+                  <div class="w-full p-1 flex">
                     <div class="w-3/4">
                       <text-field label="Text Color" v-model="options.textOptions.color"/>
                     </div>
@@ -67,6 +70,11 @@
                       <input type="color" v-model="options.textOptions.color"
                              class="h-full border-l-0">
                     </div>
+                  </div>
+                  <div class="w-full p-1 flex">
+                    <div>Rotation</div>
+                    <input-slider v-model="options.textOptions.rotation" :min="0" :max="360" :step="5"
+                                  :show-reset="false"/>
                   </div>
                 </div>
               </div>
@@ -98,7 +106,7 @@
             </column>
           </columns>
         </div>
-        <div class="layer-options-footer absolute bottom-0 left-0 w-full flex p-2 space-x-2">
+        <div class="layer-options-footer absolute bottom-0 left-0 w-full flex p-2 space-x-2 bg-white">
           <div class="w-1/2">
             <shapla-button theme="default" @click="cancel" fullwidth>Cancel</shapla-button>
           </div>
@@ -128,6 +136,7 @@ import {
   _MediaModal as MediaModal,
   column,
   columns,
+  inputSlider,
   modal,
   selectField,
   shaplaButton,
@@ -146,6 +155,8 @@ const defaultOptions = {
     size: '16',
     align: 'left',
     color: '#000000',
+    rotation: 0,
+    spacing: 0,
   },
   imageOptions: {
     img: {id: '', src: '', width: '', height: ''},
@@ -157,7 +168,8 @@ const defaultOptions = {
 export default {
   name: "LayerOptions",
   components: {
-    sideNavigation, modal, shaplaButton, textField, selectField, columns, column, FeaturedImage, MediaModal
+    sideNavigation, modal, shaplaButton, textField, selectField, columns, column, FeaturedImage, MediaModal,
+    inputSlider
   },
   props: {
     active: {type: Boolean, default: false},
@@ -211,10 +223,7 @@ export default {
       if (!this.options.section_type.length) {
         return false;
       }
-      if (!(this.options.position.left && this.options.position.top)) {
-        return false;
-      }
-      return true;
+      return this.options.position.left && this.options.position.top;
     }
   },
   methods: {

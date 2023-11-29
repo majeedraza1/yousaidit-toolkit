@@ -66,12 +66,10 @@ class Ajax {
 		$pdf = new FreePdfExtended();
 		$pdf->AddPage();
 		$pdf->SetFont( 'Arial', '', 20 );
-		$pdf->Text( 100, 20, 'Hello! 0 degree' );
-		$pdf->RotatedText( 100, 60, 'Hello! 45 degree', 45 );
-		$pdf->RotatedText( 100, 120, 'Hello! 90 degree', 90 );
-		$pdf->RotatedText( 100, 150, 'Hello! 120 degree', 120 );
-		$pdf->RotatedText( 100, 180, 'Hello! 180 degree', 180 );
-		$pdf->RotatedText( 100, 240, 'Hello! 360 degree', 360 );
+
+		foreach ( [ 45, 90, 135, 180, 225, 270, 315, 360 ] as $degree ) {
+			$pdf->RotatedText( 100, 60, sprintf( 'Hello! %s degree', $degree ), $degree );
+		}
 
 		$pdf->AddPage();
 		$pdf->SetFont( 'Arial', '', 20 );

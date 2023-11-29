@@ -106,7 +106,22 @@ class FreePdf extends FreePdfBase {
 			$x_pos = $fpd->GetPageWidth() - ( $fpd->GetStringWidth( $text ) + $marginRight );
 		}
 
-		$fpd->Text( $x_pos, $y_pos, $text );
+		$rotation = 0;
+		$spacing  = 0;
+		if ( isset( $textOptions['rotation'] ) && is_numeric( $textOptions['rotation'] ) ) {
+			$rotation = intval( $textOptions['rotation'] );
+		}
+		if ( isset( $textOptions['spacing'] ) && is_numeric( $textOptions['spacing'] ) ) {
+			$spacing = intval( $textOptions['spacing'] );
+		}
+		if ( $spacing ) {
+			$fpd->SetFontSpacing( $spacing );
+		}
+		if ( $rotation ) {
+			$fpd->RotatedText( $x_pos, $y_pos, $text, $rotation );
+		} else {
+			$fpd->Text( $x_pos, $y_pos, $text );
+		}
 	}
 
 	/**
