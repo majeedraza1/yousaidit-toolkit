@@ -5,7 +5,6 @@ namespace YouSaidItCards;
 use tFPDF;
 use YouSaidItCards\Modules\FontManager\Font;
 use YouSaidItCards\Modules\FontManager\Models\FontInfo;
-use YouSaidItCards\Modules\InnerMessage\Fonts;
 use YouSaidItCards\Utilities\FreePdfBase;
 
 defined( 'ABSPATH' ) || exit;
@@ -29,7 +28,7 @@ class FreePdf extends FreePdfBase {
 		$size   = $this->get_size();
 		$option = $this->get_option();
 
-		$fpd = new tFPDF( 'P', 'mm', [ $option['front_width'], $option['height'] ] );
+		$fpd = new FreePdfExtended( 'P', 'mm', [ $option['front_width'], $option['height'] ] );
 
 		// Add custom fonts
 		$added_fonts = [];
@@ -87,7 +86,7 @@ class FreePdf extends FreePdfBase {
 	 * @param  tFPDF  $fpd
 	 * @param  array  $item
 	 */
-	public function add_text( tFPDF &$fpd, array $item ) {
+	public function add_text( FreePdfExtended &$fpd, array $item ) {
 		$textOptions = $item['textOptions'] ?? [];
 		$font_size   = intval( $textOptions['size'] );
 		$font_family = str_replace( ' ', '', $textOptions['fontFamily'] );

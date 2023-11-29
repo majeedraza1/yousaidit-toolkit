@@ -344,6 +344,11 @@ class Font {
 		return $fonts;
 	}
 
+	/**
+	 * @param  string  $font_family_or_slug
+	 *
+	 * @return false|FontInfo
+	 */
 	public static function find_font( string $font_family_or_slug ) {
 		$toArray             = explode( ",", $font_family_or_slug );
 		$font_family_or_slug = trim( str_replace( [ "'", '"' ], '', $toArray[0] ) );

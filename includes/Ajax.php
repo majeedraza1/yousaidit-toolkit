@@ -63,12 +63,25 @@ class Ajax {
 			wp_die( __( 'Sorry. This link only for developer to do some testing.', 'yousaidit-toolkit' ) );
 		}
 
-		// Job1 Adult: cb9d24dcddc35ff5975eed45ca4ccb0056681b5351135452d18204854ffdbf1b
-		// Job1 Not Adult: eba84590eee4ea3449862063106c7b788025b8db5ec3614397e527f565681e71
-		$job = Font::find_font( "'Open Sans', sens-serif" );
-		var_dump( [
-			'is_adult' => $job
-		] );
+		$pdf = new FreePdfExtended();
+		$pdf->AddPage();
+		$pdf->SetFont( 'Arial', '', 20 );
+		$pdf->Text( 100, 20, 'Hello! 0 degree' );
+		$pdf->RotatedText( 100, 60, 'Hello! 45 degree', 45 );
+		$pdf->RotatedText( 100, 120, 'Hello! 90 degree', 90 );
+		$pdf->RotatedText( 100, 150, 'Hello! 120 degree', 120 );
+		$pdf->RotatedText( 100, 180, 'Hello! 180 degree', 180 );
+		$pdf->RotatedText( 100, 240, 'Hello! 360 degree', 360 );
+
+		$pdf->AddPage();
+		$pdf->SetFont( 'Arial', '', 20 );
+		$pdf->Text( 10, 20, 'Hello! Font spacing normal' );
+		foreach ( range( 1, 12 ) as $spacing ) {
+			$pdf->SetFontSpacing( $spacing );
+			$pdf->Text( 10, ( 12 * $spacing ) + 20, sprintf( 'Hello! Font spacing %spt', $spacing ) );
+		}
+
+		$pdf->Output();
 
 		die();
 	}
