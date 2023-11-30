@@ -1,5 +1,6 @@
 import {getRequest} from './utils';
-import {createModal, Spinner} from "./components";
+import {Spinner} from '@shapla/vanilla-components';
+import {createModal} from "./components";
 
 const openContentOnModal = (content: string) => {
   let modal = document.querySelector('#card-category-modal');

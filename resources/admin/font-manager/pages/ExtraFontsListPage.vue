@@ -24,7 +24,6 @@ export default defineComponent({
     onSubmitForm() {
       const formEl = this.$el.querySelector('#add-new-font-form');
       const formData = new FormData(formEl);
-      window.console.log(formData);
       createNewFont(formData).then(data => {
         this.showAddNewModal = false;
         this.extra_fonts = data.extra_fonts;

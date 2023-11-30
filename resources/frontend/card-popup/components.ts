@@ -1,6 +1,6 @@
-import Spinner, {hideSpinner, showSpinner} from "./components/spinner/spinner";
+import {hideSpinner, showSpinner} from "./components/spinner/spinner";
 import createModal from "./components/modal/modal";
-import Notify from "./components/notification/notification";
+import {Notify, Spinner} from "@shapla/vanilla-components";
 
 export {
   showSpinner,

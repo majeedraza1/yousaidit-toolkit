@@ -64,6 +64,40 @@ class Ajax {
 		}
 
 		$pdf = new FreePdfExtended();
+
+		$pdf->AddPage();
+		$background = '/home/sayful/Desktop/Yousaidit Card/Marina.jpg';
+		$frame      = '/home/sayful/Desktop/Yousaidit Card/frame.png';
+		list( $width, $height ) = getimagesize( $frame );
+		$pdf->Image( $background, - 20, 30, $pdf->GetPageWidth() );
+		$pdf->Image( $frame, 0, 0, $pdf->GetPageWidth() );
+
+		$pdf->AddPage();
+		$pdf->SetFont( 'Arial', '', 16 );
+
+
+		$image_url = '/var/www/yousaidit.test/wp-content/plugins/yousaidit-toolkit/assets/static-images/logo-yousaidit@300ppi.jpg';
+		list( $width, $height ) = getimagesize( $image_url );
+		$pdf->Text( 10, 10, 'Image 45 degree angle.' );
+		$pdf->RotatedImage( $image_url, 50, 15, min( $width, 30 ), 0, 45 );
+		$pdf->Text( 100, 10, 'Image 90 degree angle.' );
+		$pdf->RotatedImage( $image_url, 150, 15, min( $width, 30 ), 0, 90 );
+
+		$pdf->Text( 10, 70, 'Image 135 degree angle.' );
+		$pdf->RotatedImage( $image_url, 50, 85, min( $width, 30 ), 0, 135 );
+		$pdf->Text( 100, 70, 'Image 180 degree angle.' );
+		$pdf->RotatedImage( $image_url, 150, 85, min( $width, 30 ), 0, 180 );
+
+		$pdf->Text( 10, 120, 'Image 225 degree angle.' );
+		$pdf->RotatedImage( $image_url, 50, 150, min( $width, 30 ), 0, 225 );
+		$pdf->Text( 100, 120, 'Image 270 degree angle.' );
+		$pdf->RotatedImage( $image_url, 150, 150, min( $width, 30 ), 0, 270 );
+
+		$pdf->Text( 10, 170, 'Image 315 degree angle.' );
+		$pdf->RotatedImage( $image_url, 50, 190, min( $width, 30 ), 0, 315 );
+		$pdf->Text( 100, 170, 'Image 360 degree angle.' );
+		$pdf->RotatedImage( $image_url, 150, 190, min( $width, 30 ), 0, 360 );
+
 		$pdf->AddPage();
 		$pdf->SetFont( 'Arial', '', 20 );
 

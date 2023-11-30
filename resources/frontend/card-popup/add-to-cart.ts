@@ -2,8 +2,8 @@ import Vue from "vue";
 import SingleProductDynamicCard from "../dynamic-card/SingleProductDynamicCard.vue";
 import dynamicCardStore from "../dynamic-card/store";
 
-import {Notify, Spinner} from "./components";
-import {createEl, postRequest} from "./utils";
+import {createEl, Notify, Spinner} from "@shapla/vanilla-components";
+import {postRequest} from "./utils";
 import {
   DynamicCardPropsInterface,
   InnerMessagePropsInterface,

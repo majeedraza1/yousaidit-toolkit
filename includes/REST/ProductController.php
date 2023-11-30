@@ -12,7 +12,7 @@ use WP_REST_Server;
 use YouSaidItCards\ShipStation\OrderItemPdf;
 use YouSaidItCards\Utilities\PdfSizeCalculator;
 
-class ProductController extends LegacyApiController {
+class ProductController extends ApiController {
 	/**
 	 * The instance of the class
 	 *
