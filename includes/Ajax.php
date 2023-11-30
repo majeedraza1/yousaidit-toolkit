@@ -480,18 +480,10 @@ class Ajax {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( __( 'Sorry. This link only for admin.', 'yousaidit-toolkit' ) );
 		}
-		$base_path = YOUSAIDIT_TOOLKIT_PATH . '/vendor/setasign/tfpdf/font/unifont/';
-		if ( ! is_writable( $base_path ) ) {
-			echo 'Target directory is not writable: ' . $base_path;
-			die;
-		}
 		foreach ( Font::get_fonts_info() as $font ) {
-			if ( ! file_exists( $font->get_font_path() ) ) {
-				echo 'Source file is not available: ' . $font->get_font_path();
-				continue;
-			}
-			if ( ! copy( $font->get_font_path(), $base_path . $font->get_font_file() ) ) {
-				echo 'Fail to copy file: ' . $font->get_font_path();
+			$response = $font->install_tfpdf_font();
+			if ( is_wp_error( $response ) ) {
+				echo $response->get_error_message();
 			}
 		}
 		echo 'Process run successfully. You can close this window.';

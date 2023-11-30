@@ -4,6 +4,7 @@ namespace YouSaidItCards\Modules\FontManager\Models;
 
 use Stackonet\WP\Framework\Abstracts\Data;
 use Stackonet\WP\Framework\Supports\Validate;
+use WP_Error;
 
 /**
  * FontInfo class
@@ -131,5 +132,32 @@ class FontInfo extends Data {
 	 */
 	public static function get_base_directory(): string {
 		return join( DIRECTORY_SEPARATOR, [ WP_CONTENT_DIR, 'uploads', 'yousaidit-web-fonts' ] );
+	}
+
+	/**
+	 * Install tFPDF font
+	 *
+	 * @return true|WP_Error
+	 */
+	public function install_tfpdf_font() {
+		$base_path = YOUSAIDIT_TOOLKIT_PATH . '/vendor/setasign/tfpdf/font/unifont';
+		if ( ! is_writable( $base_path ) ) {
+			return new WP_Error( 'base_directory_not_writeable', 'Target directory is not writable', [
+				'base_directory' => $base_path,
+			] );
+		}
+		$target_path = $base_path . DIRECTORY_SEPARATOR . $this->get_font_file();
+		if ( ! $this->is_valid() ) {
+			return new WP_Error( 'source_file_is_not_available', 'Source file is not available', [
+				'source_path' => $this->get_font_path(),
+			] );
+		}
+		if ( ! copy( $this->get_font_path(), $target_path ) ) {
+			return new WP_Error( 'fail_to_copy_file', 'Fail to copy file', [
+				'source_path' => $this->get_font_path(),
+			] );
+		}
+
+		return true;
 	}
 }
