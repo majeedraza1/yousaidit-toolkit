@@ -2,6 +2,7 @@
 
 namespace YouSaidItCards;
 
+use Stackonet\WP\Framework\Supports\Logger;
 use tFPDF;
 use YouSaidItCards\Modules\FontManager\Font;
 use YouSaidItCards\Modules\FontManager\Models\FontInfo;
@@ -89,7 +90,13 @@ class FreePdf extends FreePdfBase {
 	public function add_text( FreePdfExtended &$fpd, array $item ) {
 		$textOptions = $item['textOptions'] ?? [];
 		$font_size   = intval( $textOptions['size'] );
-		$font_family = str_replace( ' ', '', $textOptions['fontFamily'] );
+		$font        = Font::find_font_info( $textOptions['fontFamily'] );
+		if ( ! $font instanceof FontInfo ) {
+			Logger::log( sprintf( 'No font found for %s', $textOptions['fontFamily'] ) );
+
+			return;
+		}
+		$font_family = $font->get_font_family_for_dompdf();
 		$text_align  = strtolower( $textOptions['align'] );
 		$marginRight = isset( $textOptions['marginRight'] ) ? intval( $textOptions['marginRight'] ) : 0;
 		$text        = ! empty( $item['text'] ) ? sanitize_text_field( $item['text'] ) : $item['placeholder'];

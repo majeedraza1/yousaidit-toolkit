@@ -490,8 +490,8 @@ class Ajax {
 				echo 'Source file is not available: ' . $font->get_font_path();
 				continue;
 			}
-			if ( ! copy( $font['fontFilePath'], $base_path . $font->get_font_file() ) ) {
-				echo 'Fail to copy file: ' . $font['fontFilePath'];
+			if ( ! copy( $font->get_font_path(), $base_path . $font->get_font_file() ) ) {
+				echo 'Fail to copy file: ' . $font->get_font_path();
 			}
 		}
 		echo 'Process run successfully. You can close this window.';
