@@ -121,7 +121,7 @@
         v-if="show_image_modal"
         :active="show_image_modal"
         @close="show_image_modal = false"
-        :images="images"
+        :images="mediaImages"
         :url="uploadUrl"
         @select:image="handleCardLogoImageId"
         @before:send="addNonceHeader"
@@ -204,6 +204,17 @@ export default {
     }
   },
   computed: {
+    mediaImages() {
+      if (this.images.length) {
+        return this.images.map(_img => {
+          return {
+            ..._img,
+            src: _img.thumbnail.src || _img.full.src
+          }
+        })
+      }
+      return []
+    },
     user() {
       return DesignerProfile.user
     },

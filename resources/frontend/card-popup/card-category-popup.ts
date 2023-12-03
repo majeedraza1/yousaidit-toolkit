@@ -1,6 +1,6 @@
 import {getRequest} from './utils';
 import {Spinner} from '@shapla/vanilla-components';
-import {createModal} from "./components";
+import createModal from "./modal";
 
 const openContentOnModal = (content: string) => {
   let modal = document.querySelector('#card-category-modal');
@@ -24,7 +24,7 @@ const openContentOnModal = (content: string) => {
     }
   }))
 }
-const getAjaxUrl = (productId: number) => {
+const getAjaxUrl = (productId: number | string) => {
   const url = new URL(window.StackonetToolkit.ajaxUrl);
   url.searchParams.append('action', 'yousaidit_loop_product_popup');
   url.searchParams.append('product_id', productId.toString());

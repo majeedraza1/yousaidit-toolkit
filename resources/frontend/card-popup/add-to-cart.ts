@@ -1,6 +1,7 @@
 import Vue from "vue";
 import SingleProductDynamicCard from "../dynamic-card/SingleProductDynamicCard.vue";
 import dynamicCardStore from "../dynamic-card/store";
+import {closeModal, refreshBodyClass} from "./modal";
 
 import {createEl, Notify, Spinner} from "@shapla/vanilla-components";
 import {postRequest} from "./utils";
@@ -11,7 +12,6 @@ import {
   RightInnerMessagePropsInterface
 } from "../../utils/interfaces";
 import axios from "axios";
-import {closeModal, refreshBodyClass} from "./components/modal/modal";
 
 if (window.StackonetToolkit && window.StackonetToolkit.restNonce) {
   axios.defaults.headers.common['X-WP-Nonce'] = window.StackonetToolkit.restNonce;

@@ -109,7 +109,14 @@
             </div>
             <div v-if="activeSection.section_type === 'input-image'" class="mb-4">
               <tabs fullwidth centered>
-                <tab name="Images" selected>
+                <tab name="Settings" selected>
+                  <InputUserOptions
+                      v-model="activeSection.userOptions"
+                      :card-width-mm="card_dimension[0]"
+                      :card-height-mm="card_dimension[1]"
+                  />
+                </tab>
+                <tab name="Images">
                   <div class="flex flex-wrap uploade-image-thumbnail-container">
                     <template v-if="images.length">
                       <div v-for="_img in images" class="w-1/4 p-1">
@@ -134,7 +141,7 @@
                   />
                 </tab>
               </tabs>
-              <div class="relative border border-solid mt-6"
+              <div class="relative border border-solid mt-6 max-w-[150px] max-h-[150px]"
                    v-if="activeSection.image && activeSection.image.src">
                 <img :src="activeSection.image.src" alt=""/>
                 <delete-icon class="absolute -top-2 -right-2" @click="removeImage"/>
@@ -182,6 +189,7 @@ import {
   FileUploader,
   iconContainer,
   imageContainer,
+  inputSlider,
   modal,
   notification,
   shaplaButton,
@@ -195,10 +203,14 @@ import EditorControls from "@/frontend/inner-message/EditorControls";
 import SwiperSlider from "@/frontend/dynamic-card/SwiperSlider.vue";
 import GustLocalStorage from "@/frontend/dynamic-card/GustLocalStorage.ts";
 import VideoInnerMessage from "@/frontend/dynamic-card/VideoInnerMessage";
+import SvgIcon from "@/components/DynamicCardGenerator/SvgIcon.vue";
+import InputUserOptions from "@/frontend/dynamic-card/InputUserOptions.vue";
 
 export default {
   name: "SingleProductDynamicCard",
   components: {
+    InputUserOptions,
+    SvgIcon, inputSlider,
     EditableContent, CardWebViewer, modal, shaplaButton, iconContainer, SwiperSlider, imageContainer, spinner,
     VideoInnerMessage, EditorControls, FileUploader, tabs, tab, deleteIcon, notification, ConfirmDialog
   },
@@ -351,6 +363,15 @@ export default {
     handleEditSection(section, index) {
       this.activeSectionIndex = index;
       this.activeSection = section;
+      if ('input-image' === section['section_type']) {
+        this.activeSection['userOptions'] = {
+          rotate: 0,
+          zoom: 0,
+          position: {
+            top: 0, right: 0, bottom: 0, left: 0
+          },
+        };
+      }
     },
     handleSubmit() {
       if (this.is_card_category_popup) {

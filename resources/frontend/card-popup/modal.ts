@@ -1,4 +1,4 @@
-import {createEl} from "../../utils";
+import {createEl} from "@shapla/vanilla-components";
 
 declare global {
   interface ElementEventMap {
