@@ -31,6 +31,12 @@ export default defineComponent({
         this.userOptions = newValue;
       },
       deep: true
+    },
+    userOptions: {
+      handler(newValue) {
+        this.$emit('change', newValue);
+      },
+      deep: true
     }
   },
   methods: {
@@ -61,8 +67,6 @@ export default defineComponent({
       if ('left' === direction) {
         this.userOptions.position.left = position.left - factor
       }
-
-      this.emitChange();
     }
   }
 })

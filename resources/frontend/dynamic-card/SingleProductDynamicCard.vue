@@ -112,6 +112,7 @@
                 <tab name="Settings" selected>
                   <InputUserOptions
                       v-model="activeSection.userOptions"
+                      @change="onChangeUserOptions"
                       :card-width-mm="card_dimension[0]"
                       :card-height-mm="card_dimension[1]"
                   />
@@ -300,7 +301,11 @@ export default {
     }
   },
   methods: {
-
+    onChangeUserOptions(newValue) {
+      if (this.activeSectionIndex >= 0) {
+        this.payload.card_items[this.activeSectionIndex] = this.activeSection;
+      }
+    },
     messagesLinesToString(lines) {
       let contentEl = document.createElement('div');
       lines.forEach(line => {
@@ -368,7 +373,7 @@ export default {
           rotate: 0,
           zoom: 0,
           position: {
-            top: 0, right: 0, bottom: 0, left: 0
+            top: 0, left: 0
           },
         };
       }
@@ -388,6 +393,8 @@ export default {
         return;
       }
       let fieldsContainer = document.querySelector('#_dynamic_card_fields');
+
+      fieldsContainer.querySelector('[name="_dynamic_card_payload"]').value = JSON.stringify(this.payload);
       this.payload.card_items.forEach((item, index) => {
         let inputId = `#_dynamic_card_input-${index}`
         if (['static-text', 'input-text'].indexOf(item.section_type) !== -1) {

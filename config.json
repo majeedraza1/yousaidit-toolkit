@@ -33,9 +33,9 @@
       "./resources/frontend/dynamic-card/main.js"
     ],
     "web-components": [
-      "./resources/web-components/DynamicCardLayer.js",
-      "./resources/web-components/DynamicCardBackground.js",
-      "./resources/web-components/DynamicCardCanvas.js"
+      "./resources/web-components/DynamicCardLayer.ts",
+      "./resources/web-components/DynamicCardBackground.ts",
+      "./resources/web-components/DynamicCardCanvas.ts"
     ]
   }
 }

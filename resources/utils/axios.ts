@@ -11,6 +11,10 @@ declare global {
       topics: { slug: string; label: string; menu_order?: number; }[];
       common_holidays: { label: string; date_string: string; }[];
       special_holidays: Record<string, { label: string; date: string; }[]>;
+      fonts: { key: string }[],
+    }
+    DesignerProfile: {
+      fonts: { key: string }[],
     }
   }
 }
