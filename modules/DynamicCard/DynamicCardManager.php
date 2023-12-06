@@ -178,7 +178,6 @@ class DynamicCardManager {
 			$payload = json_decode( stripslashes( $_REQUEST['_dynamic_card_payload'] ), true );
 			if ( is_array( $payload ) ) {
 				$sanitized_payload                           = DynamicCard::sanitize_card_payload( $payload );
-				$cart_item_data['_dynamic_card_payload_raw'] = wp_json_encode( $payload );
 				$cart_item_data['_dynamic_card_payload']     = wp_json_encode( $sanitized_payload );
 			}
 		}
@@ -194,6 +193,9 @@ class DynamicCardManager {
 	 * @param  array  $values
 	 */
 	public function create_order_line_item( $item, $cart_item_key, $values ) {
+		if ( array_key_exists( '_dynamic_card_payload', $values ) ) {
+			$item->add_meta_data( '_dynamic_card_payload', $values['_dynamic_card_payload'] );
+		}
 		if ( array_key_exists( '_dynamic_card', $values ) ) {
 			$data          = is_array( $values['_dynamic_card'] ) ? $values['_dynamic_card'] : [];
 			$_dynamic_card = self::sanitize_dynamic_card( $data );

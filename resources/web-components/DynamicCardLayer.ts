@@ -31,6 +31,7 @@ export class DynamicCardLayer extends LitElement {
 
     .section-edit img {
       transform: scale(var(--zoom, 1)) rotate(var(--rotate, 0));
+      transform-origin: top left;
     }
 
     .section-edit.is-image-edit.is-active {
@@ -71,7 +72,8 @@ export class DynamicCardLayer extends LitElement {
       top: 0;
       left: 0;
       z-index: 10;
-      transform: scale(var(--zoom, 1));
+      transform: scale(var(--zoom, 1)) rotate(var(--rotate, 0));
+      transform-origin: top left;
     }
   `;
 

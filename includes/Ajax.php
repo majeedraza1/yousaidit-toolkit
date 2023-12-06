@@ -38,7 +38,7 @@ class Ajax {
 			add_action( 'wp_ajax_yousaidit_test', [ self::$instance, 'stackonet_test' ] );
 			add_action( 'wp_ajax_yousaidit_generate_preview_card', [ self::$instance, 'generate_preview_card' ] );
 			add_action( 'wp_ajax_yousaidit_preview_card', [ self::$instance, 'yousaidit_preview_card' ] );
-			add_action( 'wp_ajax_generate_dynamic_card_pdf', [ self::$instance, 'generate_dynamic_card_pdf' ] );
+			// add_action( 'wp_ajax_generate_dynamic_card_pdf', [ self::$instance, 'generate_dynamic_card_pdf' ] );
 			add_action( 'wp_ajax_yousaidit_font_image', [ self::$instance, 'yousaidit_font_image' ] );
 			add_action( 'wp_ajax_nopriv_yousaidit_font_image', [ self::$instance, 'yousaidit_font_image' ] );
 			add_action( 'wp_ajax_yousaidit_color_image', [ self::$instance, 'yousaidit_color_image' ] );
@@ -66,20 +66,13 @@ class Ajax {
 		$pdf = new FreePdfExtended();
 
 		$pdf->AddPage();
-		$background = '/home/sayful/Desktop/Yousaidit Card/Marina.jpg';
-		$frame      = '/home/sayful/Desktop/Yousaidit Card/frame.png';
-		list( $width, $height ) = getimagesize( $frame );
-		$pdf->Image( $background, - 20, 30, $pdf->GetPageWidth() );
-		$pdf->Image( $frame, 0, 0, $pdf->GetPageWidth() );
-
-		$pdf->AddPage();
 		$pdf->SetFont( 'Arial', '', 16 );
 
-
 		$image_url = '/var/www/yousaidit.test/wp-content/plugins/yousaidit-toolkit/assets/static-images/logo-yousaidit@300ppi.jpg';
+		$image_url = 'http://yousaidit-main.yousaidit.co.uk/MD-SAYFUL-ISLAM.jpg';
 		list( $width, $height ) = getimagesize( $image_url );
 		$pdf->Text( 10, 10, 'Image 45 degree angle.' );
-		$pdf->RotatedImage( $image_url, 50, 15, min( $width, 30 ), 0, 45 );
+		$pdf->RotatedImage( $image_url, 0, 15, min( $width, 30 ), 0, 45 );
 		$pdf->Text( 100, 10, 'Image 90 degree angle.' );
 		$pdf->RotatedImage( $image_url, 150, 15, min( $width, 30 ), 0, 90 );
 
@@ -97,6 +90,13 @@ class Ajax {
 		$pdf->RotatedImage( $image_url, 50, 190, min( $width, 30 ), 0, 315 );
 		$pdf->Text( 100, 170, 'Image 360 degree angle.' );
 		$pdf->RotatedImage( $image_url, 150, 190, min( $width, 30 ), 0, 360 );
+
+		$pdf->AddPage();
+		$background = '/home/sayful/Desktop/Yousaidit Card/Marina.jpg';
+		$frame      = '/home/sayful/Desktop/Yousaidit Card/frame.png';
+		list( $width, $height ) = getimagesize( $frame );
+		$pdf->Image( $background, - 20, 30, $pdf->GetPageWidth() );
+		$pdf->Image( $frame, 0, 0, $pdf->GetPageWidth() );
 
 		$pdf->AddPage();
 		$pdf->SetFont( 'Arial', '', 20 );
@@ -348,8 +348,10 @@ class Ajax {
 			wp_die( 'You cannot perform this action.' );
 		}
 
-		$card_id = $_REQUEST['card_id'] ?? 0;
-		$card    = ( new DesignerCard )->find_by_id( intval( $card_id ) );
+		$order_id      = isset( $_REQUEST['order_id'] ) ? intval( $_REQUEST['order_id'] ) : 0;
+		$order_item_id = isset( $_REQUEST['order_item_id'] ) ? intval( $_REQUEST['order_item_id'] ) : 0;
+		$card_id       = $_REQUEST['card_id'] ?? 0;
+		$card          = ( new DesignerCard )->find_by_id( intval( $card_id ) );
 		if ( ! $card instanceof DesignerCard ) {
 			wp_die( 'No card available.' );
 		}

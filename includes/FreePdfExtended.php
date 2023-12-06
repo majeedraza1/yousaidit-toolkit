@@ -38,8 +38,16 @@ class FreePdfExtended extends \tFPDF {
 		$this->Rotate( 0 );
 	}
 
-	public function RotatedImage( string $image_url_or_path, int $x, int $y, int $w, int $h, int $angle = 0 ) {
+	public function RotatedImage(
+		string $image_url_or_path,
+		float $x,
+		float $y,
+		float $w,
+		float $h,
+		float $angle = 0
+	) {
 		$angle = - $angle;
+		$x     = ( $x + 20 );
 		$this->Rotate( $angle, $x, $y );
 		$this->Image( $image_url_or_path, $x, $y, $w, $h );
 		$this->Rotate( 0 );

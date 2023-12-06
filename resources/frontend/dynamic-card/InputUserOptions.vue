@@ -85,7 +85,9 @@ export default defineComponent({
       <div class="flex space-x-2">
         <svg-icon class="flex-shrink-0" icon="zoom-out" hoverable @click="()=> updateZoom('out')"/>
         <div class="flex-shrink flex-grow">
-          <input type="number" v-model="userOptions.zoom" min="-50" max="100" step="5">
+          <input type="number" :value="userOptions.zoom" min="-50" max="100" step="5"
+                 @input="event => userOptions.zoom = parseInt(event.target.value)"
+          >
         </div>
         <svg-icon class="flex-shrink-0" icon="zoom-in" hoverable @click="()=> updateZoom('in')"/>
       </div>
@@ -96,14 +98,16 @@ export default defineComponent({
         <div class="flex space-x-2">
           <svg-icon class="flex-shrink-0" icon="arrow-downward" hoverable @click="()=>updatePosition('bottom')"/>
           <div class="flex-shrink flex-grow">
-            <input type="number" v-model="userOptions.position.top" step="1">
+            <input type="number" v-model="userOptions.position.top" step="1"
+                   @input="event => userOptions.position.top = parseInt(event.target.value)">
           </div>
           <svg-icon class="flex-shrink-0" icon="arrow-upward" hoverable @click="()=>updatePosition('top')"/>
         </div>
         <div class="flex space-x-2">
           <svg-icon class="flex-shrink-0" icon="arrow-back" hoverable @click="()=>updatePosition('left')"/>
           <div class="flex-shrink flex-grow">
-            <input type="number" v-model="userOptions.position.left" step="1">
+            <input type="number" v-model="userOptions.position.left" step="1"
+                   @input="event => userOptions.position.left = parseInt(event.target.value)">
           </div>
           <svg-icon class="flex-shrink-0" icon="arrow-forward" hoverable @click="()=>updatePosition('right')"/>
         </div>

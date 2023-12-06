@@ -58,15 +58,15 @@ class BackgroundDynamicPdfGenerator extends BackgroundProcess {
 		);
 		$count_text = sprintf( _n( '%s dynamic card', '%s dynamic cards', $count ), $count );
 		?>
-		<div class="notice notice-info is-dismissible">
-			<p>
-				A background task is running to generate <?php echo $count_text ?>. Make sure all orders
-				are sync to ShipStation. Dynamic card won't be generated without ShipStation id.<br>
-				To generate all card now, click "Generate Now" button. Remember, generating all dynamic card is a CPU
-				resource consuming task.<br><br>
-				<a class="button button-primary" href="<?php echo esc_url( $update_url ) ?>">Generate Now</a>
-			</p>
-		</div>
+        <div class="notice notice-info is-dismissible">
+            <p>
+                A background task is running to generate <?php echo $count_text ?>. Make sure all orders
+                are sync to ShipStation. Dynamic card won't be generated without ShipStation id.<br>
+                To generate all card now, click "Generate Now" button. Remember, generating all dynamic card is a CPU
+                resource consuming task.<br><br>
+                <a class="button button-primary" href="<?php echo esc_url( $update_url ) ?>">Generate Now</a>
+            </p>
+        </div>
 		<?php
 	}
 
@@ -82,7 +82,8 @@ class BackgroundDynamicPdfGenerator extends BackgroundProcess {
 
 		$message = '<h1>' . esc_html__( 'Yousaidit Toolkit', 'yousaidit-toolkit' ) . '</h1>';
 		if ( ! ( current_user_can( 'manage_options' ) && $is_verified ) ) {
-			$message .= '<p>' . __( 'Sorry. This link only for admin to perform upgrade tasks.', 'yousaidit-toolkit' ) . '</p>';
+			$message .= '<p>' . __( 'Sorry. This link only for admin to perform upgrade tasks.',
+					'yousaidit-toolkit' ) . '</p>';
 			_default_wp_die_handler( $message, '', [ 'back_link' => true ] );
 		}
 
@@ -101,7 +102,8 @@ class BackgroundDynamicPdfGenerator extends BackgroundProcess {
 		}
 
 		if ( count( $error_messages ) ) {
-			$message .= '<p>' . __( 'One or more errors has been generated when running the task.', 'yousaidit-toolkit' ) . '</p>';
+			$message .= '<p>' . __( 'One or more errors has been generated when running the task.',
+					'yousaidit-toolkit' ) . '</p>';
 			$message .= '<ul>';
 			foreach ( $error_messages as $error_message ) {
 				$message .= '<li>' . $error_message . '</li>';
@@ -134,8 +136,8 @@ class BackgroundDynamicPdfGenerator extends BackgroundProcess {
 	}
 
 	/**
-	 * @param int $order_id
-	 * @param int $order_item_id
+	 * @param  int  $order_id
+	 * @param  int  $order_item_id
 	 *
 	 * @return void
 	 */
@@ -183,9 +185,9 @@ class BackgroundDynamicPdfGenerator extends BackgroundProcess {
 	/**
 	 * Generate for order item
 	 *
-	 * @param int $order_id WooCommerce order id.
-	 * @param int $order_item_id WooCommerce order item id.
-	 * @param bool $overwrite Should it overwrite if already exists in directory.
+	 * @param  int  $order_id  WooCommerce order id.
+	 * @param  int  $order_item_id  WooCommerce order item id.
+	 * @param  bool  $overwrite  Should it overwrite if already exists in directory.
 	 *
 	 * @return string|WP_Error
 	 */
@@ -211,9 +213,15 @@ class BackgroundDynamicPdfGenerator extends BackgroundProcess {
 			return new WP_Error( 'order_item_not_found', 'Order item not found for item #' . $order_item_id );
 		}
 
-		$item = new OrderItemDynamicCard( $order, $order_item );
-		if ( ! $item->get_ship_station_id() ) {
-			return new WP_Error( 'shipstation_id_not_found', 'Shipstation id is not available for order #' . $order_id );
+		$item     = new OrderItemDynamicCard( $order, $order_item );
+		$env_type = wp_get_environment_type();
+		if ( 'production' === $env_type ) {
+			if ( ! $item->get_ship_station_id() ) {
+				return new WP_Error(
+					'shipstation_id_not_found',
+					'Shipstation id is not available for order #' . $order_id
+				);
+			}
 		}
 		$item->pdf( [ 'dest' => 'F', 'name' => $filename ] );
 
@@ -225,8 +233,8 @@ class BackgroundDynamicPdfGenerator extends BackgroundProcess {
 	/**
 	 * Show PDF url if exists or message to generate PDF
 	 *
-	 * @param int $order_id WooCommerce order id.
-	 * @param int $order_item_id WooCommerce order item id.
+	 * @param  int  $order_id  WooCommerce order id.
+	 * @param  int  $order_item_id  WooCommerce order item id.
 	 *
 	 * @return string|void
 	 */
@@ -246,7 +254,8 @@ class BackgroundDynamicPdfGenerator extends BackgroundProcess {
 		], admin_url( 'admin-ajax.php' ) );
 
 		$message = '<h1>' . esc_html__( 'Yousaidit Toolkit', 'yousaidit-toolkit' ) . '</h1>';
-		$message .= '<p>' . __( 'Sorry. The card is not ready to view yet. Click the following button to generate now.', 'yousaidit-toolkit' ) . '</p>';
+		$message .= '<p>' . __( 'Sorry. The card is not ready to view yet. Click the following button to generate now.',
+				'yousaidit-toolkit' ) . '</p>';
 		$message .= '<p><a target="_blank" href="' . esc_url( $url ) . '">Generate Now</a></p>';
 		_default_wp_die_handler( $message, '', [ 'back_link' => true ] );
 	}

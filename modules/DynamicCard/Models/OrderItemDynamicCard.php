@@ -6,9 +6,9 @@ use tFPDF;
 use WC_Order;
 use WC_Order_Item_Product;
 use YouSaidItCards\Assets;
+use YouSaidItCards\FreePdfExtended;
 use YouSaidItCards\Modules\FontManager\Font;
 use YouSaidItCards\Modules\FontManager\Models\FontInfo;
-use YouSaidItCards\Modules\InnerMessage\Fonts;
 use YouSaidItCards\Modules\OrderDispatcher\QrCode;
 use YouSaidItCards\ShipStation\Order;
 use YouSaidItCards\Utilities\FreePdfBase;
@@ -89,7 +89,13 @@ class OrderItemDynamicCard {
 			$changed_data[] = is_numeric( $item['value'] ) ? intval( $item['value'] ) : sanitize_text_field( $item['value'] );
 		}
 
-		$payload               = $this->product->get_meta( '_dynamic_card_payload', true );
+		$payload = $this->order_item->get_meta( '_dynamic_card_payload', true );
+		if ( ! empty( $payload ) ) {
+			$payload = json_decode( $payload, true );
+		}
+		if ( empty( $payload ) ) {
+			$payload = $this->product->get_meta( '_dynamic_card_payload', true );
+		}
 		$this->card_size       = $payload['card_size'];
 		$this->background_type = $payload['card_bg_type'];
 		if ( 'image' == $this->background_type ) {
@@ -157,7 +163,7 @@ class OrderItemDynamicCard {
 	}
 
 	public function pdf( array $args = [] ) {
-		$fpd = new tFPDF( 'L', 'mm', [ $this->card_width, $this->card_height ] );
+		$fpd = new FreePdfExtended( 'L', 'mm', [ $this->card_width, $this->card_height ] );
 
 		// Add custom fonts
 		$this->addCustomFonts( $fpd );
@@ -190,6 +196,9 @@ class OrderItemDynamicCard {
 		$this->addSections( $fpd );
 
 		$fpd->Output( $args['dest'] ?? '', $args['name'] ?? '' );
+//		header( "Content-Type: application/pdf" );
+//		$fpd->Output();
+//		die;
 	}
 
 	/**
@@ -285,8 +294,8 @@ class OrderItemDynamicCard {
 			$width, $height, $this->background->get( 'image_ext' ) );
 	}
 
-	private function addSections( tFPDF &$fpd ) {
-		foreach ( $this->card_sections as $section ) {
+	private function addSections( FreePdfExtended &$fpd ) {
+		foreach ( $this->card_sections as $index => $section ) {
 			if ( in_array( $section['section_type'], [ 'static-text', 'input-text' ] ) ) {
 				$this->addTextSection( $fpd, $section );
 			}
@@ -296,7 +305,7 @@ class OrderItemDynamicCard {
 		}
 	}
 
-	private function addTextSection( tFPDF &$fpd, CardSectionTextOption $section ) {
+	private function addTextSection( FreePdfExtended &$fpd, CardSectionTextOption $section ) {
 		list( $red, $green, $blue ) = FreePdfBase::find_rgb_color( $section->get_text_option( 'color' ) );
 		$fpd->SetTextColor( $red, $green, $blue );
 		$fpd->SetFont( $section->get_text_option( 'fontFamily' ), '', $section->get_text_option( 'size' ) );
@@ -315,7 +324,7 @@ class OrderItemDynamicCard {
 		$fpd->Text( $x_pos, $y_pos, $section->get_text() );
 	}
 
-	private function addImageSection( tFPDF &$fpd, CardSectionImageOption $section ) {
+	private function addImageSection( FreePdfExtended &$fpd, CardSectionImageOption $section ) {
 		$image = $section->get_image();
 		if ( ! is_array( $image ) ) {
 			return;
@@ -340,12 +349,22 @@ class OrderItemDynamicCard {
 
 		$y_pos = $section->get_position_from_top();
 
-		$fpd->Image(
+		$x_pos += $section->get_user_position_from_left();
+		$y_pos += $section->get_user_position_from_top();
+
+		$zoom = $section->get_user_zoom();
+		if ( $zoom > 0 ) {
+			$width  = $width + ( $width * $zoom / 100 );
+			$height = $height + ( $height * $zoom / 100 );
+		}
+
+		$fpd->RotatedImage(
 			$image['url'],
 			$x_pos,
 			$y_pos,
 			min( $width, 154 ),
-			min( $height, 156 )
+			min( $height, 156 ),
+			$section->get_user_rotation()
 		);
 	}
 

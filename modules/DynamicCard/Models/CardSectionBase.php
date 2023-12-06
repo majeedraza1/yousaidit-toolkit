@@ -6,15 +6,15 @@ use Stackonet\WP\Framework\Abstracts\Data;
 
 class CardSectionBase extends Data {
 	public function get_position_from_top(): int {
-		return (int) $this->get( 'position' )['top'];
+		return (int) $this->get_prop( 'position' )['top'];
 	}
 
 	public function get_position_from_left(): int {
-		return (int) $this->get( 'position' )['left'];
+		return (int) $this->get_prop( 'position' )['left'];
 	}
 
 	/**
-	 * @param int $id
+	 * @param  int  $id
 	 *
 	 * @return array|false
 	 */
@@ -24,10 +24,17 @@ class CardSectionBase extends Data {
 		if ( ! is_array( $src ) ) {
 			return false;
 		}
+		list( $url, $width, $height ) = $src;
+		if ( empty( $width ) || empty( $height ) ) {
+			$size = getimagesize( $url );
+			if ( is_array( $size ) ) {
+				list( $width, $height ) = $size;
+			}
+		}
 
-		$file_ext = explode( '.', basename( $src[0] ) );
+		$file_ext = explode( '.', basename( $$url ) );
 		$ext      = end( $file_ext );
 
-		return [ 'path' => $path, 'url' => $src[0], 'width' => $src[1], 'height' => $src[2], 'ext' => $ext ];
+		return [ 'path' => $path, 'url' => $url, 'width' => $width, 'height' => $height, 'ext' => $ext ];
 	}
 }
