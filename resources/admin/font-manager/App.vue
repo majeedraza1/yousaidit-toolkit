@@ -1,10 +1,8 @@
 <script>
 import {defineComponent} from 'vue'
-import {ConfirmDialog} from 'shapla-vue-components';
 
 export default defineComponent({
   name: "App",
-  components: {ConfirmDialog}
 })
 </script>
 
@@ -12,7 +10,6 @@ export default defineComponent({
   <div class="wrap">
     <div class="font-manager-container border-box-all">
       <router-view/>
-      <confirm-dialog/>
     </div>
   </div>
 </template>

@@ -117,6 +117,7 @@ import {
 import ArtWorkItems from "../components/ArtWorkItems";
 import wpMediaUploader from "@/admin/utils/WpMediaUploader";
 import axios from "@/utils/axios";
+import {Spinner} from "@shapla/vanilla-components";
 
 export default {
   name: "Orders",
@@ -155,10 +156,10 @@ export default {
     }
   },
   computed: {
-    ...mapState(['loading', 'orders', 'order_pagination', 'checked_items'])
+    ...mapState([ 'orders', 'order_pagination', 'checked_items'])
   },
   mounted() {
-    this.$store.commit('SET_LOADING_STATUS', false);
+    Spinner.hide();
     if (!this.orders.length) {
       this.getOrders();
     }

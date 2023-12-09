@@ -10,5 +10,5 @@ class ApiController extends \Stackonet\WP\Framework\REST\ApiController {
 	 * @since 4.7.0
 	 * @var string
 	 */
-	protected $namespace = 'stackonet/v1';
+	protected $namespace = 'yousaidit/v1';
 }

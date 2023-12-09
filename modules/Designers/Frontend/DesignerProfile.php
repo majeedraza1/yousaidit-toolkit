@@ -303,6 +303,8 @@ class DesignerProfile {
 		}
 
 		$data = [
+			'restRoot'         => esc_url_raw( rest_url( 'yousaidit/v1' ) ),
+			'restNonce'        => false,
 			'siteTitle'        => get_option( 'blogname' ),
 			'logoUrl'          => '',
 			'categories'       => [],
@@ -310,7 +312,6 @@ class DesignerProfile {
 			'cards'            => [],
 			'attributes'       => [],
 			'privacyPolicyUrl' => get_privacy_policy_url(),
-			'restRoot'         => esc_url_raw( rest_url( 'stackonet/v1' ) ),
 		];
 
 		$options = (array) get_option( 'yousaiditcard_designers_settings' );

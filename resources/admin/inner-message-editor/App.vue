@@ -1,16 +1,16 @@
 <script lang="ts">
 import {defineComponent} from 'vue'
-import {modal, notification, shaplaButton, spinner} from 'shapla-vue-components';
+import {modal, shaplaButton} from 'shapla-vue-components';
 import ImEditor from "@/admin/inner-message-editor/ImEditor.vue";
 import axios from "@/utils/axios";
+import {Notify, Spinner} from "@shapla/vanilla-components";
 
 export default defineComponent({
   name: "App",
-  components: {ImEditor, modal, shaplaButton, spinner, notification},
+  components: {ImEditor, modal, shaplaButton},
   data() {
     return {
       active: false,
-      spinner: false,
       im: {},
       order_id: 0,
       item_id: 0,
@@ -20,16 +20,16 @@ export default defineComponent({
   },
   methods: {
     updateMessage() {
-      this.spinner = true;
+      Spinner.show();
       axios.post('admin/inner-message', {
         order_id: this.order_id,
         item_id: this.item_id,
         meta_key: this.meta_key,
         meta_value: this.im
       }).then(() => {
-        this.note = {type: 'Success', message: 'Message has been updated successfully.'}
+        Notify.success('Message has been updated successfully.');
       }).finally(() => {
-        this.spinner = false;
+        Spinner.hide();
       })
     }
   },
@@ -66,7 +66,5 @@ export default defineComponent({
         <shapla-button theme="primary" @click="updateMessage">Update</shapla-button>
       </template>
     </modal>
-    <spinner :active="spinner"/>
-    <notification v-model="note"/>
   </div>
 </template>

@@ -1,13 +1,6 @@
 import {Component} from "react";
-import {
-  Dialog,
-  DialogContainer,
-  Modal,
-  NotificationContainer,
-  Notify,
-  Spinner,
-  SpinnerContainer
-} from "@shapla/react-components";
+import {Modal} from "@shapla/react-components";
+import {Dialog, Notify, Spinner} from '@shapla/vanilla-components'
 import axios from "../../utils/axios";
 
 interface CommonPublicHolidayInterface {
@@ -296,9 +289,6 @@ export default class CommonPublicHolidays extends Component<any, CommonPublicHol
             </tbody>
           </table>
         </Modal>
-        <DialogContainer/>
-        <NotificationContainer/>
-        <SpinnerContainer/>
       </>
     );
   }

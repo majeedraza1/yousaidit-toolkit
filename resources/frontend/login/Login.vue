@@ -34,8 +34,9 @@
 </template>
 
 <script>
-import axios from 'axios'
+import axios from "@/utils/axios";
 import {textField, shaplaButton, shaplaCheckbox} from 'shapla-vue-components';
+import {Spinner} from "@shapla/vanilla-components";
 
 export default {
 	name: "Login",
@@ -67,17 +68,16 @@ export default {
 	},
 	methods: {
 		submitForm() {
-			this.loading = true;
-			this.$store.commit('SET_LOADING_STATUS', true);
-			axios.post(window.DesignerProfile.restRoot + '/web-login', {
+			Spinner.show();
+			axios.post('web-login', {
 				username: this.user_login,
 				password: this.password,
 				remember: this.remember,
 			}).then(() => {
-				// this.$store.commit('SET_LOADING_STATUS', false);
+				// Spinner.hide();
 				window.location.reload();
 			}).catch(error => {
-				this.$store.commit('SET_LOADING_STATUS', false);
+				Spinner.hide();
 				if (error.response && error.response.data.errors) {
 					this.errors = error.response.data.errors;
 				}

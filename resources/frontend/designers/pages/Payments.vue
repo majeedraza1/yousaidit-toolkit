@@ -15,7 +15,7 @@
 
 <script>
 import {dataTable} from 'shapla-vue-components';
-import axios from "axios";
+import axios from "@/utils/axios";
 
 export default {
 	name: "Payments",
@@ -37,13 +37,13 @@ export default {
 	},
 	methods: {
 		getItems() {
-			this.$store.commit('SET_LOADING_STATUS', true);
-			axios.get(window.DesignerProfile.restRoot + '/designer-payments').then(response => {
-				this.$store.commit('SET_LOADING_STATUS', false);
+			Spinner.show();
+			axios.get('designer-payments').then(response => {
+				Spinner.hide();
 				let data = response.data.data;
 				this.items = data.items;
 			}).catch(errors => {
-				this.$store.commit('SET_LOADING_STATUS', false);
+				Spinner.hide();
 				console.log(errors);
 			});
 		},

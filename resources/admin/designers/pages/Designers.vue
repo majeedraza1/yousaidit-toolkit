@@ -37,7 +37,8 @@
 
 <script>
 import {dataTable, pagination, searchForm, columns, column} from 'shapla-vue-components';
-import axios from 'axios';
+import axios from "@/utils/axios";
+import {Spinner} from "@shapla/vanilla-components";
 
 export default {
 	name: "Designers",
@@ -63,7 +64,7 @@ export default {
 		}
 	},
 	mounted() {
-		this.$store.commit('SET_LOADING_STATUS', false);
+		Spinner.hide();
 		this.getItems();
 	},
 	methods: {
@@ -81,7 +82,7 @@ export default {
 			this.getItems();
 		},
 		getItems() {
-			this.$store.commit('SET_LOADING_STATUS', true);
+			Spinner.show();
 			axios.get(Stackonet.root + '/designers', {
 				params: {
 					page: this.current_page,
@@ -92,10 +93,10 @@ export default {
 				let data = response.data.data;
 				this.items = data.items;
 				this.total_items = data.pagination.total_items;
-				this.$store.commit('SET_LOADING_STATUS', false);
+				Spinner.hide();
 			}).catch(errors => {
 				console.log(errors);
-				this.$store.commit('SET_LOADING_STATUS', false);
+				Spinner.hide();
 			})
 		},
 		handleActionClick(action, item) {

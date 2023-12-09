@@ -134,6 +134,7 @@ import EmojiPicker from "./EmojiPicker";
 import fontFamilies from "./font-family";
 import colors from "./colors";
 import http from "@/utils/axios";
+import {Notify, Spinner} from "@shapla/vanilla-components";
 
 export default {
   name: "EditorControls",
@@ -220,7 +221,7 @@ export default {
       this.$emit('change', {key: type, payload: value});
     },
     generateContent() {
-      this.$store.commit('SET_LOADING_STATUS', true)
+      Spinner.show();
       http
           .post('ai-content-generator', this.card_options)
           .then(response => {
@@ -235,15 +236,13 @@ export default {
               },
             }));
           })
-          .catch(error => {
-            this.$store.commit('SET_NOTIFICATION', {
-              type: 'error',
-              title: 'Error!',
-              message: error.response.data.message
-            })
+          .catch(errors => {
+            if (typeof errors.response.data.message === "string") {
+              Notify.error(errors.response.data.message, 'Error!');
+            }
           })
           .finally(() => {
-            this.$store.commit('SET_LOADING_STATUS', false)
+            Spinner.hide();
           })
     }
   },

@@ -1,6 +1,5 @@
 import Vue from "vue";
 import SingleProductDynamicCard from "../dynamic-card/SingleProductDynamicCard.vue";
-import dynamicCardStore from "../dynamic-card/store";
 import {closeModal, refreshBodyClass} from "./modal";
 
 import {createEl, Notify, Spinner} from "@shapla/vanilla-components";
@@ -11,7 +10,7 @@ import {
   LeftInnerMessagePropsInterface,
   RightInnerMessagePropsInterface
 } from "../../utils/interfaces";
-import axios from "axios";
+import axios from "@/utils/axios";
 
 if (window.StackonetToolkit && window.StackonetToolkit.restNonce) {
   axios.defaults.headers.common['X-WP-Nonce'] = window.StackonetToolkit.restNonce;
@@ -82,7 +81,6 @@ const personalise = (element: HTMLElement) => {
   dynamicCardContainer(product_id, card_size).then(() => {
     new Vue({
       el: '#dynamic-card',
-      store: dynamicCardStore,
       render: h => h(SingleProductDynamicCard)
     });
 

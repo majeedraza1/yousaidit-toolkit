@@ -175,29 +175,23 @@
         </div>
       </div>
     </modal>
-    <notification :options="notifications"/>
-    <spinner :active="loading"/>
-    <confirm-dialog/>
   </div>
 </template>
 
 <script>
-import axios from "axios";
-import {mapState} from "vuex";
+import axios from "@/utils/axios";
 import {
-  ConfirmDialog,
   deleteIcon,
   FileUploader,
   iconContainer,
   imageContainer,
   inputSlider,
   modal,
-  notification,
   shaplaButton,
-  spinner,
   tab,
   tabs
 } from "shapla-vue-components";
+import {Notify, Spinner} from '@shapla/vanilla-components'
 import CardWebViewer from "@/components/DynamicCardPreview/CardWebViewer";
 import EditableContent from "@/frontend/inner-message/EditableContent";
 import EditorControls from "@/frontend/inner-message/EditorControls";
@@ -212,8 +206,8 @@ export default {
   components: {
     InputUserOptions,
     SvgIcon, inputSlider,
-    EditableContent, CardWebViewer, modal, shaplaButton, iconContainer, SwiperSlider, imageContainer, spinner,
-    VideoInnerMessage, EditorControls, FileUploader, tabs, tab, deleteIcon, notification, ConfirmDialog
+    EditableContent, CardWebViewer, modal, shaplaButton, iconContainer, SwiperSlider, imageContainer,
+    VideoInnerMessage, EditorControls, FileUploader, tabs, tab, deleteIcon
   },
   data() {
     return {
@@ -246,11 +240,9 @@ export default {
       product_thumb: '',
       placeholder_im: '',
       showLengthError: false,
-      notifications: {}
     }
   },
   computed: {
-    ...mapState(['loading']),
     placeholder_im_left() {
       return window.StackonetToolkit.placeholderUrlIML;
     },
@@ -258,7 +250,7 @@ export default {
       return window.StackonetToolkit.placeholderUrlIMR;
     },
     uploadUrl() {
-      return StackonetToolkit.restRoot + '/dynamic-cards/media';
+      return 'dynamic-cards/media';
     },
     isUserLoggedIn() {
       return window.StackonetToolkit.isUserLoggedIn || false;
@@ -429,7 +421,7 @@ export default {
       }
       let variations_form = document.querySelector('form.cart');
       if (variations_form) {
-        this.$store.commit('SET_LOADING_STATUS', true);
+        Spinner.show();
         variations_form.submit();
       }
     },
@@ -437,7 +429,7 @@ export default {
       if (this.readFromServer) {
         return;
       }
-      axios.get(StackonetToolkit.restRoot + `/dynamic-cards/${this.product_id}`).then(response => {
+      axios.get(`dynamic-cards/${this.product_id}`).then(response => {
         let data = response.data.data;
         this.payload = data.payload;
         this.product_thumb = data.product_thumb;
@@ -460,7 +452,7 @@ export default {
     },
     handleFileUploadFailed(fileObject, response) {
       if (response.message) {
-        this.notifications = {type: 'error', title: 'Error!', message: response.message};
+        Notify.error(response.message, 'Error!');
       }
     },
     fetchImages() {

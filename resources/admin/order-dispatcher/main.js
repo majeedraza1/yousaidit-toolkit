@@ -1,12 +1,9 @@
 import Vue from 'vue';
-import axios from 'axios'
+import axios from "@/utils/axios";
 import App from './App'
 import router from './routers.js';
 import orderDispatcherStore from './store.js';
 import menuFix from "../utils/admin-menu-fix.js";
-import {Dialog} from 'shapla-vue-components'
-
-Vue.use(Dialog);
 
 if (window.Stackonet.nonce) {
 	axios.defaults.headers.common['X-WP-Nonce'] = window.Stackonet.nonce;

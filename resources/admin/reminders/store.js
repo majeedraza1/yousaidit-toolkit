@@ -36,8 +36,6 @@ const reminderStore = function () {
     return new Vuex.Store({
         // Same as Vue data
         state: {
-            loading: false,
-            notification: {},
             reminders: [],
             users: [],
             reminders_pagination: {

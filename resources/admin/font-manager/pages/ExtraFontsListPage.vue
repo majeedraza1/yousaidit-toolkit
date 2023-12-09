@@ -1,12 +1,12 @@
 <script lang="js">
 import {defineComponent} from 'vue'
-import {dataTable, Dialog, modal, shaplaButton, shaplaCheckbox} from "shapla-vue-components";
+import {dataTable,  modal, shaplaButton, shaplaCheckbox} from "shapla-vue-components";
 import ListItem from "../components/ListItem.vue";
 import {createNewFont, deleteExtraFont, getExtraFonts, updatePreInstalledFont} from "@/admin/font-manager/store";
 
 export default defineComponent({
   name: "ExtraFontsListPage",
-  components: {ListItem, shaplaButton, dataTable, modal, Dialog, shaplaCheckbox},
+  components: {ListItem, shaplaButton, dataTable, modal,  shaplaCheckbox},
   data() {
     return {
       showAddNewModal: false,

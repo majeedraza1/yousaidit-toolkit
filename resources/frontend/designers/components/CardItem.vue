@@ -93,6 +93,7 @@
 
 <script>
 import {imageContainer, iconContainer, shaplaChip, dropdownMenu} from 'shapla-vue-components';
+import {Dialog} from "@shapla/vanilla-components";
 
 export default {
 	name: "CardItem",
@@ -124,7 +125,7 @@ export default {
 	},
 	methods: {
 		handleDeleteItem(item) {
-			this.$dialog.confirm('Are you sure to delete?').then(confirmed => {
+			Dialog.confirm('Are you sure to delete?').then(confirmed => {
 				if (confirmed) {
 					this.$emit('click:delete', item);
 				}

@@ -174,7 +174,7 @@
 </template>
 
 <script>
-import axios from "axios";
+import axios from "@/utils/axios";
 import {
   _FeaturedImage as FeaturedImage,
   _MediaModal as MediaModal,
@@ -193,6 +193,7 @@ import CardPreview from "@/components/DynamicCardGenerator/CardPreview";
 import SvgIcon from "@/components/DynamicCardGenerator/SvgIcon";
 import CardOptions from "@/components/CardOptions";
 import CardWebViewerModal from "@/components/DynamicCardPreview/CardWebViewerModal";
+import {Dialog} from "@shapla/vanilla-components";
 
 export default {
   name: "CardCreator",
@@ -271,7 +272,7 @@ export default {
       return DesignerProfile.user
     },
     uploadUrl() {
-      return window.DesignerProfile.restRoot + '/designers/' + this.user.id + '/attachment';
+      return 'designers/' + this.user.id + '/attachment';
     },
     canvas_width_mm() {
       return this.px_to_mm(this.canvas_width);
@@ -329,12 +330,12 @@ export default {
     },
     handleSubmit() {
       let data = {...this.card, dynamic_card_payload: this.dynamic_card_payload};
-      this.$store.commit('SET_LOADING_STATUS', true);
-      axios.post(window.DesignerProfile.restRoot + '/designers/' + this.user.id + '/cards', data).then(response => {
-        this.$store.commit('SET_LOADING_STATUS', false);
+      Spinner.show();
+      axios.post('designers/' + this.user.id + '/cards', data).then(response => {
+        Spinner.hide();
         this.$emit('card:added', response.data.data);
       }).catch(errors => {
-        this.$store.commit('SET_LOADING_STATUS', false);
+        Spinner.hide();
         console.log(errors);
       });
     },
@@ -360,7 +361,7 @@ export default {
       this.active_section_index = -1;
     },
     deleteSection(section, index) {
-      this.$dialog.confirm('Are you sure to delete the section?').then(confirmed => {
+      Dialog.confirm('Are you sure to delete the section?').then(confirmed => {
         if (confirmed) {
           this.sections.splice(index, 1);
         }
@@ -395,21 +396,21 @@ export default {
       this.images.unshift(image);
     },
     getUserUploadedImages() {
-      this.$store.commit('SET_LOADING_STATUS', true);
-      axios.get(window.DesignerProfile.restRoot + '/designers/' + this.user.id + '/attachment', {
+      Spinner.show();
+      axios.get('designers/' + this.user.id + '/attachment', {
         params: {
           mime_types: ['image/jpeg', 'image/png']
         }
       }).then(response => {
-        this.$store.commit('SET_LOADING_STATUS', false);
+        Spinner.hide();
         this.images = response.data.data;
       }).catch(errors => {
-        this.$store.commit('SET_LOADING_STATUS', false);
+        Spinner.hide();
         console.log(errors);
       });
     },
     previewCard() {
-      this.$store.commit('SET_LOADING_STATUS', true);
+      Spinner.show();
       let data = new FormData();
       data.append('action', 'yousaidit_generate_preview_card');
       data.append('card_size', this.card_size);
@@ -418,10 +419,10 @@ export default {
       data.append('card_background', JSON.stringify(this.image));
       data.append('card_items', JSON.stringify(this.sections));
       axios.post(window.StackonetToolkit.ajaxUrl, data).then(response => {
-        this.$store.commit('SET_LOADING_STATUS', false);
+        Spinner.hide();
         window.open(response.data.data.redirect, '_blank');
       }).catch(errors => {
-        this.$store.commit('SET_LOADING_STATUS', false);
+        Spinner.hide();
         console.log(errors);
       });
     },

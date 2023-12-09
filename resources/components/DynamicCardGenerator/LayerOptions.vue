@@ -219,7 +219,7 @@ export default {
       return DesignerProfile.user
     },
     uploadUrl() {
-      return window.DesignerProfile.restRoot + '/designers/' + this.user.id + '/attachment';
+      return 'designers/' + this.user.id + '/attachment';
     },
     font_families() {
       return DesignerProfile.fonts;

@@ -1,9 +1,6 @@
 import Vue from "vue";
 import App from './App.vue';
-import axios from "axios";
-import {Dialog} from "shapla-vue-components";
-
-Vue.use(Dialog);
+import axios from "@/utils/axios";
 
 const myAccountReminderEl = document.getElementById('yousaiditcard_my_account_reminders');
 if (myAccountReminderEl) {
