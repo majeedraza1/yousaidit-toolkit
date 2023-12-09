@@ -193,7 +193,11 @@ import CardPreview from "@/components/DynamicCardGenerator/CardPreview";
 import SvgIcon from "@/components/DynamicCardGenerator/SvgIcon";
 import CardOptions from "@/components/CardOptions";
 import CardWebViewerModal from "@/components/DynamicCardPreview/CardWebViewerModal";
-import {Dialog} from "@shapla/vanilla-components";
+import {Dialog, Spinner} from "@shapla/vanilla-components";
+
+const formatImageResponse = (images) => {
+  return images.map(image => ({id: image.id, ...image.full}));
+}
 
 export default {
   name: "CardCreator",
@@ -272,7 +276,7 @@ export default {
       return DesignerProfile.user
     },
     uploadUrl() {
-      return 'designers/' + this.user.id + '/attachment';
+      return window.StackonetToolkit.restRoot + '/designers/' + this.user.id + '/attachment';
     },
     canvas_width_mm() {
       return this.px_to_mm(this.canvas_width);
@@ -403,7 +407,7 @@ export default {
         }
       }).then(response => {
         Spinner.hide();
-        this.images = response.data.data;
+        this.images = formatImageResponse(response.data.data);
       }).catch(errors => {
         Spinner.hide();
         console.log(errors);

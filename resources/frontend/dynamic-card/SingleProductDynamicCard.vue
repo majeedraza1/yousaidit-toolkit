@@ -250,7 +250,7 @@ export default {
       return window.StackonetToolkit.placeholderUrlIMR;
     },
     uploadUrl() {
-      return 'dynamic-cards/media';
+      return window.StackonetToolkit.restRoot + '/dynamic-cards/media';
     },
     isUserLoggedIn() {
       return window.StackonetToolkit.isUserLoggedIn || false;
@@ -448,6 +448,8 @@ export default {
         if (!this.isUserLoggedIn) {
           GustLocalStorage.appendMedia(response.data.id);
         }
+        // Set it to active image
+        this.handleImageSelect(response.data);
       }
     },
     handleFileUploadFailed(fileObject, response) {
