@@ -47,19 +47,19 @@
             :actions="actions"
             @action:click="handleActionClick"
         >
-          <template slot="card_sizes" slot-scope="data">
+          <template v-slot:card_sizes="data">
             <template v-for="(_size,index) in card_sizes"
                       v-if="data.row.card_sizes.indexOf(_size.value) !== -1">
               <template v-if="index === 0">{{ _size.label }}</template>
               <template v-else>, {{ _size.label }}</template>
             </template>
           </template>
-          <template slot="status" slot-scope="data">
+          <template v-slot:status="data">
 						<span v-for="_status in statuses" v-if="_status.key === data.row.status">
 							{{ _status.label }}
 						</span>
           </template>
-          <template slot="designer" slot-scope="data">
+          <template v-slot:designer="data">
             <a href="" @click.prevent="goToDesignerProfile(data.row.designer)">
               {{ data.row.designer.display_name }}
             </a>

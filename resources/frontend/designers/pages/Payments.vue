@@ -6,7 +6,7 @@
 			:items="items"
 			:columns="columns"
 		>
-			<template slot="commission_ids" slot-scope="data">
+			<template v-slot:commission_ids="data">
 				{{ data.row.commission_ids.toString() }}
 			</template>
 		</data-table>
@@ -50,7 +50,3 @@ export default {
 	}
 }
 </script>
-
-<style scoped>
-
-</style>

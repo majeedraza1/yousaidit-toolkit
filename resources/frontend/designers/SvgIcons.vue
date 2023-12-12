@@ -87,7 +87,3 @@
 		name: "SvgIcons"
 	}
 </script>
-
-<style scoped>
-
-</style>

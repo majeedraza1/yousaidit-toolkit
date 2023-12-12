@@ -6,7 +6,17 @@ declare module "*.vue" {
 // declare as vue component that import from package 'shapla-vue-components'
 declare module 'shapla-vue-components' {
   import {Component as VueComponent} from 'vue'
-  const components: { inputSlider: VueComponent }
+  const components: {
+    iconContainer: VueComponent,
+    inputSlider: VueComponent,
+    modal: VueComponent,
+    shaplaButton: VueComponent,
+    tab: VueComponent,
+    tabs: VueComponent,
+    deleteIcon: VueComponent,
+    FileUploader: VueComponent,
+    imageContainer: VueComponent,
+  }
   export = components
 }
 

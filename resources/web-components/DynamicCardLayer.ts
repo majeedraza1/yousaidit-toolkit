@@ -5,76 +5,76 @@ export class DynamicCardLayer extends LitElement {
   // Styles are applied to the shadow root and scoped to this element
   // :host { position: absolute; width: 100%; height: 100%; }
   static styles = css`
-    :host, .section, .section *, .section *:before, .section *:after {
-      box-sizing: border-box
-    }
+      :host, .section, .section *, .section *:before, .section *:after {
+          box-sizing: border-box
+      }
 
-    .section {
-      position: absolute;
-      line-height: 1;
-    }
+      .section {
+          position: absolute;
+          line-height: 1;
+      }
 
-    .section-edit.is-image-edit {
-      border: 1px dotted rgba(0, 0, 0, 0.12);
-      position: relative;
-      transition: 300ms all ease-in-out;
-    }
+      .section-edit.is-image-edit {
+          border: 1px dotted rgba(0, 0, 0, 0.12);
+          position: relative;
+          transition: 300ms all ease-in-out;
+      }
 
-    .section-edit.is-image-edit:hover,
-    .section-edit.is-image-edit.is-active {
-      background-color: var(--shapla-primary-alpha);
-    }
+      .section-edit.is-image-edit:hover,
+      .section-edit.is-image-edit.is-active {
+          background-color: var(--shapla-primary-alpha);
+      }
 
-    .section-edit.is-image-edit {
-      //transform: scale(var(--zoom, 1));
-    }
+      .section-edit.is-image-edit {
+          //transform: scale(var(--zoom, 1));
+      }
 
-    .section-edit img {
-      transform: scale(var(--zoom, 1)) rotate(var(--rotate, 0));
-      transform-origin: top left;
-    }
+      .section-edit img {
+          transform: scale(var(--zoom, 1)) rotate(var(--rotate, 0));
+          transform-origin: top left;
+      }
 
-    .section-edit.is-image-edit.is-active {
-      border: 1px dotted rgba(0, 0, 0, 0.12);
-    }
+      .section-edit.is-image-edit.is-active {
+          border: 1px dotted rgba(0, 0, 0, 0.12);
+      }
 
-    .section-edit-icon {
-      background-color: white;
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 32px;
-      height: 32px;
-      overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      border: 1px solid var(--shapla-primary);
-      cursor: pointer;
-      transition: 300ms all ease-in-out;
-      z-index: 99;
-    }
+      .section-edit-icon {
+          background-color: white;
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 32px;
+          height: 32px;
+          overflow: hidden;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          border: 1px solid var(--shapla-primary);
+          cursor: pointer;
+          transition: 300ms all ease-in-out;
+          z-index: 99;
+      }
 
-    .section-edit-icon:hover {
-      border-radius: 16px;
-    }
+      .section-edit-icon:hover {
+          border-radius: 16px;
+      }
 
-    .section-edit-icon svg {
-      display: block;
-      fill: #323232;
-    }
+      .section-edit-icon svg {
+          display: block;
+          fill: #323232;
+      }
 
-    .section-edit.is-active + .section-border {
-      border: 1px dotted rgba(0, 0, 0, 0.12);
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      top: 0;
-      left: 0;
-      z-index: 10;
-      transform: scale(var(--zoom, 1)) rotate(var(--rotate, 0));
-      transform-origin: top left;
-    }
+      .section-edit.is-active + .section-border {
+          border: 1px dotted rgba(0, 0, 0, 0.12);
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          top: 0;
+          left: 0;
+          z-index: 10;
+          transform: scale(var(--zoom, 1)) rotate(var(--rotate, 0));
+          transform-origin: top left;
+      }
   `;
 
   // Creates a reactive property that triggers rendering
@@ -121,8 +121,10 @@ export class DynamicCardLayer extends LitElement {
       if (userOptions.zoom > 0) {
         let zoom = 1 + (userOptions.zoom / 100)
         styles.push(`--zoom: ${zoom}`);
+        window.console.log(userOptions.zoom, 'value is greater than zero')
       } else if (userOptions.zoom < 0) {
-        let zoom = 1 - (userOptions.zoom / 100)
+        let zoom = 1 + (userOptions.zoom / 100)
+        window.console.log('value is less than zero', userOptions.zoom, (userOptions.zoom / 100), zoom);
         styles.push(`--zoom: ${zoom}`);
       }
     }

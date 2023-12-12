@@ -142,11 +142,6 @@
                   />
                 </tab>
               </tabs>
-              <div class="relative border border-solid mt-6 max-w-[150px] max-h-[150px]"
-                   v-if="activeSection.image && activeSection.image.src">
-                <img :src="activeSection.image.src" alt=""/>
-                <delete-icon class="absolute -top-2 -right-2" @click="removeImage"/>
-              </div>
             </div>
           </template>
           <div v-if="slideTo === 2">

@@ -8,6 +8,7 @@ assets/images/
 .idea
 wp-helpers
 tasks
+.plugins
 
 # Files
 **.map

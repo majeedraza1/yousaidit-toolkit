@@ -43,6 +43,17 @@ export default defineComponent({
     emitChange() {
       this.$emit('change', this.userOptions);
     },
+    updateRotate(rotate) {
+      const factor = 5;
+      if ('right' === rotate) {
+        const newValue = (this.userOptions.rotate + factor);
+        this.userOptions.rotate = newValue > 180 ? 180 : newValue;
+      }
+      if ('left' === rotate) {
+        const newValue = (this.userOptions.rotate - factor)
+        this.userOptions.rotate = newValue < -180 ? -180 : newValue;
+      }
+    },
     updateZoom(zoom) {
       const factor = 5;
       if ('in' === zoom) {
@@ -76,40 +87,56 @@ export default defineComponent({
   <div>
     <div>
       <div class="flex font-bold mb-1"> Rotate</div>
-      <div>
-        <input-slider :min="0" :max="360" :step="5" :show-reset="false" v-model="userOptions.rotate"/>
+      <div class="flex space-x-2">
+        <svg-icon class="flex-shrink-0 border border-solid border-gray-300 rounded-full" icon="rotate-left" hoverable
+                  size="large" @click="()=>updateRotate('left')"/>
+        <div class="flex-shrink flex-grow py-4">
+          <input-slider :min="-180" :max="180" :step="5" :show-reset="false" :show-input="false"
+                        v-model="userOptions.rotate"/>
+        </div>
+        <svg-icon class="flex-shrink-0 border border-solid border-gray-300 rounded-full" icon="rotate-right" hoverable
+                  size="large" @click="()=>updateRotate('right')"/>
       </div>
     </div>
     <div>
       <div class="flex font-bold mb-1">Zoom</div>
       <div class="flex space-x-2">
-        <svg-icon class="flex-shrink-0" icon="zoom-out" hoverable @click="()=> updateZoom('out')"/>
+        <svg-icon class="flex-shrink-0 border border-solid border-gray-300 rounded-full" icon="zoom-out" hoverable
+                  size="large" @click="()=> updateZoom('out')"/>
         <div class="flex-shrink flex-grow">
           <input type="number" :value="userOptions.zoom" min="-50" max="100" step="5"
                  @input="event => userOptions.zoom = parseInt(event.target.value)"
           >
         </div>
-        <svg-icon class="flex-shrink-0" icon="zoom-in" hoverable @click="()=> updateZoom('in')"/>
+        <svg-icon class="flex-shrink-0 border border-solid border-gray-300 rounded-full" icon="zoom-in" hoverable
+                  size="large" @click="()=> updateZoom('in')"/>
       </div>
     </div>
     <div>
       <div class="flex font-bold mb-1">Position</div>
       <div>
         <div class="flex space-x-2">
-          <svg-icon class="flex-shrink-0" icon="arrow-downward" hoverable @click="()=>updatePosition('bottom')"/>
+          <svg-icon class="flex-shrink-0 rotate-90 border border-solid border-gray-300 rounded-full"
+                    icon="navigation-next" hoverable size="large"
+                    @click="()=>updatePosition('bottom')"/>
           <div class="flex-shrink flex-grow">
             <input type="number" v-model="userOptions.position.top" step="1"
                    @input="event => userOptions.position.top = parseInt(event.target.value)">
           </div>
-          <svg-icon class="flex-shrink-0" icon="arrow-upward" hoverable @click="()=>updatePosition('top')"/>
+          <svg-icon class="flex-shrink-0 -rotate-90 border border-solid border-gray-300 rounded-full"
+                    icon="navigation-next" hoverable size="large"
+                    @click="()=>updatePosition('top')"/>
         </div>
         <div class="flex space-x-2">
-          <svg-icon class="flex-shrink-0" icon="arrow-back" hoverable @click="()=>updatePosition('left')"/>
+          <svg-icon class="flex-shrink-0 rotate-180 border border-solid border-gray-300 rounded-full"
+                    icon="navigation-next" hoverable size="large"
+                    @click="()=>updatePosition('left')"/>
           <div class="flex-shrink flex-grow">
             <input type="number" v-model="userOptions.position.left" step="1"
                    @input="event => userOptions.position.left = parseInt(event.target.value)">
           </div>
-          <svg-icon class="flex-shrink-0" icon="arrow-forward" hoverable @click="()=>updatePosition('right')"/>
+          <svg-icon class="flex-shrink-0 border border-solid border-gray-300 rounded-full" icon="navigation-next"
+                    hoverable size="large" @click="()=>updatePosition('right')"/>
         </div>
       </div>
     </div>

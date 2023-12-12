@@ -21,7 +21,7 @@
       </div>
       <div class="section section--products">
         <data-table :columns="columns" :items="order.products" :mobile-width="300" :show-cb="false">
-          <template slot="title" slot-scope="data">
+          <template v-slot:title="data">
             <div class="order-information__product flex">
               <image-container container-width="96px" container-height="96px">
                 <img :src="data.row.product_thumbnail" alt=""/>

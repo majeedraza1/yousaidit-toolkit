@@ -15,15 +15,17 @@
             :items="commissions"
             :columns="columns"
         >
-					<span slot="payment_status" slot-scope="data" :class="`payment-status--${data.row.payment_status}`">
+          <template v-slot:payment_status="data">
+					<span :class="`payment-status--${data.row.payment_status}`">
 						{{ data.row.payment_status }}
 					</span>
+          </template>
           <template v-slot:marketplace="data">
 						<span v-for="_market in marketplaces" v-if="_market.key === data.row.marketplace">
 						{{ _market.label }}
 						</span>
           </template>
-          <template slot="order_id" slot-scope="data">
+          <template v-slot:order_id="data">
             <a v-if="data.row.created_via !== 'shipstation-api'"
                :href="`/wp-admin/post.php?post=${data.row.order_id}&action=edit`" target="_blank">
               #{{ data.row.order_id }}
