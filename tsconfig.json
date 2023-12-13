@@ -1,12 +1,12 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "experimentalDecorators": false,
+    "experimentalDecorators": true,
     "useDefineForClassFields": true,
     "module": "esnext",
     "moduleResolution": "node",
     "strict": true,
-    "jsx": "preserve",
+    "jsx": "react",
     "sourceMap": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,

@@ -17,7 +17,7 @@
                            :card_size="card_size" :slide-to="slideTo" @slideChange="onSlideChange">
               <template v-slot:canvas="slotProps">
                 <dynamic-card-canvas
-                    show-edit-icon
+                    :show-edit-icon="true"
                     :options="`${JSON.stringify(payload)}`"
                     :active-section-index="activeSectionIndex"
                     :card-width-mm="card_dimension[0]"

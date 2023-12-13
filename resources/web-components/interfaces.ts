@@ -12,10 +12,10 @@ interface DynamicCardTextOptionsInterface {
 
 interface DynamicCardImageOptionsInterface {
   img: {
-    "src": string,
-    "width": number,
-    "height": number,
-    "id": number
+    id: number,
+    src: string,
+    width: number,
+    height: number,
   },
   width: number | string,
   height: number | string,

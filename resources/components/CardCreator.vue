@@ -48,10 +48,7 @@
             :card_size="card_size"
             :card_sizes="card_sizes"
             :canvas_width="canvas_width"
-            :canvas_scale_ration="canvas_scale_ration"
-            :image="image"
-            :background="background"
-            :sections="sections"
+            :dynamic_card_payload="dynamic_card_payload"
         />
         <div class="flex-grow" style="max-width: 300px;">
           <div class="mb-2 text-center text-lg text-primary">
@@ -393,7 +390,11 @@ export default {
       xhr.setRequestHeader('X-WP-Nonce', window.DesignerProfile.restNonce);
     },
     handleCardLogoImageId(image) {
-      this.image = Object.assign({}, image.full || image.thumbnail, {id: image.id});
+      if (image.id && image.src) {
+        this.image = image;
+      } else if (image.full || image.thumbnail) {
+        this.image = Object.assign({}, image.full || image.thumbnail, {id: image.id});
+      }
     },
     refreshMediaList(response, type = 'avatar') {
       let image = response.data.attachment;

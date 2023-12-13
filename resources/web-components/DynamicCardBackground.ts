@@ -30,8 +30,8 @@ export class DynamicCardBackground extends LitElement {
                style="background-color:${this.backgroundColor}"></div>`
     }
 
-    if (typeof backgroundImage === 'object' && Object.keys(backgroundImage).length) {
-      return html`<img class="card-canvas__background" src="${backgroundImage.src}" alt="">`
+    if (typeof this.backgroundImage === 'object' && Object.keys(this.backgroundImage).length) {
+      return html`<img class="card-canvas__background" src="${this.backgroundImage.src}" alt="">`
     }
   }
 }

@@ -155,7 +155,8 @@ class DesignerCard extends DatabaseModel {
 		];
 
 		if ( $this->get_product_id() ) {
-			$data['product_url'] = $this->get_product_edit_url();
+			$data['product_url']      = $this->get_product_url();
+			$data['product_edit_url'] = $this->get_product_edit_url();
 		}
 
 		if ( ! empty( $this->get( 'deleted_at' ) ) ) {
@@ -304,8 +305,16 @@ class DesignerCard extends DatabaseModel {
 	 *
 	 * @return int
 	 */
-	public function get_product_id() {
-		return intval( $this->get( 'product_id' ) );
+	public function get_product_id(): int {
+		return intval( $this->get_prop( 'product_id' ) );
+	}
+
+	public function get_product_url(): string {
+		if ( ! $this->get_product_id() ) {
+			return '';
+		}
+
+		return (string) get_permalink( $this->get_product_id() );
 	}
 
 	/**
@@ -313,7 +322,7 @@ class DesignerCard extends DatabaseModel {
 	 *
 	 * @return string
 	 */
-	public function get_product_edit_url() {
+	public function get_product_edit_url(): string {
 		if ( ! $this->get_product_id() ) {
 			return '';
 		}

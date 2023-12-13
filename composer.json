@@ -42,11 +42,17 @@
     "aws/aws-sdk-php": "^3.255"
   },
   "require-dev": {
-    "wp-cli/wp-cli-bundle": "*"
+    "wp-cli/wp-cli-bundle": "*",
+    "roots/wordpress": "^6.4"
   },
   "scripts": {
     "dompdf_install_font": "wp yousaidit-cli dompdf_install_font",
     "tfpdf_install_font": "wp yousaidit-cli tfpdf_install_font",
     "tfpdf_clear_font_cache": "wp yousaidit-cli tfpdf_clear_font_cache"
+  },
+  "config": {
+    "allow-plugins": {
+      "roots/wordpress-core-installer": true
+    }
   }
 }

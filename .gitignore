@@ -1,6 +1,7 @@
 # Folders
 node_modules
 vendor/*
+wordpress
 assets/css/
 assets/fonts/
 assets/js/

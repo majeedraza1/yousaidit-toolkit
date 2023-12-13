@@ -195,10 +195,10 @@ class OrderItemDynamicCard {
 		// Add sections
 		$this->addSections( $fpd );
 
-		$fpd->Output( $args['dest'] ?? '', $args['name'] ?? '' );
-//		header( "Content-Type: application/pdf" );
-//		$fpd->Output();
-//		die;
+//		$fpd->Output( $args['dest'] ?? '', $args['name'] ?? '' );
+		header( "Content-Type: application/pdf" );
+		$fpd->Output();
+		die;
 	}
 
 	/**
@@ -321,7 +321,10 @@ class OrderItemDynamicCard {
 			$x_pos = $fpd->GetPageWidth() - ( $text_width + $section->get_text_option( 'marginRight' ) );
 		}
 
-		$fpd->Text( $x_pos, $y_pos, $section->get_text() );
+		if ( $section->get_text_spacing() ) {
+			$fpd->SetFontSpacing( $section->get_text_spacing() );
+		}
+		$fpd->RotatedText( $x_pos, $y_pos, $section->get_text(), $section->get_rotation() );
 	}
 
 	private function addImageSection( FreePdfExtended &$fpd, CardSectionImageOption $section ) {

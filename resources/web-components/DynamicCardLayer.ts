@@ -34,6 +34,12 @@ export class DynamicCardLayer extends LitElement {
           transform-origin: top left;
       }
 
+      .section-text-content {
+          transform: rotate(var(--rotate, 0));
+          transform-origin: top;
+          letter-spacing: calc(var(--spacing, normal) * var(--scaling-factor, 1));
+      }
+
       .section-edit.is-image-edit.is-active {
           border: 1px dotted rgba(0, 0, 0, 0.12);
       }
@@ -96,8 +102,8 @@ export class DynamicCardLayer extends LitElement {
   }
 
   sectionStyle() {
-    // when card width 150mm, then from top 10mm
-    // when card width 15mm, then from top 10mm/150mm * 15
+    // when card width 150mm, then element width 40mm
+    // when card width 1mm, then element width 40mm/150mm
     const {userOptions} = this.section;
     let top = this.section.position.top;
     if (userOptions && userOptions.position.top) {
@@ -113,6 +119,7 @@ export class DynamicCardLayer extends LitElement {
       _top = Math.round(this.elementHeightMM * (top / this.cardHeightMM)),
       _left = Math.round(this.elementWidthMM * (left / this.cardWidthMM));
 
+    styles.push(`--scaling-factor: ${(this.elementWidthMM / this.cardWidthMM).toFixed(3)}`);
     styles.push(`left: ${convertMMtoPX(_left)}px`);
     styles.push(`top: ${convertMMtoPX(_top)}px`);
 
@@ -121,10 +128,8 @@ export class DynamicCardLayer extends LitElement {
       if (userOptions.zoom > 0) {
         let zoom = 1 + (userOptions.zoom / 100)
         styles.push(`--zoom: ${zoom}`);
-        window.console.log(userOptions.zoom, 'value is greater than zero')
       } else if (userOptions.zoom < 0) {
         let zoom = 1 + (userOptions.zoom / 100)
-        window.console.log('value is less than zero', userOptions.zoom, (userOptions.zoom / 100), zoom);
         styles.push(`--zoom: ${zoom}`);
       }
     }
@@ -137,6 +142,16 @@ export class DynamicCardLayer extends LitElement {
       styles.push(`font-size: ${fontSize}pt`);
       styles.push(`text-align: ${this.section.textOptions.align}`);
       styles.push(`color: ${this.section.textOptions.color}`);
+
+      window.console.log(this.section.textOptions);
+
+      if (this.section.textOptions.rotation) {
+        styles.push(`--rotate: ${this.section.textOptions.rotation}deg`);
+      }
+
+      if (this.section.textOptions.spacing) {
+        styles.push(`--spacing: ${this.section.textOptions.spacing}pt`);
+      }
 
       if (['center', 'right'].indexOf(this.section.textOptions.align) !== -1) {
         styles.push('width: 100%');
@@ -240,7 +255,7 @@ export class DynamicCardLayer extends LitElement {
     return html`
         <div class="${classes.join(' ')}">
             ${showEditIcon ? this.iconTemplate() : ''}
-            <div style="padding:0 8px;">
+            <div style="padding:0 8px;" class="section-text-content">
                 ${this.section.text ? this.replaceInvertedComma(this.section.text) : this.replaceInvertedComma(this.section.placeholder)}
             </div>
         </div>`
