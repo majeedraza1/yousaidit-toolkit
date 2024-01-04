@@ -23,6 +23,7 @@ use YouSaidItCards\Modules\FeaturedProductsFirst\FeaturedProductsFirst;
 use YouSaidItCards\Modules\FontManager\FontManager;
 use YouSaidItCards\Modules\HideProductsFromShop\HideProductsFromShop;
 use YouSaidItCards\Modules\InnerMessage\InnerMessageManager;
+use YouSaidItCards\Modules\LocalDevelopmentHelper\Manager;
 use YouSaidItCards\Modules\MultistepCheckout\MultistepCheckout;
 use YouSaidItCards\Modules\OrderDispatcher\OrderDispatcherManager;
 use YouSaidItCards\Modules\PackingSlip\PackingSlipManager;
@@ -142,23 +143,24 @@ class Plugin {
 		$this->container['module_faq']         = FaqManager::init();
 		$this->container['module_color_theme'] = ColorThemeManager::init();
 
-		$this->container['module_checkout']         = MultistepCheckout::init();
-		$this->container['module_dynamic_card']     = DynamicCardManager::init();
-		$this->container['module_designers']        = DesignersManager::init();
-		$this->container['module_rude_product']     = RudeProductManager::init();
-		$this->container['module_order_dispatcher'] = OrderDispatcherManager::init();
-		$this->container['module_packing_slip']     = PackingSlipManager::init();
-		$this->container['module_card_merger']      = CardMergerManager::init();
-		$this->container['module_hide_product']     = HideProductsFromShop::init();
-		$this->container['module_inner_message']    = InnerMessageManager::init();
-		$this->container['module_trade_site']       = TradeSiteManager::init();
-		$this->container['module_eva_theme']        = EvaThemeManager::init();
-		$this->container['module_featured_product'] = FeaturedProductsFirst::init();
-		$this->container['module_reminder']         = RemindersManager::init();
-		$this->container['module_dispatch_timer']   = DispatchTimerManager::init();
-		$this->container['module_card_popup']       = CardPopupManager::init();
-		$this->container['module_plant_trees']      = TreePlantingManager::init();
-		$this->container['module_font_manager']     = FontManager::init();
+		$this->container['module_checkout']          = MultistepCheckout::init();
+		$this->container['module_dynamic_card']      = DynamicCardManager::init();
+		$this->container['module_designers']         = DesignersManager::init();
+		$this->container['module_rude_product']      = RudeProductManager::init();
+		$this->container['module_order_dispatcher']  = OrderDispatcherManager::init();
+		$this->container['module_packing_slip']      = PackingSlipManager::init();
+		$this->container['module_card_merger']       = CardMergerManager::init();
+		$this->container['module_hide_product']      = HideProductsFromShop::init();
+		$this->container['module_inner_message']     = InnerMessageManager::init();
+		$this->container['module_trade_site']        = TradeSiteManager::init();
+		$this->container['module_eva_theme']         = EvaThemeManager::init();
+		$this->container['module_featured_product']  = FeaturedProductsFirst::init();
+		$this->container['module_reminder']          = RemindersManager::init();
+		$this->container['module_dispatch_timer']    = DispatchTimerManager::init();
+		$this->container['module_card_popup']        = CardPopupManager::init();
+		$this->container['module_plant_trees']       = TreePlantingManager::init();
+		$this->container['module_font_manager']      = FontManager::init();
+		$this->container['module_local_development'] = Manager::init();
 	}
 
 	/**
