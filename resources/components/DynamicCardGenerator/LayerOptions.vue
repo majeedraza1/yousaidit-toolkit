@@ -84,7 +84,7 @@
                 <div class="flex flex-wrap mb-2">
                   <div class="w-full p-1">
                     <featured-image @click:add="show_image_modal = true" @click:clear="clearImage"
-                                    :image-url="options.imageOptions.img.src"/>
+                                    :image-url="options.imageOptions ? options.imageOptions.img.src:''"/>
                   </div>
                 </div>
                 <h4 class="text-base">Image Options</h4>
@@ -121,7 +121,7 @@
         v-if="show_image_modal"
         :active="show_image_modal"
         @close="show_image_modal = false"
-        :images="mediaImages"
+        :images="images"
         :url="uploadUrl"
         @select:image="handleCardLogoImageId"
         @before:send="addNonceHeader"
@@ -204,17 +204,6 @@ export default {
     }
   },
   computed: {
-    mediaImages() {
-      if (this.images.length) {
-        return this.images.map(_img => {
-          return {
-            ..._img,
-            src: _img.thumbnail.src || _img.full.src
-          }
-        })
-      }
-      return []
-    },
     user() {
       return DesignerProfile.user
     },
@@ -253,8 +242,7 @@ export default {
       xhr.setRequestHeader('X-WP-Nonce', window.DesignerProfile.restNonce);
     },
     handleCardLogoImageId(image) {
-      this.options.imageOptions.img = image.full || image.thumbnail;
-      this.options.imageOptions.img['id'] = image.id ?? 0;
+      this.options.imageOptions.img = image;
     },
     clearImage() {
       this.options.imageOptions.img = {id: '', src: '', width: '', height: ''};

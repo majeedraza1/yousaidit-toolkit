@@ -16,6 +16,13 @@ declare module 'shapla-vue-components' {
     deleteIcon: VueComponent,
     FileUploader: VueComponent,
     imageContainer: VueComponent,
+    column: VueComponent,
+    columns: VueComponent,
+    selectField: VueComponent,
+    sideNavigation: VueComponent,
+    textField: VueComponent,
+    _FeaturedImage: VueComponent,
+    _MediaModal: VueComponent,
   }
   export = components
 }

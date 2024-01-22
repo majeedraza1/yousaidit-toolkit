@@ -662,6 +662,23 @@ class DesignerCard extends DatabaseModel {
 		return isset( $pdf_ids[ $size ] ) && is_array( $pdf_ids[ $size ] ) ? intval( $pdf_ids[ $size ][0] ) : 0;
 	}
 
+	public static function get_dynamic_card_product_ids(): array {
+		global $wpdb;
+		$table   = static::get_table_name();
+		$ids     = [];
+		$sql     = $wpdb->prepare(
+			"SELECT product_id FROM $table WHERE product_id > 0 AND card_type = %s AND status = %s",
+			'dynamic',
+			'accepted'
+		);
+		$results = $wpdb->get_results( $sql, ARRAY_A );
+		foreach ( $results as $result ) {
+			$ids[] = intval( $result['product_id'] );
+		}
+
+		return $ids;
+	}
+
 	/**
 	 * Find multiple records from database
 	 *
