@@ -100,7 +100,7 @@ import MultiCompose from "./MultiCompose.vue";
 import EditableContent from "@/frontend/inner-message/EditableContent";
 import SwiperSlider from "@/frontend/dynamic-card/SwiperSlider.vue";
 import VideoInnerMessage from "@/frontend/dynamic-card/VideoInnerMessage.vue";
-import {Notify} from "@shapla/vanilla-components";
+import {Notify, Spinner} from "@shapla/vanilla-components";
 
 const defaultData = () => {
   return {
