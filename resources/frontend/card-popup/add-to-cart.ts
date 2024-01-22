@@ -159,6 +159,9 @@ const submitFormToServer = (data: InnerMessagePropsInterface | DynamicCardPropsI
     });
   }
   const formData = new FormData(form);
+  if (data.payload) {
+    formData.append('_dynamic_card_payload', JSON.stringify(data.payload));
+  }
   const url = form.getAttribute('action');
   Spinner.show();
   postRequest(url, formData).then(response => {

@@ -2,6 +2,8 @@
 
 namespace YouSaidItCards\Modules\CardPopup;
 
+use Stackonet\WP\Framework\Supports\Logger;
+use YouSaidItCards\Modules\Designers\DynamicCard;
 use YouSaidItCards\Modules\DynamicCard\DynamicCardManager;
 use YouSaidItCards\Modules\InnerMessage\InnerMessageManager;
 
@@ -91,6 +93,15 @@ class CardPopupManager {
 
 				if ( ! empty( $dynamic_card ) ) {
 					$cart_item_data['_dynamic_card'] = DynamicCardManager::sanitize_dynamic_card( $dynamic_card );
+				}
+
+				if ( isset( $_POST['_dynamic_card_payload'] ) ) {
+					$payload = json_decode( stripslashes( $_POST['_dynamic_card_payload'] ), true );
+					Logger::log( [ 'raw' => $_POST['_dynamic_card_payload'], 'parse' => $payload ] );
+					if ( is_array( $payload ) ) {
+						$sanitized_payload                       = DynamicCard::sanitize_card_payload( $payload );
+						$cart_item_data['_dynamic_card_payload'] = wp_json_encode( $sanitized_payload );
+					}
 				}
 
 				$hash = $cart->add_to_cart( $product_id, max( 1, $product_qty ), $variation_id, [], $cart_item_data );

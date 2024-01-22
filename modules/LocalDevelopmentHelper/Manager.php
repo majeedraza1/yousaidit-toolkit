@@ -62,7 +62,7 @@ class Manager {
 	 * @return void
 	 */
 	public function add_footer_content() {
-		if ( function_exists( 'is_shop' ) && is_shop() ) {
+		if ( function_exists( 'is_shop' ) && ( is_shop() || is_product_category() ) ) {
 			$dynamic_cards_products = DesignerCard::get_dynamic_card_product_ids();
 			$session                = Session::get_instance();
 			$card_type              = $session->get( 'local_development_card_type', 'all' );
