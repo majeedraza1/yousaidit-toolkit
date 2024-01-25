@@ -91,8 +91,9 @@
 </template>
 
 <script>
-import axios from "axios";
+import axios from "@/utils/axios";
 import {columns, column, toggles, toggle, shaplaButton} from 'shapla-vue-components';
+import {Spinner} from "@shapla/vanilla-components";
 
 export default {
 	name: "PayPalPayout",
@@ -110,31 +111,27 @@ export default {
 	},
 	methods: {
 		getItem() {
-			this.$store.commit('SET_LOADING_STATUS', true);
-			axios.get(window.DesignerProfile.restRoot + '/paypal-payouts/' + this.id).then(response => {
-				this.$store.commit('SET_LOADING_STATUS', false);
+			Spinner.show();
+			axios.get('paypal-payouts/' + this.id).then(response => {
+				Spinner.hide();
 				let data = response.data.data;
 				this.payment = data.payment;
 				this.items = data.items;
 			}).catch(errors => {
 				console.log(errors);
-				this.$store.commit('SET_LOADING_STATUS', false);
+				Spinner.hide();
 			});
 		},
 		syncPayment() {
-			this.$store.commit('SET_LOADING_STATUS', true);
-			axios.post(window.DesignerProfile.restRoot + '/paypal-payouts/' + this.payment.payment_id + '/sync').then(() => {
-				this.$store.commit('SET_LOADING_STATUS', false);
+			Spinner.show();
+			axios.post('paypal-payouts/' + this.payment.payment_id + '/sync').then(() => {
+				Spinner.hide();
 				this.getItem();
 			}).catch(errors => {
 				console.log(errors);
-				this.$store.commit('SET_LOADING_STATUS', false);
+				Spinner.hide();
 			});
 		}
 	}
 }
 </script>
-
-<style scoped>
-
-</style>

@@ -6,7 +6,7 @@
 			:items="items"
 			:columns="columns"
 		>
-			<template slot="commission_ids" slot-scope="data">
+			<template v-slot:commission_ids="data">
 				{{ data.row.commission_ids.toString() }}
 			</template>
 		</data-table>
@@ -15,7 +15,7 @@
 
 <script>
 import {dataTable} from 'shapla-vue-components';
-import axios from "axios";
+import axios from "@/utils/axios";
 
 export default {
 	name: "Payments",
@@ -37,20 +37,16 @@ export default {
 	},
 	methods: {
 		getItems() {
-			this.$store.commit('SET_LOADING_STATUS', true);
-			axios.get(window.DesignerProfile.restRoot + '/designer-payments').then(response => {
-				this.$store.commit('SET_LOADING_STATUS', false);
+			Spinner.show();
+			axios.get('designer-payments').then(response => {
+				Spinner.hide();
 				let data = response.data.data;
 				this.items = data.items;
 			}).catch(errors => {
-				this.$store.commit('SET_LOADING_STATUS', false);
+				Spinner.hide();
 				console.log(errors);
 			});
 		},
 	}
 }
 </script>
-
-<style scoped>
-
-</style>

@@ -89,6 +89,7 @@ class WooCommerceManager {
 	public function hidden_order_itemmeta( array $keys ): array {
 		$keys[] = '_postcard_pdf_id';
 		$keys[] = '_card_designer_commission_id';
+		$keys[] = '_dynamic_card_payload';
 
 		return $keys;
 	}

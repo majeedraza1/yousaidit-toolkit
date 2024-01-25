@@ -22,11 +22,15 @@ class Utils {
 	 *
 	 * @return string
 	 */
-	public static function generate_id() {
-		require_once( ABSPATH . 'wp-includes/class-phpass.php' );
-		$hash = new \PasswordHash( 8, false );
+	public static function generate_id(): string {
+		try {
+			return bin2hex( random_bytes( 16 ) );
+		} catch ( \Exception $e ) {
+			require_once( ABSPATH . 'wp-includes/class-phpass.php' );
+			$hash = new \PasswordHash( 8, false );
 
-		return md5( $hash->get_random_bytes( 32 ) );
+			return md5( $hash->get_random_bytes( 32 ) );
+		}
 	}
 
 	/**
@@ -34,9 +38,8 @@ class Utils {
 	 *
 	 * @return int
 	 * @global \wpdb $wpdb
-	 *
 	 */
-	public static function count_sessions() {
+	public static function count_sessions(): int {
 		global $wpdb;
 		$table = $wpdb->prefix . self::$table;
 
@@ -46,13 +49,13 @@ class Utils {
 	}
 
 	/**
-	 * Test whether or not a session exists
+	 * Test whether a session exists
 	 *
-	 * @param string $session_id The session ID to retrieve
+	 * @param  string  $session_id  The session ID to retrieve
 	 *
 	 * @return bool
 	 */
-	public static function session_exists( $session_id ) {
+	public static function session_exists( $session_id ): bool {
 		global $wpdb;
 		$table = $wpdb->prefix . self::$table;
 
@@ -66,8 +69,8 @@ class Utils {
 	/**
 	 * Get session from database.
 	 *
-	 * @param string $session_id The session ID to retrieve
-	 * @param array $default The default value to return if the option does not exist.
+	 * @param  string  $session_id  The session ID to retrieve
+	 * @param  array  $default  The default value to return if the option does not exist.
 	 *
 	 * @return array Session data
 	 */
@@ -88,46 +91,9 @@ class Utils {
 	}
 
 	/**
-	 * Create a new, random session in the database.
-	 *
-	 * @param null|string $date
-	 */
-	public static function create_dummy_session( $date = null ) {
-		// Generate our date
-		if ( null !== $date ) {
-			$time = strtotime( $date );
-
-			if ( false === $time ) {
-				$date = null;
-			} else {
-				$expires = date( 'U', strtotime( $date ) );
-			}
-		}
-
-		// If null was passed, or if the string parsing failed, fall back on a default
-		if ( null === $date ) {
-			/**
-			 * Filter the expiration of the session in the database
-			 *
-			 * @param int
-			 */
-			$expires = time() + (int) apply_filters( 'wp_session_expiration', 30 * 60 );
-		}
-
-		$session_id = self::generate_id();
-
-		// Store the session
-		self::add_session( array(
-			'session_key'    => $session_id,
-			'session_value'  => array(),
-			'session_expiry' => $expires
-		) );
-	}
-
-	/**
 	 * Add session in database.
 	 *
-	 * @param array $data Data to update (in column => value pairs). Both $data columns and $data values should be "raw" (neither should be SQL escaped).
+	 * @param  array  $data  Data to update (in column => value pairs). Both $data columns and $data values should be "raw" (neither should be SQL escaped).
 	 *                    This means that if you are using GET or POST data you may need to use stripslashes() to avoid slashes ending up in the database.
 	 *
 	 * @return false|int false if the row could not be inserted or the number of affected rows (which will always be 1).
@@ -146,8 +112,8 @@ class Utils {
 	/**
 	 * Update session in database.
 	 *
-	 * @param int $session_id The session ID to update
-	 * @param array $data Data to update (in column => value pairs). Both $data columns and $data values should be "raw" (neither should be SQL escaped).
+	 * @param  int  $session_id  The session ID to update
+	 * @param  array  $data  Data to update (in column => value pairs). Both $data columns and $data values should be "raw" (neither should be SQL escaped).
 	 *                    This means that if you are using GET or POST data you may need to use stripslashes() to avoid slashes ending up in the database.
 	 *
 	 * @return bool|int the number of rows updated, or false if there is an error.
@@ -166,13 +132,15 @@ class Utils {
 	}
 
 	/**
-	 * @param string $session_id
-	 * @param string $value
-	 * @param int $expiry
+	 * Add or update session
+	 *
+	 * @param  string  $session_id The unique session id.
+	 * @param  string  $value Session data.
+	 * @param  int  $expiry Date to be expired.
 	 *
 	 * @return bool
 	 */
-	public static function add_or_update_session( $session_id, $value, $expiry ) {
+	public static function add_or_update_session( string $session_id, string $value, int $expiry ): bool {
 		global $wpdb;
 		$table = $wpdb->prefix . self::$table;
 
@@ -186,11 +154,11 @@ class Utils {
 	/**
 	 * Delete session in database.
 	 *
-	 * @param string $session_id The session ID to update
+	 * @param  string  $session_id  The session ID to update
 	 *
 	 * @return bool
 	 */
-	public static function delete_session( $session_id = '' ) {
+	public static function delete_session( $session_id = '' ): bool {
 		global $wpdb;
 		$table = $wpdb->prefix . self::$table;
 
@@ -204,13 +172,13 @@ class Utils {
 	/**
 	 * Delete old sessions from the database.
 	 *
-	 * @param int $limit Maximum number of sessions to delete.
+	 * @param  int  $limit  Maximum number of sessions to delete.
 	 *
 	 * @return int Sessions deleted.
 	 * @global \wpdb $wpdb
 	 *
 	 */
-	public static function delete_old_sessions( $limit = 1000 ) {
+	public static function delete_old_sessions( int $limit = 1000 ) {
 		global $wpdb;
 		$table = $wpdb->prefix . self::$table;
 

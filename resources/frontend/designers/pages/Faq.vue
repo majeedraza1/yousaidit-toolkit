@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import axios from "axios";
+import axios from "@/utils/axios";
 import {toggle, toggles} from 'shapla-vue-components';
 
 export default {
@@ -25,7 +25,7 @@ export default {
 	},
 	methods: {
 		getItems() {
-			axios.get(window.DesignerProfile.restRoot + '/designer-faqs').then(response => {
+			axios.get('designer-faqs').then(response => {
 				this.items = response.data.data;
 			}).catch(errors => {
 				console.log(errors);
@@ -34,7 +34,3 @@ export default {
 	}
 }
 </script>
-
-<style scoped>
-
-</style>

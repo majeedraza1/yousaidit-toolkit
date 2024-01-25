@@ -1,7 +1,8 @@
 import Vuex from 'vuex'
 import Vue from 'vue'
-import axios from "axios";
+import axios from "@/utils/axios";
 import printPage from "./print";
+import {Notify, Spinner} from "@shapla/vanilla-components";
 
 Vue.use(Vuex);
 
@@ -9,8 +10,6 @@ const orderDispatcherStore = function () {
     return new Vuex.Store({
         // Same as Vue data
         state: {
-            loading: false,
-            notification: {},
             orders: [],
             checked_items: [],
             order_pagination: {currentPage: 1, totalCount: 0, limit: 100},
@@ -23,12 +22,6 @@ const orderDispatcherStore = function () {
 
         // Commit + track state changes
         mutations: {
-            SET_LOADING_STATUS(state, loading) {
-                state.loading = loading;
-            },
-            SET_NOTIFICATION(state, notification) {
-                state.notification = notification;
-            },
             SET_ORDERS(state, orders) {
                 state.orders = orders;
             },
@@ -58,7 +51,7 @@ const orderDispatcherStore = function () {
         // Same as Vue methods
         actions: {
             getOrders({state, commit}, force = false) {
-                commit('SET_LOADING_STATUS', true);
+                Spinner.show();
                 axios.get(Stackonet.root + '/orders', {
                     params: {
                         page: state.current_page,
@@ -71,25 +64,25 @@ const orderDispatcherStore = function () {
                     let data = response.data.data;
                     commit('SET_ORDERS', data.items);
                     commit('SET_ORDER_PAGINATION', data.pagination);
-                    commit('SET_LOADING_STATUS', false);
+                    Spinner.hide();
                 }).catch(error => {
                     console.log(error);
-                    commit('SET_LOADING_STATUS', false);
+                    Spinner.hide();
                 })
             },
             getCarriers({commit}) {
-                commit('SET_LOADING_STATUS', true);
+                Spinner.show();
                 axios.get(Stackonet.root + '/carriers').then(response => {
                     let data = response.data.data;
                     commit('SET_CARRIERS', data.items);
-                    commit('SET_LOADING_STATUS', false);
+                    Spinner.hide();
                 }).catch(error => {
                     console.log(error);
-                    commit('SET_LOADING_STATUS', false);
+                    Spinner.hide();
                 })
             },
             getOrder({commit}, orderId) {
-                commit('SET_LOADING_STATUS', true);
+                Spinner.show();
                 return new Promise(resolve => {
                     axios.get(Stackonet.root + '/orders/' + orderId).then(response => {
                         let data = response.data.data;
@@ -97,7 +90,7 @@ const orderDispatcherStore = function () {
                     }).catch(error => {
                         console.log(error);
                     }).finally(() => {
-                        commit('SET_LOADING_STATUS', false);
+                        Spinner.hide();
                     })
                 })
             },
@@ -123,25 +116,17 @@ const orderDispatcherStore = function () {
             },
             dispatch({state, commit}, data) {
                 return new Promise(resolve => {
-                    commit('SET_LOADING_STATUS', true);
+                    Spinner.show();
                     axios.post(Stackonet.root + '/dispatch', data).then(response => {
                         let data = response.data.data;
                         resolve(data);
-                        commit('SET_LOADING_STATUS', false);
-                        commit('SET_NOTIFICATION', {
-                            message: 'Order marked as shipped.',
-                            type: 'success',
-                            title: 'Success!'
-                        });
+                        Spinner.hide();
+                        Notify.success('Order marked as shipped.')
                     }).catch(error => {
                         if (error.response.data.message) {
-                            commit('SET_NOTIFICATION', {
-                                message: error.response.data.message,
-                                type: 'error',
-                                title: 'Error!'
-                            });
+                            Notify.error(error.response.data.message, 'Error!')
                         }
-                        commit('SET_LOADING_STATUS', false);
+                        Spinner.hide();
                     })
                 })
             }

@@ -10,8 +10,8 @@ class CardSectionTextOption extends CardSectionBase {
 	 * @return string
 	 */
 	public function get_text(): string {
-		$placeholder = $this->get( 'placeholder' );
-		$text        = $this->get( 'text' );
+		$placeholder = $this->get_prop( 'placeholder' );
+		$text        = $this->get_prop( 'text' );
 
 		return ! empty( $text ) ? $text : $placeholder;
 	}
@@ -19,7 +19,7 @@ class CardSectionTextOption extends CardSectionBase {
 	/**
 	 * Get text options
 	 *
-	 * @param string $key
+	 * @param  string  $key
 	 *
 	 * @return mixed
 	 */
@@ -30,9 +30,29 @@ class CardSectionTextOption extends CardSectionBase {
 			"align"       => "left",
 			"color"       => "#000000",
 			"marginRight" => 10,
+			"rotation"    => 0,
+			"spacing"     => 0,
 		];
-		$options = wp_parse_args( $this->get( 'textOptions', [] ), $default );
+		$options = wp_parse_args( $this->get_prop( 'textOptions', [] ), $default );
 
 		return $options[ $key ] ?? '';
+	}
+
+	/**
+	 * Get rotation
+	 *
+	 * @return int
+	 */
+	public function get_rotation(): int {
+		return (int) $this->get_text_option( 'rotation' );
+	}
+
+	/**
+	 * Get text spacing
+	 *
+	 * @return int
+	 */
+	public function get_text_spacing(): int {
+		return (int) $this->get_text_option( 'spacing' );
 	}
 }

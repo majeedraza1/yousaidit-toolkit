@@ -155,7 +155,8 @@ class DesignerCard extends DatabaseModel {
 		];
 
 		if ( $this->get_product_id() ) {
-			$data['product_url'] = $this->get_product_edit_url();
+			$data['product_url']      = $this->get_product_url();
+			$data['product_edit_url'] = $this->get_product_edit_url();
 		}
 
 		if ( ! empty( $this->get( 'deleted_at' ) ) ) {
@@ -304,8 +305,16 @@ class DesignerCard extends DatabaseModel {
 	 *
 	 * @return int
 	 */
-	public function get_product_id() {
-		return intval( $this->get( 'product_id' ) );
+	public function get_product_id(): int {
+		return intval( $this->get_prop( 'product_id' ) );
+	}
+
+	public function get_product_url(): string {
+		if ( ! $this->get_product_id() ) {
+			return '';
+		}
+
+		return (string) get_permalink( $this->get_product_id() );
 	}
 
 	/**
@@ -313,7 +322,7 @@ class DesignerCard extends DatabaseModel {
 	 *
 	 * @return string
 	 */
-	public function get_product_edit_url() {
+	public function get_product_edit_url(): string {
 		if ( ! $this->get_product_id() ) {
 			return '';
 		}
@@ -651,6 +660,23 @@ class DesignerCard extends DatabaseModel {
 		$pdf_ids = $this->get_pdf_ids();
 
 		return isset( $pdf_ids[ $size ] ) && is_array( $pdf_ids[ $size ] ) ? intval( $pdf_ids[ $size ][0] ) : 0;
+	}
+
+	public static function get_dynamic_card_product_ids(): array {
+		global $wpdb;
+		$table   = static::get_table_name();
+		$ids     = [];
+		$sql     = $wpdb->prepare(
+			"SELECT product_id FROM $table WHERE product_id > 0 AND card_type = %s AND status = %s",
+			'dynamic',
+			'accepted'
+		);
+		$results = $wpdb->get_results( $sql, ARRAY_A );
+		foreach ( $results as $result ) {
+			$ids[] = intval( $result['product_id'] );
+		}
+
+		return $ids;
 	}
 
 	/**

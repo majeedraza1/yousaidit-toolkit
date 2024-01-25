@@ -3,6 +3,7 @@
 namespace YouSaidItCards\REST;
 
 // If this file is called directly, abort.
+use Stackonet\WP\Framework\Traits\ApiPermissionChecker;
 use Stackonet\WP\Framework\Traits\ApiResponse;
 use Stackonet\WP\Framework\Traits\ApiUtils;
 
@@ -16,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
  * @package Yousaidit\REST
  */
 class ApiController extends \WP_REST_Controller {
-	use ApiResponse, ApiUtils;
+	use ApiResponse, ApiUtils, ApiPermissionChecker;
 
 	/**
 	 * The namespace of this controller's route.

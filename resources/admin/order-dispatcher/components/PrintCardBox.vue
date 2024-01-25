@@ -40,8 +40,9 @@
 </template>
 
 <script>
-import axios from "axios";
+import axios from "@/utils/axios";
 import {shaplaButton} from "shapla-vue-components";
+import {Dialog} from "@shapla/vanilla-components";
 
 const dynamicCardDefault = {
 	generating: false,
@@ -92,7 +93,7 @@ export default {
 			})
 		},
 		handleDynamicCardGeneration(item) {
-			this.$dialog.confirm(
+			Dialog.confirm(
 				'Generating all dynamic card is a CPU resource consuming task.',
 				{title: 'Are you Sure?'}
 			)

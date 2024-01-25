@@ -6,6 +6,7 @@ use ArrayObject;
 use WC_Product;
 use WP_REST_Server;
 use YouSaidItCards\Assets;
+use YouSaidItCards\Modules\Designers\DynamicCard;
 use YouSaidItCards\REST\ApiController;
 
 class DynamicCardController extends ApiController {
@@ -48,23 +49,30 @@ class DynamicCardController extends ApiController {
 		}
 
 		$card_type = $product->get_meta( '_card_type', true );
-		if ( 'dynamic' != $card_type ) {
+		if ( 'dynamic' !== $card_type ) {
 			return $this->respondNotFound( null, 'Product is not dynamic type.' );
 		}
 
 		$payload = $product->get_meta( '_dynamic_card_payload', true );
-		foreach ( $payload['card_items'] as $index => $item ) {
-			if ( "input-image" == $item['section_type'] ) {
-				$payload['card_items'][ $index ]['image'] = new ArrayObject;
-			}
-		}
 		$image = wp_get_attachment_image_src( $product->get_image_id() );
 		$data  = [
-			'payload'        => $payload,
+			'payload'        => DynamicCard::sanitize_card_payload( $payload ),
 			'product_thumb'  => is_array( $image ) ? $image[0] : '',
 			'placeholder_im' => Assets::get_assets_url( 'static-images/placeholder--inner-message.jpg' ),
 		];
 
 		return $this->respondOK( $data );
+	}
+
+	public static function sanitize_card_payload_for_response(): array {
+		$sanitized = [];
+
+		return $sanitized;
+	}
+
+	public static function sanitize_dynamic_card_layer( array $payload ): array {
+		$sanitized = [];
+
+		return $sanitized;
 	}
 }

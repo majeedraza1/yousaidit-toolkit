@@ -212,6 +212,7 @@ class EvaThemeManager {
 		$payload = $product->get_meta( '_dynamic_card_payload', true );
 		$items   = $payload['card_items'] ?? [];
 		$html    .= '<div id="_dynamic_card_fields" style="visibility: hidden; position: absolute; width: 1px; height: 1px;overflow: hidden;">';
+		$html    .= "<input name='_dynamic_card_payload' value='" . wp_json_encode( $payload ) . "' />";
 		foreach ( $items as $index => $item ) {
 			$html .= sprintf( '<input type="text" id="%s" name="_dynamic_card[%s][value]"/>',
 				"_dynamic_card_input-$index", $index );

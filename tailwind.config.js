@@ -8,6 +8,7 @@ module.exports = {
         './resources/**/*.scss',
         './templates/**/*.php',
         './modules/CardPopup/template-popup.php',
+        './modules/LocalDevelopmentHelper/template-debug-bar.php',
     ],
     theme: {
         extend: {

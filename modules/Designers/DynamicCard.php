@@ -13,18 +13,136 @@ use YouSaidItCards\Modules\Designers\Models\DesignerCard;
 use YouSaidItCards\Modules\DynamicCard\EnvelopeColours;
 
 class DynamicCard {
+	const LAYER_TYPE_INPUT_IMAGE = 'input-image';
+	const LAYER_TYPE_STATIC_IMAGE = 'static-image';
+	const LAYER_TYPE_INPUT_TEXT = 'input-text';
+	const LAYER_TYPE_STATIC_TEXT = 'static-text';
+	const LAYER_TYPES = [
+		self::LAYER_TYPE_INPUT_IMAGE,
+		self::LAYER_TYPE_STATIC_IMAGE,
+		self::LAYER_TYPE_INPUT_TEXT,
+		self::LAYER_TYPE_STATIC_TEXT
+	];
+
+	public static function sanitize_card_payload( array $payload ): array {
+		$sanitized = [
+			'card_background' => $payload['card_background'] ?? [],
+			'card_bg_color'   => $payload['card_bg_color'] ?? '#ffffff',
+			'card_bg_type'    => $payload['card_bg_type'] ?? 'color',
+			'card_size'       => $payload['card_size'] ?? 'square',
+			'card_items'      => [],
+		];
+		$items     = isset( $payload['card_items'] ) && is_array( $payload['card_items'] ) ? $payload['card_items'] : [];
+		foreach ( $items as $index => $card_item ) {
+			if ( is_array( $card_item ) ) {
+				$sanitized['card_items'][ $index ] = static::sanitize_dynamic_card_layer( $card_item );
+			}
+		}
+
+		return $sanitized;
+	}
+
+	public static function sanitize_dynamic_card_layer( array $payload ): array {
+		$defaults   = [
+			'section_type' => 'unknown',
+			'label'        => 'unknown',
+			'position'     => [ 'left' => 15, 'top' => 15 ],
+		];
+		$payload    = array_merge( $defaults, $payload );
+		$type_text  = [ self::LAYER_TYPE_INPUT_TEXT, self::LAYER_TYPE_STATIC_TEXT ];
+		$type_image = [ self::LAYER_TYPE_INPUT_IMAGE, self::LAYER_TYPE_STATIC_IMAGE ];
+
+		$sanitized = [
+			'section_type' => $payload['section_type'],
+			'label'        => $payload['label'],
+			'position'     => [
+				'top'  => floatval( $payload['position']['top'] ),
+				'left' => floatval( $payload['position']['left'] ),
+			],
+		];
+		if ( in_array( $payload['section_type'], $type_text, true ) ) {
+			$sanitized = array_merge( $sanitized, static::sanitize_dynamic_card_text_layer( $payload ) );
+		}
+
+		if ( in_array( $payload['section_type'], $type_image, true ) ) {
+			$sanitized = array_merge( $sanitized, static::sanitize_dynamic_card_image_layer( $payload ) );
+		}
+
+		return $sanitized;
+	}
+
+	public static function sanitize_dynamic_card_text_layer( array $payload ): array {
+		$textOptions = isset( $payload['textOptions'] ) && is_array( $payload['textOptions'] ) ? $payload['textOptions'] : [];
+
+		return [
+			'placeholder' => $payload['placeholder'] ?? '',
+			'text'        => $payload['text'] ?? '',
+			'textOptions' => [
+				'fontFamily' => $textOptions['fontFamily'] ?? '',
+				'size'       => isset( $textOptions['size'] ) ? intval( $textOptions['size'] ) : 16,
+				'rotation'   => isset( $textOptions['rotation'] ) ? intval( $textOptions['rotation'] ) : 0,
+				'spacing'    => isset( $textOptions['spacing'] ) ? intval( $textOptions['spacing'] ) : 0,
+				'align'      => $textOptions['align'] ?? 'left',
+				'color'      => $textOptions['color'] ?? '#000000',
+			],
+		];
+	}
+
+	public static function sanitize_dynamic_card_image_layer( array $payload ): array {
+		$imageOptions  = isset( $payload['imageOptions'] ) && is_array( $payload['imageOptions'] ) ? $payload['imageOptions'] : [];
+		$sourceImage   = isset( $imageOptions['img'] ) && is_array( $imageOptions['img'] ) ? $imageOptions['img'] : [];
+		$sourceImageId = $sourceImage['id'] ? intval( $sourceImage['id'] ) : 0;
+		$src           = wp_get_attachment_image_src( $sourceImageId, 'full' );
+		if ( is_array( $src ) ) {
+			list( $url, $width, $height ) = $src;
+			$image = [ 'id' => $sourceImageId, 'src' => $url, 'width' => $width, 'height' => $height ];
+		} else {
+			$image = [ 'id' => 0, 'src' => '', 'width' => 0, 'height' => 0 ];
+		}
+		$sanitized = [
+			'imageOptions' => [
+				'align'  => $imageOptions['align'] ?? 'left',
+				'width'  => $imageOptions['width'] ? intval( $imageOptions['width'] ) : 0,
+				'height' => $imageOptions['height'] ? intval( $imageOptions['height'] ) : 0,
+				'img'    => $image
+			],
+			'image'        => new \ArrayObject()
+		];
+		if ( self::LAYER_TYPE_INPUT_IMAGE == $payload['section_type'] ) {
+			$userImage   = isset( $payload['image'] ) && is_array( $payload['image'] ) ? $payload['image'] : [];
+			$userImageId = isset( $userImage['id'] ) ? intval( $userImage['id'] ) : 0;
+			$src         = wp_get_attachment_image_src( $userImageId, 'full' );
+			if ( is_array( $src ) ) {
+				list( $url, $width, $height ) = $src;
+				$sanitized['image'] = [ 'id' => $userImageId, 'src' => $url, 'width' => $width, 'height' => $height ];
+			}
+		}
+
+		$userOptions              = isset( $payload['userOptions'] ) && is_array( $payload['userOptions'] ) ? $payload['userOptions'] : [];
+		$sanitized['userOptions'] = [
+			'rotate'   => isset( $userOptions['rotate'] ) ? intval( $userOptions['rotate'] ) : 0,
+			'zoom'     => isset( $userOptions['zoom'] ) ? intval( $userOptions['zoom'] ) : 0,
+			'position' => [
+				'top'  => isset( $userOptions['position']['top'] ) ? intval( $userOptions['position']['top'] ) : 0,
+				'left' => isset( $userOptions['position']['left'] ) ? intval( $userOptions['position']['left'] ) : 0,
+			],
+		];
+
+		return $sanitized;
+	}
 
 	public static function get_pdf_id( int $card_id, string $meta_key ): int {
 		global $wpdb;
-		$sql  = $wpdb->prepare( "SELECT * FROM $wpdb->postmeta WHERE meta_key = %s AND meta_value = %s", $meta_key, $card_id );
+		$sql  = $wpdb->prepare( "SELECT * FROM $wpdb->postmeta WHERE meta_key = %s AND meta_value = %s", $meta_key,
+			$card_id );
 		$item = $wpdb->get_row( $sql, ARRAY_A );
 
 		return isset( $item['post_id'] ) ? intval( $item['post_id'] ) : 0;
 	}
 
 	/**
-	 * @param DesignerCard $card
-	 * @param bool $regenerate
+	 * @param  DesignerCard  $card
+	 * @param  bool  $regenerate
 	 *
 	 * @return int
 	 */
@@ -83,9 +201,9 @@ class DynamicCard {
 	}
 
 	/**
-	 * @param string $pdf_file_path
-	 * @param int $resolution
-	 * @param bool $envelop
+	 * @param  string  $pdf_file_path
+	 * @param  int  $resolution
+	 * @param  bool  $envelop
 	 *
 	 * @return Imagick
 	 * @throws ImagickException
@@ -108,8 +226,8 @@ class DynamicCard {
 	/**
 	 * Clone PDF to JPG
 	 *
-	 * @param DesignerCard $card
-	 * @param string $pdf_file_path
+	 * @param  DesignerCard  $card
+	 * @param  string  $pdf_file_path
 	 *
 	 * @return string
 	 */
@@ -148,7 +266,7 @@ class DynamicCard {
 	/**
 	 * Generate attachment metadata
 	 *
-	 * @param string $file_path
+	 * @param  string  $file_path
 	 *
 	 * @return int|WP_Error
 	 */

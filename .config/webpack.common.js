@@ -31,6 +31,7 @@ const commonConfig = (env, argv) => {
                                 "@babel/preset-typescript"
                             ],
                             plugins: [
+                                ["@babel/plugin-proposal-decorators", {"version": "2023-05"}],
                                 ['@babel/plugin-proposal-class-properties'],
                                 ['@babel/plugin-proposal-private-methods'],
                                 ['@babel/plugin-proposal-object-rest-spread'],

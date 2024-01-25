@@ -1,5 +1,5 @@
 import ReactDOM from "react-dom";
-import {StrictMode} from "react";
+import React, {StrictMode} from "react";
 import Occasion from './Occasion'
 import Recipient from './Recipient'
 import Topic from './Topic'

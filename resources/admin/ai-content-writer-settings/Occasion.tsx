@@ -1,14 +1,7 @@
 import {Component, HTMLAttributes, ReactNode} from "react";
 import axios from "../../utils/axios";
-import {
-  Dialog,
-  DialogContainer,
-  Modal,
-  NotificationContainer,
-  Notify,
-  Spinner,
-  SpinnerContainer
-} from "@shapla/react-components";
+import {Modal} from "@shapla/react-components";
+import {Dialog, Notify, Spinner} from "@shapla/vanilla-components";
 
 interface OccasionItemInterface {
   slug: string;
@@ -67,13 +60,11 @@ export default class Occasion extends Component<OccasionPropsInterface, Occasion
   }
 
   removeItem(occasion: OccasionItemInterface) {
-    Dialog.confirm('Are you sure to delete this item?').then(confirmed => {
-      if (confirmed) {
-        const {occasions} = this.state;
-        occasions.splice(occasions.indexOf(occasion), 1);
-        this.setState({occasions: occasions});
-        this.updateSettings();
-      }
+    Dialog.confirm('Are you sure to delete this item?').then(() => {
+      const {occasions} = this.state;
+      occasions.splice(occasions.indexOf(occasion), 1);
+      this.setState({occasions: occasions});
+      this.updateSettings();
     })
   }
 
@@ -219,9 +210,6 @@ export default class Occasion extends Component<OccasionPropsInterface, Occasion
             </tbody>
           </table>
         </Modal>
-        <NotificationContainer/>
-        <DialogContainer/>
-        <SpinnerContainer isRootSpinner={true}/>
       </div>
     );
   }

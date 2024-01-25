@@ -1,17 +1,16 @@
 import Vue from "vue";
 import SingleProductDynamicCard from "../dynamic-card/SingleProductDynamicCard.vue";
-import dynamicCardStore from "../dynamic-card/store";
+import {closeModal, refreshBodyClass} from "./modal";
 
-import {Notify, Spinner} from "./components";
-import {createEl, postRequest} from "./utils";
+import {createEl, Notify, Spinner} from "@shapla/vanilla-components";
+import {postRequest} from "./utils";
 import {
   DynamicCardPropsInterface,
   InnerMessagePropsInterface,
   LeftInnerMessagePropsInterface,
   RightInnerMessagePropsInterface
 } from "../../utils/interfaces";
-import axios from "axios";
-import {closeModal, refreshBodyClass} from "./components/modal/modal";
+import axios from "@/utils/axios";
 
 if (window.StackonetToolkit && window.StackonetToolkit.restNonce) {
   axios.defaults.headers.common['X-WP-Nonce'] = window.StackonetToolkit.restNonce;
@@ -82,7 +81,6 @@ const personalise = (element: HTMLElement) => {
   dynamicCardContainer(product_id, card_size).then(() => {
     new Vue({
       el: '#dynamic-card',
-      store: dynamicCardStore,
       render: h => h(SingleProductDynamicCard)
     });
 
@@ -161,6 +159,9 @@ const submitFormToServer = (data: InnerMessagePropsInterface | DynamicCardPropsI
     });
   }
   const formData = new FormData(form);
+  if (data.payload) {
+    formData.append('_dynamic_card_payload', JSON.stringify(data.payload));
+  }
   const url = form.getAttribute('action');
   Spinner.show();
   postRequest(url, formData).then(response => {

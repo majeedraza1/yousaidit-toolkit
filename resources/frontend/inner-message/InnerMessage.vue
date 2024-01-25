@@ -89,21 +89,18 @@
         </div>
       </template>
     </modal>
-    <confirm-dialog/>
-    <notification :options="notification"/>
-    <spinner :active="loading"/>
   </div>
 </template>
 
 <script>
-import {mapState} from 'vuex';
-import axios from "axios";
-import {ConfirmDialog, modal, notification, shaplaButton, spinner} from 'shapla-vue-components';
+import axios from "@/utils/axios";
+import {modal, shaplaButton} from 'shapla-vue-components';
 import Compose from "./Compose.vue";
 import MultiCompose from "./MultiCompose.vue";
 import EditableContent from "@/frontend/inner-message/EditableContent";
 import SwiperSlider from "@/frontend/dynamic-card/SwiperSlider.vue";
 import VideoInnerMessage from "@/frontend/dynamic-card/VideoInnerMessage.vue";
+import {Notify, Spinner} from "@shapla/vanilla-components";
 
 const defaultData = () => {
   return {
@@ -126,8 +123,7 @@ const defaultData = () => {
 export default {
   name: "InnerMessage",
   components: {
-    SwiperSlider, EditableContent, Compose, spinner, notification, ConfirmDialog, modal, shaplaButton,
-    VideoInnerMessage, MultiCompose
+    SwiperSlider, EditableContent, Compose, modal, shaplaButton, VideoInnerMessage, MultiCompose
   },
   data() {
     return {
@@ -148,7 +144,6 @@ export default {
     };
   },
   computed: {
-    ...mapState(['loading', 'notification']),
     hasBothSideContent() {
       return this.hasLeftPageContent && this.hasRightPageContent;
     },
@@ -216,17 +211,17 @@ export default {
       }
     },
     readInnerMessageDateForCardItem(dataset) {
-      this.$store.commit('SET_LOADING_STATUS', true);
+      Spinner.show();
       let data = {action: 'get_cart_item_info', item_key: dataset['cartItemKey'], mode: dataset['mode']}
       axios.get(StackonetToolkit.ajaxUrl, {params: data})
           .then(response => {
             const _data = response.data;
-            this.$store.commit('SET_LOADING_STATUS', false);
-            if (_data._inner_message && _data._inner_message.content.length) {
+            Spinner.hide();
+            if (_data._inner_message && _data._inner_message.content) {
               this.innerMessage = _data._inner_message;
               this.hasRightPageContent = true;
             }
-            if (_data._video_inner_message && _data._video_inner_message.content.length) {
+            if (_data._video_inner_message && _data._video_inner_message.content) {
               this.videoInnerMessage = _data._video_inner_message;
               this.hasLeftPageContent = true;
             }
@@ -248,7 +243,7 @@ export default {
             }
           })
           .catch(error => {
-            this.$store.commit('SET_LOADING_STATUS', false);
+            Spinner.hide();
             console.log(error);
           });
     },
@@ -279,7 +274,7 @@ export default {
       }
 
       if (message.length) {
-        return this.$store.commit("SET_NOTIFICATION", {type: 'error', title: 'Error!', message: message});
+        Notify.error(message, 'Error!');
       }
       this.showModal = false;
       let fieldsContainer = document.querySelector('#_inner_message_fields');
@@ -293,7 +288,7 @@ export default {
 
       let variations_form = document.querySelector('form.cart');
       if (variations_form) {
-        this.$store.commit('SET_LOADING_STATUS', true);
+        Spinner.show();
         let form = new FormData(variations_form), data = {};
         for (const [key, value] of form.entries()) {
           if (key === "attribute_pa_size") {
@@ -358,7 +353,7 @@ export default {
 
       let variations_form = document.querySelector('form.cart');
       if (variations_form) {
-        this.$store.commit('SET_LOADING_STATUS', true);
+        Spinner.show();
         this.showModal = false;
         variations_form.submit();
       }

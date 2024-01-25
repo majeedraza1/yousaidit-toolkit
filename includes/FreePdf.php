@@ -2,8 +2,10 @@
 
 namespace YouSaidItCards;
 
+use Stackonet\WP\Framework\Supports\Logger;
 use tFPDF;
-use YouSaidItCards\Modules\InnerMessage\Fonts;
+use YouSaidItCards\Modules\FontManager\Font;
+use YouSaidItCards\Modules\FontManager\Models\FontInfo;
 use YouSaidItCards\Utilities\FreePdfBase;
 
 defined( 'ABSPATH' ) || exit;
@@ -11,10 +13,10 @@ defined( 'ABSPATH' ) || exit;
 class FreePdf extends FreePdfBase {
 
 	/**
-	 * @param string|array $pdf_size
-	 * @param array $layers
-	 * @param array $bg
-	 * @param array $args
+	 * @param  string|array  $pdf_size
+	 * @param  array  $layers
+	 * @param  array  $bg
+	 * @param  array  $args
 	 */
 	public function generate( $pdf_size, array $layers, array $bg = [], array $args = [] ) {
 		$this->set_size( $pdf_size );
@@ -27,22 +29,23 @@ class FreePdf extends FreePdfBase {
 		$size   = $this->get_size();
 		$option = $this->get_option();
 
-		$fpd = new tFPDF( 'P', 'mm', [ $option['front_width'], $option['height'] ] );
+		$fpd = new FreePdfExtended( 'P', 'mm', [ $option['front_width'], $option['height'] ] );
 
 		// Add custom fonts
-		$fonts_list  = Fonts::get_list();
 		$added_fonts = [];
 		foreach ( $items as $item ) {
 			if ( ! in_array( $item['section_type'], [ 'static-text', 'input-text' ] ) ) {
 				continue;
 			}
-			$font_family = str_replace( ' ', '', $item['textOptions']['fontFamily'] );
-			if ( in_array( $font_family, $added_fonts ) ) {
+			$font = Font::find_font_info( $item['textOptions']['fontFamily'] );
+			if ( ! $font instanceof FontInfo ) {
 				continue;
 			}
-			$added_fonts[] = $font_family;
-			$font          = $fonts_list[ $font_family ];
-			$fpd->AddFont( $font_family, '', $font['fileName'], true );
+			if ( in_array( $font->get_font_family_for_dompdf(), $added_fonts ) ) {
+				continue;
+			}
+			$added_fonts[] = $font->get_font_family_for_dompdf();
+			$fpd->AddFont( $font->get_font_family_for_dompdf(), '', $font->get_font_file(), true );
 		}
 
 		$fpd->AddPage();
@@ -81,13 +84,19 @@ class FreePdf extends FreePdfBase {
 	}
 
 	/**
-	 * @param tFPDF $fpd
-	 * @param array $item
+	 * @param  tFPDF  $fpd
+	 * @param  array  $item
 	 */
-	public function add_text( tFPDF &$fpd, array $item ) {
+	public function add_text( FreePdfExtended &$fpd, array $item ) {
 		$textOptions = $item['textOptions'] ?? [];
 		$font_size   = intval( $textOptions['size'] );
-		$font_family = str_replace( ' ', '', $textOptions['fontFamily'] );
+		$font        = Font::find_font_info( $textOptions['fontFamily'] );
+		if ( ! $font instanceof FontInfo ) {
+			Logger::log( sprintf( 'No font found for %s', $textOptions['fontFamily'] ) );
+
+			return;
+		}
+		$font_family = $font->get_font_family_for_dompdf();
 		$text_align  = strtolower( $textOptions['align'] );
 		$marginRight = isset( $textOptions['marginRight'] ) ? intval( $textOptions['marginRight'] ) : 0;
 		$text        = ! empty( $item['text'] ) ? sanitize_text_field( $item['text'] ) : $item['placeholder'];
@@ -104,14 +113,29 @@ class FreePdf extends FreePdfBase {
 			$x_pos = $fpd->GetPageWidth() - ( $fpd->GetStringWidth( $text ) + $marginRight );
 		}
 
-		$fpd->Text( $x_pos, $y_pos, $text );
+		$rotation = 0;
+		$spacing  = 0;
+		if ( isset( $textOptions['rotation'] ) && is_numeric( $textOptions['rotation'] ) ) {
+			$rotation = intval( $textOptions['rotation'] );
+		}
+		if ( isset( $textOptions['spacing'] ) && is_numeric( $textOptions['spacing'] ) ) {
+			$spacing = intval( $textOptions['spacing'] );
+		}
+		if ( $spacing ) {
+			$fpd->SetFontSpacing( $spacing );
+		}
+		if ( $rotation ) {
+			$fpd->RotatedText( $x_pos, $y_pos, $text, $rotation );
+		} else {
+			$fpd->Text( $x_pos, $y_pos, $text );
+		}
 	}
 
 	/**
 	 * Add Image
 	 *
-	 * @param tFPDF $fpd
-	 * @param array $item
+	 * @param  tFPDF  $fpd
+	 * @param  array  $item
 	 */
 	private function add_image( tFPDF $fpd, array $item ) {
 		$option = $this->get_option();

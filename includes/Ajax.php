@@ -12,8 +12,8 @@ use WC_Product;
 use YouSaidItCards\Modules\Designers\DynamicCard;
 use YouSaidItCards\Modules\Designers\Models\DesignerCard;
 use YouSaidItCards\Modules\DynamicCard\EnvelopeColours;
+use YouSaidItCards\Modules\FontManager\Font;
 use YouSaidItCards\Modules\InnerMessage\Fonts;
-use YouSaidItCards\Providers\AWSRekognition;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -38,7 +38,7 @@ class Ajax {
 			add_action( 'wp_ajax_yousaidit_test', [ self::$instance, 'stackonet_test' ] );
 			add_action( 'wp_ajax_yousaidit_generate_preview_card', [ self::$instance, 'generate_preview_card' ] );
 			add_action( 'wp_ajax_yousaidit_preview_card', [ self::$instance, 'yousaidit_preview_card' ] );
-			add_action( 'wp_ajax_generate_dynamic_card_pdf', [ self::$instance, 'generate_dynamic_card_pdf' ] );
+			// add_action( 'wp_ajax_generate_dynamic_card_pdf', [ self::$instance, 'generate_dynamic_card_pdf' ] );
 			add_action( 'wp_ajax_yousaidit_font_image', [ self::$instance, 'yousaidit_font_image' ] );
 			add_action( 'wp_ajax_nopriv_yousaidit_font_image', [ self::$instance, 'yousaidit_font_image' ] );
 			add_action( 'wp_ajax_yousaidit_color_image', [ self::$instance, 'yousaidit_color_image' ] );
@@ -63,18 +63,57 @@ class Ajax {
 			wp_die( __( 'Sorry. This link only for developer to do some testing.', 'yousaidit-toolkit' ) );
 		}
 
-		// Job1 Adult: cb9d24dcddc35ff5975eed45ca4ccb0056681b5351135452d18204854ffdbf1b
-		// Job1 Not Adult: eba84590eee4ea3449862063106c7b788025b8db5ec3614397e527f565681e71
-		$job      = AWSRekognition::get_job( 'cb9d24dcddc35ff5975eed45ca4ccb0056681b5351135452d18204854ffdbf1b' );
-		$is_adult = AWSRekognition::is_adult( $job );
-//		$job2     = AWSRekognition::create_job( 'dist/d413709f-c299-640a-3cae-175c030909ec--2--40jla3irjd88xc4w4r59skm.mp4' );
-		$job      = AWSRekognition::get_job( 'ac2ced09a07138ca27f155dbecae6a98d2abff35dbdd6487cf0a46cefe293a13' );
-		$is_adult = AWSRekognition::is_adult( $job );
-		var_dump( [
-			'is_adult' => $is_adult,
-			'job'      => $job,
-//			'job2'     => $job2
-		] );
+		$pdf = new FreePdfExtended();
+
+		$pdf->AddPage();
+		$pdf->SetFont( 'Arial', '', 16 );
+
+		$image_url = '/var/www/yousaidit.test/wp-content/plugins/yousaidit-toolkit/assets/static-images/logo-yousaidit@300ppi.jpg';
+		$image_url = 'http://yousaidit-main.yousaidit.co.uk/MD-SAYFUL-ISLAM.jpg';
+		list( $width, $height ) = getimagesize( $image_url );
+		$pdf->Text( 10, 10, 'Image 45 degree angle.' );
+		$pdf->RotatedImage( $image_url, 0, 15, min( $width, 30 ), 0, 45 );
+		$pdf->Text( 100, 10, 'Image 90 degree angle.' );
+		$pdf->RotatedImage( $image_url, 150, 15, min( $width, 30 ), 0, 90 );
+
+		$pdf->Text( 10, 70, 'Image 135 degree angle.' );
+		$pdf->RotatedImage( $image_url, 50, 85, min( $width, 30 ), 0, 135 );
+		$pdf->Text( 100, 70, 'Image 180 degree angle.' );
+		$pdf->RotatedImage( $image_url, 150, 85, min( $width, 30 ), 0, 180 );
+
+		$pdf->Text( 10, 120, 'Image 225 degree angle.' );
+		$pdf->RotatedImage( $image_url, 50, 150, min( $width, 30 ), 0, 225 );
+		$pdf->Text( 100, 120, 'Image 270 degree angle.' );
+		$pdf->RotatedImage( $image_url, 150, 150, min( $width, 30 ), 0, 270 );
+
+		$pdf->Text( 10, 170, 'Image 315 degree angle.' );
+		$pdf->RotatedImage( $image_url, 50, 190, min( $width, 30 ), 0, 315 );
+		$pdf->Text( 100, 170, 'Image 360 degree angle.' );
+		$pdf->RotatedImage( $image_url, 150, 190, min( $width, 30 ), 0, 360 );
+
+		$pdf->AddPage();
+		$background = '/home/sayful/Desktop/Yousaidit Card/Marina.jpg';
+		$frame      = '/home/sayful/Desktop/Yousaidit Card/frame.png';
+		list( $width, $height ) = getimagesize( $frame );
+		$pdf->Image( $background, - 20, 30, $pdf->GetPageWidth() );
+		$pdf->Image( $frame, 0, 0, $pdf->GetPageWidth() );
+
+		$pdf->AddPage();
+		$pdf->SetFont( 'Arial', '', 20 );
+
+		foreach ( [ 45, 90, 135, 180, 225, 270, 315, 360 ] as $degree ) {
+			$pdf->RotatedText( 100, 60, sprintf( 'Hello! %s degree', $degree ), $degree );
+		}
+
+		$pdf->AddPage();
+		$pdf->SetFont( 'Arial', '', 20 );
+		$pdf->Text( 10, 20, 'Hello! Font spacing normal' );
+		foreach ( range( 1, 12 ) as $spacing ) {
+			$pdf->SetFontSpacing( $spacing );
+			$pdf->Text( 10, ( 12 * $spacing ) + 20, sprintf( 'Hello! Font spacing %spt', $spacing ) );
+		}
+
+		$pdf->Output();
 
 		die();
 	}
@@ -309,8 +348,10 @@ class Ajax {
 			wp_die( 'You cannot perform this action.' );
 		}
 
-		$card_id = $_REQUEST['card_id'] ?? 0;
-		$card    = ( new DesignerCard )->find_by_id( intval( $card_id ) );
+		$order_id      = isset( $_REQUEST['order_id'] ) ? intval( $_REQUEST['order_id'] ) : 0;
+		$order_item_id = isset( $_REQUEST['order_item_id'] ) ? intval( $_REQUEST['order_item_id'] ) : 0;
+		$card_id       = $_REQUEST['card_id'] ?? 0;
+		$card          = ( new DesignerCard )->find_by_id( intval( $card_id ) );
 		if ( ! $card instanceof DesignerCard ) {
 			wp_die( 'No card available.' );
 		}
@@ -445,9 +486,8 @@ class Ajax {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( __( 'Sorry. This link only for admin.', 'yousaidit-toolkit' ) );
 		}
-		foreach ( Fonts::get_list() as $item ) {
-			$fontFamily = str_replace( ' ', '_', strtolower( $item['label'] ) );
-			$path       = $item['fontFilePath'];
+		foreach ( Font::get_fonts_info() as $item ) {
+			$path = $item->get_font_path();
 			if ( ! file_exists( $path ) ) {
 				echo 'Source file is not available: ' . $item['fontFilePath'];
 				continue;
@@ -455,8 +495,8 @@ class Ajax {
 
 			try {
 				echo '<pre><code>';
-				Fonts::install_font_family( $fontFamily, $path, $path, $path, $path );
-				echo '</code>Font file generated successfully for font: ' . $item['label'] . '<code>';
+				Fonts::install_font_family( $item->get_font_family_for_dompdf(), $path, $path, $path, $path );
+				echo '</code>Font file generated successfully for font: ' . $item->get_font_family() . '<code>';
 				echo '</code></pre>';
 			} catch ( Exception $e ) {
 				Logger::log( $e );
@@ -476,19 +516,10 @@ class Ajax {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( __( 'Sorry. This link only for admin.', 'yousaidit-toolkit' ) );
 		}
-		$fonts     = Fonts::get_list();
-		$base_path = YOUSAIDIT_TOOLKIT_PATH . '/vendor/setasign/tfpdf/font/unifont/';
-		if ( ! is_writable( $base_path ) ) {
-			echo 'Target directory is not writable: ' . $base_path;
-			die;
-		}
-		foreach ( $fonts as $font ) {
-			if ( ! file_exists( $font['fontFilePath'] ) ) {
-				echo 'Source file is not available: ' . $font['fontFilePath'];
-				continue;
-			}
-			if ( ! copy( $font['fontFilePath'], $base_path . $font['fileName'] ) ) {
-				echo 'Fail to copy file: ' . $font['fontFilePath'];
+		foreach ( Font::get_fonts_info() as $font ) {
+			$response = $font->install_tfpdf_font();
+			if ( is_wp_error( $response ) ) {
+				echo $response->get_error_message();
 			}
 		}
 		echo 'Process run successfully. You can close this window.';

@@ -47,19 +47,19 @@
             :actions="actions"
             @action:click="handleActionClick"
         >
-          <template slot="card_sizes" slot-scope="data">
+          <template v-slot:card_sizes="data">
             <template v-for="(_size,index) in card_sizes"
                       v-if="data.row.card_sizes.indexOf(_size.value) !== -1">
               <template v-if="index === 0">{{ _size.label }}</template>
               <template v-else>, {{ _size.label }}</template>
             </template>
           </template>
-          <template slot="status" slot-scope="data">
+          <template v-slot:status="data">
 						<span v-for="_status in statuses" v-if="_status.key === data.row.status">
 							{{ _status.label }}
 						</span>
           </template>
-          <template slot="designer" slot-scope="data">
+          <template v-slot:designer="data">
             <a href="" @click.prevent="goToDesignerProfile(data.row.designer)">
               {{ data.row.designer.display_name }}
             </a>
@@ -76,7 +76,8 @@
 
 <script>
 import {column, columns, dataTable, pagination, searchForm, selectField, statusList} from 'shapla-vue-components';
-import axios from "axios";
+import axios from "@/utils/axios";
+import {Spinner} from "@shapla/vanilla-components";
 
 export default {
   name: "Cards",
@@ -108,7 +109,7 @@ export default {
     }
   },
   mounted() {
-    this.$store.commit('SET_LOADING_STATUS', false);
+    Spinner.hide();
     this.getItems();
     this.getDesigners();
   },
@@ -153,7 +154,7 @@ export default {
     getItemsFilteredByDesigner() {
     },
     getItems() {
-      this.$store.commit('SET_LOADING_STATUS', true);
+      Spinner.show();
       axios.get(Stackonet.root + '/designers-cards', {
         params: {
           page: this.current_page,
@@ -168,10 +169,10 @@ export default {
         this.items = data.items;
         this.statuses = data.statuses;
         this.total_items = data.pagination.total_items;
-        this.$store.commit('SET_LOADING_STATUS', false);
+        Spinner.hide();
       }).catch(errors => {
         console.log(errors);
-        this.$store.commit('SET_LOADING_STATUS', false);
+        Spinner.hide();
       })
     },
     handleActionClick(action, item) {
@@ -183,14 +184,14 @@ export default {
       this.$router.push({name: 'Designer', params: {id: designer.id}});
     },
     getDesigners() {
-      this.$store.commit('SET_LOADING_STATUS', true);
+      Spinner.show();
       axios.get(Stackonet.root + '/designers', {params: {page: 1, per_page: 100,}}).then(response => {
         let data = response.data.data;
         this.designers = data.items;
-        this.$store.commit('SET_LOADING_STATUS', false);
+        Spinner.hide();
       }).catch(errors => {
         console.log(errors);
-        this.$store.commit('SET_LOADING_STATUS', false);
+        Spinner.hide();
       });
     }
   }

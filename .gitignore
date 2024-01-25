@@ -1,6 +1,7 @@
 # Folders
 node_modules
 vendor/*
+wordpress
 assets/css/
 assets/fonts/
 assets/js/
@@ -8,6 +9,7 @@ assets/images/
 .idea
 wp-helpers
 tasks
+.plugins
 
 # Files
 **.map

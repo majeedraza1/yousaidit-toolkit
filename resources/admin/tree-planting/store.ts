@@ -1,10 +1,10 @@
 import axios from "../../utils/axios";
-import {Notify, Spinner} from "@shapla/vanilla-components";
+import {Dialog, Notify, Spinner} from "@shapla/vanilla-components";
 
-const getPurchases = (page: number = 1) => {
+const getPurchases = (page: number = 1, status: string = 'complete') => {
   return new Promise(resolve => {
     Spinner.show();
-    axios.get('tree-planting', {params: {page: page}})
+    axios.get('tree-planting', {params: {page: page, per_page: 20, status: status}})
       .then(response => {
         resolve(response.data.data);
       })
@@ -17,7 +17,7 @@ const getPurchases = (page: number = 1) => {
 const getPendingOrders = (page: number = 1) => {
   return new Promise(resolve => {
     Spinner.show();
-    axios.get('tree-planting/pending-orders', {params: {page: page}})
+    axios.get('tree-planting/pending-orders', {params: {page: page, per_page: 50}})
       .then(response => {
         resolve(response.data.data);
       })
@@ -61,9 +61,28 @@ const syncPurchases = () => {
   })
 }
 
+const deleteItems = (ids: number[]) => {
+  return new Promise(resolve => {
+    Dialog.confirm({
+      title: 'Are you sure?',
+      message: 'Items will be deleted permanently and cannot be recovered.'
+    }).then(() => {
+      Spinner.show();
+      axios.post('tree-planting/batch', {action: 'delete', payload: ids})
+        .then(response => {
+          resolve(response.data.data);
+        })
+        .finally(() => {
+          Spinner.hide();
+        })
+    })
+  })
+}
+
 export {
   getPurchases,
   getPendingOrders,
   syncPurchase,
-  syncPurchases
+  syncPurchases,
+  deleteItems
 }

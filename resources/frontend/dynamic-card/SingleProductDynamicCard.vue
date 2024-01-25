@@ -17,7 +17,7 @@
                            :card_size="card_size" :slide-to="slideTo" @slideChange="onSlideChange">
               <template v-slot:canvas="slotProps">
                 <dynamic-card-canvas
-                    show-edit-icon
+                    :show-edit-icon="true"
                     :options="`${JSON.stringify(payload)}`"
                     :active-section-index="activeSectionIndex"
                     :card-width-mm="card_dimension[0]"
@@ -109,7 +109,15 @@
             </div>
             <div v-if="activeSection.section_type === 'input-image'" class="mb-4">
               <tabs fullwidth centered>
-                <tab name="Images" selected>
+                <tab name="Settings" selected>
+                  <InputUserOptions
+                      v-model="activeSection.userOptions"
+                      @change="onChangeUserOptions"
+                      :card-width-mm="card_dimension[0]"
+                      :card-height-mm="card_dimension[1]"
+                  />
+                </tab>
+                <tab name="Images">
                   <div class="flex flex-wrap uploade-image-thumbnail-container">
                     <template v-if="images.length">
                       <div v-for="_img in images" class="w-1/4 p-1">
@@ -134,11 +142,6 @@
                   />
                 </tab>
               </tabs>
-              <div class="relative border border-solid mt-6"
-                   v-if="activeSection.image && activeSection.image.src">
-                <img :src="activeSection.image.src" alt=""/>
-                <delete-icon class="absolute -top-2 -right-2" @click="removeImage"/>
-              </div>
             </div>
           </template>
           <div v-if="slideTo === 2">
@@ -167,40 +170,39 @@
         </div>
       </div>
     </modal>
-    <notification :options="notifications"/>
-    <spinner :active="loading"/>
-    <confirm-dialog/>
   </div>
 </template>
 
 <script>
-import axios from "axios";
-import {mapState} from "vuex";
+import axios from "@/utils/axios";
 import {
-  ConfirmDialog,
   deleteIcon,
   FileUploader,
   iconContainer,
   imageContainer,
+  inputSlider,
   modal,
-  notification,
   shaplaButton,
-  spinner,
   tab,
   tabs
 } from "shapla-vue-components";
+import {Notify, Spinner} from '@shapla/vanilla-components'
 import CardWebViewer from "@/components/DynamicCardPreview/CardWebViewer";
 import EditableContent from "@/frontend/inner-message/EditableContent";
 import EditorControls from "@/frontend/inner-message/EditorControls";
 import SwiperSlider from "@/frontend/dynamic-card/SwiperSlider.vue";
 import GustLocalStorage from "@/frontend/dynamic-card/GustLocalStorage.ts";
 import VideoInnerMessage from "@/frontend/dynamic-card/VideoInnerMessage";
+import SvgIcon from "@/components/DynamicCardGenerator/SvgIcon.vue";
+import InputUserOptions from "@/frontend/dynamic-card/InputUserOptions.vue";
 
 export default {
   name: "SingleProductDynamicCard",
   components: {
-    EditableContent, CardWebViewer, modal, shaplaButton, iconContainer, SwiperSlider, imageContainer, spinner,
-    VideoInnerMessage, EditorControls, FileUploader, tabs, tab, deleteIcon, notification, ConfirmDialog
+    InputUserOptions,
+    SvgIcon, inputSlider,
+    EditableContent, CardWebViewer, modal, shaplaButton, iconContainer, SwiperSlider, imageContainer,
+    VideoInnerMessage, EditorControls, FileUploader, tabs, tab, deleteIcon
   },
   data() {
     return {
@@ -233,11 +235,9 @@ export default {
       product_thumb: '',
       placeholder_im: '',
       showLengthError: false,
-      notifications: {}
     }
   },
   computed: {
-    ...mapState(['loading']),
     placeholder_im_left() {
       return window.StackonetToolkit.placeholderUrlIML;
     },
@@ -245,7 +245,7 @@ export default {
       return window.StackonetToolkit.placeholderUrlIMR;
     },
     uploadUrl() {
-      return StackonetToolkit.restRoot + '/dynamic-cards/media';
+      return window.StackonetToolkit.restRoot + '/dynamic-cards/media';
     },
     isUserLoggedIn() {
       return window.StackonetToolkit.isUserLoggedIn || false;
@@ -288,7 +288,11 @@ export default {
     }
   },
   methods: {
-
+    onChangeUserOptions(newValue) {
+      if (this.activeSectionIndex >= 0) {
+        this.payload.card_items[this.activeSectionIndex] = this.activeSection;
+      }
+    },
     messagesLinesToString(lines) {
       let contentEl = document.createElement('div');
       lines.forEach(line => {
@@ -351,6 +355,15 @@ export default {
     handleEditSection(section, index) {
       this.activeSectionIndex = index;
       this.activeSection = section;
+      if ('input-image' === section['section_type']) {
+        this.activeSection['userOptions'] = {
+          rotate: 0,
+          zoom: 0,
+          position: {
+            top: 0, left: 0
+          },
+        };
+      }
     },
     handleSubmit() {
       if (this.is_card_category_popup) {
@@ -367,6 +380,8 @@ export default {
         return;
       }
       let fieldsContainer = document.querySelector('#_dynamic_card_fields');
+
+      fieldsContainer.querySelector('[name="_dynamic_card_payload"]').value = JSON.stringify(this.payload);
       this.payload.card_items.forEach((item, index) => {
         let inputId = `#_dynamic_card_input-${index}`
         if (['static-text', 'input-text'].indexOf(item.section_type) !== -1) {
@@ -401,7 +416,7 @@ export default {
       }
       let variations_form = document.querySelector('form.cart');
       if (variations_form) {
-        this.$store.commit('SET_LOADING_STATUS', true);
+        Spinner.show();
         variations_form.submit();
       }
     },
@@ -409,7 +424,7 @@ export default {
       if (this.readFromServer) {
         return;
       }
-      axios.get(StackonetToolkit.restRoot + `/dynamic-cards/${this.product_id}`).then(response => {
+      axios.get(`dynamic-cards/${this.product_id}`).then(response => {
         let data = response.data.data;
         this.payload = data.payload;
         this.product_thumb = data.product_thumb;
@@ -428,11 +443,13 @@ export default {
         if (!this.isUserLoggedIn) {
           GustLocalStorage.appendMedia(response.data.id);
         }
+        // Set it to active image
+        this.handleImageSelect(response.data);
       }
     },
     handleFileUploadFailed(fileObject, response) {
       if (response.message) {
-        this.notifications = {type: 'error', title: 'Error!', message: response.message};
+        Notify.error(response.message, 'Error!');
       }
     },
     fetchImages() {

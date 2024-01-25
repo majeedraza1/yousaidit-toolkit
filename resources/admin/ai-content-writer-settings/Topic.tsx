@@ -1,14 +1,7 @@
 import {Component, HTMLAttributes, ReactNode} from "react";
 import axios from "../../utils/axios";
-import {
-  Dialog,
-  DialogContainer,
-  Modal,
-  NotificationContainer,
-  Notify,
-  Spinner,
-  SpinnerContainer
-} from "@shapla/react-components";
+import {Modal} from "@shapla/react-components";
+import {Dialog, Notify, Spinner} from "@shapla/vanilla-components";
 
 interface TopicItemInterface {
   slug: string;
@@ -67,13 +60,11 @@ export default class Topic extends Component<TopicPropsInterface, TopicStateInte
   }
 
   removeItem(topic: TopicItemInterface) {
-    Dialog.confirm('Are you sure to delete this item?').then(confirmed => {
-      if (confirmed) {
-        const {topics} = this.state;
-        topics.splice(topics.indexOf(topic), 1);
-        this.setState({topics: topics});
-        this.updateSettings();
-      }
+    Dialog.confirm('Are you sure to delete this item?').then(() => {
+      const {topics} = this.state;
+      topics.splice(topics.indexOf(topic), 1);
+      this.setState({topics: topics});
+      this.updateSettings();
     })
   }
 
@@ -219,9 +210,6 @@ export default class Topic extends Component<TopicPropsInterface, TopicStateInte
             </tbody>
           </table>
         </Modal>
-        <NotificationContainer/>
-        <DialogContainer/>
-        <SpinnerContainer isRootSpinner={true}/>
       </div>
     );
   }

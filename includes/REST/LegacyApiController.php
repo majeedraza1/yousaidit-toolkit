@@ -17,7 +17,7 @@ class LegacyApiController extends WP_REST_Controller {
 	 * @since 4.7.0
 	 * @var string
 	 */
-	protected $namespace = 'stackonet/v1';
+	protected $namespace = 'yousaidit/v1';
 
 	/**
 	 * Generate pagination metadata

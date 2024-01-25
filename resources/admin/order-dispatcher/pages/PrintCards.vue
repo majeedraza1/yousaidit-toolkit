@@ -41,7 +41,8 @@
 import {shaplaButton, tab, tabs} from 'shapla-vue-components';
 import {mapState} from 'vuex';
 import PdfSizeInfo from "../components/PdfSizeInfo";
-import axios from "axios";
+import axios from "@/utils/axios";
+import {Spinner} from "@shapla/vanilla-components";
 
 export default {
   name: "PrintCards",
@@ -59,7 +60,7 @@ export default {
   },
   methods: {
     getItems(force = false) {
-      this.$store.commit('SET_LOADING_STATUS', true);
+      Spinner.show();
       axios.get(Stackonet.root + '/orders/card-sizes', {params: {force: force}}).then(response => {
         let data = response.data.data;
         if (force) {
@@ -72,7 +73,7 @@ export default {
       }).catch(error => {
         console.log(error);
       }).finally(() => {
-        this.$store.commit('SET_LOADING_STATUS', false);
+        Spinner.hide();
       })
     },
     calculateItems(items) {

@@ -59,7 +59,7 @@ class Admin {
 		global $post;
 		global $hook_suffix;
 		$data = array(
-			'root'    => esc_url_raw( rest_url( 'stackonet/v1' ) ),
+			'root'    => esc_url_raw( rest_url( 'yousaidit/v1' ) ),
 			'nonce'   => wp_create_nonce( 'wp_rest' ),
 			'ajaxurl' => admin_url( 'admin-ajax.php' ),
 		);

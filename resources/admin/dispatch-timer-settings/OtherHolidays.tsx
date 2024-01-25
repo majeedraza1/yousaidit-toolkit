@@ -1,5 +1,6 @@
 import {Component} from "react";
-import {Dialog, Modal, Notify, Spinner} from "@shapla/react-components";
+import {Modal} from "@shapla/react-components";
+import {Dialog, Notify, Spinner} from "@shapla/vanilla-components";
 import axios from "../../utils/axios";
 
 interface SpecialHolidayInterface {
