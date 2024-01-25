@@ -9,16 +9,16 @@ class ReminderGroup extends DatabaseModel {
 
 	public function to_array(): array {
 		return [
-			'id'                   => (int) $this->get( 'id' ),
-			'title'                => $this->get( 'title' ),
+			'id'                   => $this->get_id(),
+			'title'                => $this->get_prop( 'title' ),
 			'product_categories'   => $this->get_product_categories_ids(),
 			'primary_category_url' => $this->get_first_category_url(),
 			'cta_link'             => $this->get_cta_link(),
 			'email_template_url'   => $this->get_email_template_url(),
-			'menu_order'           => (int) $this->get( 'menu_order' ),
-			'created_at'           => mysql_to_rfc3339( $this->get( 'created_at' ) ),
-			'updated_at'           => mysql_to_rfc3339( $this->get( 'updated_at' ) ),
-			'occasion_date'        => $this->get( 'occasion_date' ),
+			'menu_order'           => (int) $this->get_prop( 'menu_order' ),
+			'created_at'           => mysql_to_rfc3339( $this->get_prop( 'created_at' ) ),
+			'updated_at'           => mysql_to_rfc3339( $this->get_prop( 'updated_at' ) ),
+			'occasion_date'        => $this->get_prop( 'occasion_date' ),
 		];
 	}
 

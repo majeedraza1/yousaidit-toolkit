@@ -1,4 +1,5 @@
 import {InnerMessagePropsInterface} from "./interfaces";
+import {ReminderGroupInterface, ReminderInterface} from "../interfaces/reminders.ts";
 
 
 declare global {
@@ -23,6 +24,12 @@ declare global {
       privacyPolicyUrl: string;
       termsUrl: string;
       restNonce: string;
+    }
+    YousaiditMyAccountReminders: {
+      reminders: ReminderInterface[];
+      groups: ReminderGroupInterface[];
+      countries: Record<string, string>;
+      states: Record<string, Record<string, string>>;
     }
   }
 }
