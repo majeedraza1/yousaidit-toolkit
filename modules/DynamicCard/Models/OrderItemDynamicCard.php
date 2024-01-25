@@ -195,10 +195,10 @@ class OrderItemDynamicCard {
 		// Add sections
 		$this->addSections( $fpd );
 
-//		$fpd->Output( $args['dest'] ?? '', $args['name'] ?? '' );
-		header( "Content-Type: application/pdf" );
-		$fpd->Output();
-		die;
+		$fpd->Output( $args['dest'] ?? '', $args['name'] ?? '' );
+//		header( "Content-Type: application/pdf" );
+//		$fpd->Output();
+//		die;
 	}
 
 	/**
@@ -285,13 +285,16 @@ class OrderItemDynamicCard {
 			return;
 		}
 
-		$width  = 154;
-		$height = 156;
-		$x_pos  = $fpd->GetPageWidth() - $width;
-		$y_pos  = 0;
+		$width     = 154;
+		$height    = 156;
+		$x_pos     = $fpd->GetPageWidth() - $width;
+		$y_pos     = 0;
+		$image_src = $this->background->get_image_src();
+		if ( empty( $image_src ) ) {
+			return;
+		}
 		// @TODO check it
-		$fpd->Image( $this->background->get_image(), $x_pos, $y_pos,
-			$width, $height, $this->background->get( 'image_ext' ) );
+		$fpd->Image( $image_src, $x_pos, $y_pos, $width, $height, $this->background->get_image_extension() );
 	}
 
 	private function addSections( FreePdfExtended &$fpd ) {

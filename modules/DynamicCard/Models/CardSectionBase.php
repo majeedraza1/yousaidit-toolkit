@@ -32,7 +32,7 @@ class CardSectionBase extends Data {
 			}
 		}
 
-		$file_ext = explode( '.', basename( $$url ) );
+		$file_ext = explode( '.', basename( $url ) );
 		$ext      = end( $file_ext );
 
 		return [ 'path' => $path, 'url' => $url, 'width' => $width, 'height' => $height, 'ext' => $ext ];
