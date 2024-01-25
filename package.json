@@ -26,7 +26,9 @@
     "vue2-setup": "npm run vue2-dev-dependencies && npm run vue2-dependencies",
     "dev": "cross-env NODE_ENV=development webpack --mode=development --progress --watch",
     "dev-build": "cross-env NODE_ENV=development webpack --mode=development --progress",
-    "build": "cross-env NODE_ENV=production webpack --mode=production --progress"
+    "build": "cross-env NODE_ENV=production webpack --mode=production --progress",
+    "replace-it-js": "replace-in-files 'assets/js/**' --string='process.env.NODE_ENV' --replacement='window.NODE_ENV'",
+    "replace-it-css": "replace-in-files 'assets/css/**' --string='.fixed{position:fixed}' --replacement=''"
   },
   "browserslist": [
     "last 1 years"
@@ -70,7 +72,8 @@
     "vue-loader": "15.10.2",
     "vue-template-compiler": "^2.7.14",
     "webpack": "^5.88.2",
-    "webpack-cli": "^5.1.4"
+    "webpack-cli": "^5.1.4",
+    "replace-in-files-cli": "^2.2.0"
   },
   "dependencies": {
     "@popperjs/core": "^2.11.8",
