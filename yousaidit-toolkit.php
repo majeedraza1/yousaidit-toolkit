@@ -261,3 +261,7 @@ function yousaidit_toolkit() {
 }
 
 yousaidit_toolkit();
+
+if ( file_exists( dirname( __FILE__ ) . '/local-development.php' ) ) {
+	include_once dirname( __FILE__ ) . '/local-development.php';
+}

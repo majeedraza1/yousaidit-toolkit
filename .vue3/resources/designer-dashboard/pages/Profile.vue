@@ -1,0 +1,375 @@
+<template>
+  <div class="yousaidit-designer-profile">
+    <designer-profile-header
+        :designer-name="designer.display_name"
+        :designer-location="designer.location"
+        :designer-bio="designer.description"
+        :cover-photo-url="designer.cover_photo_url"
+        :profile-photo-url="designer.avatar_url"
+        @change:cover="showChangeCoverModal = true"
+        @change:profile="showChangeProfileModal = true"
+    />
+    <p>&nbsp;</p>
+    <tabs fullwidth tab-style="toggle">
+      <tab name="Personal Detail" selected>
+        <profile-field title="Name" :content="`${designer.first_name} ${designer.last_name}`"
+                       @save="updateName">
+          <text-field type="text" label="First Name" v-model="designer.first_name"/>
+          <text-field type="text" label="Last Name" v-model="designer.last_name"/>
+        </profile-field>
+
+        <profile-field title="Display Name" :content="designer.display_name" @save="updateDisplayName">
+          <select-field
+              label="Display Name"
+              v-model="designer.display_name"
+              :options="displayNameOptions"
+          />
+        </profile-field>
+
+        <profile-field title="Location" :content="designer.location" @save="updateLocation">
+          <text-field type="text" label="Location" v-model="designer.location"/>
+        </profile-field>
+
+        <profile-field title="Password" content="**********" @save="updatePassword">
+          <text-field type="password" label="Current Password" v-model="current_password"/>
+          <text-field type="password" label="New Password" v-model="new_password"/>
+          <text-field type="password" label="Confirm Password" v-model="confirm_password"/>
+        </profile-field>
+
+        <profile-field title="About Yourself" :content="designer.description" field-width="500px"
+                       @save="updateDescription">
+          <text-field type="textarea" label="Detail" v-model="designer.description"/>
+        </profile-field>
+
+        <profile-field title="Profile URL" :content="`${designer.profile_base_url}/${designer.user_login}`"
+                       @save="updateProfileUrl">
+          <span v-html="`${designer.profile_base_url}/${designer.user_login}`"></span>
+          <text-field type="url" label="Username" v-model="designer.user_login"
+                      help-text="Your username will be used as your profile page URL."/>
+        </profile-field>
+
+        <profile-field title="Instagram Profile" :content="designer.instagram_url" field-width="500px"
+                       @save="updateInstagramUrl">
+          <text-field type="url" label="URL" v-model="designer.instagram_url"/>
+        </profile-field>
+      </tab>
+
+      <tab name="Business Detail">
+        <profile-field title="Business Name" :content="designer.business_name" @save="updateBusinessName">
+          <text-field type="text" label="Business Name" v-model="designer.business_name"/>
+        </profile-field>
+
+        <profile-field title="Business Address" @save="updateBusinessAddress"
+                       :content="designer.formatted_address">
+          <text-field type="text" label="Address Line 1" autocomplete="address-line1"
+                      v-model="designer.business_address.address_1" name="address_1"/>
+          <text-field type="text" label="Address Line 2" autocomplete="address-line2"
+                      v-model="designer.business_address.address_2" name="address_2"/>
+          <text-field type="text" label="City" autocomplete="address-level2"
+                      v-model="designer.business_address.city" name="city"/>
+          <text-field type="text" label="Post Code" autocomplete="postal-code"
+                      v-model="designer.business_address.post_code" name="post_code"/>
+          <text-field type="text" label="Country" autocomplete="country"
+                      v-model="designer.business_address.country" name="country"/>
+        </profile-field>
+
+        <profile-field title="VAT" :content="designer.vat_registration_number" @save="updateVatInfo">
+          <text-field type="text" label="Vat Registration Number" v-model="designer.vat_registration_number"/>
+          <text-field type="date" label="Vat Certificate Issue Date"
+                      v-model="designer.vat_certificate_issue_date"/>
+        </profile-field>
+      </tab>
+
+      <tab name="Payouts">
+        <profile-field title="PayPal Email Address" :content="designer.paypal_email" @save="updatePayPalEmail">
+          <text-field type="email" label="Email Address" v-model="designer.paypal_email"/>
+        </profile-field>
+      </tab>
+
+      <tab name="Card Settings">
+        <div v-if="designer.card_logo_id">
+          <div class="max-w-sm">
+            <img :src="designer.card_logo_url" alt="">
+          </div>
+          <shapla-button theme="primary" @click="showCardLogoModal = true">Change image</shapla-button>
+        </div>
+        <div v-if="!designer.card_logo_id">
+          <shapla-button theme="primary" @click="showCardLogoModal = true">Upload image</shapla-button>
+        </div>
+      </tab>
+    </tabs>
+    <p>&nbsp;</p>
+    <media-modal
+        v-if="showChangeProfileModal"
+        :active="showChangeProfileModal"
+        :images="images"
+        :url="uploadUrl"
+        primary-key="id"
+        src-key="attachment_url"
+        @close="showChangeProfileModal = false"
+        @select:image="handleChooseProfileImage"
+        @before:send="addNonceHeaderForProfileImage"
+        @success="(file,response)=>refreshMediaList(response,'avatar')"
+    />
+    <media-modal
+        v-if="showChangeCoverModal"
+        :active="showChangeCoverModal"
+        :images="images"
+        :url="uploadUrl"
+        primary-key="id"
+        src-key="attachment_url"
+        @close="showChangeCoverModal = false"
+        @select:image="handleChooseCoverImage"
+        @before:send="addNonceHeaderForCover"
+        @success="(file,response)=>refreshMediaList(response,'cover')"
+    />
+    <media-modal
+        v-if="showCardLogoModal"
+        :active="showCardLogoModal"
+        @close="showCardLogoModal = false"
+        :images="images"
+        :url="uploadUrl"
+        primary-key="id"
+        src-key="attachment_url"
+        @select:image="handleCardLogoImageId"
+        @before:send="addNonceHeaderForCardLogo"
+        @success="(file,response)=>refreshMediaList(response,'card-logo')"
+    />
+  </div>
+</template>
+
+<script>
+import axios from "../../utils/axios";
+import {
+  ShaplaButton as shaplaButton,
+  ShaplaInput as textField,
+  ShaplaMediaModal as MediaModal,
+  ShaplaSelect as selectField,
+  ShaplaTab as tab,
+  ShaplaTabs as tabs
+} from '@shapla/vue-components'
+import ProfileField from "../components/ProfileField.vue";
+import DesignerProfileHeader from "../components/DesignerProfileHeader.vue";
+import {Notify, Spinner} from "@shapla/vanilla-components";
+
+export default {
+  name: "Profile",
+  components: {MediaModal, DesignerProfileHeader, ProfileField, tabs, tab, textField, selectField, shaplaButton},
+  data() {
+    return {
+      showChangeCoverModal: false,
+      showChangeProfileModal: false,
+      showCardLogoModal: false,
+      images: [],
+      current_password: '',
+      new_password: '',
+      confirm_password: '',
+      user_login: '',
+      designer: {
+        display_name: '',
+        first_name: '',
+        last_name: '',
+        paypal_email: '',
+        description: '',
+        user_url: '',
+        location: '',
+        business_name: '',
+        formatted_address: '',
+        user_login: '',
+        profile_base_url: '',
+        instagram_url: '',
+        business_address: {
+          address_1: '',
+          address_2: '',
+          city: '',
+          post_code: '',
+          country: '',
+          state: '',
+        },
+        vat_registration_number: '',
+        vat_certificate_issue_date: '',
+        avatar_url: '',
+        cover_photo_url: '',
+      },
+      display_name: '',
+    }
+  },
+  computed: {
+    user() {
+      return DesignerProfile.user
+    },
+    uploadUrl() {
+      return 'designers/' + this.user.id + '/attachment';
+    },
+    displayNameOptions() {
+      let options = [];
+      if (!this.designer) {
+        return options;
+      }
+
+      if (this.designer.first_name) {
+        options.push(this.designer.first_name);
+      }
+
+      if (this.designer.last_name) {
+        options.push(this.designer.last_name);
+      }
+
+      if (this.designer.first_name && this.designer.last_name) {
+        options.push(`${this.designer.first_name} ${this.designer.last_name}`);
+      }
+
+      if (this.designer.business_name) {
+        options.push(this.designer.business_name);
+      }
+
+      if (this.designer.display_name && options.indexOf(this.designer.display_name) === -1) {
+        options.push(this.designer.display_name);
+      }
+
+      if (this.display_name && options.indexOf(this.display_name) === -1) {
+        options.push(this.display_name);
+      }
+
+      return options;
+    }
+  },
+  mounted() {
+    this.getUserData();
+    this.getUserUploadedImages();
+  },
+  methods: {
+    refreshMediaList(response, type = 'avatar') {
+      let image = response.data.attachment;
+      if ('avatar' === type) {
+        this.update({avatar_id: image.id});
+        this.showChangeProfileModal = false;
+      }
+      if ('cover' === type) {
+        this.update({cover_photo_id: image.id});
+        this.showChangeCoverModal = false;
+      }
+      if ('card-logo' === type) {
+        this.update({card_logo_id: image.id});
+        this.showCardLogoModal = false;
+      }
+    },
+    getUserUploadedImages() {
+      Spinner.show();
+      axios.get('designers/' + this.user.id + '/attachment', {
+        params: {
+          mime_types: ['image/jpeg', 'image/png']
+        }
+      }).then(response => {
+        Spinner.hide();
+        this.images = response.data.data;
+      }).catch(errors => {
+        Spinner.hide();
+        console.log(errors);
+      });
+    },
+    handleChooseProfileImage(image) {
+      this.update({avatar_id: image.id});
+    },
+    handleCardLogoImageId(image) {
+      this.update({card_logo_id: image.id});
+    },
+    handleChooseCoverImage(image) {
+      this.update({cover_photo_id: image.id});
+    },
+    addNonceHeaderForCardLogo(xhr, formData) {
+      xhr.setRequestHeader('X-WP-Nonce', window.DesignerProfile.restNonce);
+      formData.append('type', 'card-logo');
+    },
+    addNonceHeaderForCover(xhr, formData) {
+      xhr.setRequestHeader('X-WP-Nonce', window.DesignerProfile.restNonce);
+      formData.append('type', 'cover');
+    },
+    addNonceHeaderForProfileImage(xhr, formData) {
+      xhr.setRequestHeader('X-WP-Nonce', window.DesignerProfile.restNonce);
+      formData.append('type', 'avatar');
+    },
+    getUserData() {
+      Spinner.show();
+      axios.get('designers/' + this.user.id).then(response => {
+        Spinner.hide();
+        let data = response.data.data;
+        this.designer = data.designer;
+        this.display_name = data.designer.display_name;
+        this.user_login = data.designer.user_login;
+      }).catch(errors => {
+        Spinner.hide();
+        console.log(errors);
+      });
+    },
+    update(data) {
+      Spinner.show();
+      axios.put('designers/' + this.user.id, data).then(response => {
+        Spinner.hide();
+        Notify.success('Profile updated.');
+        let data = response.data.data;
+        this.designer = data.designer;
+      }).catch(errors => {
+        Spinner.hide();
+        if (typeof errors.response.data.message === "string") {
+          Notify.error(errors.response.data.message, 'Error!');
+        }
+      });
+    },
+    updateName() {
+      this.update({first_name: this.designer.first_name, last_name: this.designer.last_name});
+    },
+    updateDisplayName() {
+      this.update({display_name: this.designer.display_name});
+    },
+    updateLocation() {
+      this.update({location: this.designer.location});
+    },
+    updatePassword() {
+      this.update({
+        current_password: this.current_password,
+        new_password: this.new_password,
+        confirm_password: this.confirm_password,
+      });
+    },
+    updateDescription() {
+      this.update({description: this.designer.description});
+    },
+    updatePayPalEmail() {
+      this.update({paypal_email: this.designer.paypal_email});
+    },
+    updateProfileUrl() {
+      let currentLogin = this.user_login;
+      Spinner.show();
+      axios.put('designers/' + this.user.id, {user_login: this.designer.user_login}).then(response => {
+        Spinner.hide();
+        Notify.success('Profile updated.');
+        let data = response.data.data;
+        this.designer = data.designer;
+        window.location.reload();
+      }).catch(errors => {
+        Spinner.hide();
+        this.designer.user_login = currentLogin;
+        if (typeof errors.response.data.message === "string") {
+          Notify.error(errors.response.data.message, 'Error!');
+        }
+      });
+    },
+    updateInstagramUrl() {
+      this.update({instagram_url: this.designer.instagram_url});
+    },
+    updateBusinessName() {
+      this.update({business_name: this.designer.business_name});
+    },
+    updateBusinessAddress() {
+      this.update({business_address: this.designer.business_address});
+    },
+    updateVatInfo() {
+      this.update({
+        vat_registration_number: this.designer.vat_registration_number,
+        vat_certificate_issue_date: this.designer.vat_certificate_issue_date,
+      });
+    },
+  }
+}
+</script>

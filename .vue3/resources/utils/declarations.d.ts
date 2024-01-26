@@ -22,8 +22,18 @@ declare global {
     DesignerProfile: {
       fonts: { key: string }[],
       privacyPolicyUrl: string;
+      lostPasswordUrl: string;
+      logoUrl: string;
+      logOutUrl: string;
       termsUrl: string;
       restNonce: string;
+      categories: { id: number; name: string; parent: number }[]
+      tags: { id: number; name: string; }[]
+      attributes: { attribute_name: string; attribute_label: string; options: { id: number; name: string }[] }[]
+      marketPlaces: { key: string; label: string; logo: string; storeId: number }[]
+      card_sizes: { term_id: number; slug: string; name: string }[];
+      user: { id: number; display_name: string; avatar_url: string; author_posts_url: string; };
+      user_card_categories: number[];
     }
     YousaiditMyAccountReminders: {
       reminders: ReminderInterface[];

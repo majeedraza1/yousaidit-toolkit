@@ -176,10 +176,16 @@ class DesignerProfile {
 	 * Load designer scripts
 	 */
 	public function designer_profile_scripts() {
+		// On local development this javaScript will be loaded via vitejs
+		if ( function_exists( 'is_local_development' ) && is_local_development() ) {
+			return;
+		}
 		global $post;
 		if ( $post instanceof WP_Post && has_shortcode( $post->post_content, 'designer_profile_page' ) ) {
 			wp_enqueue_style( 'stackonet-designer-profile' );
-			wp_enqueue_script( 'stackonet-designer-profile' );
+			wp_enqueue_script( 'stackonet-designer-dashboard',
+				Assets::get_assets_url( 'js/designer-dashboard.js' ),
+				[], null, true );
 		}
 	}
 
