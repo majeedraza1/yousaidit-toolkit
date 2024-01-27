@@ -1,6 +1,15 @@
 type TYPE_CARD_SIZE = "square" | "a4";
 type TYPE_CARD_TYPE = "dynamic" | "static";
 
+interface UploadedAttachmentInterface {
+  attachment_url: string;
+  full: { src: string, width: number; height: number }
+  id: number;
+  thumbnail: { src: string; width: number; height: number }
+  title: string;
+  token: string;
+}
+
 interface DesignerInterface {
   id: number;
   email: string;
@@ -65,6 +74,23 @@ interface DesignerCardBaseInterface {
   description: string;
 }
 
+interface DesignerStandardCardBaseInterface {
+  image_id: number,
+  image: null | UploadedAttachmentInterface,
+  title: '',
+  description: '',
+  sizes: string[],
+  categories_ids: string[],
+  tags_ids: string[],
+  attributes: Record<string, number[]>,
+  gallery_images_ids: [],
+  market_places: ['yousaidit'],
+  pdf_ids: {},
+  rude_card: 'no' | 'yes',
+  has_suggest_tags: 'no' | 'yes',
+  suggest_tags: '',
+}
+
 interface DesignerCardInterface extends DesignerCardBaseInterface {
   id: number;
   categories: { id: number, title: string }[],
@@ -111,9 +137,69 @@ interface DesignerCardInterface extends DesignerCardBaseInterface {
   designer: DesignerInterface
 }
 
+interface DesignerProfileInlineGeneralDataInterface {
+  restRoot: string;
+  restNonce: false | string;
+  siteTitle: string;
+  logoUrl: string;
+  card_sizes: { term_id: number; slug: string; name: string }[];
+  categories: { id: number; name: string; parent: number }[];
+  tags: { id: number; name: string; }[];
+  attributes: { attribute_name: string; attribute_label: string; options: { id: number; name: string }[] }[];
+  privacyPolicyUrl: string;
+}
+
+interface DesignerProfileInlineDataInterface extends DesignerProfileInlineGeneralDataInterface {
+  termsUrl: string;
+  lostPasswordUrl: string;
+  logOutUrl: string;
+  user: { id: number; display_name: string; avatar_url: string; author_posts_url: string; };
+  user_card_categories: number[];
+  order_statuses: Record<string, string>;
+  marketPlaces: { key: string; label: string; logo: string; storeId: number }[];
+  fonts: { key: string; label: string; fontUrl: string; for_public: boolean; for_designer: boolean; }[];
+  templates: { ps: string; ai: string };
+  sampleCards: { standardCardUrl: string; textCardUrl: string; photoCardUrl: string; mugUrl: string; }
+}
+
+interface CommissionInterface {
+  commission_id: number;
+  card_id: number;
+  designer_id: number;
+  customer_id: number;
+  order_id: number;
+  order_item_id: number;
+  order_quantity: number;
+  item_commission: number;
+  total_commission: number;
+  created_at: string;
+  updated_at: string;
+}
+
+interface StaticCardArgumentsInterface {
+  card_type: 'static';
+  card_title: string;
+  card_sizes: TYPE_CARD_SIZE[];
+  categories_ids: number[];
+  image_id: number;
+  description?: string;
+  tags_ids?: number[];
+  attributes?: number[];
+  rude_card?: 'yes' | 'no' | boolean;
+  suggest_tags?: string;
+  market_places?: string[];
+}
+
 export type {
+  DesignerProfileInlineGeneralDataInterface,
+  DesignerProfileInlineDataInterface,
   DesignerInterface,
   DesignerCardBaseInterface,
   DesignerCardInterface,
-  DesignerServerResponseInterface
+  CardStatusInterface,
+  DesignerServerResponseInterface,
+  CommissionInterface,
+  UploadedAttachmentInterface,
+  DesignerStandardCardBaseInterface,
+  StaticCardArgumentsInterface
 }

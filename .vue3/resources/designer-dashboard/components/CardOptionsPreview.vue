@@ -1,0 +1,67 @@
+<script setup lang="ts">
+import {PropType} from "vue";
+import {DesignerStandardCardBaseInterface} from "../../interfaces/designer.ts";
+import {ShaplaChip, ShaplaColumn, ShaplaColumns} from "@shapla/vue-components";
+import useDesignerDashboardStore from "../store.ts";
+
+const store = useDesignerDashboardStore();
+
+const props = defineProps({
+  card: {type: Object as PropType<DesignerStandardCardBaseInterface>}
+})
+
+const isAttributeSelected = (attribute, term) => {
+  if (props.card.attributes[attribute.attribute_name]) {
+    return props.card.attributes[attribute.attribute_name].indexOf(term.id.toString()) !== -1;
+  }
+  return false;
+}
+</script>
+
+<template>
+  <ShaplaColumns multiline v-if="Object.keys(card).length">
+    <ShaplaColumn :tablet="3"><strong>Title</strong></ShaplaColumn>
+    <ShaplaColumn :tablet="9">{{ card.title }}</ShaplaColumn>
+
+    <ShaplaColumn :tablet="3"><strong>Card Sizes</strong></ShaplaColumn>
+    <ShaplaColumn :tablet="9">
+      <template v-for="_size in store.card_sizes">
+        <ShaplaChip v-if="card.sizes.indexOf(_size.value) !== -1" :key="_size.value">
+          {{ _size.label }}
+        </ShaplaChip>
+      </template>
+    </ShaplaColumn>
+
+    <ShaplaColumn :tablet="3"><strong>Card Categories</strong></ShaplaColumn>
+    <ShaplaColumn :tablet="9">
+      <template v-for="_cat in store.card_categories">
+        <ShaplaChip v-if="card.categories_ids.includes(_cat.id.toString())" :key="_cat.id">{{ _cat.name }}</ShaplaChip>
+      </template>
+    </ShaplaColumn>
+
+    <ShaplaColumn :tablet="3"><strong>Card Tags</strong></ShaplaColumn>
+    <ShaplaColumn :tablet="9">
+      <template v-for="_tag in store.card_tags">
+        <ShaplaChip v-if="card.tags_ids.includes(_tag.id.toString())" :key="_tag.id"> {{ _tag.name }}</ShaplaChip>
+      </template>
+    </ShaplaColumn>
+
+    <template v-for="_attr in store.card_attributes">
+      <ShaplaColumn :tablet="3"><strong>{{ _attr.attribute_label }}</strong></ShaplaColumn>
+      <ShaplaColumn :tablet="9">
+        <template v-for="_tag in _attr.options">
+          <ShaplaChip v-if="isAttributeSelected(_attr,_tag)" :key="_tag.id">{{ _tag.name }}</ShaplaChip>
+        </template>
+      </ShaplaColumn>
+    </template>
+
+    <template v-if="card.image">
+      <ShaplaColumn :tablet="3"><strong>Card Image</strong></ShaplaColumn>
+      <ShaplaColumn :tablet="9">
+        <div class="max-w-[300px] h-auto">
+          <img :src="card.image.full.src" alt="">
+        </div>
+      </ShaplaColumn>
+    </template>
+  </ShaplaColumns>
+</template>

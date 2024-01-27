@@ -315,7 +315,7 @@ class DesignerProfile {
 			'logoUrl'          => '',
 			'categories'       => [],
 			'tags'             => [],
-			'cards'            => [],
+			'card_sizes'       => [],
 			'attributes'       => [],
 			'privacyPolicyUrl' => get_privacy_policy_url(),
 		];
@@ -349,11 +349,6 @@ class DesignerProfile {
 				'author_posts_url' => $designer->get_products_url(),
 			];
 
-			self::add_card_sizes( $data );
-			self::add_product_categories( $data );
-			self::add_product_tags( $data );
-			self::add_product_attributes( $data );
-
 			$data['user_card_categories'] = ( new DesignerCard() )->get_user_cards_categories_ids( $current_user->ID );
 			$data['order_statuses']       = wc_get_order_statuses();
 			$data['marketPlaces']         = MarketPlace::all();
@@ -362,6 +357,17 @@ class DesignerProfile {
 				'ps' => Assets::get_assets_url( 'static-images/Square Template - You Said It Cards.psd' ),
 				'ai' => Assets::get_assets_url( 'static-images/Square Template - You Said It Cards.ai' ),
 			];
+			$data['sampleCards']          = [
+				'standardCardUrl' => Assets::get_assets_url( 'static-images/sample-standard-card.webp' ),
+				'photoCardUrl'    => Assets::get_assets_url( 'static-images/sample-personalized-photo-card.webp' ),
+				'textCardUrl'    => Assets::get_assets_url( 'static-images/sample-personalised-text-card.webp' ),
+				'mugUrl'          => Assets::get_assets_url( 'static-images/sample-mug.webp' ),
+			];
+
+			self::add_card_sizes( $data );
+			self::add_product_categories( $data );
+			self::add_product_tags( $data );
+			self::add_product_attributes( $data );
 		}
 
 		echo '<script type="text/javascript">window.DesignerProfile = ' . wp_json_encode( $data ) . '</script>' . PHP_EOL;
