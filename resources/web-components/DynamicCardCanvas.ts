@@ -31,7 +31,6 @@ export class DynamicCardCanvas extends LitElement {
     cardHeightMM: {type: Number, attribute: 'card-height-mm'},
     elementWidthMM: {type: Number, attribute: 'element-width-mm'},
     elementHeightMM: {type: Number, attribute: 'element-height-mm'},
-    fontFamilies: {type: Array, attribute: 'font-families'},
   }
 
   constructor() {

@@ -9,6 +9,9 @@ const redirectTo = (cardType: string) => {
   if ('standard' === cardType) {
     router.push({name: 'AddStandardCard'});
   }
+  if ('photo-card' === cardType) {
+    router.push({name: 'AddPhotoCard'});
+  }
 }
 </script>
 
@@ -26,7 +29,7 @@ const redirectTo = (cardType: string) => {
         </div>
       </ShaplaColumn>
       <ShaplaColumn :tablet="6" :desktop="4" :widescreen="3">
-        <div class="border border-solid border-primary rounded">
+        <div class="border border-solid border-primary rounded" @click="redirectTo('photo-card')">
           <div class="yousaidit-report-card__content">
             <img :src="store.photoCardUrl" alt="Personalised Photo Card">
           </div>
@@ -36,7 +39,7 @@ const redirectTo = (cardType: string) => {
         </div>
       </ShaplaColumn>
       <ShaplaColumn :tablet="6" :desktop="4" :widescreen="3">
-        <div class="border border-solid border-primary rounded">
+        <div class="border border-solid border-primary rounded" @click="redirectTo('text-card')">
           <div class="yousaidit-report-card__content">
             <img :src="store.textCardUrl" alt="Personalised Text Card">
           </div>
@@ -46,7 +49,7 @@ const redirectTo = (cardType: string) => {
         </div>
       </ShaplaColumn>
       <ShaplaColumn :tablet="6" :desktop="4" :widescreen="3">
-        <div class="border border-solid border-primary rounded">
+        <div class="border border-solid border-primary rounded" @click="redirectTo('mug')">
           <div class="text-base p-4">
             <img :src="store.mugUrl" alt="Mug">
           </div>

@@ -9,7 +9,9 @@
     "build:reminders-frontend": "tsc --noEmit && vite build --config vite.reminders-frontend.config.ts",
     "dev:designer-dashboard": "vite --config vite.designer-dashboard.config.ts",
     "build:designer-dashboard": "tsc --noEmit && vite build --config vite.designer-dashboard.config.ts",
-    "build": "npm run build:reminders-admin && npm run build:reminders-frontend"
+    "replace-it-js": "replace-in-files '../assets/js/**' --string='process.env.NODE_ENV' --replacement='window.NODE_ENV'",
+    "replace-it-css": "replace-in-files '../assets/css/**' --string='.fixed{position:fixed}' --replacement=''",
+    "build": "npm run build:reminders-admin && npm run build:reminders-frontend && npm run build:designer-dashboard && npm run replace-it-js"
   },
   "dependencies": {
     "@shapla/vanilla-components": "^0.4.0",
@@ -24,6 +26,7 @@
     "@vitejs/plugin-vue": "^5.0.3",
     "autoprefixer": "^10.4.17",
     "postcss": "^8.4.33",
+    "replace-in-files-cli": "^2.2.0",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.3.3",
     "vite": "^5.0.12",
