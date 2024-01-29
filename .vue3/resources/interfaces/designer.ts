@@ -77,8 +77,8 @@ interface DesignerCardBaseInterface {
 interface DesignerStandardCardBaseInterface {
   image_id: number,
   image: null | UploadedAttachmentInterface,
-  title: '',
-  description: '',
+  title: string,
+  description: string,
   sizes: string[],
   categories_ids: string[],
   tags_ids: string[],

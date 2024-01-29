@@ -10,7 +10,25 @@ interface UploadedAttachmentInterface {
   token: string;
 }
 
-interface PhotoCardCardInterface {
+interface CardOptionInterface {
+  title: string,
+  description: string,
+  sizes: string[],
+  categories_ids: string[],
+  tags_ids: string[],
+  attributes: Record<string, number[]>,
+  market_places: ['yousaidit'],
+  rude_card: 'no' | 'yes',
+  has_suggest_tags: 'no' | 'yes',
+  suggest_tags: '',
+}
+
+interface StandardCardBaseInterface extends CardOptionInterface {
+  image_id: number,
+  image: null | UploadedAttachmentInterface,
+}
+
+interface PhotoCardBaseInterface extends CardOptionInterface {
   main_image_id: number;
   demo_image_id: number;
   main_image: null | UploadedAttachmentInterface;
@@ -66,7 +84,9 @@ interface DynamicCardPayloadInterface {
 
 export type {
   UploadedAttachmentInterface,
-  PhotoCardCardInterface,
+  CardOptionInterface,
+  StandardCardBaseInterface,
+  PhotoCardBaseInterface,
   DynamicCardItemInterface,
   DynamicCardPayloadInterface
 }

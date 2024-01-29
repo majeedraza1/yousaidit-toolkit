@@ -1,30 +1,49 @@
 <script setup lang="ts">
-import {ShaplaFileUploader, ShaplaImage} from "@shapla/vue-components";
+import {ShaplaButton, ShaplaColumn, ShaplaColumns, ShaplaFileUploader, ShaplaImage} from "@shapla/vue-components";
 import useDesignerDashboardStore from "../store.ts";
 import {computed, onMounted, reactive, ref} from "vue";
 import {
   DynamicCardItemInterface,
   DynamicCardPayloadInterface,
-  PhotoCardCardInterface,
+  PhotoCardBaseInterface,
   UploadedAttachmentInterface,
 } from "../../interfaces/designer-card.ts";
 
 import jsonCard from '../sample-data/photo-card-sample.ts'
+import CardOptionsPreview from "../components/CardOptionsPreview.vue";
+import CardOptions from "../components/CardOptions.vue";
 
 const store = useDesignerDashboardStore();
 
 const state = reactive<{
-  card: PhotoCardCardInterface;
+  card: PhotoCardBaseInterface;
   main_card_upload_error_message: string;
   demo_card_upload_error_message: string;
-  preveiwWidth: number;
+  previewWidth: number;
   previewHeight: number;
+  stepDone: number;
 }>({
-  card: null,
+  card: {
+    main_image_id: 0,
+    demo_image_id: 0,
+    main_image: null,
+    demo_image: null,
+    title: '',
+    description: '',
+    sizes: ['square'],
+    categories_ids: [],
+    tags_ids: [],
+    attributes: {},
+    market_places: ['yousaidit'],
+    rude_card: 'no',
+    has_suggest_tags: 'no',
+    suggest_tags: '',
+  },
   main_card_upload_error_message: '',
   demo_card_upload_error_message: '',
-  preveiwWidth: 0,
-  previewHeight: 0
+  previewWidth: 0,
+  previewHeight: 0,
+  stepDone: 0,
 })
 
 const fileRequestHeaders = computed(() => {
@@ -36,6 +55,7 @@ const fileRequestHeaders = computed(() => {
 })
 
 const hasMainImage = computed<boolean>(() => state.card && state.card.main_image_id > 0);
+const hasDemoImage = computed<boolean>(() => state.card && state.card.main_image_id > 0);
 
 const dynamicCardPayload = computed<DynamicCardPayloadInterface>(() => {
   const card_items: DynamicCardItemInterface[] = [];
@@ -117,86 +137,141 @@ const calculateWidthAndHeight = () => {
   let innerEL = canvasContainer.value;
   let d = [150, 150];
 
-  state.preveiwWidth = innerEL.offsetWidth || (document.body.offsetWidth - 30);
-  state.previewHeight = Math.round(state.preveiwWidth * (d[1] / d[0]));
+  state.previewWidth = innerEL.offsetWidth || (document.body.offsetWidth - 30);
+  state.previewHeight = Math.round(state.previewWidth * (d[1] / d[0]));
+}
+
+const onSubmit = () => {
+
 }
 
 onMounted(() => {
-  state.card = jsonCard as PhotoCardCardInterface;
+  state.card = jsonCard as PhotoCardBaseInterface;
   setTimeout(() => calculateWidthAndHeight(), 1000)
 })
 </script>
 
 <template>
   <h2 class="text-center text-4xl bg-gray-100 p-2 border border-solid border-primary mb-4">Add Photo Card</h2>
-  <div>
-    <div class="flex -m-2">
-      <div class="sm:w-full md:w-1/2 p-2">
-        <div class="dynamic-card-canvas-container" ref="canvasContainer">
-          <dynamic-card-canvas
-              :options='`${JSON.stringify(dynamicCardPayload)}`'
-              :card-width-mm="150"
-              :card-height-mm="150"
-              :element-width-mm="pxToMm(state.preveiwWidth)"
-              :element-height-mm="pxToMm(state.previewHeight)"
-          ></dynamic-card-canvas>
-        </div>
-        <ShaplaImage>
-          <template v-for="section in dynamicCardPayload.card_items">
-            <img :src="section.imageOptions.img.src" alt="">
-          </template>
-        </ShaplaImage>
+  <div class="flex" v-if="state.stepDone === 0">
+    <div class="sm:w-full md:w-1/2 p-2">
+      <div class="dynamic-card-canvas-container" ref="canvasContainer">
+        <dynamic-card-canvas
+            :options='`${JSON.stringify(dynamicCardPayload)}`'
+            :card-width-mm="150"
+            :card-height-mm="150"
+            :element-width-mm="pxToMm(state.previewWidth)"
+            :element-height-mm="pxToMm(state.previewHeight)"
+        ></dynamic-card-canvas>
       </div>
-      <div class="sm:w-full md:w-1/2 p-2">
-        <div>
-          <h2 class="text-2xl leading-none mb-4">Card Size</h2>
-          <p>The size we're printing is square (15cm x 15cm), please upload the image in JPEG or PNG format with a
-            minimum resolution of 1807 x 1807 px.</p>
-        </div>
-        <div>
-          <h2 class="text-2xl leading-none mb-4">Bleed Needed</h2>
-          <p>For the best results, please ensure your design as a 3mm bleed on the top, right and bottom and 1mm
-            on the left of your design. These parts will get cut off when printed, anything you would like on
-            the printed design must be kept within the cropping masks.</p>
-        </div>
-        <div class="mb-4">
-          <h2 class="text-2xl leading-none mb-4">Upload Main Image</h2>
+      <ShaplaImage>
+        <template v-for="section in dynamicCardPayload.card_items">
+          <img :src="section.imageOptions.img.src" alt="">
+        </template>
+      </ShaplaImage>
+    </div>
+    <div class="sm:w-full md:w-1/2 p-2">
+      <div>
+        <h2 class="text-2xl leading-none mb-4">Card Size</h2>
+        <p>The size we're printing is square (15cm x 15cm), please upload the image in JPEG or PNG format with a
+          minimum resolution of 1807 x 1807 px.</p>
+      </div>
+      <div>
+        <h2 class="text-2xl leading-none mb-4">Bleed Needed</h2>
+        <p>For the best results, please ensure your design as a 3mm bleed on the top, right and bottom and 1mm
+          on the left of your design. These parts will get cut off when printed, anything you would like on
+          the printed design must be kept within the cropping masks.</p>
+      </div>
+      <div class="mb-4 lg:flex space-x-4">
+        <div class="w-full lg:w-1/2 mb-4">
+          <h2 class="text-2xl leading-none mb-0">Upload Main Image</h2>
+          <p class="mb-4">Please use royalty free image for commercial use.</p>
           <div class="w-full lg:max-w-[600px]">
-            <ShaplaFileUploader
-                class="static-card-image-uploader"
-                :url="store.attachment_upload_url"
-                @success="handleMainImageUpload"
-                @fail="handleMainImageUploadFail"
-                text-max-upload-limit="Max upload filesize: 5MB"
-                :headers="fileRequestHeaders"
-                :params="{type:'card_image',card_size:'square'}"
-            />
-            <div v-if="state.main_card_upload_error_message.length">
-              <div v-html="state.main_card_upload_error_message"
-                   class="p-2 text-red-600 border border-solid border-red-600"></div>
-            </div>
+            <template v-if="hasMainImage">
+              <ShaplaImage class="border border-solid border-gray-200" container-width="150px"
+                           container-height="150px">
+                <img :src="state.card.main_image.thumbnail.src" alt="Main image">
+              </ShaplaImage>
+            </template>
+            <template v-else>
+              <ShaplaFileUploader
+                  class="static-card-image-uploader"
+                  :url="store.attachment_upload_url"
+                  @success="handleMainImageUpload"
+                  @fail="handleMainImageUploadFail"
+                  text-max-upload-limit="Max upload filesize: 5MB"
+                  :headers="fileRequestHeaders"
+                  :params="{type:'card_image',card_size:'square'}"
+              />
+              <div v-if="state.main_card_upload_error_message.length">
+                <div v-html="state.main_card_upload_error_message"
+                     class="p-2 text-red-600 border border-solid border-red-600"></div>
+              </div>
+            </template>
           </div>
         </div>
-        <div class="mb-4">
+        <div class="w-full lg:w-1/2 mb-4">
           <h2 class="text-2xl leading-none mb-0">Upload Demo Image</h2>
           <p class="mb-4">Please use royalty free image for commercial use.</p>
           <div class="w-full lg:max-w-[600px]">
-            <ShaplaFileUploader
-                class="static-card-image-uploader"
-                :url="store.attachment_upload_url"
-                @success="handleDemoImageUpload"
-                @fail="handleDemoImageUploadFail"
-                text-max-upload-limit="Max upload filesize: 5MB"
-                :headers="fileRequestHeaders"
-                :params="{type:'card_image',card_size:'square'}"
-            />
-            <div v-if="state.main_card_upload_error_message.length">
-              <div v-html="state.main_card_upload_error_message"
-                   class="p-2 text-red-600 border border-solid border-red-600"></div>
-            </div>
+            <template v-if="hasDemoImage">
+              <ShaplaImage class="border border-solid border-gray-200" container-width="150px"
+                           container-height="150px">
+                <img :src="state.card.demo_image.thumbnail.src" alt="Main image">
+              </ShaplaImage>
+            </template>
+            <template v-else>
+              <ShaplaFileUploader
+                  class="static-card-image-uploader"
+                  :url="store.attachment_upload_url"
+                  @success="handleDemoImageUpload"
+                  @fail="handleDemoImageUploadFail"
+                  text-max-upload-limit="Max upload filesize: 5MB"
+                  :headers="fileRequestHeaders"
+                  :params="{type:'card_image',card_size:'square'}"
+              />
+              <div v-if="state.demo_card_upload_error_message.length">
+                <div v-html="state.demo_card_upload_error_message"
+                     class="p-2 text-red-600 border border-solid border-red-600"></div>
+              </div>
+            </template>
           </div>
         </div>
       </div>
+      <div>
+        <ShaplaButton theme="primary" size="large" fullwidth @click="state.stepDone = 1">Next</ShaplaButton>
+      </div>
     </div>
   </div>
+  <div v-if="1 === state.stepDone" class="flex flex-col items-center">
+    <CardOptions v-model="state.card"/>
+    <div class="flex justify-center mt-4">
+      <ShaplaButton theme="primary" @click="state.stepDone = 2">Next</ShaplaButton>
+    </div>
+  </div>
+  <div v-if="2 === state.stepDone" class="mb-4">
+    <CardOptionsPreview :card="state.card"/>
+    <ShaplaColumns multiline>
+      <template v-if="state.card.main_image_id">
+        <ShaplaColumn :tablet="3"><strong>Main Image</strong></ShaplaColumn>
+        <ShaplaColumn :tablet="9">
+          <div class="max-w-[300px] h-auto">
+            <img :src="state.card.main_image.thumbnail.src" alt="">
+          </div>
+        </ShaplaColumn>
+      </template>
+      <template v-if="state.card.demo_image_id">
+        <ShaplaColumn :tablet="3"><strong>Main Image</strong></ShaplaColumn>
+        <ShaplaColumn :tablet="9">
+          <div class="max-w-[300px] h-auto">
+            <img :src="state.card.demo_image.thumbnail.src" alt="">
+          </div>
+        </ShaplaColumn>
+      </template>
+    </ShaplaColumns>
+    <div class="flex justify-center mt-4">
+      <ShaplaButton theme="primary" @click="onSubmit">Submit</ShaplaButton>
+    </div>
+  </div>
+  <div class="mb-4">&nbsp;</div>
 </template>

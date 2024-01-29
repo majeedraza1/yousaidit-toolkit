@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import {computed, onMounted, reactive} from "vue";
-import {ShaplaButton, ShaplaCheckbox, ShaplaFileUploader, ShaplaIcon, ShaplaImage} from "@shapla/vue-components";
+import {
+  ShaplaButton,
+  ShaplaCheckbox,
+  ShaplaColumn,
+  ShaplaFileUploader,
+  ShaplaIcon,
+  ShaplaImage
+} from "@shapla/vue-components";
 import useDesignerDashboardStore from "../store.ts";
 import {DesignerStandardCardBaseInterface, UploadedAttachmentInterface} from "../../interfaces/designer.ts";
 import CardOptions from "../components/CardOptions.vue";
@@ -158,6 +165,14 @@ onMounted(() => {
   </div>
   <div v-if="4 === state.stepDone" class="flex flex-col items-center">
     <CardOptionsPreview :card="state.card"/>
+    <ShaplaColumns v-if="state.card.image">
+      <ShaplaColumn :tablet="3"><strong>Card Image</strong></ShaplaColumn>
+      <ShaplaColumn :tablet="9">
+        <div class="max-w-[300px] h-auto">
+          <img :src="state.card.image.full.src" alt="">
+        </div>
+      </ShaplaColumn>
+    </ShaplaColumns>
     <div class="flex justify-center mt-4">
       <ShaplaButton theme="primary" @click="onSubmit">Submit</ShaplaButton>
     </div>

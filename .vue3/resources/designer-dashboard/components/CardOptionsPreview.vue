@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import {PropType} from "vue";
-import {DesignerStandardCardBaseInterface} from "../../interfaces/designer.ts";
+import {CardOptionInterface} from "../../interfaces/designer-card.ts";
 import {ShaplaChip, ShaplaColumn, ShaplaColumns} from "@shapla/vue-components";
 import useDesignerDashboardStore from "../store.ts";
 
 const store = useDesignerDashboardStore();
 
 const props = defineProps({
-  card: {type: Object as PropType<DesignerStandardCardBaseInterface>}
+  card: {type: Object as PropType<CardOptionInterface>}
 })
 
 const isAttributeSelected = (attribute, term) => {
@@ -52,15 +52,6 @@ const isAttributeSelected = (attribute, term) => {
         <template v-for="_tag in _attr.options">
           <ShaplaChip v-if="isAttributeSelected(_attr,_tag)" :key="_tag.id">{{ _tag.name }}</ShaplaChip>
         </template>
-      </ShaplaColumn>
-    </template>
-
-    <template v-if="card.image">
-      <ShaplaColumn :tablet="3"><strong>Card Image</strong></ShaplaColumn>
-      <ShaplaColumn :tablet="9">
-        <div class="max-w-[300px] h-auto">
-          <img :src="card.image.full.src" alt="">
-        </div>
       </ShaplaColumn>
     </template>
   </ShaplaColumns>

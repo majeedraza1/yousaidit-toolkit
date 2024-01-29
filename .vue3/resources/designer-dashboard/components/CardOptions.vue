@@ -2,29 +2,25 @@
 import {ShaplaColumn, ShaplaColumns, ShaplaInput, ShaplaSelect, ShaplaSwitch} from "@shapla/vue-components";
 import {onMounted, PropType, ref, watch} from "vue";
 import useDesignerDashboardStore from "../store.ts";
-import {DesignerStandardCardBaseInterface} from "../../interfaces/designer.ts";
+import {CardOptionInterface} from "../../interfaces/designer-card.ts";
 
 const store = useDesignerDashboardStore();
 const emit = defineEmits<{
-  "update:modelValue": [value: DesignerStandardCardBaseInterface]
+  "update:modelValue": [value: CardOptionInterface]
 }>();
 
 const props = defineProps({
-  modelValue: {type: Object as PropType<DesignerStandardCardBaseInterface>, default: () => ({})},
+  modelValue: {type: Object as PropType<CardOptionInterface>, default: () => ({})},
   errors: {type: Object as PropType<Record<string, string[]>>, default: () => ({})},
 })
-const card = ref<DesignerStandardCardBaseInterface>({
-  image_id: 0,
-  image: null,
+const card = ref<CardOptionInterface>({
   title: '',
   description: '',
   sizes: ['square'],
   categories_ids: [],
   tags_ids: [],
   attributes: {},
-  gallery_images_ids: [],
   market_places: ['yousaidit'],
-  pdf_ids: {},
   rude_card: 'no',
   has_suggest_tags: 'no',
   suggest_tags: '',
@@ -34,7 +30,7 @@ watch(() => props.modelValue, newValue => {
   card.value = newValue;
 }, {deep: true})
 
-watch(() => card.value, (newValue: DesignerStandardCardBaseInterface) => {
+watch(() => card.value, (newValue: CardOptionInterface) => {
   emit('update:modelValue', newValue);
 })
 
