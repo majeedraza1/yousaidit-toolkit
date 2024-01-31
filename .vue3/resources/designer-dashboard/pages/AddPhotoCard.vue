@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {ShaplaButton, ShaplaColumn, ShaplaColumns, ShaplaFileUploader, ShaplaImage} from "@shapla/vue-components";
-import useDesignerDashboardStore from "../store.ts";
+import useDesignerCardStore from "../stores/store-cards.ts";
 import {computed, onMounted, reactive, ref} from "vue";
 import {
   DynamicCardItemInterface,
@@ -8,12 +8,12 @@ import {
   PhotoCardBaseInterface,
   UploadedAttachmentInterface,
 } from "../../interfaces/designer-card.ts";
-
-import jsonCard from '../sample-data/photo-card-sample.ts'
 import CardOptionsPreview from "../components/CardOptionsPreview.vue";
 import CardOptions from "../components/CardOptions.vue";
+import {useRouter} from "vue-router";
 
-const store = useDesignerDashboardStore();
+const store = useDesignerCardStore();
+const router = useRouter();
 
 const state = reactive<{
   card: PhotoCardBaseInterface;
@@ -137,23 +137,31 @@ const calculateWidthAndHeight = () => {
   let innerEL = canvasContainer.value;
   let d = [150, 150];
 
-  state.previewWidth = innerEL.offsetWidth || (document.body.offsetWidth - 30);
-  state.previewHeight = Math.round(state.previewWidth * (d[1] / d[0]));
+  if (innerEL) {
+    state.previewWidth = innerEL.offsetWidth || (document.body.offsetWidth - 30);
+    state.previewHeight = Math.round(state.previewWidth * (d[1] / d[0]));
+  }
 }
 
 const onSubmit = () => {
+  const data: PhotoCardBaseInterface = {
+    dynamic_card_payload: dynamicCardPayload.value,
+    ...state.card
+  };
 
+  store.createPhotoCard(data).then(() => {
+    router.push({name: 'Cards'});
+  })
 }
 
 onMounted(() => {
-  state.card = jsonCard as PhotoCardBaseInterface;
   setTimeout(() => calculateWidthAndHeight(), 1000)
 })
 </script>
 
 <template>
   <h2 class="text-center text-4xl bg-gray-100 p-2 border border-solid border-primary mb-4">Add Photo Card</h2>
-  <div class="flex" v-if="state.stepDone === 0">
+  <div v-if="state.stepDone === 0" class="flex">
     <div class="sm:w-full md:w-1/2 p-2">
       <div class="dynamic-card-canvas-container" ref="canvasContainer">
         <dynamic-card-canvas
@@ -165,6 +173,10 @@ onMounted(() => {
         ></dynamic-card-canvas>
       </div>
       <ShaplaImage>
+        <div v-if="dynamicCardPayload.card_items.length < 2"
+             class="bg-gray-100 flex justify-center items-center text-center font-2xl font-bold">
+          Card preview
+        </div>
         <template v-for="section in dynamicCardPayload.card_items">
           <img :src="section.imageOptions.img.src" alt="">
         </template>

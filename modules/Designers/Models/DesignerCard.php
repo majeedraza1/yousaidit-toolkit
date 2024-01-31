@@ -853,9 +853,9 @@ class DesignerCard extends DatabaseModel {
 	/**
 	 * Get valid categories ids
 	 *
-	 * @return array
+	 * @return int[]
 	 */
-	public static function get_valid_categories_ids() {
+	public static function get_valid_categories_ids(): array {
 		$term_args  = array(
 			'taxonomy'   => 'product_cat',
 			'hide_empty' => false,
@@ -869,9 +869,9 @@ class DesignerCard extends DatabaseModel {
 	/**
 	 * Get valid tags ids
 	 *
-	 * @return array
+	 * @return int[]
 	 */
-	public static function get_valid_tags_ids() {
+	public static function get_valid_tags_ids(): array {
 		$term_args  = array(
 			'taxonomy'   => 'product_tag',
 			'hide_empty' => false,

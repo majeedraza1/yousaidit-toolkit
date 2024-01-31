@@ -4,24 +4,27 @@ import {
   ShaplaButton,
   ShaplaCheckbox,
   ShaplaColumn,
+  ShaplaColumns,
   ShaplaFileUploader,
   ShaplaIcon,
   ShaplaImage
 } from "@shapla/vue-components";
-import useDesignerDashboardStore from "../store.ts";
-import {DesignerStandardCardBaseInterface, UploadedAttachmentInterface} from "../../interfaces/designer.ts";
 import CardOptions from "../components/CardOptions.vue";
 import CardOptionsPreview from "../components/CardOptionsPreview.vue";
 
 import jsonCard from '../sample-data/static-card-sample.ts'
+import {StandardCardBaseInterface, UploadedAttachmentInterface} from "../../interfaces/designer-card.ts";
+import {useRouter} from "vue-router";
+import useDesignerCardStore from "../stores/store-cards.ts";
 
-const store = useDesignerDashboardStore();
+const store = useDesignerCardStore();
+const router = useRouter();
 
 const state = reactive<{
   stepDone: number;
   readRequirement: boolean;
   cardSize: 'square' | 'a4';
-  card: DesignerStandardCardBaseInterface,
+  card: StandardCardBaseInterface,
   upload_error_message: string;
 }>({
   stepDone: 0,
@@ -36,9 +39,7 @@ const state = reactive<{
     categories_ids: [],
     tags_ids: [],
     attributes: {},
-    gallery_images_ids: [],
     market_places: ['yousaidit'],
-    pdf_ids: {},
     rude_card: 'no',
     has_suggest_tags: 'no',
     suggest_tags: '',
@@ -76,14 +77,10 @@ const handleImageUploadFailed = (fileObject, serverResponse) => {
 }
 
 const onSubmit = () => {
-  window.console.log(state.card);
+  store.createStandardCard(state.card).then(() => {
+    router.push({name: 'Cards'});
+  })
 }
-
-onMounted(() => {
-  state.card = jsonCard as DesignerStandardCardBaseInterface;
-  state.readRequirement = true;
-  state.stepDone = 4;
-})
 </script>
 
 <template>
@@ -173,8 +170,8 @@ onMounted(() => {
         </div>
       </ShaplaColumn>
     </ShaplaColumns>
-    <div class="flex justify-center mt-4">
-      <ShaplaButton theme="primary" @click="onSubmit">Submit</ShaplaButton>
+    <div class="w-full mt-4">
+      <ShaplaButton theme="primary" @click="onSubmit" fullwidth size="large">Submit</ShaplaButton>
     </div>
   </div>
   <div class="mb-4">&nbsp;</div>

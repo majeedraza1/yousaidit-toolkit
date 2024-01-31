@@ -237,7 +237,7 @@ class Assets {
 				'src' => static::get_assets_url() . '/css/frontend.css'
 			],
 			'stackonet-designer-profile' => [
-				'src' => static::get_assets_url() . '/css/designer-profile.css'
+				'src' => static::get_assets_url() . '/css/designer-dashboard.css'
 			],
 			'stackonet-toolkit-admin'    => [
 				'src'  => static::get_assets_url() . '/css/admin.css',

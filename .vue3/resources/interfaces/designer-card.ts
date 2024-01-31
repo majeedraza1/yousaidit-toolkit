@@ -10,6 +10,20 @@ interface UploadedAttachmentInterface {
   token: string;
 }
 
+interface PaginationDataInterface {
+  total_items: number;
+  per_page: number;
+  current_page: number;
+  total_pages?: number;
+}
+
+interface StatusDataInterface {
+  active: boolean;
+  count: number;
+  key: string;
+  label: string;
+}
+
 interface CardOptionInterface {
   title: string,
   description: string,
@@ -26,13 +40,6 @@ interface CardOptionInterface {
 interface StandardCardBaseInterface extends CardOptionInterface {
   image_id: number,
   image: null | UploadedAttachmentInterface,
-}
-
-interface PhotoCardBaseInterface extends CardOptionInterface {
-  main_image_id: number;
-  demo_image_id: number;
-  main_image: null | UploadedAttachmentInterface;
-  demo_image: null | UploadedAttachmentInterface;
 }
 
 interface DynamicCardTextOptionsInterface {
@@ -82,11 +89,40 @@ interface DynamicCardPayloadInterface {
   card_items: DynamicCardItemInterface[];
 }
 
+interface PhotoCardBaseInterface extends CardOptionInterface {
+  main_image_id: number;
+  demo_image_id: number;
+  main_image: null | UploadedAttachmentInterface;
+  demo_image: null | UploadedAttachmentInterface;
+  dynamic_card_payload?: DynamicCardPayloadInterface;
+}
+
+interface ServerCardResponseInterface {
+  id: number;
+  status: string;
+
+  [key: string]: any;
+}
+
+interface ServerCardCollectionResponseInterface {
+  items: ServerCardResponseInterface[];
+  pagination: PaginationDataInterface;
+  maximum_allowed_card: number;
+  can_add_dynamic_card: boolean;
+  total_cards: number;
+  statuses: StatusDataInterface[];
+  counts?: Record<string, number>;
+}
+
 export type {
   UploadedAttachmentInterface,
   CardOptionInterface,
   StandardCardBaseInterface,
   PhotoCardBaseInterface,
   DynamicCardItemInterface,
-  DynamicCardPayloadInterface
+  DynamicCardPayloadInterface,
+  ServerCardResponseInterface,
+  ServerCardCollectionResponseInterface,
+  PaginationDataInterface,
+  StatusDataInterface,
 }

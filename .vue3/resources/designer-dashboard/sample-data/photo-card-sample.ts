@@ -33,7 +33,7 @@ export default {
       "height": 2880
     }
   },
-  "title": "Standard card test.",
+  "title": "Photo card test.",
   "description": "Write some description",
   "sizes": [
     "square"

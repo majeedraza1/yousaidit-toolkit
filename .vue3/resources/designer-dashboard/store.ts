@@ -8,6 +8,8 @@ import {
   DesignerInterface,
   DesignerServerResponseInterface
 } from "../interfaces/designer.ts";
+import {ServerCardCollectionResponseInterface, StandardCardBaseInterface} from "../interfaces/designer-card.ts";
+import {PaginationDataInterface} from "../utils/CrudOperation.ts";
 
 const useDesignerDashboardStore = defineStore('designer-dashboard', () => {
   const state = reactive<{
@@ -22,6 +24,8 @@ const useDesignerDashboardStore = defineStore('designer-dashboard', () => {
     total_commissions_items: number;
     revenue_current_page: number;
     commissions: CommissionInterface[],
+    cards: Record<string, any>[];
+    cards_pagination: PaginationDataInterface
   }>({
     designer_id: 0,
     designer: null,
@@ -34,6 +38,8 @@ const useDesignerDashboardStore = defineStore('designer-dashboard', () => {
     total_commissions_items: 0,
     revenue_current_page: 1,
     commissions: [],
+    cards: [],
+    cards_pagination: {total_items: 0, current_page: 1, per_page: 12}
   });
 
   const getDesigner = () => {
@@ -81,6 +87,45 @@ const useDesignerDashboardStore = defineStore('designer-dashboard', () => {
       });
   }
 
+  const getDesignerCards = (per_page: number = 12, current_page: number = 1) => {
+    return new Promise(resolve => {
+      axios
+        .get('designers/' + state.designer_id + '/cards', {
+          params: {per_page: per_page, page: current_page}
+        })
+        .then(response => {
+          const data = response.data.data as ServerCardCollectionResponseInterface;
+          state.cards = data.items;
+          state.cards_pagination = data.pagination;
+          resolve(data);
+        })
+        .catch(errors => {
+          if (errors.response.data.message) {
+            Notify.error(errors.response.data.message, 'Error!');
+          }
+        })
+    });
+  }
+
+  const createStandardCard = (payload: StandardCardBaseInterface) => {
+    return new Promise(resolve => {
+      Spinner.show();
+      axios.post('designers/' + state.designer_id + '/standard-cards', payload)
+        .then(response => {
+          resolve(response.data.data);
+          Notify.success('New card has been submitted.', 'Success!');
+        })
+        .catch(errors => {
+          if (errors.response.data.message) {
+            Notify.error(errors.response.data.message, 'Error!');
+          }
+        })
+        .finally(() => {
+          Spinner.hide();
+        });
+    })
+  }
+
   const card_sizes = computed(() => {
     return window.DesignerProfile.card_sizes.map(size => {
       return {
@@ -96,6 +141,8 @@ const useDesignerDashboardStore = defineStore('designer-dashboard', () => {
     ...toRefs(state),
     getDesigner,
     getCommission,
+    getDesignerCards,
+    createStandardCard,
     card_categories: computed(() => window.DesignerProfile.categories),
     card_tags: computed(() => window.DesignerProfile.tags),
     card_attributes: computed(() => window.DesignerProfile.attributes),
