@@ -66,6 +66,55 @@ class Utils {
 	}
 
 	/**
+	 * @param  float  $millimeters  Centimeter to calculate.
+	 * @param  int  $dpi  dots/pixels per inch.
+	 *
+	 * @return int
+	 */
+	public static function millimeter_to_pixels( float $millimeters, int $dpi = 300 ): int {
+		$dpi = max( 72, min( 300, $dpi ) );
+
+		// 1 inch is equal to 25.4 millimeters.
+		return ceil( $millimeters * ( $dpi / 25.4 ) );
+	}
+
+
+	/**
+	 * Prepares the item for the REST response.
+	 *
+	 * @param  int  $image_id  Media image id.
+	 *
+	 * @return array
+	 */
+	public static function prepare_media_item_for_response( int $image_id ): array {
+		$title          = get_the_title( $image_id );
+		$token          = get_post_meta( $image_id, '_delete_token', true );
+		$attachment_url = wp_get_attachment_url( $image_id );
+
+		$is_image = wp_attachment_is_image( $image_id );
+
+		$response = [
+			'id'             => $image_id,
+			'title'          => $title,
+			'attachment_url' => $attachment_url,
+			'token'          => $token,
+			'thumbnail'      => new \ArrayObject(),
+			'full'           => new \ArrayObject(),
+		];
+
+		if ( $is_image ) {
+			$image      = wp_get_attachment_image_src( $image_id, 'thumbnail' );
+			$full_image = wp_get_attachment_image_src( $image_id, 'full' );
+
+			$response['thumbnail'] = [ 'src' => $image[0], 'width' => $image[1], 'height' => $image[2], ];
+
+			$response['full'] = [ 'src' => $full_image[0], 'width' => $full_image[1], 'height' => $full_image[2] ];
+		}
+
+		return $response;
+	}
+
+	/**
 	 * Get video message url
 	 *
 	 * @param  int|string  $video_id  Video id or AWS MediaConvert job id.
@@ -209,7 +258,7 @@ class Utils {
 					$args['meta_key'] = '_video_inner_message';
 					$args['im']       = rawurlencode( wp_json_encode( $meta ) );
 					$url2             = add_query_arg( $args, admin_url( 'admin-ajax.php' ) );
-					$display .= " <a class='button edit-im' href='" . esc_url( $url2 ) . "'>Edit</a>";
+					$display          .= " <a class='button edit-im' href='" . esc_url( $url2 ) . "'>Edit</a>";
 				}
 
 				$message = '<div>' . $message . '</div>' . $display;

@@ -55,7 +55,7 @@ const fileRequestHeaders = computed(() => {
 })
 
 const hasMainImage = computed<boolean>(() => state.card && state.card.main_image_id > 0);
-const hasDemoImage = computed<boolean>(() => state.card && state.card.main_image_id > 0);
+const hasDemoImage = computed<boolean>(() => state.card && state.card.demo_image_id > 0);
 
 const dynamicCardPayload = computed<DynamicCardPayloadInterface>(() => {
   const card_items: DynamicCardItemInterface[] = [];
@@ -186,7 +186,7 @@ onMounted(() => {
       <div>
         <h2 class="text-2xl leading-none mb-4">Card Size</h2>
         <p>The size we're printing is square (15cm x 15cm), please upload the image in JPEG or PNG format with a
-          minimum resolution of 1807 x 1807 px.</p>
+          minimum resolution of <strong>1819 x 1843 px</strong>.</p>
       </div>
       <div>
         <h2 class="text-2xl leading-none mb-4">Bleed Needed</h2>
@@ -213,7 +213,7 @@ onMounted(() => {
                   @fail="handleMainImageUploadFail"
                   text-max-upload-limit="Max upload filesize: 5MB"
                   :headers="fileRequestHeaders"
-                  :params="{type:'card_image',card_size:'square'}"
+                  :params="{type:'card_image',card_size:'square',card_type:'photo_card'}"
               />
               <div v-if="state.main_card_upload_error_message.length">
                 <div v-html="state.main_card_upload_error_message"
@@ -240,7 +240,7 @@ onMounted(() => {
                   @fail="handleDemoImageUploadFail"
                   text-max-upload-limit="Max upload filesize: 5MB"
                   :headers="fileRequestHeaders"
-                  :params="{type:'card_image',card_size:'square'}"
+                  :params="{type:'card_image',card_size:'square',card_type:'photo_card'}"
               />
               <div v-if="state.demo_card_upload_error_message.length">
                 <div v-html="state.demo_card_upload_error_message"

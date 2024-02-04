@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, onMounted, reactive} from "vue";
+import {computed, reactive} from "vue";
 import {
   ShaplaButton,
   ShaplaCheckbox,
@@ -11,8 +11,6 @@ import {
 } from "@shapla/vue-components";
 import CardOptions from "../components/CardOptions.vue";
 import CardOptionsPreview from "../components/CardOptionsPreview.vue";
-
-import jsonCard from '../sample-data/static-card-sample.ts'
 import {StandardCardBaseInterface, UploadedAttachmentInterface} from "../../interfaces/designer-card.ts";
 import {useRouter} from "vue-router";
 import useDesignerCardStore from "../stores/store-cards.ts";
@@ -90,7 +88,7 @@ const onSubmit = () => {
       <div>
         <h2 class="text-2xl leading-none mb-4">Card Size</h2>
         <p>The size we're printing is square (15cm x 15cm), please upload the image in JPEG or PNG format with a
-          minimum resolution of 1807 x 1807 px.</p>
+          minimum resolution of <strong>1819 x 1843 px</strong>.</p>
       </div>
       <div>
         <h2 class="text-2xl leading-none mb-4">Bleed Needed</h2>
@@ -137,7 +135,7 @@ const onSubmit = () => {
           @fail="handleImageUploadFailed"
           text-max-upload-limit="Max upload filesize: 5MB"
           :headers="fileRequestHeaders"
-          :params="{type:'card_image',card_size:state.cardSize}"
+          :params="{type:'card_image',card_size:state.cardSize,card_type:'standard_card'}"
       />
       <div v-if="state.upload_error_message.length">
         <div v-html="state.upload_error_message" class="p-2 text-red-600 border border-solid border-red-600"></div>

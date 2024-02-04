@@ -3,12 +3,16 @@
 namespace YouSaidItCards\Modules\Designers\REST;
 
 use Exception;
+use Imagick;
+use ImagickException;
+use Stackonet\WP\Framework\Media\Uploader;
 use Stackonet\WP\Framework\Supports\Attachment;
 use Stackonet\WP\Framework\Supports\UploadedFile;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
 use YouSaidItCards\Modules\Designers\Models\CardSizeAttribute;
+use YouSaidItCards\Utils;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -94,7 +98,7 @@ class DesignerCardAttachmentController extends ApiController {
 
 		if ( count( $posts_array ) ) {
 			foreach ( $posts_array as $item ) {
-				$response[] = $this->prepare_item_for_response( $item->ID, $request );
+				$response[] = Utils::prepare_media_item_for_response( $item->ID );
 			}
 		}
 
@@ -114,6 +118,10 @@ class DesignerCardAttachmentController extends ApiController {
 
 		if ( ! $current_user->exists() ) {
 			return $this->respondUnauthorized();
+		}
+		$card_type = $request->get_param( 'card_type' );
+		if ( in_array( $card_type, [ 'standard_card', 'photo_card' ], true ) ) {
+			return $this->upload_photo_card( $request );
 		}
 
 		$user_id = (int) $request->get_param( 'user_id' );
@@ -168,7 +176,7 @@ class DesignerCardAttachmentController extends ApiController {
 			return $this->respondUnprocessableEntity( 'invalid_media_type', 'File type not valid.' );
 		}
 
-		$imagick         = new \Imagick( $uploadedFile->getFile() );
+		$imagick         = new Imagick( $uploadedFile->getFile() );
 		$imageResolution = $imagick->getImageResolution();
 
 		if ( ! in_array( $type, $profile_images_types, true ) ) {
@@ -191,45 +199,81 @@ class DesignerCardAttachmentController extends ApiController {
 		$token = wp_generate_password( 20, false, false );
 		update_post_meta( $image_id, '_delete_token', $token );
 
-		$attachment = $this->prepare_item_for_response( $image_id, $request );
+		$attachment = Utils::prepare_media_item_for_response( $image_id );
 
 		return $this->respondOK( [ 'attachment' => $attachment, 'query' => $query_args ] );
 	}
 
-	/**
-	 * Prepares the item for the REST response.
-	 *
-	 * @param  mixed  $item  WordPress representation of the item.
-	 * @param  WP_REST_Request  $request  Request object.
-	 *
-	 * @return array
-	 */
-	public function prepare_item_for_response( $item, $request ) {
-		$image_id       = $item;
-		$title          = get_the_title( $image_id );
-		$token          = get_post_meta( $image_id, '_delete_token', true );
-		$attachment_url = wp_get_attachment_url( $image_id );
-
-		$is_image = wp_attachment_is_image( $image_id );
-
-		$response = [
-			'id'             => $image_id,
-			'title'          => $title,
-			'attachment_url' => $attachment_url,
-			'token'          => $token,
-			'thumbnail'      => new \ArrayObject(),
-			'full'           => new \ArrayObject(),
-		];
-
-		if ( $is_image ) {
-			$image      = wp_get_attachment_image_src( $image_id, 'thumbnail' );
-			$full_image = wp_get_attachment_image_src( $image_id, 'full' );
-
-			$response['thumbnail'] = [ 'src' => $image[0], 'width' => $image[1], 'height' => $image[2], ];
-
-			$response['full'] = [ 'src' => $full_image[0], 'width' => $full_image[1], 'height' => $full_image[2] ];
+	private function upload_photo_card( WP_REST_Request $request ): WP_REST_Response {
+		$files = UploadedFile::parse_uploaded_files( $request->get_file_params() );
+		if ( ! isset( $files['file'] ) ) {
+			return $this->respondForbidden();
 		}
 
-		return $response;
+		$uploadedFile = $files['file'];
+
+		if ( ! $uploadedFile instanceof UploadedFile ) {
+			return $this->respondForbidden();
+		}
+
+		$accepted_size    = wp_convert_hr_to_bytes( '10MB' );
+		$valid_file_types = [ 'image/jpeg', 'image/jpg', 'image/png' ];
+
+		if ( $uploadedFile->get_size() > $accepted_size ) {
+			$this->setStatusCode( 413 );
+
+			return $this->respondUnprocessableEntity( 'file_size_too_large', 'Maximum allowed filesize is 10MB.' );
+		}
+
+		if ( ! in_array( $uploadedFile->get_mime_type(), $valid_file_types ) ) {
+			return $this->respondUnprocessableEntity( 'invalid_media_type', 'Only JPEG or PNG is supported.' );
+		}
+
+		// 150mm + 1mm bleed on left + 3mm bleed on right.
+		$min_width = Utils::millimeter_to_pixels( 154 );
+		// 150mm + 3mm bleed on top + 3mm bleed on bottom.
+		$min_height = Utils::millimeter_to_pixels( 156 );
+
+		try {
+			$imagick = new Imagick( $uploadedFile->get_file() );
+			if ( $imagick->getImageWidth() < $min_width ) {
+				return $this->respondUnprocessableEntity( 'image_width_error',
+					sprintf( 'Minimum image width is %spx. Your uploaded image width is %spx.', $min_width,
+						$imagick->getImageWidth() )
+				);
+			}
+			if ( $imagick->getImageHeight() < $min_height ) {
+				return $this->respondUnprocessableEntity( 'image_height_error',
+					sprintf( 'Minimum image height is %spx. Your uploaded image height is %spx.', $min_height,
+						$imagick->getImageHeight() )
+				);
+			}
+			$expected_height = intval( $imagick->getImageWidth() * ( $min_height / $min_width ) );
+			if ( $expected_height !== $imagick->getImageHeight() ) {
+				return $this->respondUnprocessableEntity( 'image_dimension_error',
+					sprintf(
+						'Aspect ratio does not match. Image dimension should be %sx%s px or higher keeping same aspect ratio. Expected image height is %spx but actual height is %s.',
+						$min_width, $min_height, $expected_height, $imagick->getImageHeight()
+					)
+				);
+			}
+			// $min_width = $min_height
+			// 1 = $min_width/$min_height;
+
+		} catch ( ImagickException $e ) {
+			return $this->respondInternalServerError( null, 'Fail to read image width and height.' );
+		}
+
+		$image_id = Uploader::upload_single_file( $uploadedFile );
+		if ( is_wp_error( $image_id ) ) {
+			return $this->respondWithWpError( $image_id );
+		}
+
+		$token = wp_generate_password( 20, false, false );
+		update_post_meta( $image_id, '_delete_token', $token );
+
+		$attachment = Utils::prepare_media_item_for_response( $image_id );
+
+		return $this->respondCreated( [ 'attachment' => $attachment ] );
 	}
 }

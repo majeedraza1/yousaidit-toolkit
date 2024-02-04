@@ -48,7 +48,7 @@ onMounted(() => {
   if (store.designer_id!) {
     store.designer_id = user.id;
   }
-  if (!Object.keys(store.designer).length) {
+  if (!(store.designer && Object.keys(store.designer).length)) {
     store.getDesigner()
   }
 })
