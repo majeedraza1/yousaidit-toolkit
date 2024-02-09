@@ -101,7 +101,7 @@ const hasNameError = computed(() => !!(state.errors.name && state.errors.name.le
 </script>
 
 <style lang="scss">
-@import "~shapla-color-system/src/variables";
+@use "shapla-css/src/index.scss" as shapla;
 
 .form-control--terms {
   display: flex;
@@ -112,7 +112,7 @@ const hasNameError = computed(() => !!(state.errors.name && state.errors.name.le
   }
 
   a {
-    color: $primary;
+    color: shapla.$primary;
   }
 }
 </style>

@@ -1,4 +1,4 @@
-type TYPE_SECTION_TYPE = 'input-image' | 'static-image';
+type TYPE_SECTION_TYPE = 'input-image' | 'static-image' | 'static-text' | 'input-text';
 type TYPE_ALIGNMENT = "left" | "center" | 'right';
 
 interface UploadedAttachmentInterface {
@@ -30,8 +30,8 @@ interface CardOptionInterface {
   sizes: string[],
   categories_ids: string[],
   tags_ids: string[],
-  attributes: Record<string, number[]>,
-  market_places: ['yousaidit'],
+  attributes: Record<string, (number | string)[]>,
+  market_places: string[],
   rude_card: 'no' | 'yes',
   has_suggest_tags: 'no' | 'yes',
   suggest_tags: '',
@@ -52,7 +52,7 @@ interface DynamicCardTextOptionsInterface {
 }
 
 interface DynamicCardImageOptionsInterface {
-  img: {
+  img?: {
     id: number,
     src: string,
     width: number,
@@ -63,13 +63,27 @@ interface DynamicCardImageOptionsInterface {
   align: TYPE_ALIGNMENT
 }
 
-interface DynamicCardItemInterface {
+interface DynamicCardItemBaseInterface {
   label: string,
   section_type: TYPE_SECTION_TYPE,
   position: {
     left: string | number,
     top: string | number
   },
+}
+
+interface DynamicCardTextSectionInterface extends DynamicCardItemBaseInterface {
+  text: string,
+  placeholder: string,
+  textOptions: DynamicCardTextOptionsInterface,
+}
+
+interface DynamicCardImageSectionInterface extends DynamicCardItemBaseInterface {
+  imageOptions: DynamicCardImageOptionsInterface;
+  image?: {};
+}
+
+interface DynamicCardItemInterface extends DynamicCardItemBaseInterface {
   text: string,
   placeholder: string,
   textOptions: DynamicCardTextOptionsInterface,
@@ -79,6 +93,9 @@ interface DynamicCardItemInterface {
 
 interface DynamicCardBackgroundImageInterface {
   src: string;
+  id?: number;
+  width?: number;
+  height?: number;
 }
 
 interface DynamicCardPayloadInterface {
@@ -94,6 +111,12 @@ interface PhotoCardBaseInterface extends CardOptionInterface {
   demo_image_id: number;
   main_image: null | UploadedAttachmentInterface;
   demo_image: null | UploadedAttachmentInterface;
+  dynamic_card_payload?: DynamicCardPayloadInterface;
+}
+
+interface TextCardBaseInterface extends CardOptionInterface {
+  main_image_id: number;
+  main_image: null | UploadedAttachmentInterface;
   dynamic_card_payload?: DynamicCardPayloadInterface;
 }
 
@@ -115,11 +138,15 @@ interface ServerCardCollectionResponseInterface {
 }
 
 export type {
+  TYPE_SECTION_TYPE,
   UploadedAttachmentInterface,
   CardOptionInterface,
   StandardCardBaseInterface,
   PhotoCardBaseInterface,
+  TextCardBaseInterface,
   DynamicCardItemInterface,
+  DynamicCardTextSectionInterface,
+  DynamicCardImageSectionInterface,
   DynamicCardPayloadInterface,
   ServerCardResponseInterface,
   ServerCardCollectionResponseInterface,

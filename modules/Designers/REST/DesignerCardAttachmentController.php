@@ -6,7 +6,6 @@ use Exception;
 use Imagick;
 use ImagickException;
 use Stackonet\WP\Framework\Media\Uploader;
-use Stackonet\WP\Framework\Supports\Attachment;
 use Stackonet\WP\Framework\Supports\UploadedFile;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -119,9 +118,21 @@ class DesignerCardAttachmentController extends ApiController {
 		if ( ! $current_user->exists() ) {
 			return $this->respondUnauthorized();
 		}
+
+		$files = UploadedFile::parse_uploaded_files( $request->get_file_params() );
+		if ( ! isset( $files['file'] ) ) {
+			return $this->respondForbidden();
+		}
+
+		$uploadedFile = $files['file'];
+
+		if ( ! $uploadedFile instanceof UploadedFile ) {
+			return $this->respondForbidden();
+		}
+
 		$card_type = $request->get_param( 'card_type' );
 		if ( in_array( $card_type, [ 'standard_card', 'photo_card' ], true ) ) {
-			return $this->upload_photo_card( $request );
+			return $this->upload_square_card( $uploadedFile );
 		}
 
 		$user_id = (int) $request->get_param( 'user_id' );
@@ -147,18 +158,6 @@ class DesignerCardAttachmentController extends ApiController {
 			$query_args['card_size'] = $card_size;
 		}
 
-		$files = UploadedFile::getUploadedFiles();
-
-		if ( ! isset( $files['file'] ) ) {
-			return $this->respondForbidden();
-		}
-
-		$uploadedFile = $files['file'];
-
-		if ( ! $uploadedFile instanceof UploadedFile ) {
-			return $this->respondForbidden();
-		}
-
 		$accepted_size = wp_convert_hr_to_bytes( '10MB' );
 		if ( 'card_pdf' == $type ) {
 			$valid_file_types = [ 'application/pdf' ];
@@ -176,25 +175,7 @@ class DesignerCardAttachmentController extends ApiController {
 			return $this->respondUnprocessableEntity( 'invalid_media_type', 'File type not valid.' );
 		}
 
-		$imagick         = new Imagick( $uploadedFile->getFile() );
-		$imageResolution = $imagick->getImageResolution();
-
-		if ( ! in_array( $type, $profile_images_types, true ) ) {
-			if ( $imageResolution['x'] < 300 || $imageResolution['y'] < 300 ) {
-				$resolution = $imageResolution['x'];
-				if ( $imageResolution['y'] !== $resolution ) {
-					$resolution = sprintf( "%sx%s", $resolution, $imageResolution['y'] );
-				}
-				$message = "Minimum image resolution is 300dpi. Your uploaded image resolution is {$resolution} dpi";
-
-				return $this->respondUnprocessableEntity( null, $message );
-			}
-		}
-
-		$attachments = Attachment::upload( $uploadedFile );
-		$ids         = wp_list_pluck( $attachments, 'attachment_id' );
-
-		$image_id = $ids[0];
+		$image_id = Uploader::upload_single_file( $uploadedFile );
 
 		$token = wp_generate_password( 20, false, false );
 		update_post_meta( $image_id, '_delete_token', $token );
@@ -204,18 +185,14 @@ class DesignerCardAttachmentController extends ApiController {
 		return $this->respondOK( [ 'attachment' => $attachment, 'query' => $query_args ] );
 	}
 
-	private function upload_photo_card( WP_REST_Request $request ): WP_REST_Response {
-		$files = UploadedFile::parse_uploaded_files( $request->get_file_params() );
-		if ( ! isset( $files['file'] ) ) {
-			return $this->respondForbidden();
-		}
-
-		$uploadedFile = $files['file'];
-
-		if ( ! $uploadedFile instanceof UploadedFile ) {
-			return $this->respondForbidden();
-		}
-
+	/**
+	 * Upload photo card
+	 *
+	 * @param  UploadedFile  $uploadedFile
+	 *
+	 * @return WP_REST_Response
+	 */
+	private function upload_square_card( UploadedFile $uploadedFile ): WP_REST_Response {
 		$accepted_size    = wp_convert_hr_to_bytes( '10MB' );
 		$valid_file_types = [ 'image/jpeg', 'image/jpg', 'image/png' ];
 

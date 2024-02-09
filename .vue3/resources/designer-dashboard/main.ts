@@ -3,6 +3,7 @@ import router from './routers.ts';
 import Dashboard from './Dashboard.vue';
 import {createPinia} from 'pinia'
 import './style.scss'
+import '../login/main.ts';
 
 const pinia = createPinia()
 
