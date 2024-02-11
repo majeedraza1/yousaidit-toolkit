@@ -137,6 +137,14 @@ interface DesignerCardInterface extends DesignerCardBaseInterface {
   designer: DesignerInterface
 }
 
+interface DesignerProfileFontInterface {
+  key: string;
+  label: string;
+  fontUrl: string;
+  for_public: boolean;
+  for_designer: boolean;
+}
+
 interface DesignerProfileInlineGeneralDataInterface {
   restRoot: string;
   restNonce: false | string;
@@ -157,7 +165,7 @@ interface DesignerProfileInlineDataInterface extends DesignerProfileInlineGenera
   user_card_categories: number[];
   order_statuses: Record<string, string>;
   marketPlaces: { key: string; label: string; logo: string; storeId: number }[];
-  fonts: { key: string; label: string; fontUrl: string; for_public: boolean; for_designer: boolean; }[];
+  fonts: DesignerProfileFontInterface[];
   templates: { ps: string; ai: string };
   sampleCards: { standardCardUrl: string; textCardUrl: string; photoCardUrl: string; mugUrl: string; }
 }
@@ -201,5 +209,6 @@ export type {
   CommissionInterface,
   UploadedAttachmentInterface,
   DesignerStandardCardBaseInterface,
-  StaticCardArgumentsInterface
+  StaticCardArgumentsInterface,
+  DesignerProfileFontInterface
 }

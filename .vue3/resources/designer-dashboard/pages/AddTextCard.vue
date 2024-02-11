@@ -4,12 +4,12 @@ import {
   DynamicCardImageSectionInterface,
   DynamicCardItemInterface,
   DynamicCardPayloadInterface,
-  DynamicCardTextSectionInterface, PhotoCardBaseInterface,
+  DynamicCardTextSectionInterface,
   TextCardBaseInterface,
   TYPE_SECTION_TYPE,
   UploadedAttachmentInterface
 } from "../../interfaces/designer-card.ts";
-import {ShaplaButton, ShaplaColumn, ShaplaColumns, ShaplaFileUploader, ShaplaImage} from "@shapla/vue-components";
+import {ShaplaButton, ShaplaFileUploader, ShaplaImage} from "@shapla/vue-components";
 import useDesignerCardStore from "../stores/store-cards.ts";
 import cardTestData from '../sample-data/text-card-sample.ts';
 import SvgIcon from "../components/SvgIcon.vue";
@@ -18,6 +18,9 @@ import InputImageSection from "../components/InputImageSection.vue";
 import InputTextSection from "../components/InputTextSection.vue";
 import CardOptions from "../components/CardOptions.vue";
 import CardOptionsPreview from "../components/CardOptionsPreview.vue";
+import ModalAddFont from "../components/ModalAddFont.vue";
+import {FontInfoInterface} from "../../interfaces/custom-font.ts";
+import {DesignerProfileFontInterface} from "../../interfaces/designer.ts";
 
 const store = useDesignerCardStore();
 const state = reactive<{
@@ -30,6 +33,8 @@ const state = reactive<{
   active_section: DynamicCardImageSectionInterface | DynamicCardTextSectionInterface;
   active_section_index: number;
   show_section_edit_modal: boolean;
+  show_add_font_modal: boolean;
+  fonts: DesignerProfileFontInterface[];
 }>({
   card: {
     main_image_id: 0,
@@ -53,6 +58,8 @@ const state = reactive<{
   active_section: null,
   active_section_index: -1,
   show_section_edit_modal: false,
+  show_add_font_modal: false,
+  fonts: [],
 })
 
 const hasMainImage = computed<boolean>(() => state.card && state.card.main_image_id > 0);
@@ -148,6 +155,17 @@ const updateSection = () => {
   state.show_section_edit_modal = false;
 }
 
+const onFontAdded = (font: FontInfoInterface) => {
+  state.fonts.push({
+    label: font.font_family,
+    key: font.slug,
+    fontUrl: font.url,
+    for_public: font.for_public,
+    for_designer: font.for_designer
+  });
+  state.show_add_font_modal = false;
+}
+
 const onSubmit = () => {
   const data: TextCardBaseInterface = {
     dynamic_card_payload: dynamicCardPayload.value,
@@ -160,6 +178,9 @@ const onSubmit = () => {
 }
 
 onMounted(() => {
+  state.fonts = window.DesignerProfile.fonts.filter(font => font.for_public);
+
+  // @TODO remove it after testing.
   state.card = cardTestData.card;
   state.sections = cardTestData.sections;
 })
@@ -280,9 +301,16 @@ onMounted(() => {
         :value="state.active_section"
         :active="state.show_section_edit_modal"
         :title="`Edit Section: ${state.active_section.label}`"
+        :fonts="state.fonts"
         @cancel="state.show_section_edit_modal = false"
         mode="edit"
         @submit="updateSection"
+        @addfont="state.show_add_font_modal = true"
+    />
+    <ModalAddFont
+        :active="state.show_add_font_modal"
+        @close="state.show_add_font_modal = false"
+        @font:added="onFontAdded"
     />
   </template>
 </template>

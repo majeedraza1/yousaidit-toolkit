@@ -8,6 +8,7 @@ import {
   ServerCardResponseInterface,
   StandardCardBaseInterface
 } from "../../interfaces/designer-card.ts";
+import {FontInfoInterface} from "../../interfaces/custom-font.ts";
 
 interface DesignerCardStateInterface extends ServerCardCollectionResponseInterface {
   activeCardComments: Record<string, any>[];
@@ -169,6 +170,30 @@ const useDesignerCardStore = defineStore('designer-cards', () => {
     })
   }
 
+  const createNewFont = (data: FormData | Record<string, string>): Promise<FontInfoInterface> => {
+    return new Promise(resolve => {
+      Spinner.show();
+      axios.post('designers/fonts', data, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      })
+        .then(response => {
+          resolve(response.data.data as FontInfoInterface);
+          Notify.success('Font setting has been updated.', 'Success!');
+        })
+        .catch(error => {
+          const responseData = error.response.data;
+          if (responseData.message) {
+            Notify.error(responseData.message, 'Error!');
+          }
+        })
+        .finally(() => {
+          Spinner.hide();
+        })
+    })
+  }
+
   const attachment_upload_url = computed(() => {
     return window.DesignerProfile.restRoot + '/designers/' + designer_id.value + '/attachment'
   })
@@ -183,6 +208,7 @@ const useDesignerCardStore = defineStore('designer-cards', () => {
     deleteCard,
     submitRequest,
     getCardComments,
+    createNewFont,
     attachment_upload_url,
   }
 });

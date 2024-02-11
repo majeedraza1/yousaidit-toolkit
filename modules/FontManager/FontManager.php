@@ -2,6 +2,8 @@
 
 namespace YouSaidItCards\Modules\FontManager;
 
+use YouSaidItCards\Modules\FontManager\Models\DesignerFont;
+
 class FontManager {
 
 	/**
@@ -21,6 +23,7 @@ class FontManager {
 			self::$instance = new self();
 
 			add_action( 'admin_menu', [ self::$instance, 'admin_menu' ] );
+			add_action( 'admin_init', [ DesignerFont::class, 'create_table' ] );
 			AdminFontController::init();
 		}
 

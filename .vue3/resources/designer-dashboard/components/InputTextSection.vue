@@ -11,6 +11,7 @@ import {
   ShaplaSidenav
 } from "@shapla/vue-components";
 import SvgIcon from "./SvgIcon.vue";
+import {DesignerProfileFontInterface} from "../../interfaces/designer.ts";
 
 const defaultOptions: DynamicCardItemInterface = {
   label: '',
@@ -39,6 +40,7 @@ const props = defineProps({
   active: {type: Boolean, default: false},
   title: {type: String, default: 'Add New Section'},
   images: {type: Array, default: () => []},
+  fonts: {type: Array as PropType<DesignerProfileFontInterface[]>, default: () => []},
   mode: {type: String, default: 'create'},
 })
 
@@ -54,9 +56,11 @@ const emit = defineEmits<{
   cancel: [];
   update: [value: DynamicCardTextSectionInterface];
   submit: [value: DynamicCardTextSectionInterface];
+  addfont: [];
 }>()
 
 const cancel = () => emit('cancel');
+const addFont = () => emit('addfont');
 
 const canSubmit = computed<boolean>(() => {
   if (!state.options.section_type.length) {
@@ -68,7 +72,6 @@ const canSubmit = computed<boolean>(() => {
   );
 })
 
-const fonts_for_dynamic_text = computed(() => window.DesignerProfile.fonts.filter(font => font.for_public));
 const text_aligns = [
   {value: 'left', label: 'Left'},
   {value: 'center', label: 'Center'},
@@ -117,7 +120,7 @@ onMounted(() => {
             <ShaplaColumn :tablet="12">
               <h4 class="text-base">Custom font</h4>
               <p class="text-xs">If font is not listed, you can add your font.</p>
-              <ShaplaButton theme="primary" size="small" outline fullwidth>
+              <ShaplaButton theme="primary" size="small" outline fullwidth @click="addFont">
                 <SvgIcon icon="plus"/>
                 <span>Add custom font</span>
               </ShaplaButton>
@@ -128,7 +131,7 @@ onMounted(() => {
                 <div class="w-full p-1">
                   <ShaplaSelect
                       label="Font Family" v-model="state.options.textOptions.fontFamily"
-                      :options="fonts_for_dynamic_text" label-key="label" value-key="key" :clearable="false"
+                      :options="fonts" label-key="label" value-key="key" :clearable="false"
                   />
                 </div>
                 <div class="w-1/2 p-1">

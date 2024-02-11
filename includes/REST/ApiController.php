@@ -2,11 +2,13 @@
 
 namespace YouSaidItCards\REST;
 
-// If this file is called directly, abort.
 use Stackonet\WP\Framework\Traits\ApiPermissionChecker;
 use Stackonet\WP\Framework\Traits\ApiResponse;
 use Stackonet\WP\Framework\Traits\ApiUtils;
+use WP_Error;
+use WP_REST_Request;
 
+// If this file is called directly, abort.
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -25,4 +27,23 @@ class ApiController extends \WP_REST_Controller {
 	 * @var string
 	 */
 	protected $namespace = 'yousaidit/v1';
+
+	/**
+	 * Get permission error message
+	 *
+	 * @param  WP_REST_Request  $request  Full detail of request.
+	 *
+	 * @return true|WP_Error True on success, WP_Error object otherwise.
+	 */
+	public function auth_user_permissions_check( WP_REST_Request $request ) {
+		if ( ! current_user_can( 'read' ) ) {
+			return new WP_Error(
+				'rest_forbidden_context',
+				'Sorry, you are not allowed to access this resource.',
+				[ 'status' => 403 ]
+			);
+		}
+
+		return true;
+	}
 }

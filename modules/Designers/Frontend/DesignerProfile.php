@@ -289,7 +289,7 @@ class DesignerProfile {
 
 		if ( ! $current_user->exists() ) {
 			$login_url = wp_login_url( get_permalink() );
-			$link      = '<a href="' . $login_url . '">You need to log-in to view this page.</a>';
+			$link      = '<a href="' . $login_url . '">You need to log in to view this page.</a>';
 
 			return '<div id="designer_profile_page_need_login">' . $link . '</div>';
 		}
@@ -360,7 +360,7 @@ class DesignerProfile {
 			$data['sampleCards']          = [
 				'standardCardUrl' => Assets::get_assets_url( 'static-images/sample-standard-card.webp' ),
 				'photoCardUrl'    => Assets::get_assets_url( 'static-images/sample-personalized-photo-card.webp' ),
-				'textCardUrl'    => Assets::get_assets_url( 'static-images/sample-personalised-text-card.webp' ),
+				'textCardUrl'     => Assets::get_assets_url( 'static-images/sample-personalised-text-card.webp' ),
 				'mugUrl'          => Assets::get_assets_url( 'static-images/sample-mug.webp' ),
 			];
 

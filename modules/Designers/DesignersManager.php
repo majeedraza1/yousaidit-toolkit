@@ -25,6 +25,7 @@ use YouSaidItCards\Modules\Designers\REST\PayPalPayoutController;
 use YouSaidItCards\Modules\Designers\REST\SettingController;
 use YouSaidItCards\Modules\Designers\REST\UserRegistrationController;
 use YouSaidItCards\Modules\Designers\REST\WebLoginController;
+use YouSaidItCards\Modules\FontManager\REST\DesignerFontController;
 use YouSaidItCards\ShipStation\Order;
 use YouSaidItCards\ShipStation\ShipStationApi;
 use YouSaidItCards\Utils;
@@ -68,6 +69,7 @@ class DesignersManager {
 				UserRegistrationController::init();
 				DesignerController::init();
 				DesignerCardController::init();
+				DesignerFontController::init();
 				DesignerCardAttachmentController::init();
 				DesignerCardAdminController::init();
 				SettingController::init();

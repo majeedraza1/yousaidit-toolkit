@@ -2,11 +2,8 @@
 
 namespace YouSaidItCards\Modules\Designers\REST;
 
-use Imagick;
 use ImagickException;
-use Stackonet\WP\Framework\Media\Uploader;
 use Stackonet\WP\Framework\Supports\Logger;
-use Stackonet\WP\Framework\Supports\UploadedFile;
 use Stackonet\WP\Framework\Supports\Validate;
 use WP_Error;
 use WP_Post;
@@ -17,7 +14,6 @@ use YouSaidItCards\Modules\Designers\DynamicCard;
 use YouSaidItCards\Modules\Designers\Emails\CardRemoveRequestEmail;
 use YouSaidItCards\Modules\Designers\Models\CardDesigner;
 use YouSaidItCards\Modules\Designers\Models\DesignerCard;
-use YouSaidItCards\Utils;
 
 defined( 'ABSPATH' ) || exit;
 

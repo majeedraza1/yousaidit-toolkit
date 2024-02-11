@@ -2,6 +2,7 @@
 
 namespace YouSaidItCards\Modules\FontManager;
 
+use YouSaidItCards\Modules\FontManager\Models\DesignerFont;
 use YouSaidItCards\Modules\FontManager\Models\FontInfo;
 use YouSaidItCards\Utilities\Filesystem;
 
@@ -261,7 +262,16 @@ class Font {
 		$pre_installed = static::get_pre_installed_fonts_with_permissions();
 		$extra_fonts   = static::get_extra_fonts_with_path_and_url();
 
-		return array_merge( $pre_installed, $extra_fonts );
+		$designer_fonts = [];
+		$user_id        = get_current_user_id();
+		if ( $user_id ) {
+			$designer_font_object = DesignerFont::get_fonts( $user_id );
+			foreach ( $designer_font_object as $font ) {
+				$designer_fonts[] = $font->to_array();
+			}
+		}
+
+		return array_merge( $pre_installed, $extra_fonts, $designer_fonts );
 	}
 
 	public static function get_fonts_for_designer(): array {
