@@ -75,7 +75,7 @@ class Utils {
 		$dpi = max( 72, min( 300, $dpi ) );
 
 		// 1 inch is equal to 25.4 millimeters.
-		return ceil( $millimeters * ( $dpi / 25.4 ) );
+		return round( $millimeters * ( $dpi / 25.4 ) );
 	}
 
 

@@ -83,7 +83,7 @@ interface DynamicCardImageSectionInterface extends DynamicCardItemBaseInterface 
   image?: {};
 }
 
-interface DynamicCardItemInterface extends DynamicCardItemBaseInterface {
+type DynamicCardItemInterface = {
   text: string,
   placeholder: string,
   textOptions: DynamicCardTextOptionsInterface,

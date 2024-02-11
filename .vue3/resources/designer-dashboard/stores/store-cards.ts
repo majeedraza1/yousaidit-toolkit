@@ -6,7 +6,8 @@ import {
   PhotoCardBaseInterface,
   ServerCardCollectionResponseInterface,
   ServerCardResponseInterface,
-  StandardCardBaseInterface
+  StandardCardBaseInterface,
+  TextCardBaseInterface
 } from "../../interfaces/designer-card.ts";
 import {FontInfoInterface} from "../../interfaces/custom-font.ts";
 
@@ -74,10 +75,48 @@ const useDesignerCardStore = defineStore('designer-cards', () => {
     })
   }
 
+  const createMug = (payload: StandardCardBaseInterface) => {
+    return new Promise(resolve => {
+      Spinner.show();
+      axios.post('designers/' + designer_id.value + '/mug', payload)
+        .then(response => {
+          resolve(response.data.data);
+          Notify.success('New card has been submitted.', 'Success!');
+        })
+        .catch(errors => {
+          if (errors.response.data.message) {
+            Notify.error(errors.response.data.message, 'Error!');
+          }
+        })
+        .finally(() => {
+          Spinner.hide();
+        });
+    })
+  }
+
   const createPhotoCard = (payload: PhotoCardBaseInterface) => {
     return new Promise(resolve => {
       Spinner.show();
       axios.post('designers/' + designer_id.value + '/photo-cards', payload)
+        .then(response => {
+          resolve(response.data.data);
+          Notify.success('New card has been submitted.', 'Success!');
+        })
+        .catch(errors => {
+          if (errors.response.data.message) {
+            Notify.error(errors.response.data.message, 'Error!');
+          }
+        })
+        .finally(() => {
+          Spinner.hide();
+        });
+    })
+  }
+
+  const createTextCard = (payload: TextCardBaseInterface) => {
+    return new Promise(resolve => {
+      Spinner.show();
+      axios.post('designers/' + designer_id.value + '/text-cards', payload)
         .then(response => {
           resolve(response.data.data);
           Notify.success('New card has been submitted.', 'Success!');
@@ -203,7 +242,9 @@ const useDesignerCardStore = defineStore('designer-cards', () => {
     designer_id,
     getDesignerCards,
     createStandardCard,
+    createMug,
     createPhotoCard,
+    createTextCard,
     requestLimitExtend,
     deleteCard,
     submitRequest,

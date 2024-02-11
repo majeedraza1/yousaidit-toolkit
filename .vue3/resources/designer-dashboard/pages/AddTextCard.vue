@@ -2,7 +2,6 @@
 import {computed, onMounted, reactive} from "vue";
 import {
   DynamicCardImageSectionInterface,
-  DynamicCardItemInterface,
   DynamicCardPayloadInterface,
   DynamicCardTextSectionInterface,
   TextCardBaseInterface,
@@ -21,8 +20,10 @@ import CardOptionsPreview from "../components/CardOptionsPreview.vue";
 import ModalAddFont from "../components/ModalAddFont.vue";
 import {FontInfoInterface} from "../../interfaces/custom-font.ts";
 import {DesignerProfileFontInterface} from "../../interfaces/designer.ts";
+import {useRouter} from "vue-router";
 
 const store = useDesignerCardStore();
+const router = useRouter();
 const state = reactive<{
   card: TextCardBaseInterface;
   upload_error_message: string;
@@ -117,14 +118,12 @@ const addCardSection = (type: TYPE_SECTION_TYPE) => {
 }
 
 const dynamicCardPayload = computed<DynamicCardPayloadInterface>(() => {
-  const card_items: DynamicCardItemInterface[] = [];
-
   const payload: DynamicCardPayloadInterface = {
     card_size: 'square',
     card_bg_type: 'color',
     card_bg_color: '#ffffff',
     card_background: [],
-    card_items: card_items,
+    card_items: state.sections,
   }
   if (state.card && state.card.main_image_id > 0) {
     payload.card_background = {
@@ -172,9 +171,9 @@ const onSubmit = () => {
     ...state.card
   };
 
-  // store.createPhotoCard(data).then(() => {
-  //   router.push({name: 'Cards'});
-  // })
+  store.createTextCard(data).then(() => {
+    router.push({name: 'Cards'});
+  })
 }
 
 onMounted(() => {
@@ -196,7 +195,7 @@ onMounted(() => {
           Card preview
         </div>
         <template v-for="section in dynamicCardPayload.card_items">
-          <img :src="section.imageOptions.img.src" alt="">
+          <img v-if="section.imageOptions" :src="section.imageOptions.img.src" alt="">
         </template>
       </ShaplaImage>
     </div>

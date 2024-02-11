@@ -130,9 +130,20 @@ class DesignerCardAttachmentController extends ApiController {
 			return $this->respondForbidden();
 		}
 
+		$accepted_size = wp_convert_hr_to_bytes( '10MB' );
+		if ( $uploadedFile->get_size() > $accepted_size ) {
+			$this->setStatusCode( 413 );
+
+			return $this->respondUnprocessableEntity( 'file_size_too_large', 'Maximum allowed filesize is 10MB.' );
+		}
+
 		$card_type = $request->get_param( 'card_type' );
 		if ( in_array( $card_type, [ 'standard_card', 'photo_card' ], true ) ) {
-			return $this->upload_square_card( $uploadedFile );
+			return $this->upload_square_card_image( $uploadedFile );
+		}
+
+		if ( 'mug' === $card_type ) {
+			return $this->upload_mug_image( $uploadedFile );
 		}
 
 		$user_id = (int) $request->get_param( 'user_id' );
@@ -158,17 +169,10 @@ class DesignerCardAttachmentController extends ApiController {
 			$query_args['card_size'] = $card_size;
 		}
 
-		$accepted_size = wp_convert_hr_to_bytes( '10MB' );
 		if ( 'card_pdf' == $type ) {
 			$valid_file_types = [ 'application/pdf' ];
 		} else {
 			$valid_file_types = [ 'image/jpeg', 'image/jpg', 'image/png' ];
-		}
-
-		if ( $uploadedFile->getSize() > $accepted_size ) {
-			$this->setStatusCode( 413 );
-
-			return $this->respondUnprocessableEntity( 'file_size_too_large', 'File size too large.' );
 		}
 
 		if ( ! in_array( $uploadedFile->getClientMediaType(), $valid_file_types ) ) {
@@ -192,16 +196,8 @@ class DesignerCardAttachmentController extends ApiController {
 	 *
 	 * @return WP_REST_Response
 	 */
-	private function upload_square_card( UploadedFile $uploadedFile ): WP_REST_Response {
-		$accepted_size    = wp_convert_hr_to_bytes( '10MB' );
+	private function upload_square_card_image( UploadedFile $uploadedFile ): WP_REST_Response {
 		$valid_file_types = [ 'image/jpeg', 'image/jpg', 'image/png' ];
-
-		if ( $uploadedFile->get_size() > $accepted_size ) {
-			$this->setStatusCode( 413 );
-
-			return $this->respondUnprocessableEntity( 'file_size_too_large', 'Maximum allowed filesize is 10MB.' );
-		}
-
 		if ( ! in_array( $uploadedFile->get_mime_type(), $valid_file_types ) ) {
 			return $this->respondUnprocessableEntity( 'invalid_media_type', 'Only JPEG or PNG is supported.' );
 		}
@@ -237,6 +233,59 @@ class DesignerCardAttachmentController extends ApiController {
 			// $min_width = $min_height
 			// 1 = $min_width/$min_height;
 
+		} catch ( ImagickException $e ) {
+			return $this->respondInternalServerError( null, 'Fail to read image width and height.' );
+		}
+
+		$image_id = Uploader::upload_single_file( $uploadedFile );
+		if ( is_wp_error( $image_id ) ) {
+			return $this->respondWithWpError( $image_id );
+		}
+
+		$token = wp_generate_password( 20, false, false );
+		update_post_meta( $image_id, '_delete_token', $token );
+
+		$attachment = Utils::prepare_media_item_for_response( $image_id );
+
+		return $this->respondCreated( [ 'attachment' => $attachment ] );
+	}
+
+	/**
+	 * Upload photo card
+	 *
+	 * @param  UploadedFile  $uploadedFile
+	 *
+	 * @return WP_REST_Response
+	 */
+	private function upload_mug_image( UploadedFile $uploadedFile ): WP_REST_Response {
+		$valid_file_types = [ 'image/jpeg', 'image/jpg' ];
+		if ( ! in_array( $uploadedFile->get_mime_type(), $valid_file_types, true ) ) {
+			return $this->respondUnprocessableEntity( 'invalid_media_type', 'Only JPEG or PNG is supported.' );
+		}
+
+		$min_width  = Utils::millimeter_to_pixels( 210 );
+		$min_height = Utils::millimeter_to_pixels( 99 );
+
+		try {
+			$imagick = new Imagick( $uploadedFile->get_file() );
+			$message = sprintf( 'Minimum image size is %sx%s px. Your uploaded image size is %sx%s px.',
+				$min_width, $min_height, $imagick->getImageWidth(), $imagick->getImageHeight()
+			);
+			if ( $imagick->getImageWidth() < $min_width ) {
+				return $this->respondUnprocessableEntity( 'image_width_error', $message );
+			}
+			if ( $imagick->getImageHeight() < $min_height ) {
+				return $this->respondUnprocessableEntity( 'image_height_error', $message );
+			}
+			$expected_height = intval( $imagick->getImageWidth() * ( $min_height / $min_width ) );
+			if ( $expected_height !== $imagick->getImageHeight() ) {
+				return $this->respondUnprocessableEntity( 'image_dimension_error',
+					sprintf(
+						'Aspect ratio does not match. Image dimension should be %sx%s px or higher keeping same aspect ratio. Expected image height is %spx but actual height is %s.',
+						$min_width, $min_height, $expected_height, $imagick->getImageHeight()
+					)
+				);
+			}
 		} catch ( ImagickException $e ) {
 			return $this->respondInternalServerError( null, 'Fail to read image width and height.' );
 		}

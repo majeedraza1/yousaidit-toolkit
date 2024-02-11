@@ -101,6 +101,20 @@ class DesignerCardController extends ApiController {
 				'permission_callback' => [ $this, 'create_item_permissions_check' ],
 			],
 		] );
+		register_rest_route( $this->namespace, '/designers/(?P<user_id>\d+)/text-cards', [
+			[
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => [ $this, 'create_text_card' ],
+				'permission_callback' => [ $this, 'create_item_permissions_check' ],
+			],
+		] );
+		register_rest_route( $this->namespace, '/designers/(?P<user_id>\d+)/mug', [
+			[
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => [ $this, 'create_mug_card' ],
+				'permission_callback' => [ $this, 'create_item_permissions_check' ],
+			],
+		] );
 		register_rest_route( $this->namespace, '/designers/(?P<user_id>\d+)/cards/(?P<id>\d+)', [
 			[
 				'methods'             => WP_REST_Server::READABLE,
@@ -427,7 +441,77 @@ class DesignerCardController extends ApiController {
 	 *
 	 * @return WP_REST_Response Response object on success.
 	 */
+	public function create_mug_card( WP_REST_Request $request ): WP_REST_Response {
+		$request->set_param( 'card_type', 'static' );
+		$data = $this->get_sanitized_card_options( $request );
+		if ( is_wp_error( $data ) ) {
+			return $this->respondWithWpError( $data );
+		}
+
+		$data['card_type'] = 'mug';
+
+		$user_id = get_current_user_id();
+		$id      = ( new DesignerCard() )->create( $data );
+		if ( $id ) {
+			$item = ( new DesignerCard() )->find_by_id( $id );
+
+			update_user_meta( $user_id, '_is_card_designer', 'yes' );
+
+			return $this->respondCreated( $item );
+		}
+
+		return $this->respondInternalServerError();
+	}
+
+	/**
+	 * Creates one item from the collection.
+	 *
+	 * @param  WP_REST_Request  $request  Full data about the request.
+	 *
+	 * @return WP_REST_Response Response object on success.
+	 */
 	public function create_photo_card( WP_REST_Request $request ): WP_REST_Response {
+		$dynamic_card_payload = $request->get_param( 'dynamic_card_payload' );
+		if ( ! is_array( $dynamic_card_payload ) ) {
+			return $this->respondUnprocessableEntity();
+		}
+		$request->set_param( 'card_type', 'dynamic' );
+		$data = $this->get_sanitized_card_options( $request );
+		if ( is_wp_error( $data ) ) {
+			return $this->respondWithWpError( $data );
+		}
+		$data['dynamic_card_payload'] = $dynamic_card_payload;
+
+		$user_id = get_current_user_id();
+		$id      = DesignerCard::create( $data );
+		if ( $id ) {
+			$item = DesignerCard::find_single( $id );
+
+			update_user_meta( $user_id, '_is_card_designer', 'yes' );
+
+			try {
+				$pdf_id        = DynamicCard::create_card_pdf( $item );
+				$new_file_path = get_attached_file( $pdf_id );
+				DynamicCard::clone_pdf_to_jpg( $item, $new_file_path );
+				DynamicCard::pdf_to_image( $new_file_path );
+			} catch ( ImagickException $e ) {
+				Logger::log( $e );
+			}
+
+			return $this->respondCreated( $item );
+		}
+
+		return $this->respondInternalServerError();
+	}
+
+	/**
+	 * Creates one item from the collection.
+	 *
+	 * @param  WP_REST_Request  $request  Full data about the request.
+	 *
+	 * @return WP_REST_Response Response object on success.
+	 */
+	public function create_text_card( WP_REST_Request $request ): WP_REST_Response {
 		$dynamic_card_payload = $request->get_param( 'dynamic_card_payload' );
 		if ( ! is_array( $dynamic_card_payload ) ) {
 			return $this->respondUnprocessableEntity();
