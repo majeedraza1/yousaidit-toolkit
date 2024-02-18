@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {PropType} from "vue";
+import {computed, PropType} from "vue";
 import {CardOptionInterface} from "../../interfaces/designer-card.ts";
 import {ShaplaChip, ShaplaColumn, ShaplaColumns} from "@shapla/vue-components";
 import useDesignerDashboardStore from "../store.ts";
@@ -7,7 +7,15 @@ import useDesignerDashboardStore from "../store.ts";
 const store = useDesignerDashboardStore();
 
 const props = defineProps({
-  card: {type: Object as PropType<CardOptionInterface>}
+  card: {type: Object as PropType<CardOptionInterface>},
+  isMug: {type: Boolean, default: false}
+})
+
+const categories = computed(() => {
+  if (props.isMug) {
+    return store.mug_categories;
+  }
+  return store.card_categories;
 })
 
 const isAttributeSelected = (attribute, term) => {
@@ -32,10 +40,15 @@ const isAttributeSelected = (attribute, term) => {
       </template>
     </ShaplaColumn>
 
-    <ShaplaColumn :tablet="3"><strong>Card Categories</strong></ShaplaColumn>
+    <ShaplaColumn :tablet="3">
+      <strong v-if="!isMug">Card Categories</strong>
+      <strong v-if="isMug">Mug Categories</strong>
+    </ShaplaColumn>
     <ShaplaColumn :tablet="9">
-      <template v-for="_cat in store.card_categories">
-        <ShaplaChip v-if="card.categories_ids.includes(_cat.id.toString())" :key="_cat.id">{{ _cat.name }}</ShaplaChip>
+      <template v-for="_cat in categories">
+        <ShaplaChip v-if="card.categories_ids.includes(_cat.id.toString())" :key="_cat.id">
+          {{ _cat.name }}
+        </ShaplaChip>
       </template>
     </ShaplaColumn>
 

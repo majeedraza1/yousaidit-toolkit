@@ -22,7 +22,7 @@ export default {
     "square"
   ],
   "categories_ids": [
-    "69"
+    "1477"
   ],
   "tags_ids": [
     "485"

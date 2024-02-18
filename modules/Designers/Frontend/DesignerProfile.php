@@ -226,15 +226,18 @@ class DesignerProfile {
 		/** @var WP_Term[] $cats */
 		$cats          = get_terms( [ 'taxonomy' => 'product_cat', 'hide_empty' => false, ] );
 		$approved_cats = Settings::product_categories_for_designer();
+		$mug_cats      = Settings::get_product_categories_for_mug();
 
 		foreach ( $cats as $cat ) {
 			if ( 'Uncategorized' == $cat->name ) {
 				continue;
 			}
-			if ( count( $approved_cats ) && ! in_array( $cat->term_id, $approved_cats ) ) {
-				continue;
+			if ( in_array( $cat->term_id, $approved_cats ) ) {
+				$data['categories'][] = [ 'id' => $cat->term_id, 'name' => $cat->name, 'parent' => $cat->parent, ];
 			}
-			$data['categories'][] = [ 'id' => $cat->term_id, 'name' => $cat->name, 'parent' => $cat->parent, ];
+			if ( in_array( $cat->term_id, $mug_cats ) ) {
+				$data['mug_categories'][] = [ 'id' => $cat->term_id, 'name' => $cat->name, 'parent' => $cat->parent, ];
+			}
 		}
 	}
 
@@ -314,6 +317,7 @@ class DesignerProfile {
 			'siteTitle'        => get_option( 'blogname' ),
 			'logoUrl'          => '',
 			'categories'       => [],
+			'mug_categories'   => [],
 			'tags'             => [],
 			'card_sizes'       => [],
 			'attributes'       => [],

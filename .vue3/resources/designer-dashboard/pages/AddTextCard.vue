@@ -203,132 +203,134 @@ onMounted(() => {
 
 <template>
   <h2 class="text-center text-4xl bg-gray-100 p-2 border border-solid border-primary mb-4">Add Text Card</h2>
-  <div v-if="state.stepDone === 0" class="flex">
-    <div class="sm:w-full md:w-1/2 p-2">
-      <ShaplaImage :width-ratio="150" :height-ratio="150">
-        <div class="dynamic-card-canvas-container" ref="canvasContainer">
-          <dynamic-card-canvas
-              :options='`${JSON.stringify(dynamicCardPayload)}`'
-              :data-options='`${JSON.stringify(dynamicCardPayload)}`'
-              :card-width-mm="150"
-              :card-height-mm="150"
-              :element-width-mm="pxToMm(state.previewWidth)"
-              :element-height-mm="pxToMm(state.previewHeight)"
-          ></dynamic-card-canvas>
-        </div>
-      </ShaplaImage>
-    </div>
-    <div class="sm:w-full md:w-1/2 p-2">
-      <div>
-        <h2 class="text-2xl leading-none mb-4">Card Size</h2>
-        <p>The size we're printing is square (15cm x 15cm), please upload the image in JPEG or PNG format with a
-          minimum resolution of <strong>1819 x 1843 px</strong>.</p>
+  <div class="max-w-5xl mx-auto">
+    <div v-if="state.stepDone === 0" class="flex">
+      <div class="sm:w-full md:w-1/2 p-2">
+        <ShaplaImage :width-ratio="150" :height-ratio="150">
+          <div class="dynamic-card-canvas-container" ref="canvasContainer">
+            <dynamic-card-canvas
+                :options='`${JSON.stringify(dynamicCardPayload)}`'
+                :data-options='`${JSON.stringify(dynamicCardPayload)}`'
+                :card-width-mm="150"
+                :card-height-mm="150"
+                :element-width-mm="pxToMm(state.previewWidth)"
+                :element-height-mm="pxToMm(state.previewHeight)"
+            ></dynamic-card-canvas>
+          </div>
+        </ShaplaImage>
       </div>
-      <div>
-        <h2 class="text-2xl leading-none mb-4">Bleed Needed</h2>
-        <p>For the best results, please ensure your design as a 3mm bleed on the top, right and bottom and 1mm
-          on the left of your design. These parts will get cut off when printed, anything you would like on
-          the printed design must be kept within the cropping masks.</p>
-      </div>
-      <div class="mb-4">
-        <h2 class="text-2xl leading-none mb-0">Upload Main Image</h2>
-        <p class="mb-4">Please use royalty free image for commercial use.</p>
-        <div class="w-full">
-          <template v-if="hasMainImage">
-            <ShaplaImage class="border border-solid border-gray-200" container-width="150px"
-                         container-height="150px">
-              <img :src="state.card.main_image.thumbnail.src" alt="Main image">
-            </ShaplaImage>
-          </template>
-          <template v-else>
-            <ShaplaFileUploader
-                class="static-card-image-uploader"
-                :url="store.attachment_upload_url"
-                @success="handleMainImageUpload"
-                @fail="handleMainImageUploadFail"
-                text-max-upload-limit="Max upload filesize: 5MB"
-                :headers="fileRequestHeaders"
-                :params="{type:'card_image',card_size:'square',card_type:'photo_card'}"
-            />
-            <div v-if="state.upload_error_message.length">
-              <div v-html="state.upload_error_message"
-                   class="p-2 text-red-600 border border-solid border-red-600"></div>
-            </div>
-          </template>
-        </div>
-      </div>
-      <div class="mb-4">
-        <h2 class="text-2xl leading-none mb-4">Add Customization</h2>
+      <div class="sm:w-full md:w-1/2 p-2">
         <div>
-          <div class="w-full flex space-x-2 mb-4">
-            <ShaplaButton fullwidth outline theme="primary" @click="()=> addCardSection('input-text')">
-              <SvgIcon icon="plus"/>
-              <span>Add text</span>
-            </ShaplaButton>
-            <ShaplaButton fullwidth outline theme="primary" @click="()=>addCardSection('input-image')">
-              <SvgIcon icon="plus"/>
-              <span>Add image</span>
-            </ShaplaButton>
-          </div>
-          <div v-for="(section, index) in state.sections" :key="index">
-            <div class="border border-solid border-gray-400 w-full p-2 rounded mb-2 flex items-center space-x-2">
-              <SvgIcon icon="sort"/>
-              <div class="flex-grow">
-                <div class="font-medium">Section {{ index + 1 }}: {{ section.label }}</div>
-                <div class="text-sm">{{ section.section_type === 'input-image' ? 'Image' : 'Text' }}</div>
+          <h2 class="text-2xl leading-none mb-4">Card Size</h2>
+          <p>The size we're printing is square (15cm x 15cm), please upload the image in JPEG or PNG format with a
+            minimum resolution of <strong>1819 x 1843 px</strong>.</p>
+        </div>
+        <div>
+          <h2 class="text-2xl leading-none mb-4">Bleed Needed</h2>
+          <p>For the best results, please ensure your design as a 3mm bleed on the top, right and bottom and 1mm
+            on the left of your design. These parts will get cut off when printed, anything you would like on
+            the printed design must be kept within the cropping masks.</p>
+        </div>
+        <div class="mb-4">
+          <h2 class="text-2xl leading-none mb-0">Upload Main Image</h2>
+          <p class="mb-4">Please use royalty free image for commercial use.</p>
+          <div class="w-full">
+            <template v-if="hasMainImage">
+              <ShaplaImage class="border border-solid border-gray-200" container-width="150px"
+                           container-height="150px">
+                <img :src="state.card.main_image.thumbnail.src" alt="Main image">
+              </ShaplaImage>
+            </template>
+            <template v-else>
+              <ShaplaFileUploader
+                  class="static-card-image-uploader"
+                  :url="store.attachment_upload_url"
+                  @success="handleMainImageUpload"
+                  @fail="handleMainImageUploadFail"
+                  text-max-upload-limit="Max upload filesize: 5MB"
+                  :headers="fileRequestHeaders"
+                  :params="{type:'card_image',card_size:'square',card_type:'photo_card'}"
+              />
+              <div v-if="state.upload_error_message.length">
+                <div v-html="state.upload_error_message"
+                     class="p-2 text-red-600 border border-solid border-red-600"></div>
               </div>
-              <div>
-                <SvgIcon icon="pencil" hoverable @click="editSection(section,index)"/>
-                <SvgIcon icon="delete" hoverable @click="deleteSection(index)"/>
+            </template>
+          </div>
+        </div>
+        <div class="mb-4">
+          <h2 class="text-2xl leading-none mb-4">Add Customization</h2>
+          <div>
+            <div class="w-full flex space-x-2 mb-4">
+              <ShaplaButton fullwidth outline theme="primary" @click="()=> addCardSection('input-text')">
+                <SvgIcon icon="plus"/>
+                <span>Add text</span>
+              </ShaplaButton>
+              <ShaplaButton fullwidth outline theme="primary" @click="()=>addCardSection('input-image')">
+                <SvgIcon icon="plus"/>
+                <span>Add image</span>
+              </ShaplaButton>
+            </div>
+            <div v-for="(section, index) in state.sections" :key="index">
+              <div class="border border-solid border-gray-400 w-full p-2 rounded mb-2 flex items-center space-x-2">
+                <SvgIcon icon="sort"/>
+                <div class="flex-grow">
+                  <div class="font-medium">Section {{ index + 1 }}: {{ section.label }}</div>
+                  <div class="text-sm">{{ section.section_type === 'input-image' ? 'Image' : 'Text' }}</div>
+                </div>
+                <div>
+                  <SvgIcon icon="pencil" hoverable @click="editSection(section,index)"/>
+                  <SvgIcon icon="delete" hoverable @click="deleteSection(index)"/>
+                </div>
               </div>
             </div>
           </div>
         </div>
+        <div>
+          <ShaplaButton theme="primary" size="large" fullwidth @click="state.stepDone = 1">Next</ShaplaButton>
+        </div>
       </div>
-      <div>
-        <ShaplaButton theme="primary" size="large" fullwidth @click="state.stepDone = 1">Next</ShaplaButton>
+    </div>
+    <div v-if="1 === state.stepDone" class="flex flex-col items-center">
+      <CardOptions v-model="state.card"/>
+      <div class="flex justify-center mt-4">
+        <ShaplaButton theme="primary" @click="state.stepDone = 2">Next</ShaplaButton>
       </div>
     </div>
-  </div>
-  <div v-if="1 === state.stepDone" class="flex flex-col items-center">
-    <CardOptions v-model="state.card"/>
-    <div class="flex justify-center mt-4">
-      <ShaplaButton theme="primary" @click="state.stepDone = 2">Next</ShaplaButton>
+    <div v-if="2 === state.stepDone" class="mb-4">
+      <CardOptionsPreview :card="state.card"/>
+      <div class="flex justify-center mt-4">
+        <ShaplaButton theme="primary" @click="onSubmit">Submit</ShaplaButton>
+      </div>
     </div>
+    <div class="mb-4">&nbsp;</div>
+    <template v-if="state.active_section">
+      <InputImageSection
+          v-if="state.active_section.section_type === 'input-image'"
+          :value="state.active_section"
+          :upload_url="store.attachment_upload_url"
+          :active="state.show_section_edit_modal"
+          :title="`Edit Section: ${state.active_section.label}`"
+          @cancel="state.show_section_edit_modal = false"
+          mode="edit"
+          @submit="updateSection"
+      />
+      <InputTextSection
+          v-if="state.active_section.section_type === 'input-text'"
+          :value="state.active_section"
+          :active="state.show_section_edit_modal"
+          :title="`Edit Section: ${state.active_section.label}`"
+          :fonts="state.fonts"
+          @cancel="state.show_section_edit_modal = false"
+          mode="edit"
+          @submit="updateSection"
+          @addfont="state.show_add_font_modal = true"
+      />
+      <ModalAddFont
+          :active="state.show_add_font_modal"
+          @close="state.show_add_font_modal = false"
+          @font:added="onFontAdded"
+      />
+    </template>
   </div>
-  <div v-if="2 === state.stepDone" class="mb-4">
-    <CardOptionsPreview :card="state.card"/>
-    <div class="flex justify-center mt-4">
-      <ShaplaButton theme="primary" @click="onSubmit">Submit</ShaplaButton>
-    </div>
-  </div>
-  <div class="mb-4">&nbsp;</div>
-  <template v-if="state.active_section">
-    <InputImageSection
-        v-if="state.active_section.section_type === 'input-image'"
-        :value="state.active_section"
-        :upload_url="store.attachment_upload_url"
-        :active="state.show_section_edit_modal"
-        :title="`Edit Section: ${state.active_section.label}`"
-        @cancel="state.show_section_edit_modal = false"
-        mode="edit"
-        @submit="updateSection"
-    />
-    <InputTextSection
-        v-if="state.active_section.section_type === 'input-text'"
-        :value="state.active_section"
-        :active="state.show_section_edit_modal"
-        :title="`Edit Section: ${state.active_section.label}`"
-        :fonts="state.fonts"
-        @cancel="state.show_section_edit_modal = false"
-        mode="edit"
-        @submit="updateSection"
-        @addfont="state.show_add_font_modal = true"
-    />
-    <ModalAddFont
-        :active="state.show_add_font_modal"
-        @close="state.show_add_font_modal = false"
-        @font:added="onFontAdded"
-    />
-  </template>
 </template>

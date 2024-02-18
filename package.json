@@ -26,9 +26,7 @@
     "vue2-setup": "npm run vue2-dev-dependencies && npm run vue2-dependencies",
     "dev": "cross-env NODE_ENV=development webpack --mode=development --progress --watch",
     "dev-build": "cross-env NODE_ENV=development webpack --mode=development --progress",
-    "build": "cross-env NODE_ENV=production webpack --mode=production --progress",
-    "replace-it-js": "replace-in-files 'assets/js/**' --string='process.env.NODE_ENV' --replacement='window.NODE_ENV'",
-    "replace-it-css": "replace-in-files 'assets/css/**' --string='.fixed{position:fixed}' --replacement=''"
+    "build": "cross-env NODE_ENV=production webpack --mode=production --progress"
   },
   "browserslist": [
     "last 1 years"

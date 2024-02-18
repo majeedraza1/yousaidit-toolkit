@@ -144,6 +144,7 @@ const useDesignerDashboardStore = defineStore('designer-dashboard', () => {
     getDesignerCards,
     createStandardCard,
     card_categories: computed(() => window.DesignerProfile.categories),
+    mug_categories: computed(() => window.DesignerProfile.mug_categories),
     card_tags: computed(() => window.DesignerProfile.tags),
     card_attributes: computed(() => window.DesignerProfile.attributes),
     market_places: computed(() => window.DesignerProfile.marketPlaces),

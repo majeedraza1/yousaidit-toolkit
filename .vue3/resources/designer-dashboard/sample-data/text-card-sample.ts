@@ -59,7 +59,7 @@ export default {
     {
       "label": "Image section",
       "section_type": "input-image",
-      "position": {"left": 50, "top": 50},
+      "position": {"left": 120, "top": 120},
       "imageOptions": {
         "img": {
           "id": 77679,
@@ -67,23 +67,23 @@ export default {
           "width": 1200,
           "height": 1200
         },
-        "width": 50,
-        "height": 50,
-        "align": "center"
+        "width": 25,
+        "height": 25,
+        "align": "left"
       }
     },
     {
       "label": "Text section",
       "section_type": "input-text",
-      "position": {"left": 0, "top": 0},
+      "position": {"left": 10, "top": 70},
       "text": "",
       "placeholder": "Enter you name",
       "textOptions": {
-        "fontFamily": "OpenSans",
-        "size": "16",
-        "align": "left",
-        "color": "#000",
-        "rotation": 0,
+        "fontFamily": "Gagalin",
+        "size": "40",
+        "align": "center",
+        "color": "#fff",
+        "rotation": 5,
         "spacing": 0
       }
     }

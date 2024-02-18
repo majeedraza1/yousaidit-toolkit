@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {ShaplaColumn, ShaplaColumns, ShaplaInput, ShaplaSelect, ShaplaSwitch} from "@shapla/vue-components";
-import {onMounted, PropType, ref, watch} from "vue";
+import {computed, onMounted, PropType, ref, watch} from "vue";
 import useDesignerDashboardStore from "../store.ts";
 import {CardOptionInterface} from "../../interfaces/designer-card.ts";
 
@@ -12,6 +12,7 @@ const emit = defineEmits<{
 const props = defineProps({
   modelValue: {type: Object as PropType<CardOptionInterface>, default: () => ({})},
   errors: {type: Object as PropType<Record<string, string[]>>, default: () => ({})},
+  isMug: {type: Boolean, default: false}
 })
 const card = ref<CardOptionInterface>({
   title: '',
@@ -24,6 +25,13 @@ const card = ref<CardOptionInterface>({
   rude_card: 'no',
   has_suggest_tags: 'no',
   suggest_tags: '',
+})
+
+const categories = computed(() => {
+  if (props.isMug) {
+    return store.mug_categories;
+  }
+  return store.card_categories;
 })
 
 watch(() => props.modelValue, newValue => {
@@ -74,9 +82,9 @@ onMounted(() => {
     </ShaplaColumn>
     <ShaplaColumn :tablet="6">
       <ShaplaSelect
-          v-model="card.categories_ids" :options="store.card_categories" label="Category"
+          v-model="card.categories_ids" :options="categories" label="Category"
           label-key="name" value-key="id" multiple
-          :searchable="store.card_categories.length > 5"
+          :searchable="categories.length > 5"
           singular-selected-text="category selected"
           plural-selected-text="categories selected"
           :has-error="!!errors.categories_ids"

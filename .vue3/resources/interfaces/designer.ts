@@ -152,6 +152,7 @@ interface DesignerProfileInlineGeneralDataInterface {
   logoUrl: string;
   card_sizes: { term_id: number; slug: string; name: string }[];
   categories: { id: number; name: string; parent: number }[];
+  mug_categories: { id: number; name: string; parent: number }[];
   tags: { id: number; name: string; }[];
   attributes: { attribute_name: string; attribute_label: string; options: { id: number; name: string }[] }[];
   privacyPolicyUrl: string;

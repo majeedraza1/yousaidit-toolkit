@@ -1,5 +1,15 @@
 # Yousaidit Toolkit
 
+# Upgrade to Vue 3
+
+| Module                      | Status  |
+|-----------------------------|---------|
+| Admin Font Manager          | &check; |
+| Admin Reminder              | &check; |
+| Frontend Reminder           | &check; |
+| Frontend Designer Dashboard | 🟡      |
+| Admin Tree Planting         | &cross; |
+
 # Dependencies
 
 * `WooCommerce Extra Product Options Pro` is required to work inner message system. Create a checkbox field with
@@ -55,18 +65,18 @@ order_id=37789
 
 * Reminders: All reminders created by users are viewable here.
 * Reminders Groups: All reminder groups viewable here.
-	* Create/Edit: Create or edit reminder group.
-		* Title: Title of the reminder group. It will show to user to create reminder.
-		* Product categories: WooCommerce product categories. It will be used when sending email to user for reminder.
-		* Date: Default date of occasion. Only set when date is fixed. e.g. Valentine's Day is always on 14th February.
-		* Call to Action: Custom url to redirect user when clicking on 'Shop cards' button on reminder.
-		* Menu Order: Order of the reminder group.
+    * Create/Edit: Create or edit reminder group.
+        * Title: Title of the reminder group. It will show to user to create reminder.
+        * Product categories: WooCommerce product categories. It will be used when sending email to user for reminder.
+        * Date: Default date of occasion. Only set when date is fixed. e.g. Valentine's Day is always on 14th February.
+        * Call to Action: Custom url to redirect user when clicking on 'Shop cards' button on reminder.
+        * Menu Order: Order of the reminder group.
 * Reminders Queue: All reminders queue viewable here.
 
 **My-Account Menu**
 
 * Reminders: All reminders created by the user are viewable here.
-	* Create/Edit: Create or edit reminder.
+    * Create/Edit: Create or edit reminder.
 
 **How does it work?**
 
