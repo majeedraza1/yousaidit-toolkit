@@ -9,6 +9,16 @@ interface FontInfoInterface {
   path: string;
 }
 
+interface PreInstalledFontInterface extends FontInfoInterface {
+
+}
+
+interface ExtraFontInterface extends FontInfoInterface {
+
+}
+
 export type {
-  FontInfoInterface
+  FontInfoInterface,
+  PreInstalledFontInterface,
+  ExtraFontInterface
 }
