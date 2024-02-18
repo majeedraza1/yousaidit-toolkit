@@ -54,5 +54,6 @@ const isAttributeSelected = (attribute, term) => {
         </template>
       </ShaplaColumn>
     </template>
+    <slot name="before-column-end"/>
   </ShaplaColumns>
 </template>

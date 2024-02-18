@@ -4,7 +4,6 @@ import {
   ShaplaButton,
   ShaplaCheckbox,
   ShaplaColumn,
-  ShaplaColumns,
   ShaplaFileUploader,
   ShaplaIcon,
   ShaplaImage
@@ -160,15 +159,21 @@ onMounted(() => {
     </div>
   </div>
   <div v-if="4 === state.stepDone" class="flex flex-col items-center">
-    <CardOptionsPreview :card="state.card"/>
-    <ShaplaColumns v-if="state.card.image">
-      <ShaplaColumn :tablet="3"><strong>Card Image</strong></ShaplaColumn>
-      <ShaplaColumn :tablet="9">
-        <div class="max-w-[300px] h-auto">
-          <img :src="state.card.image.full.src" alt="">
-        </div>
-      </ShaplaColumn>
-    </ShaplaColumns>
+    <CardOptionsPreview :card="state.card">
+      <template v-slot:before-column-end>
+        <template v-if="state.card.image">
+          <ShaplaColumn :tablet="3"><strong>Card Image</strong></ShaplaColumn>
+          <ShaplaColumn :tablet="9">
+            <div class="max-w-[300px] h-auto">
+              <ShaplaImage :width-ratio="state.card.image.full.width" :height-ratio="state.card.image.full.height">
+                <img :src="state.card.image.full.src" alt="">
+              </ShaplaImage>
+            </div>
+          </ShaplaColumn>
+        </template>
+      </template>
+    </CardOptionsPreview>
+
     <div class="w-full mt-4">
       <ShaplaButton theme="primary" @click="onSubmit" fullwidth size="large">Submit</ShaplaButton>
     </div>

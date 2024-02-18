@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, onMounted, reactive} from "vue";
+import {computed, onMounted, reactive, ref} from "vue";
 import {
   DynamicCardImageSectionInterface,
   DynamicCardPayloadInterface,
@@ -63,7 +63,20 @@ const state = reactive<{
   fonts: [],
 })
 
+const canvasContainer = ref(null);
+const pxToMm = (px: number) => Math.round(px * 0.2645833333);
+
 const hasMainImage = computed<boolean>(() => state.card && state.card.main_image_id > 0);
+
+const calculateWidthAndHeight = () => {
+  let innerEL = canvasContainer.value;
+  let d = [150, 150];
+
+  if (innerEL) {
+    state.previewWidth = innerEL.offsetWidth || (document.body.offsetWidth - 30);
+    state.previewHeight = Math.round(state.previewWidth * (d[1] / d[0]));
+  }
+}
 
 const fileRequestHeaders = computed(() => {
   if (window.DesignerProfile.restNonce) {
@@ -126,6 +139,7 @@ const dynamicCardPayload = computed<DynamicCardPayloadInterface>(() => {
     card_items: state.sections,
   }
   if (state.card && state.card.main_image_id > 0) {
+    payload.card_bg_type = 'image';
     payload.card_background = {
       id: state.card.main_image.id,
       src: state.card.main_image.full.src,
@@ -182,6 +196,8 @@ onMounted(() => {
   // @TODO remove it after testing.
   state.card = cardTestData.card;
   state.sections = cardTestData.sections;
+
+  setTimeout(() => calculateWidthAndHeight(), 1000)
 })
 </script>
 
@@ -189,14 +205,17 @@ onMounted(() => {
   <h2 class="text-center text-4xl bg-gray-100 p-2 border border-solid border-primary mb-4">Add Text Card</h2>
   <div v-if="state.stepDone === 0" class="flex">
     <div class="sm:w-full md:w-1/2 p-2">
-      <ShaplaImage>
-        <div v-if="hasMainImage"
-             class="bg-gray-100 flex justify-center items-center text-center font-2xl font-bold">
-          Card preview
+      <ShaplaImage :width-ratio="150" :height-ratio="150">
+        <div class="dynamic-card-canvas-container" ref="canvasContainer">
+          <dynamic-card-canvas
+              :options='`${JSON.stringify(dynamicCardPayload)}`'
+              :data-options='`${JSON.stringify(dynamicCardPayload)}`'
+              :card-width-mm="150"
+              :card-height-mm="150"
+              :element-width-mm="pxToMm(state.previewWidth)"
+              :element-height-mm="pxToMm(state.previewHeight)"
+          ></dynamic-card-canvas>
         </div>
-        <template v-for="section in dynamicCardPayload.card_items">
-          <img v-if="section.imageOptions" :src="section.imageOptions.img.src" alt="">
-        </template>
       </ShaplaImage>
     </div>
     <div class="sm:w-full md:w-1/2 p-2">

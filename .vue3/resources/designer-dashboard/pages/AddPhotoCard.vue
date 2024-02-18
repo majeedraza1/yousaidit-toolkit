@@ -11,6 +11,7 @@ import {
 import CardOptionsPreview from "../components/CardOptionsPreview.vue";
 import CardOptions from "../components/CardOptions.vue";
 import {useRouter} from "vue-router";
+import cardTestData from "../sample-data/photo-card-sample.ts";
 
 const store = useDesignerCardStore();
 const router = useRouter();
@@ -155,6 +156,9 @@ const onSubmit = () => {
 }
 
 onMounted(() => {
+  // @TODO remove it after testing.
+  state.card = cardTestData;
+
   setTimeout(() => calculateWidthAndHeight(), 1000)
 })
 </script>
@@ -163,23 +167,16 @@ onMounted(() => {
   <h2 class="text-center text-4xl bg-gray-100 p-2 border border-solid border-primary mb-4">Add Photo Card</h2>
   <div v-if="state.stepDone === 0" class="flex">
     <div class="sm:w-full md:w-1/2 p-2">
-      <div class="dynamic-card-canvas-container" ref="canvasContainer">
-        <dynamic-card-canvas
-            :options='`${JSON.stringify(dynamicCardPayload)}`'
-            :card-width-mm="150"
-            :card-height-mm="150"
-            :element-width-mm="pxToMm(state.previewWidth)"
-            :element-height-mm="pxToMm(state.previewHeight)"
-        ></dynamic-card-canvas>
-      </div>
-      <ShaplaImage>
-        <div v-if="dynamicCardPayload.card_items.length < 2"
-             class="bg-gray-100 flex justify-center items-center text-center font-2xl font-bold">
-          Card preview
+      <ShaplaImage :width-ratio="150" :height-ratio="150">
+        <div class="dynamic-card-canvas-container" ref="canvasContainer">
+          <dynamic-card-canvas
+              :data-options='`${JSON.stringify(dynamicCardPayload)}`'
+              :card-width-mm="150"
+              :card-height-mm="150"
+              :element-width-mm="pxToMm(state.previewWidth)"
+              :element-height-mm="pxToMm(state.previewHeight)"
+          ></dynamic-card-canvas>
         </div>
-        <template v-for="section in dynamicCardPayload.card_items">
-          <img :src="section.imageOptions.img.src" alt="">
-        </template>
       </ShaplaImage>
     </div>
     <div class="sm:w-full md:w-1/2 p-2">
@@ -273,7 +270,7 @@ onMounted(() => {
         </ShaplaColumn>
       </template>
       <template v-if="state.card.demo_image_id">
-        <ShaplaColumn :tablet="3"><strong>Main Image</strong></ShaplaColumn>
+        <ShaplaColumn :tablet="3"><strong>Demo Image</strong></ShaplaColumn>
         <ShaplaColumn :tablet="9">
           <div class="max-w-[300px] h-auto">
             <img :src="state.card.demo_image.thumbnail.src" alt="">
