@@ -13,6 +13,8 @@
     "build:designer-dashboard": "tsc --noEmit && vite build --config vite.designer-dashboard.config.ts && npm run replace-it-js",
     "dev:font-manager-admin": "vite --config vite.font-manager-admin.config.ts",
     "build:font-manager-admin": "tsc --noEmit && vite build --config vite.font-manager-admin.config.ts && npm run replace-it-js",
+    "dev:tree-planting-admin": "vite --config vite.tree-planting-admin.config.ts",
+    "build:tree-planting-admin": "tsc --noEmit && vite build --config vite.tree-planting-admin.config.ts && npm run replace-it-js",
     "build": "npm run build:reminders-admin && npm run build:reminders-frontend && npm run build:designer-dashboard && npm run replace-it-js"
   },
   "dependencies": {
