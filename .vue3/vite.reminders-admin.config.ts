@@ -8,7 +8,7 @@ export default defineConfig({
     emptyOutDir: false,
     outDir: '../assets',
     lib: {
-      entry: 'resources/reminders-admin/main.ts',
+      entry: 'resources/admin-reminders/main.ts',
       name: 'YousaiditToolkit',
       formats: ['iife'],
     },

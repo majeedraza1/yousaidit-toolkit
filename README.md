@@ -7,8 +7,8 @@
 | Admin Font Manager          | &check; |
 | Admin Reminder              | &check; |
 | Frontend Reminder           | &check; |
+| Admin Tree Planting         | &check; |
 | Frontend Designer Dashboard | 🟡      |
-| Admin Tree Planting         | &cross; |
 
 # Dependencies
 
