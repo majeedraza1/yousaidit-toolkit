@@ -9,6 +9,7 @@
 | Frontend Reminder           | &check; |
 | Admin Tree Planting         | &check; |
 | Frontend Designer Dashboard | 🟡      |
+| Admin Art Work              | 🟡      |
 
 # Dependencies
 
