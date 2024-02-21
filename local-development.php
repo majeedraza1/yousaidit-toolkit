@@ -7,7 +7,7 @@ class LocalDevelopment {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new static();
 
-			// add_action( 'admin_footer', [ self::$instance, 'load_vite_client_on_admin_footer' ], 99 );
+			add_action( 'admin_footer', [ self::$instance, 'load_vite_client_on_admin_footer' ], 99 );
 			add_action( 'wp_footer', [ self::$instance, 'load_vite_client_on_wp_footer' ], 99 );
 		}
 
@@ -52,20 +52,20 @@ class LocalDevelopment {
 		if ( ! static::is_local_development() ) {
 			return;
 		}
-		$script  = '<!-- Development Scripts Start -->' . PHP_EOL;
+		$script = '<!-- Development Scripts Start -->' . PHP_EOL;
 		$script .= static::get_common_script();
 		// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
-		$script .= '<script type="module" src="' . static::get_local_dev_url() . '/resources/admin/main.tsx"></script>' . PHP_EOL;
-		$script .= '<script type="module" src="' . static::get_local_dev_url() . '/resources/admin-leonardo-ai/main.tsx"></script>' . PHP_EOL;
+		$script .= '<script type="module" src="' . static::get_local_dev_url() . '/resources/admin.ts"></script>' . PHP_EOL;
 		$script .= '<!-- Development Scripts End -->' . PHP_EOL;
 
 		echo $script; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
+
 	public function load_vite_client_on_wp_footer(): void {
 		if ( ! static::is_local_development() ) {
 			return;
 		}
-		$script  = '<!-- Development Scripts Start -->' . PHP_EOL;
+		$script = '<!-- Development Scripts Start -->' . PHP_EOL;
 		$script .= static::get_common_script();
 		// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
 		$script .= '<script type="module" src="' . static::get_local_dev_url() . '/resources/designer-dashboard/main.ts"></script>' . PHP_EOL;
@@ -82,16 +82,16 @@ class LocalDevelopment {
 	private static function get_common_script(): string {
 		$dev_url = static::get_local_dev_url();
 		$script  = '<script type="module">' . PHP_EOL;
-		$script .= 'import RefreshRuntime from \'' . $dev_url . '/@react-refresh\';' . PHP_EOL;
-		$script .= 'RefreshRuntime.injectIntoGlobalHook(window);' . PHP_EOL;
-		$script .= 'window.$RefreshReg$ = () => {};' . PHP_EOL;
-		$script .= 'window.$RefreshSig$ = () => (type) => type;' . PHP_EOL;
-		$script .= 'window.__vite_plugin_react_preamble_installed__ = true;' . PHP_EOL;
-		$script .= '</script>' . PHP_EOL;
-		$script .= '<script type="module">' . PHP_EOL;
-		$script .= 'import "' . $dev_url . '/@vite/client";' . PHP_EOL;
-		$script .= 'window.process = {env: {NODE_ENV: "development"}}' . PHP_EOL;
-		$script .= '</script>' . PHP_EOL;
+		$script  .= 'import RefreshRuntime from \'' . $dev_url . '/@react-refresh\';' . PHP_EOL;
+		$script  .= 'RefreshRuntime.injectIntoGlobalHook(window);' . PHP_EOL;
+		$script  .= 'window.$RefreshReg$ = () => {};' . PHP_EOL;
+		$script  .= 'window.$RefreshSig$ = () => (type) => type;' . PHP_EOL;
+		$script  .= 'window.__vite_plugin_react_preamble_installed__ = true;' . PHP_EOL;
+		$script  .= '</script>' . PHP_EOL;
+		$script  .= '<script type="module">' . PHP_EOL;
+		$script  .= 'import "' . $dev_url . '/@vite/client";' . PHP_EOL;
+		$script  .= 'window.process = {env: {NODE_ENV: "development"}}' . PHP_EOL;
+		$script  .= '</script>' . PHP_EOL;
 
 		return $script;
 	}

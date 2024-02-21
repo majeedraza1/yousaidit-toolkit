@@ -9,6 +9,7 @@ use YouSaidItCards\Admin\Admin;
 use YouSaidItCards\Admin\SettingPage;
 use YouSaidItCards\Cli\Command;
 use YouSaidItCards\Frontend\Frontend;
+use YouSaidItCards\Modules\ArtWork\ArtWorkManager;
 use YouSaidItCards\Modules\Auth\AuthManager;
 use YouSaidItCards\Modules\CardMerger\CardMergerManager;
 use YouSaidItCards\Modules\CardPopup\CardPopupManager;
@@ -161,6 +162,7 @@ class Plugin {
 		$this->container['module_plant_trees']       = TreePlantingManager::init();
 		$this->container['module_font_manager']      = FontManager::init();
 		$this->container['module_local_development'] = Manager::init();
+		$this->container['module_art_work']          = ArtWorkManager::init();
 	}
 
 	/**

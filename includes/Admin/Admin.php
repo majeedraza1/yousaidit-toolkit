@@ -22,7 +22,6 @@ class Admin {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self;
 
-			add_action( 'admin_menu', [ self::$instance, 'add_menu' ] );
 			add_action( 'admin_enqueue_scripts', [ self::$instance, 'admin_scripts' ] );
 			add_action( 'admin_notices', [ self::$instance, 'admin_notices' ] );
 		}
@@ -111,5 +110,6 @@ class Admin {
 		wp_enqueue_media();
 		wp_enqueue_style( 'stackonet-toolkit-admin' );
 		wp_enqueue_script( 'stackonet-toolkit-admin' );
+		wp_enqueue_script( 'yousaidit-toolkit-admin-vue3' );
 	}
 }

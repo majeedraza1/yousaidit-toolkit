@@ -5,10 +5,10 @@
     <ShaplaColumns :multiline="true">
       <ShaplaColumn :tablet="8">&nbsp;</ShaplaColumn>
       <ShaplaColumn :tablet="4">
-        <search-form @search="searchProduct"/>
+        <ShaplaSearchForm @search="searchProduct"/>
       </ShaplaColumn>
       <ShaplaColumn :tablet="12">
-        <data-table
+        <ShaplaTable
             :columns="[
         {key: 'title', label: 'Product Title'},
         {key: 'product_type', label: 'Product Type'},
@@ -16,7 +16,7 @@
         {key: 'art_work', label: 'Art Work'},]"
             :actions="[{key: 'pdf_cards', label: 'PDF Cards'}]"
             :items="state.items"
-            @action:click="handleActionClick"
+            @click:action="handleActionClick"
             :show-cb="false"
         >
           <template v-slot:product_sku="data">
@@ -25,16 +25,16 @@
           <template v-slot:art_work="data">
             <template v-if="data.row.product_type === 'variable'">
               <div v-for="variation in data.row.variations">
-                <shapla-chip v-if="variation.art_work">{{ variation.art_work.title }}</shapla-chip>
+                <ShaplaChip v-if="variation.art_work">{{ variation.art_work.title }}</ShaplaChip>
                 <span v-else> - </span>
               </div>
             </template>
             <template v-else>
-              <shapla-chip v-if="data.row.art_work.title">{{ data.row.art_work.title }}</shapla-chip>
+              <ShaplaChip v-if="data.row.art_work.title">{{ data.row.art_work.title }}</ShaplaChip>
               <span v-else> - </span>
             </template>
           </template>
-        </data-table>
+        </ShaplaTable>
       </ShaplaColumn>
       <ShaplaColumn :tablet="12">
         <ShaplaTablePagination
@@ -58,7 +58,7 @@
           <tr v-for="variation in state.active_item.variations" :key="variation.id">
             <td class="shapla-data-table__cell--non-numeric">{{ variation.sku }}</td>
             <td class="shapla-data-table__cell--non-numeric">
-              <pdf-uploader v-model="variation.art_work" :id="variation.id"/>
+              <PdfUploader v-model="variation.art_work" :id="variation.id"/>
             </td>
           </tr>
         </template>
@@ -66,14 +66,14 @@
           <tr>
             <td class="shapla-data-table__cell--non-numeric">{{ state.active_item.product_sku }}</td>
             <td class="shapla-data-table__cell--non-numeric">
-              <pdf-uploader v-model="state.active_item.art_work" :id="state.active_item.id"/>
+              <PdfUploader v-model="state.active_item.art_work" :id="state.active_item.id"/>
             </td>
           </tr>
         </template>
         </tbody>
       </table>
       <template v-slot:foot>
-        <shapla-button theme="default" shadow @click="hidePdfModal">Close</shapla-button>
+        <ShaplaButton theme="default" shadow @click="hidePdfModal">Close</ShaplaButton>
       </template>
     </ShaplaModal>
   </div>
@@ -87,7 +87,9 @@ import {
   ShaplaColumn,
   ShaplaColumns,
   ShaplaModal,
-  ShaplaTablePagination
+  ShaplaTablePagination,
+    ShaplaTable,
+    ShaplaSearchForm
 } from '@shapla/vue-components';
 import {getProducts as _getProducts, searchProduct as _searchProduct} from "../store.ts";
 import {onMounted, reactive} from "vue";
@@ -129,7 +131,7 @@ const paginate = (page) => {
 }
 
 function getProducts() {
-  _getProducts(this.current_page).then(data => {
+  _getProducts(state.current_page).then(data => {
     state.items = data.items;
     state.total_items = data.total_items;
   })

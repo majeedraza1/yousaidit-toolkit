@@ -220,6 +220,11 @@ class Assets {
 				'deps'      => [ 'jquery', 'react', 'react-dom', 'yousaidit-toolkit-vendors' ],
 				'in_footer' => true
 			],
+			'yousaidit-toolkit-admin-vue3'     => [
+				'src'       => static::get_assets_url() . '/js/admin-vue3.js',
+				'deps'      => [ 'jquery' ],
+				'in_footer' => true
+			],
 		];
 	}
 

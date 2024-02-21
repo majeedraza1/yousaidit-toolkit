@@ -1,13 +1,6 @@
 import axios from '../utils/axios'
 import {Spinner} from "@shapla/vanilla-components";
 
-interface ServerPaginationResponseInterface {
-  current_page: number;
-  per_page: number;
-  total_items: number;
-  total_pages: number;
-}
-
 interface ServerResponseProductInterface {
   items: Record<string, any>[];
   total_items: number;

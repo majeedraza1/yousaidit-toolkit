@@ -72,7 +72,7 @@
             <template v-slot:invoice="data">
               <div class="flex flex-col space-y-1">
                 <ShaplaButton size="small" :shadow="true" :href="invoiceUrl(data.row.orderId)"
-                               @click.prevent="store.showInvoice(data.row.orderId)">Packing Slip
+                              @click.prevent="store.showInvoice(data.row.orderId)">Packing Slip
                 </ShaplaButton>
                 <ShaplaButton size="small" :shadow="true" @click.prevent="dispatchOrder(data.row)">Dispatch
                 </ShaplaButton>
@@ -96,11 +96,12 @@
           </ShaplaTable>
         </ShaplaColumn>
         <ShaplaColumn :tablet="12">
-          <ShaplaTablePagination :total-items="store.order_pagination.totalCount" :per-page="store.order_pagination.limit"
+          <ShaplaTablePagination :total-items="store.order_pagination.totalCount"
+                                 :per-page="store.order_pagination.limit"
                                  :current-page="store.order_pagination.currentPage" @paginate="store.paginate"/>
         </ShaplaColumn>
       </ShaplaColumns>
-      <ShaplaModal :active="state.showPdfUploadModal" title="Upload PDF" @close="state.showPdfUploadModal = false">
+      <ShaplaModal v-if="state.activeOrder" :active="state.showPdfUploadModal" title="Upload PDF" @close="state.showPdfUploadModal = false">
         <template v-for="_product in state.activeOrder.products">
           <div v-if="_product.product_sku" :key="_product.shipstation_item_id"
                class="flex items-center w-full border border-solid border-gray-200 p-2 rounded mb-2">
@@ -127,7 +128,7 @@
 
 <script lang="ts" setup>
 import useAdminArtWorkOrderStore from "../store-order.ts";
-import ArtWorkItems from "@/admin/order-dispatcher/components/ArtWorkItems.vue";
+import ArtWorkItems from "../components/ArtWorkItems.vue";
 import {
   ShaplaButton,
   ShaplaColumn,
@@ -137,7 +138,7 @@ import {
   ShaplaTable,
   ShaplaTablePagination
 } from '@shapla/vue-components'
-import {reactive} from "vue";
+import {onMounted, reactive} from "vue";
 import wpMediaUploader from "../../utils/WpMediaUploader.ts";
 import axios from "../../utils/axios.ts";
 
@@ -169,6 +170,7 @@ const filterOptions = [
 
 const invoiceUrl = (orderId: number) => window.StackonetToolkit.ajaxUrl + '?action=stackonet_order_packing_slip&id=' + orderId;
 const formatAddress = (address) => address.replace(/<br>\u21b5/g, ', ');
+
 function filterOrderData(value: string) {
   if (card_sizes.map(_size => _size.value).includes(value)) {
     store.card_size = value;
@@ -179,14 +181,14 @@ function filterOrderData(value: string) {
   store.getOrders();
 }
 
-const dispatchOrder = (item)=>emit('dispatch', item.orderId);
+const dispatchOrder = (item) => emit('dispatch', item.orderId);
 
 const onActionClick = (action: string, item) => {
   if ('packing_slip' === action) {
     store.showInvoice(item.orderId);
   }
   if ('dispatch' === action) {
-    dispatchOrder( item)
+    dispatchOrder(item)
   }
   if ('upload_pdf' === action) {
     state.activeOrder = item;
@@ -206,13 +208,17 @@ const addPdf = (product) => {
     pdf_width: 0,
     pdf_height: 0,
   }
-  wpMediaUploader().then((id:number) => {
+  wpMediaUploader().then((id: number) => {
     state.activeOrderItem.pdf_id = id;
-    axios.post( 'order-item-pdf', state.activeOrderItem).then(response => {
+    axios.post('order-item-pdf', state.activeOrderItem).then(response => {
       window.console.log(response);
     })
   })
 }
+
+onMounted(() => {
+  store.getOrders();
+})
 </script>
 
 <style lang="scss">

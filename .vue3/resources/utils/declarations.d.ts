@@ -26,5 +26,8 @@ declare global {
       countries: Record<string, string>;
       states: Record<string, Record<string, string>>;
     }
+    wp: {
+      media: any
+    }
   }
 }
