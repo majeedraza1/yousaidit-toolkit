@@ -4,12 +4,18 @@
 
 | Module                      | Status  |
 |-----------------------------|---------|
+| Admin Art Work              | &check; |
 | Admin Font Manager          | &check; |
+| Admin Inner message editor  | &check; |
 | Admin Reminder              | &check; |
-| Frontend Reminder           | &check; |
 | Admin Tree Planting         | &check; |
+| Frontend Reminder           | &check; |
 | Frontend Designer Dashboard | 🟡      |
-| Admin Art Work              | 🟡      |
+| Admin Designer              | &cross; |
+| Admin Order Dispatcher      | &cross; |
+| Frontend Inner Message      | &cross; |
+| Frontend Dynamic card       | &cross; |
+| Frontend How it works       | &cross; |
 
 # Dependencies
 

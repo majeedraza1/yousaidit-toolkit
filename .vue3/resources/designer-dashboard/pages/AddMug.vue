@@ -82,8 +82,8 @@ const onSubmit = () => {
 }
 
 onMounted(() => {
-  state.card = mugTestData as StandardCardBaseInterface;
-  state.stepDone = 4;
+  // state.card = mugTestData as StandardCardBaseInterface;
+  // state.stepDone = 4;
 })
 </script>
 

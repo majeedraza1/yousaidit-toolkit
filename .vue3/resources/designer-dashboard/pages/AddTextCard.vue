@@ -194,8 +194,8 @@ onMounted(() => {
   state.fonts = window.DesignerProfile.fonts.filter(font => font.for_public);
 
   // @TODO remove it after testing.
-  state.card = cardTestData.card;
-  state.sections = cardTestData.sections;
+  // state.card = cardTestData.card;
+  // state.sections = cardTestData.sections;
 
   setTimeout(() => calculateWidthAndHeight(), 1000)
 })

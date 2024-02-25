@@ -116,6 +116,6 @@ class OrderDispatcherManager {
 	public function init_hooks() {
 		wp_enqueue_media();
 		wp_enqueue_style( 'stackonet-toolkit-admin' );
-		wp_enqueue_script( 'stackonet-toolkit-admin' );
+		wp_enqueue_script( 'yousaidit-toolkit-admin-vue3' );
 	}
 }

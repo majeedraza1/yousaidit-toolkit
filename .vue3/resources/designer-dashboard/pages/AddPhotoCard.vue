@@ -157,7 +157,7 @@ const onSubmit = () => {
 
 onMounted(() => {
   // @TODO remove it after testing.
-  state.card = cardTestData;
+  // state.card = cardTestData;
 
   setTimeout(() => calculateWidthAndHeight(), 1000)
 })

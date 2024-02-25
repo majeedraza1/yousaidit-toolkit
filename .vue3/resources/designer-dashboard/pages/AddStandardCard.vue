@@ -81,8 +81,8 @@ const onSubmit = () => {
 }
 
 onMounted(() => {
-  state.card = sampleData;
-  state.stepDone = 4;
+  // state.card = sampleData;
+  // state.stepDone = 4;
 })
 </script>
 
