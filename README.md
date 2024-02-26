@@ -10,9 +10,9 @@
 | Admin Reminder              | &check; |
 | Admin Tree Planting         | &check; |
 | Frontend Reminder           | &check; |
+| Admin Order Dispatcher      | &check; |
 | Frontend Designer Dashboard | 🟡      |
 | Admin Designer              | &cross; |
-| Admin Order Dispatcher      | &cross; |
 | Frontend Inner Message      | &cross; |
 | Frontend Dynamic card       | &cross; |
 | Frontend How it works       | &cross; |

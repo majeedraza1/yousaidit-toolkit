@@ -50,11 +50,11 @@ onMounted(() => {
 
 <template>
   <div class="border-box-deep">
-    <ShaplaModal :active="active" title="Edit Inner Message" @close="active = false">
+    <ShaplaModal :active="state.active" title="Edit Inner Message" @close="state.active = false">
       <ImEditor
-          v-if="im"
-          :im="im"
-          @update="value => im = value"
+          v-if="state.im"
+          :im="state.im"
+          @update="value => state.im = value"
       />
       <template v-slot:foot>
         <ShaplaButton theme="primary" @click="updateMessage">Update</ShaplaButton>

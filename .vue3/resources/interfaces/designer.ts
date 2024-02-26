@@ -1,5 +1,6 @@
 type TYPE_CARD_SIZE = "square" | "a4";
 type TYPE_CARD_TYPE = "dynamic" | "static";
+type TYPE_MARKETPLACE = "amazon" | "ebay" | "etsy" | "yousaidit" | "yousaidit-trade";
 
 interface UploadedAttachmentInterface {
   attachment_url: string;
@@ -45,6 +46,9 @@ interface DesignerInterface {
     state: string;
   },
   formatted_address: string;
+  total_commission?: number;
+  unpaid_commission?: number;
+  paid_commission?: number;
 }
 
 interface CardStatusInterface {
@@ -98,42 +102,28 @@ interface DesignerCardInterface extends DesignerCardBaseInterface {
   sizes: { id: number, title: string }[],
   attributes: { id: number, title: string }[],
   image: { id: number; title: string; url: string; path: string; width: number; height: number; },
-  "gallery_images": [],
-  "pdf_data": {
-    "square": [
-      {
-        "id": 77652,
-        "title": "dynamic-card-793-65ae2c2f1ae3e",
-        "url": "http://yousaidit-main.yousaidit.co.uk/dynamic-card-793-65ae2c2f1ae3e.pdf"
-      }
-    ]
-  },
-  "total_sale": 0,
+  gallery_images: any[],
+  pdf_data: Record<keyof TYPE_CARD_SIZE, { "id": number, "title": string, "url": string }[]>,
+  "total_sale": number,
   "commission": {
     "commission_type": "fix",
     "commission_amount": {
-      "square": 0.3
+      "square": number
     }
   },
-  "marketplace_commission": {
-    "yousaidit": {
-      "square": ""
-    }
-  },
-  "product_id": 77650,
-  "designer_user_id": 388,
+  marketplace_commission: Record<keyof TYPE_MARKETPLACE, Record<keyof TYPE_CARD_SIZE, string | number>>,
+  "product_id": number,
+  "designer_user_id": number,
   "rude_card": false,
   "status": "accepted",
-  "card_sku": "",
-  "suggest_tags": "",
-  "market_place": [
-    "yousaidit"
-  ],
-  "comments_count": 0,
-  "created_at": "2024-01-22T07:13:23",
-  "updated_at": "2024-01-22T08:50:50",
-  "product_url": "http://yousaidit.test/product/dynamic-image-static-image/",
-  "product_edit_url": "http://yousaidit.test/wp-admin/post.php?post=77650&action=edit",
+  "card_sku": string,
+  "suggest_tags": string,
+  "market_place": TYPE_MARKETPLACE[],
+  "comments_count": number,
+  "created_at": string,
+  "updated_at": string,
+  "product_url": string,
+  "product_edit_url": string,
   designer: DesignerInterface
 }
 
@@ -200,6 +190,7 @@ interface StaticCardArgumentsInterface {
 }
 
 export type {
+  TYPE_CARD_SIZE,
   DesignerProfileInlineGeneralDataInterface,
   DesignerProfileInlineDataInterface,
   DesignerInterface,
