@@ -6,7 +6,7 @@
 
     </div>
     <ShaplaTabs alignment="center">
-      <ShaplaTab name="Info">
+      <ShaplaTab name="Info" selected>
         <div v-if="designer" style="background: #fff;padding: 16px;">
           <ShaplaColumns multiline>
             <ShaplaColumn :tablet="3">ID</ShaplaColumn>
@@ -64,7 +64,7 @@
           </ShaplaColumns>
         </div>
       </ShaplaTab>
-      <ShaplaTab name="Cards" selected>
+      <ShaplaTab name="Cards">
         <div class="mb-2">
           <ShaplaTablePagination
               :current-page="store.designer_cards_pagination.current_page"
@@ -83,6 +83,28 @@
               :total-items="store.designer_cards_pagination.total_items"
               :per-page="store.designer_cards_pagination.per_page"
               @paginate="store.getDesignerCards"
+          />
+        </div>
+      </ShaplaTab>
+      <ShaplaTab name="Commissions" selected>
+        <div class="mb-2">
+          <ShaplaTablePagination
+              :current-page="store.commissions_pagination.current_page"
+              :total-items="store.commissions_pagination.total_items"
+              :per-page="store.commissions_pagination.per_page"
+              @paginate="store.getDesignerCommissions"
+          />
+        </div>
+        <ShaplaTable
+            :items="store.commissions"
+            :columns="commissions_columns"
+        />
+        <div class="mt-2">
+          <ShaplaTablePagination
+              :current-page="store.commissions_pagination.current_page"
+              :total-items="store.commissions_pagination.total_items"
+              :per-page="store.commissions_pagination.per_page"
+              @paginate="store.getDesignerCommissions"
           />
         </div>
       </ShaplaTab>
@@ -170,11 +192,23 @@ const columns = [
   {key: 'total_sale', label: 'Total Sales', numeric: true},
 ]
 
+const commissions_columns =[
+  {key: 'order_id', label: 'Order'},
+  {key: 'product_title', label: 'Product Title'},
+  {key: 'card_size', label: 'Card Size'},
+  {key: 'marketplace', label: 'Marketplace'},
+  {key: 'created_at', label: 'Sale Date'},
+  {key: 'payment_status', label: 'Payment Status'},
+  {key: 'order_quantity', label: 'Qty', numeric: true},
+  {key: 'total_commission', label: 'Total Commission', numeric: true},
+];
+
 onMounted(() => {
   state.id = parseInt(route.params.id);
   if (state.id) {
     store.getDesigner(state.id);
     store.getDesignerCards(1, state.id)
+    store.getDesignerCommissions( 1,state.id)
   }
 })
 </script>

@@ -4,45 +4,46 @@
     <hr class="wp-header-end">
 
     <ShaplaTabs>
-      <ShaplaTab v-for="(panel,index) in panels" :key="panel.id" :name="panel.title" :selected="index === 0">
-        <template v-for="section in sections" v-if="panel.id === section.panel">
-          <h2 class="title" v-if="section.title">{{ section.title }}</h2>
-          <p class="description" v-if="section.description" v-html="section.description"></p>
+      <ShaplaTab v-for="(panel,index) in state.panels" :key="panel.id" :name="panel.title" :selected="index === 0">
+        <template v-for="section in state.sections">
+          <template v-if="panel.id === section.panel">
+            <h2 class="title" v-if="section.title">{{ section.title }}</h2>
+            <p class="description" v-if="section.description" v-html="section.description"></p>
 
-          <table class="form-table">
-            <template v-for="field in fields" v-if="field.section === section.id">
-              <tr>
-                <th scope="row">
-                  <label :for="field.id" v-text="field.title"></label>
-                </th>
-                <td>
-                  <template v-if="field.type === 'textarea'">
+            <table class="form-table">
+              <template v-for="field in state.fields">
+                <tr v-if="field.section === section.id">
+                  <th scope="row">
+                    <label :for="field.id" v-text="field.title"></label>
+                  </th>
+                  <td>
+                    <template v-if="field.type === 'textarea'">
 										<textarea class="regular-text" :id="field.id" :rows="field.rows"
-                              v-model="options[field.id]"></textarea>
-                  </template>
-                  <template v-else-if="field.type === 'select'">
-                    <ShaplaSelect
-                        :label="field.title"
-                        v-model="options[field.id]"
-                        :multiple="field.multiple"
-                        :options="field.options"
-                        :searchable="true"
-                    />
-                  </template>
-                  <template v-else-if="field.type === 'media-uploader'">
-                    <input type="text" class="regular-text" :id="field.id"
-                           v-model="options[field.id]">
-                  </template>
-                  <template v-else>
-                    <input :type="field.type" class="regular-text" :id="field.id"
-                           v-model="options[field.id]">
-                  </template>
-                  <p class="description" v-if="field.description" v-html="field.description"></p>
-                </td>
-              </tr>
-            </template>
-          </table>
-
+                              v-model="state.options[field.id]"></textarea>
+                    </template>
+                    <template v-else-if="field.type === 'select'">
+                      <ShaplaSelect
+                          :label="field.title"
+                          v-model="state.options[field.id]"
+                          :multiple="field.multiple"
+                          :options="field.options"
+                          :searchable="true"
+                      />
+                    </template>
+                    <template v-else-if="field.type === 'media-uploader'">
+                      <input type="text" class="regular-text" :id="field.id"
+                             v-model="state.options[field.id]">
+                    </template>
+                    <template v-else>
+                      <input :type="field.type" class="regular-text" :id="field.id"
+                             v-model="state.options[field.id]">
+                    </template>
+                    <p class="description" v-if="field.description" v-html="field.description"></p>
+                  </td>
+                </tr>
+              </template>
+            </table>
+          </template>
         </template>
         <div class="button-save-settings-container">
           <ShaplaButton theme="primary" size="medium" :fab="true" @click="saveOptions">
@@ -66,7 +67,32 @@ import {ShaplaButton, ShaplaIcon, ShaplaSelect, ShaplaTab, ShaplaTabs} from '@sh
 import {Notify, Spinner} from "@shapla/vanilla-components";
 import {onMounted, reactive} from "vue";
 
-const state = reactive({
+interface BaseSettingsInterface {
+  id: string;
+  title: string;
+  priority: number;
+  description?: string;
+}
+
+interface SectionSettingsInterface extends BaseSettingsInterface {
+  panel: string;
+}
+
+interface FieldSettingsInterface extends BaseSettingsInterface {
+  type: "media-uploader" | 'textarea' | 'select',
+  section: string,
+  default: any,
+  options?: any;
+  multiple?: boolean;
+  rows?: number;
+}
+
+const state = reactive<{
+  panels: BaseSettingsInterface[],
+  sections: SectionSettingsInterface[],
+  fields: FieldSettingsInterface[],
+  options: Record<string, any>;
+}>({
   panels: [],
   sections: [],
   fields: [],
@@ -76,7 +102,7 @@ const state = reactive({
 
 const getSettingsFields = () => {
   Spinner.show();
-  axios.get( 'designers-settings').then(response => {
+  axios.get('designers-settings').then(response => {
     let data = response.data.data;
     state.panels = data.panels;
     state.sections = data.sections;
@@ -92,7 +118,7 @@ const getSettingsFields = () => {
 }
 const saveOptions = () => {
   Spinner.show();
-  axios.post( 'designers-settings', {options: state.options}).then(() => {
+  axios.post('designers-settings', {options: state.options}).then(() => {
     Spinner.hide();
     Notify.success('Options has been updated.')
   }).catch(errors => {

@@ -21,7 +21,9 @@ const useAdminDesignerStore = defineStore('admin-designer', () => {
       status: string,
       card_type: string,
       designer_id: number,
-    }
+    },
+    commissions: any[];
+    commissions_pagination: PaginationDataInterface;
   }>({
     designers: [],
     designers_pagination: {current_page: 1, total_items: 0, per_page: 100},
@@ -32,7 +34,9 @@ const useAdminDesignerStore = defineStore('admin-designer', () => {
     cards: [],
     cards_statuses: [],
     cards_pagination: {current_page: 1, total_items: 0, per_page: 100},
-    cards_filter_args: {search: '', status: '', card_type: '', designer_id: 0}
+    cards_filter_args: {search: '', status: '', card_type: '', designer_id: 0},
+    commissions: [],
+    commissions_pagination: {current_page: 1, total_items: 0, per_page: 50},
   })
 
   const getDesigners = (page: number = 1) => {
@@ -198,6 +202,35 @@ const useAdminDesignerStore = defineStore('admin-designer', () => {
       })
   }
 
+  const getDesignerCommissions = (page: number = 1, designer_id: number) => {
+    axios.get(`designers-commissions`, {
+      params: {
+        report_type: '',
+        date_from: '',
+        date_to: '',
+        payment_status: 'all',
+        order_status: 'all',
+        per_page: 50,
+        page: page,
+        designer_id: designer_id
+      }
+    })
+      .then(response => {
+        let data = response.data.data;
+        state.commissions = data.commissions;
+        state.commissions_pagination = data.pagination;
+      })
+      .catch(error => {
+        const responseData = error.response.data;
+        if (responseData.message) {
+          Notify.error(responseData.message, 'Error!');
+        }
+      })
+      .finally(() => {
+        Spinner.hide();
+      })
+  }
+
 
   return {
     ...toRefs(state),
@@ -207,7 +240,8 @@ const useAdminDesignerStore = defineStore('admin-designer', () => {
     updateDesignerBusinessName,
     updateDesignerCardLimit,
     toggleDesignerDynamicCard,
-    getCards
+    getCards,
+    getDesignerCommissions
   }
 });
 

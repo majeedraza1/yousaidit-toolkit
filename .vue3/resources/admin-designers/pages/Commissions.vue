@@ -2,17 +2,21 @@
   <div class="yousaidit-admin-commissions">
     <h1 class="wp-heading-inline">Commissions</h1>
     <hr class="wp-header-end">
-    <columns multiline>
-      <column :tablet="12">
+    <ShaplaColumns multiline>
+      <ShaplaColumn :tablet="12">
         <div class="mb-4 flex items-center">
-          <a href="#" @click.prevent="show_filter_sidenav = true">Show Filter</a>
+          <a href="#" @click.prevent="state.show_filter_sidenav = true">Show Filter</a>
           <div class="flex-1"></div>
-          <pagination :total_items="total_items" :per_page="per_page" :current_page="page"
-                      @pagination="paginate"/>
+          <ShaplaTablePagination
+              :total-items="state.total_items"
+              :per-page="state.per_page"
+              :current-page="state.page"
+              @paginate="paginate"
+          />
         </div>
-        <data-table
+        <ShaplaTable
             :show-cb="false"
-            :items="commissions"
+            :items="state.commissions"
             :columns="columns"
         >
           <template v-slot:payment_status="data">
@@ -21,8 +25,10 @@
 					</span>
           </template>
           <template v-slot:marketplace="data">
-						<span v-for="_market in marketplaces" v-if="_market.key === data.row.marketplace">
+						<span v-for="_market in state.marketplaces">
+              <template v-if="_market.key === data.row.marketplace">
 						{{ _market.label }}
+              </template>
 						</span>
           </template>
           <template v-slot:order_id="data">
@@ -33,217 +39,205 @@
             <span v-else>#{{ data.row.order_id }}</span>
           </template>
           <template v-slot:action="data">
-            <icon-container hoverable @click="deleteCommission(data.row)">
+            <ShaplaIcon hoverable @click="deleteCommission(data.row)">
               <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px"
                    style="fill:var(--shapla-error, #f14668)">
                 <path
                     d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM8 9h8v10H8V9zm7.5-5l-1-1h-5l-1 1H5v2h14V4z"/>
               </svg>
-            </icon-container>
+            </ShaplaIcon>
           </template>
-        </data-table>
+        </ShaplaTable>
         <div class="mt-4">
-          <pagination :total_items="total_items" :per_page="per_page" :current_page="page"
-                      @pagination="paginate"/>
+          <ShaplaTablePagination
+              :total-items="state.total_items"
+              :per-page="state.per_page"
+              :current-page="state.page"
+              @paginate="paginate"
+          />
         </div>
-      </column>
-    </columns>
-    <side-navigation :active="show_filter_sidenav" nav-width="300px" position="right" :show-overlay="true"
-                     @close="show_filter_sidenav = false">
+      </ShaplaColumn>
+    </ShaplaColumns>
+    <ShaplaSidenav :active="state.show_filter_sidenav" nav-width="300px" position="right" :show-overlay="true"
+                   @close="state.show_filter_sidenav = false">
       <div class="yousaidit-designer-revenue__filter">
         <h3 class="sidenav-section-title">Filter by date</h3>
-        <radio-button v-for="_type in report_types" :key="_type.key" theme="primary"
-                      :rounded="false" v-model="report_type" :value="_type.key"
-                      @change="changeReportTypeChange"
+        <ShaplaRadio v-for="_type in report_types" :key="_type.key" theme="primary"
+                     :rounded="false" v-model="state.report_type" :value="_type.key"
+                     @change="changeReportTypeChange"
         >{{ _type.label }}
-        </radio-button>
-        <div class="yousaidit-designer-revenue__filter-custom" v-if="report_type==='custom'">
-          <text-field label="From" type="date" v-model="date_from"/>
-          <text-field label="To" type="date" v-model="date_to"/>
-          <shapla-button theme="primary" :disabled="!(date_from && date_to)"
-                         @click="handleCustomFilter">Apply
-          </shapla-button>
+        </ShaplaRadio>
+        <div class="yousaidit-designer-revenue__filter-custom" v-if="state.report_type==='custom'">
+          <ShaplaInput label="From" type="date" v-model="state.date_from"/>
+          <ShaplaInput label="To" type="date" v-model="state.date_to"/>
+          <ShaplaButton theme="primary" :disabled="!(state.date_from && state.date_to)" @click="handleCustomFilter">
+            Apply
+          </ShaplaButton>
         </div>
 
         <h3 class="sidenav-section-title">Filter by designer</h3>
-        <select-field
+        <ShaplaSelect
             label="Filter by designer"
-            :options="designers"
+            :options="state.designers"
             label-key="display_name"
             value-key="id"
-            v-model="designer"
+            v-model="state.designer"
         />
 
         <h3 class="sidenav-section-title">Filter by payment status</h3>
-        <radio-button v-for="_status in payment_statuses" :key="_status.key" theme="primary"
-                      :rounded="false" v-model="payment_status" :value="_status.key"
-                      @change="filterByPaymentStatus"
+        <ShaplaRadio v-for="_status in payment_statuses" :key="_status.key" theme="primary"
+                     :rounded="false" v-model="state.payment_status" :value="_status.key"
+                     @change="filterByPaymentStatus"
         >{{ _status.label }}
-        </radio-button>
+        </ShaplaRadio>
 
         <h3 class="sidenav-section-title">Filter by order status</h3>
-        <radio-button v-for="(_status,key) in order_statuses" :key="`order-status-${key}`" theme="primary"
-                      :rounded="false"
-                      v-model="order_status" :value="key" @change="filterByPaymentStatus">{{ _status }}
-        </radio-button>
+        <ShaplaRadio v-for="(_status,key) in order_statuses" :key="`order-status-${key}`" theme="primary"
+                     :rounded="false"
+                     v-model="state.order_status" :value="key" @change="filterByPaymentStatus">{{ _status }}
+        </ShaplaRadio>
       </div>
-    </side-navigation>
+    </ShaplaSidenav>
   </div>
 </template>
 
-<script>
-import axios from "@/utils/axios";
+<script lang="ts" setup>
+import axios from "../../utils/axios";
 import {
-  column,
-  columns,
-  dataTable,
-  iconContainer,
-  pagination,
-  radioButton,
-  selectField,
-  shaplaButton,
-  sideNavigation,
-  textField
-} from 'shapla-vue-components';
-import {Dialog, Spinner} from "@shapla/vanilla-components";
+  ShaplaButton,
+  ShaplaColumn,
+  ShaplaColumns,
+  ShaplaIcon,
+  ShaplaInput,
+  ShaplaRadio,
+  ShaplaSelect,
+  ShaplaSidenav,
+  ShaplaTable,
+  ShaplaTablePagination
+} from '@shapla/vue-components';
+import {Dialog, Notify, Spinner} from "@shapla/vanilla-components";
+import {computed, onMounted, reactive, watch} from "vue";
 
-export default {
-  name: "Commissions",
-  components: {
-    columns, column, dataTable, radioButton, shaplaButton, textField, sideNavigation, selectField,
-    pagination, iconContainer
-  },
-  data() {
-    return {
-      commissions: [],
-      marketplaces: [],
-      columns: [
-        {key: 'order_id', label: 'Order'},
-        {key: 'product_title', label: 'Title'},
-        {key: 'designer_name', label: 'Designer'},
-        {key: 'card_size', label: 'Card Size'},
-        {key: 'marketplace', label: 'Marketplace'},
-        {key: 'created_at', label: 'Sale Date'},
-        {key: 'payment_status', label: 'Payment Status'},
-        {key: 'order_quantity', label: 'Qty', numeric: true},
-        {key: 'total_commission', label: 'Total Commission', numeric: true},
-        {key: 'action', label: 'Action', numeric: true},
-      ],
-      report_types: [
-        {key: 'today', label: 'Today'},
-        {key: 'yesterday', label: 'Yesterday'},
-        {key: 'current_week', label: 'Last 7 days'},
-        {key: 'current_month', label: 'This Month'},
-        {key: 'last_month', label: 'Last Month'},
-        {key: 'custom', label: 'Custom'},
-      ],
-      payment_statuses: [
-        {key: 'all', label: 'All'},
-        {key: 'unpaid', label: 'Unpaid'},
-        {key: 'paid', label: 'Paid'},
-      ],
-      order_status: 'all',
-      payment_status: 'all',
-      report_type: 'current_month',
-      date_from: '',
-      date_to: '',
-      show_filter_sidenav: false,
-      designer: '',
-      designers: [],
-      page: 1,
-      total_items: 0,
-      per_page: 50,
-    }
-  },
-  mounted() {
-    Spinner.hide();
-    this.getCommissions();
-    this.getDesigners();
-  },
-  computed: {
-    order_statuses() {
-      return Object.assign({all: 'All'}, DesignerProfile.order_statuses);
-    }
-  },
-  watch: {
-    designer() {
-      this.getCommissions();
-    }
-  },
-  methods: {
-    handleCustomFilter() {
-      if (this.report_type === 'custom') {
-        this.getCommissions();
-      }
-    },
-    changeReportTypeChange(reportType) {
-      if (reportType !== 'custom') {
-        this.getCommissions();
-      }
-    },
-    filterByPaymentStatus() {
-      this.getCommissions();
-    },
-    paginate(page) {
-      this.page = page;
-      this.getCommissions();
-    },
-    getCommissions() {
-      Spinner.show();
-      let params = {
-        report_type: this.report_type,
-        date_from: this.date_from,
-        date_to: this.date_to,
-        payment_status: this.payment_status,
-        order_status: this.order_status,
-        page: this.page,
-        per_page: this.per_page,
-      };
-      if (this.designer) {
-        params['designer_id'] = this.designer;
-      }
-      axios.get('designers-commissions', {
-        params: params
-      }).then(response => {
-        let data = response.data.data;
-        this.commissions = data.commissions;
-        this.marketplaces = data.marketplaces;
-        this.total_items = data.pagination.total_items;
-        this.show_filter_sidenav = false;
-        Spinner.hide();
-      }).catch(errors => {
-        console.log(errors);
-        this.show_filter_sidenav = false;
-        Spinner.hide();
-      });
-    },
-    getDesigners() {
-      Spinner.show();
-      axios.get(Stackonet.root + '/designers', {params: {page: 1, per_page: 100,}}).then(response => {
-        let data = response.data.data;
-        this.designers = data.items;
-        Spinner.hide();
-      }).catch(errors => {
-        console.log(errors);
-        Spinner.hide();
-      });
-    },
-    deleteCommission(data) {
-      console.log(data);
-      Dialog.confirm('Are you sure to delete commission?').then(confirmed => {
-        if (confirmed) {
-          Spinner.show();
-          axios.delete('designers-commissions/' + data.commission_id).then(() => {
-            Notify.success('Commission deleted successfully')
-            this.getCommissions();
-          }).catch(errors => {
-            console.log(errors);
-          }).finally(() => {
-            Spinner.hide();
-          });
-        }
-      })
-    }
+const state = reactive({
+  commissions: [],
+  marketplaces: [],
+  order_status: 'all',
+  payment_status: 'all',
+  report_type: 'current_month',
+  date_from: '',
+  date_to: '',
+  show_filter_sidenav: false,
+  designer: '',
+  designers: [],
+  page: 1,
+  total_items: 0,
+  per_page: 50,
+});
+const columns = [
+  {key: 'order_id', label: 'Order'},
+  {key: 'product_title', label: 'Title'},
+  {key: 'designer_name', label: 'Designer'},
+  {key: 'card_size', label: 'Card Size'},
+  {key: 'marketplace', label: 'Marketplace'},
+  {key: 'created_at', label: 'Sale Date'},
+  {key: 'payment_status', label: 'Payment Status'},
+  {key: 'order_quantity', label: 'Qty', numeric: true},
+  {key: 'total_commission', label: 'Total Commission', numeric: true},
+  {key: 'action', label: 'Action', numeric: true},
+]
+const report_types = [
+  {key: 'today', label: 'Today'},
+  {key: 'yesterday', label: 'Yesterday'},
+  {key: 'current_week', label: 'Last 7 days'},
+  {key: 'current_month', label: 'This Month'},
+  {key: 'last_month', label: 'Last Month'},
+  {key: 'custom', label: 'Custom'},
+]
+const payment_statuses = [
+  {key: 'all', label: 'All'},
+  {key: 'unpaid', label: 'Unpaid'},
+  {key: 'paid', label: 'Paid'},
+]
+
+const order_statuses = computed(() => Object.assign({all: 'All'}, window.DesignerProfile.order_statuses));
+
+const handleCustomFilter = () => {
+  if (state.report_type === 'custom') {
+    getCommissions();
   }
 }
+const changeReportTypeChange = (reportType: string) => {
+  if (reportType !== 'custom') {
+    getCommissions();
+  }
+}
+const filterByPaymentStatus = () => {
+  getCommissions();
+}
+const paginate = (page) => {
+  state.page = page;
+  getCommissions();
+}
+const getCommissions = () => {
+  Spinner.show();
+  let params = {
+    report_type: state.report_type,
+    date_from: state.date_from,
+    date_to: state.date_to,
+    payment_status: state.payment_status,
+    order_status: state.order_status,
+    page: state.page,
+    per_page: state.per_page,
+  };
+  if (state.designer) {
+    params['designer_id'] = state.designer;
+  }
+  axios.get('designers-commissions', {params: params})
+      .then(response => {
+        let data = response.data.data;
+        state.commissions = data.commissions;
+        state.marketplaces = data.marketplaces;
+        state.total_items = data.pagination.total_items;
+      })
+      .catch(errors => {
+        console.log(errors);
+      })
+      .finally(() => {
+        state.show_filter_sidenav = false;
+        Spinner.hide();
+      });
+}
+const getDesigners = () => {
+  Spinner.show();
+  axios.get('designers', {params: {page: 1, per_page: 100,}}).then(response => {
+    let data = response.data.data;
+    state.designers = data.items;
+    Spinner.hide();
+  }).catch(errors => {
+    console.log(errors);
+    Spinner.hide();
+  });
+}
+const deleteCommission = (data) => {
+  Dialog.confirm('Are you sure to delete commission?').then(confirmed => {
+    if (confirmed) {
+      Spinner.show();
+      axios.delete('designers-commissions/' + data.commission_id).then(() => {
+        Notify.success('Commission deleted successfully')
+        getCommissions();
+      }).catch(errors => {
+        console.log(errors);
+      }).finally(() => {
+        Spinner.hide();
+      });
+    }
+  })
+}
+
+watch(() => state.designer, () => getCommissions())
+
+onMounted(() => {
+  getCommissions();
+  getDesigners();
+})
 </script>

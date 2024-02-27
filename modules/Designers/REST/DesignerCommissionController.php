@@ -47,7 +47,7 @@ class DesignerCommissionController extends ApiController {
 	/**
 	 * Retrieves one item from the collection.
 	 *
-	 * @param WP_REST_Request $request Full data about the request.
+	 * @param  WP_REST_Request  $request  Full data about the request.
 	 *
 	 * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
 	 */
@@ -66,8 +66,8 @@ class DesignerCommissionController extends ApiController {
 
 		$report_type = $request->get_param( 'report_type' );
 		$report_type = in_array( $report_type, DesignerCommission::get_report_types() ) ? $report_type : 'today';
-		$date_from   = $request->get_param( 'date_from' );
-		$date_to     = $request->get_param( 'date_to' );
+		$date_from   = (string) $request->get_param( 'date_from' );
+		$date_to     = (string) $request->get_param( 'date_to' );
 		$page        = (int) $request->get_param( 'page' );
 		$per_page    = (int) $request->get_param( 'per_page' );
 
