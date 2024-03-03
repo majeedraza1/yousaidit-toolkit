@@ -6,16 +6,10 @@
   "scripts": {
     "replace-it-js": "replace-in-files '../assets/js/**' --string='process.env.NODE_ENV' --replacement='window.NODE_ENV'",
     "replace-it-css": "replace-in-files '../assets/css/**' --string='.fixed{position:fixed}' --replacement=''",
-    "dev:reminders-admin": "vite --config vite.reminders-admin.config.ts",
-    "build:reminders-admin": "tsc --noEmit && vite build --config vite.reminders-admin.config.ts && npm run replace-it-js",
     "dev:reminders-frontend": "vite --config vite.reminders-frontend.config.ts",
     "build:reminders-frontend": "tsc --noEmit && vite build --config vite.reminders-frontend.config.ts && npm run replace-it-js",
     "dev:designer-dashboard": "vite --config vite.designer-dashboard.config.ts",
     "build:designer-dashboard": "tsc --noEmit && vite build --config vite.designer-dashboard.config.ts && npm run replace-it-js",
-    "dev:font-manager-admin": "vite --config vite.font-manager-admin.config.ts",
-    "build:font-manager-admin": "tsc --noEmit && vite build --config vite.font-manager-admin.config.ts && npm run replace-it-js",
-    "dev:tree-planting-admin": "vite --config vite.tree-planting-admin.config.ts",
-    "build:tree-planting-admin": "tsc --noEmit && vite build --config vite.tree-planting-admin.config.ts && npm run replace-it-js",
     "dev:admin": "vite --config vite.admin.config.ts",
     "build:admin": "tsc --noEmit && vite build --config vite.admin.config.ts && npm run replace-it-js"
   },

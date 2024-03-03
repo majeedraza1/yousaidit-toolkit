@@ -11,8 +11,8 @@
 | Admin Tree Planting         | &check; |
 | Frontend Reminder           | &check; |
 | Admin Order Dispatcher      | &check; |
+| Admin Designer              | &check; |
 | Frontend Designer Dashboard | 🟡      |
-| Admin Designer              | &cross; |
 | Frontend Inner Message      | &cross; |
 | Frontend Dynamic card       | &cross; |
 | Frontend How it works       | &cross; |

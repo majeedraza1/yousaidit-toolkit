@@ -2,8 +2,6 @@
 
 namespace YouSaidItCards\Modules\TreePlanting;
 
-use YouSaidItCards\Assets;
-
 /**
  * Admin class
  */
@@ -54,15 +52,6 @@ class Admin {
 
 	public function init_hooks() {
 		wp_enqueue_style( 'stackonet-toolkit-admin' );
-		// wp_enqueue_script( 'stackonet-toolkit-admin' );
-		$file_url  = Assets::get_assets_url( 'js/tree-planting-admin.js' );
-		$file_path = str_replace( WP_CONTENT_URL, WP_CONTENT_DIR, $file_url );
-		if ( file_exists( $file_path ) ) {
-			wp_enqueue_script( 'yousaidit-tree-planting-admin',
-				$file_url, [],
-				gmdate( 'Y.m.d.Gi', filemtime( $file_path ) ),
-				true
-			);
-		}
+		wp_enqueue_script( 'yousaidit-toolkit-admin-vue3' );
 	}
 }
