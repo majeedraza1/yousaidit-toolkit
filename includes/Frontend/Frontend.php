@@ -24,19 +24,9 @@ class Frontend {
 			self::$instance = new self();
 
 			add_action( 'wp_enqueue_scripts', [ self::$instance, 'frontend_scripts' ] );
-			add_shortcode( 'you_said_it_how_it_works', [ self::$instance, 'how_it_works' ] );
 		}
 
 		return self::$instance;
-	}
-
-	/**
-	 * How it works
-	 *
-	 * @return string
-	 */
-	public function how_it_works() {
-		return '<div id="you_said_it_how_it_works"></div>';
 	}
 
 	/**

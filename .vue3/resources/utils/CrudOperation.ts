@@ -309,5 +309,6 @@ export type {
   StatusDataInterface,
   ServerCollectionResponseDataInterface,
   ServerSuccessResponseInterface,
+  ServerErrorResponseInterface
 };
 export default CrudOperation;

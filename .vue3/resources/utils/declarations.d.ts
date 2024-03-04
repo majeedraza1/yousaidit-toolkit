@@ -2,6 +2,13 @@ import {InnerMessagePropsInterface} from "./interfaces";
 import {ReminderGroupInterface, ReminderInterface} from "../interfaces/reminders.ts";
 import {DesignerProfileInlineDataInterface} from "../interfaces/designer.ts";
 
+interface YousaiditFontsListInterface {
+  label: string;
+  fontFamily: string;
+  for_public: boolean;
+  for_designer: boolean;
+}
+
 declare global {
   interface GlobalEventHandlersEventMap {
     "update.CardCategoryPopup": CustomEvent<InnerMessagePropsInterface>;
@@ -18,6 +25,16 @@ declare global {
       common_holidays: { label: string; date_string: string; }[];
       special_holidays: Record<string, { label: string; date: string; }[]>;
       fonts: { key: string }[],
+      pdfSizes: Record<string, number[]>;
+      isUserLoggedIn: boolean;
+      isRecordingEnabled: boolean;
+      maxUploadLimitText: string;
+      fileUploaderTermsHTML: string;
+      videoMessagePriceHTML: string;
+      qrCodePlayInfo: string;
+      placeholderUrlIM: string;
+      placeholderUrlIML: string;
+      placeholderUrlIMR: string;
     }
     DesignerProfile: DesignerProfileInlineDataInterface;
     YousaiditMyAccountReminders: {
@@ -25,9 +42,11 @@ declare global {
       groups: ReminderGroupInterface[];
       countries: Record<string, string>;
       states: Record<string, Record<string, string>>;
-    }
+    },
+    YousaiditFontsList: YousaiditFontsListInterface[];
     wp: {
       media: any
-    }
+    },
+    clipboardData?: DataTransfer;
   }
 }

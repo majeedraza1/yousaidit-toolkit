@@ -7,3 +7,7 @@ declare module '*.vue' {
 
 declare module '*.jpg';
 declare module '*.png';
+
+interface HTMLVideoElementWithCaptureStream extends HTMLVideoElement {
+	captureStream(): MediaStream;
+}

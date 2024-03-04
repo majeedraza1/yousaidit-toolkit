@@ -16,8 +16,7 @@
     ],
     "designer-profile": [
       "./resources/frontend/designers/main.js",
-      "./resources/frontend/login/main.js",
-      "./resources/frontend/how-it-works/main.js"
+      "./resources/frontend/login/main.js"
     ],
     "frontend": [
       "./resources/frontend/main.js",

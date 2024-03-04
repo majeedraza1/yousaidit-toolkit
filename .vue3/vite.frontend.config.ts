@@ -8,7 +8,7 @@ export default defineConfig({
     emptyOutDir: false,
     outDir: '../assets',
     lib: {
-      entry: 'resources/admin.ts',
+      entry: 'resources/frontend.ts',
       name: 'YousaiditToolkit',
       formats: ['iife'],
     },
@@ -18,8 +18,8 @@ export default defineConfig({
         globals: {
           jquery: 'jQuery'
         },
-        entryFileNames: 'js/admin-vue3.js',
-        assetFileNames: 'css/admin-vue3.css',
+        entryFileNames: 'js/frontend-vue3.js',
+        assetFileNames: 'css/frontend-vue3.css',
       },
     },
   },
