@@ -4,5 +4,8 @@ import './admin-font-manager/main.ts'
 import './admin-inner-message-editor/main.ts'
 import './admin-order-dispatcher/main.ts'
 import './admin-reminders/main.ts'
+import './admin-settings-ai-content-writer/main.ts'
 import './admin-settings-dispatch-timer/main.ts'
 import './admin-tree-planting/main.ts'
+import './admin-common.js';
+import './admin.scss'

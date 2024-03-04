@@ -245,7 +245,7 @@ class Assets {
 				'src' => static::get_assets_url() . '/css/designer-dashboard.css'
 			],
 			'stackonet-toolkit-admin'    => [
-				'src'  => static::get_assets_url() . '/css/admin.css',
+				'src'  => static::get_assets_url() . '/css/admin-vue3.css',
 				'deps' => [ 'wp-color-picker' ],
 			],
 		];

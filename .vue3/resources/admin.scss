@@ -1,0 +1,49 @@
+@use 'shapla-css/src/index.scss' as shapla with (
+	$checkbox-image-path: "shapla-css/src/form/checkbox"
+);
+
+/*! @import */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@include shapla.button;
+@include shapla.delete-icon;
+@include shapla.icon-container;
+@include shapla.image-container;
+@include shapla.columns;
+@include shapla.chip;
+@include shapla.dashboard;
+@include shapla.data-table;
+@include shapla.data-table-status-list;
+@include shapla.data-table-pagination;
+@include shapla.dropdown;
+@include shapla.file-uploader;
+@include shapla.featured-image;
+@include shapla.media-modal;
+@include shapla.modal;
+@include shapla.notification;
+@include shapla.popover;
+@include shapla.progress;
+@include shapla.sidenav;
+@include shapla.spinner;
+@include shapla.tabs;
+@include shapla.toggles;
+@include shapla.tooltip;
+@include shapla.checkbox;
+@include shapla.radio;
+@include shapla.search-form;
+@include shapla.select;
+@include shapla.slider;
+@include shapla.star-rating;
+@include shapla.input-switch;
+@include shapla.text-field;
+@include shapla.progress;
+
+.border-box-deep {
+  box-sizing: border-box;
+
+  *, *:before, *:after {
+    box-sizing: border-box;
+  }
+}
