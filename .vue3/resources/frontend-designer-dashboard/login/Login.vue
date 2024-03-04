@@ -34,7 +34,7 @@
 </template>
 
 <script lang="ts" setup>
-import axios from "../utils/axios";
+import axios from "../../utils/axios";
 import {ShaplaButton, ShaplaCheckbox, ShaplaInput} from '@shapla/vue-components';
 import {Spinner} from "@shapla/vanilla-components";
 import {computed, reactive} from "vue";

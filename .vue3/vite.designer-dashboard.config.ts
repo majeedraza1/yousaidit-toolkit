@@ -14,12 +14,12 @@ export default defineConfig({
     emptyOutDir: false,
     outDir: '../assets',
     lib: {
-      entry: 'resources/designer-dashboard/main.ts',
+      entry: 'resources/frontend-designer-dashboard/main.ts',
       name: 'YousaiditToolkit',
       formats: ['iife'],
     },
     rollupOptions: {
-      input: 'resources/designer-dashboard/main.ts',
+      input: 'resources/frontend-designer-dashboard/main.ts',
       output: {
         entryFileNames: 'js/designer-dashboard.js',
         assetFileNames: 'css/designer-dashboard.css',

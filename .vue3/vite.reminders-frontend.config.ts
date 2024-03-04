@@ -8,7 +8,7 @@ export default defineConfig({
     emptyOutDir: false,
     outDir: '../assets',
     lib: {
-      entry: 'resources/reminders-my-account/main.ts',
+      entry: 'resources/frontend-my-account-reminders/main.ts',
       name: 'YousaiditToolkit',
       formats: ['iife'],
     },
