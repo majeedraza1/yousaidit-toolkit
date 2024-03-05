@@ -9,13 +9,12 @@
 | Admin Inner message editor  | &check; |
 | Admin Reminder              | &check; |
 | Admin Tree Planting         | &check; |
-| Frontend Reminder           | &check; |
 | Admin Order Dispatcher      | &check; |
 | Admin Designer              | &check; |
-| Frontend Designer Dashboard | 🟡      |
-| Frontend Inner Message      | &cross; |
-| Frontend Dynamic card       | &cross; |
-| Frontend How it works       | &cross; |
+| Frontend Designer Dashboard | &check; |
+| Frontend Reminder           | &check; |
+| Frontend Inner Message      | &check; |
+| Frontend Dynamic card       | &check; |
 
 # Dependencies
 

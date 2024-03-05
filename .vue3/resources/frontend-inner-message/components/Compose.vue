@@ -20,7 +20,7 @@
       </div>
       <div class="sm:w-full sm:mt-4 sm:mb-4">
         <div class="flex flex-col h-full bg-gray-100 w-80 ml-auto">
-          <EditorControls v-model="state" @change="onChangeEditorControls"/>
+          <EditorControls :value="state" @input="onInputEditorControls" @change="onChangeEditorControls"/>
           <div class="flex-grow"></div>
           <div class="flex space-x-2 p-4 mt-4">
             <ShaplaButton theme="primary" outline @click="emitClose" class="flex-grow">Cancel</ShaplaButton>
@@ -60,6 +60,13 @@ const state = reactive({
   showLengthError: false,
 })
 
+const onInputEditorControls = (data) => {
+  state.message = data.message;
+  state.font_family = data.font_family;
+  state.font_size = data.font_size;
+  state.alignment = data.alignment;
+  state.color = data.color;
+}
 
 const onChangeEditorControls = (args) => {
   if ('font-family' === args.key) {
