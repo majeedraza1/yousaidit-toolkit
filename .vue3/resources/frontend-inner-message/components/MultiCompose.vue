@@ -143,10 +143,10 @@ watch(() => props.leftMessage, newValue => state.leftInnerMessage = propsToState
 watch(() => props.rightMessage, newValue => state.rightInnerMessage = propsToState(newValue), {deep: true})
 
 onMounted(() => {
-  if (Object.keys(props.leftMessage).length) {
+  if (props.leftMessage && Object.keys(props.leftMessage).length) {
     state.leftInnerMessage = propsToState(props.leftMessage);
   }
-  if (Object.keys(props.rightMessage).length) {
+  if (props.rightMessage && Object.keys(props.rightMessage).length) {
     state.rightInnerMessage = propsToState(props.rightMessage);
   }
 })

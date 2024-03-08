@@ -90,7 +90,7 @@
         <template v-if="state.videoType==='uploaded'">
           <template v-if="state.job_id">
             <div class="mb-2 w-full">
-              <progress-bar theme="primary" striped animated/>
+              <ShaplaProgress theme="primary" striped animated/>
             </div>
             <div class="border-4 border-dashed border-primary p-2 text-lg font-bold text-center">
               Your video is being processed. It may take upto a minute. Please be patient.
@@ -140,7 +140,7 @@
 
 <script lang="ts" setup>
 import EditableContent from "./EditableContent.vue";
-import {ShaplaButton, ShaplaFileUploader, ShaplaImage} from "@shapla/vue-components";
+import {ShaplaButton, ShaplaFileUploader, ShaplaImage,ShaplaProgress} from "@shapla/vue-components";
 import axios from "../../utils/axios";
 import {initRecording, stopRecording as _stopRecording} from "../helpers/recording.ts";
 import {Dialog, Notify} from "@shapla/vanilla-components";

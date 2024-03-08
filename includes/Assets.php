@@ -210,6 +210,11 @@ class Assets {
 				'deps'      => [ 'jquery', 'yousaidit-toolkit-vendors', 'yousaidit-toolkit-web-components' ],
 				'in_footer' => true
 			],
+			'yousaidit-inner-message'          => [
+				'src'       => static::get_assets_url() . '/js/frontend-vue3.js',
+				'deps'      => [ 'jquery', 'yousaidit-toolkit-web-components' ],
+				'in_footer' => true
+			],
 			'stackonet-designer-profile'       => [
 				'src'       => static::get_assets_url() . '/js/designer-profile.js',
 				'deps'      => [ 'yousaidit-toolkit-vendors' ],

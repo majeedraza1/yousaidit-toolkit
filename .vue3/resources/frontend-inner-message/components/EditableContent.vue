@@ -25,11 +25,11 @@ const root = ref<HTMLDivElement>(null)
 const props = defineProps({
   openAiEditable: {type: Boolean, default: false},
   editable: {type: Boolean, default: true},
-  value: {type: String},
+  modelValue: {type: String, default: ''},
   placeholder: {type: String, default: ''},
   cardSize: {type: String, default: 'square'},
   fontFamily: {type: String,},
-  fontSize: {type: [Number,String], default: 12},
+  fontSize: {type: [Number, String], default: 12},
   textAlign: {type: String, default: 'center'},
   color: {type: String, default: '#000'}
 })
@@ -48,7 +48,7 @@ const state = reactive({
 })
 
 const emit = defineEmits<{
-  input: [value: string]
+  'update:modelValue': [value: string]
   lengthError: [value: boolean]
 }>()
 
@@ -86,7 +86,7 @@ const handleFocusEvent = (event: FocusEvent) => {
 const handleInputEvent = (event: InputEvent) => {
   state.text = (event.target as HTMLDivElement).innerHTML;
   state.showLengthError = state.editableContentEditor.offsetHeight > (0.90 * state.editableContent.offsetHeight);
-  emit('input', state.text);
+  emit('update:modelValue', state.text);
 }
 const calculate_canvas_dimension = () => {
   state.cardSizes = cardSizeFromName(props.cardSize);
@@ -97,8 +97,7 @@ const calculate_canvas_edge_padding = () => {
   state.canvas_padding = calculateElementPadding(state.cardSizes[0] / 2, state.canvas_width);
 }
 const updateTextAndPlaceholder = () => {
-  const lines = props.value
-      // .replace('<div class="editable-content__html">', '')
+  const lines = props.modelValue
       .split('<div>')
       .map(_text => _text.replace('</div>', ''))
       .filter(line => typeof line === 'string' && line.length);
@@ -135,17 +134,17 @@ const updateFromMessageLines = (lines: string[]) => {
     }
     contentEl.append(divEl);
   })
-  setTimeout(() => emit('input', contentEl.innerHTML), 100)
+  setTimeout(() => emit('update:modelValue', contentEl.innerHTML), 100)
 }
 
-watch(() => props.value, newValue => state.text = newValue);
+watch(() => props.modelValue, newValue => state.text = newValue);
 watch(() => props.editable, newValue => setTimeout(() => state.isEditable = newValue, 500));
 watch(() => state.showLengthError, newValue => emit('lengthError', newValue));
 
 onMounted(() => {
 
   document.execCommand("defaultParagraphSeparator", false, "div");
-  state.text = props.value;
+  state.text = props.modelValue;
   setTimeout(() => {
     calculate_canvas_dimension();
     calculate_canvas_edge_padding();

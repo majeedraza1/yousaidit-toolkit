@@ -17,7 +17,7 @@
       <div class="font-normal px-4 text-center">Choose Font Size</div>
       <div class="inner-message-font-sizes flex flex-wrap justify-center p-4">
         <div class="inner-message-font-size" v-for="_size in font_sizes" :key="_size">
-          <ShaplaRadio :label="_size" :value="_size" v-model="state.options.font_size"
+          <ShaplaRadioButton :label="_size" :value="_size" v-model="state.options.font_size"
                        :theme="state.options.font_size === _size?'primary':'default'"/>
         </div>
       </div>
@@ -132,7 +132,6 @@
 import {
   ShaplaButton,
   ShaplaCheckbox,
-  ShaplaRadio,
   ShaplaRadioButton,
   ShaplaTab,
   ShaplaTabs
@@ -151,7 +150,7 @@ const emit = defineEmits<{
 }>()
 
 const props = defineProps({
-  value: {
+  modelValue: {
     type: Object as PropType<TextOptionInterface>, default: () => ({
       font_family: '',
       font_size: '',
@@ -227,10 +226,10 @@ const selectEmoji = (emoji) => {
   emitChange('emoji', emoji);
 }
 
-watch(() => props.value, newValue => state.options = newValue, {deep: true})
+watch(() => props.modelValue, newValue => state.options = newValue, {deep: true})
 watch(() => state.options, newValue => emit('input', newValue), {deep: true})
 
 onMounted(() => {
-  state.options = props.value;
+  state.options = props.modelValue;
 })
 </script>

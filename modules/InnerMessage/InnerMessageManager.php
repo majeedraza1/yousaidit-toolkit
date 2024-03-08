@@ -461,7 +461,7 @@ class InnerMessageManager {
 
 	public function load_scripts() {
 		if ( is_single() || is_cart() || is_shop() || is_product_category() ) {
-			wp_enqueue_script( 'stackonet-inner-message' );
+			wp_enqueue_script( 'yousaidit-inner-message' );
 			wp_enqueue_style( 'stackonet-inner-message' );
 		}
 	}

@@ -98,8 +98,13 @@ import MultiCompose from "./components/MultiCompose.vue";
 import EditableContent from "./components/EditableContent.vue";
 import SwiperSlider from "./components/SwiperSlider.vue";
 import {Notify, Spinner} from "@shapla/vanilla-components";
+import {ShaplaModal} from "@shapla/vue-components";
 import {computed, onMounted, reactive} from "vue";
-import {InnerMessageCartItemDataInterface, InnerMessageCartItemPropsInterface} from "../interfaces/inner-message.ts";
+import {
+  InnerMessageCartItemDataInterface,
+  InnerMessageCartItemPropsInterface,
+  LeftAndRightInnerMessagePropsInterface
+} from "../interfaces/inner-message.ts";
 
 const defaultData = () => {
   return {
@@ -212,11 +217,11 @@ const closeModal = () => {
 }
 
 
-const onUpdatePopupItemInfo = (data) => {
+const onUpdatePopupItemInfo = (data: LeftAndRightInnerMessagePropsInterface) => {
   document.body.dispatchEvent(new CustomEvent('update.CardCategoryPopup', {detail: data}));
   state.showModal = false;
 }
-const onUpdateCartItemInfo = (data) => {
+const onUpdateCartItemInfo = (data: LeftAndRightInnerMessagePropsInterface) => {
   jQuery.ajax({
     url: window.StackonetToolkit.ajaxUrl,
     method: 'POST',
@@ -229,6 +234,36 @@ const onUpdateCartItemInfo = (data) => {
       window.location.reload();
     }
   })
+}
+const onUpdateSingleProductInnerMessage = (data: LeftAndRightInnerMessagePropsInterface) => {
+  let fieldsContainer = document.querySelector('#_inner_message_fields');
+  if (fieldsContainer) {
+    const rightPageContent = data.right;
+    fieldsContainer.querySelector<HTMLInputElement>('#_inner_message_content').value = rightPageContent.message;
+    fieldsContainer.querySelector<HTMLInputElement>('#_inner_message_font').value = rightPageContent.font_family;
+    fieldsContainer.querySelector<HTMLInputElement>('#_inner_message_size').value = rightPageContent.font_size;
+    fieldsContainer.querySelector<HTMLInputElement>('#_inner_message_align').value = rightPageContent.alignment;
+    fieldsContainer.querySelector<HTMLInputElement>('#_inner_message_color').value = rightPageContent.color;
+  }
+
+  let imContainer2 = document.querySelector('#_video_inner_message_fields');
+  if (imContainer2) {
+    const leftPageContent = data.left;
+    imContainer2.querySelector<HTMLInputElement>('#_inner_message2_type').value = leftPageContent.type;
+    imContainer2.querySelector<HTMLInputElement>('#_inner_message2_video_id').value = leftPageContent.video_id.toString();
+    imContainer2.querySelector<HTMLInputElement>('#_inner_message2_content').value = leftPageContent.message;
+    imContainer2.querySelector<HTMLInputElement>('#_inner_message2_font').value = leftPageContent.font_family;
+    imContainer2.querySelector<HTMLInputElement>('#_inner_message2_size').value = leftPageContent.font_size;
+    imContainer2.querySelector<HTMLInputElement>('#_inner_message2_align').value = leftPageContent.alignment;
+    imContainer2.querySelector<HTMLInputElement>('#_inner_message2_color').value = leftPageContent.color;
+  }
+
+  let variations_form = document.querySelector<HTMLFormElement>('form.cart');
+  if (variations_form) {
+    Spinner.show();
+    state.showModal = false;
+    variations_form.submit();
+  }
 }
 
 
@@ -289,7 +324,7 @@ const submit = (data, side = 'right') => {
     })
   }
 }
-const onUpdateMultiCompose = (data) => {
+const onUpdateMultiCompose = (data: LeftAndRightInnerMessagePropsInterface) => {
   if ('cart' === state.page) {
     return onUpdateCartItemInfo(data);
   }
@@ -297,33 +332,8 @@ const onUpdateMultiCompose = (data) => {
     return onUpdatePopupItemInfo(data);
   }
 
-  let fieldsContainer = document.querySelector('#_inner_message_fields');
-  if (fieldsContainer) {
-    const rightPageContent = data.right;
-    fieldsContainer.querySelector<HTMLInputElement>('#_inner_message_content').value = rightPageContent.message;
-    fieldsContainer.querySelector<HTMLInputElement>('#_inner_message_font').value = rightPageContent.font_family;
-    fieldsContainer.querySelector<HTMLInputElement>('#_inner_message_size').value = rightPageContent.font_size;
-    fieldsContainer.querySelector<HTMLInputElement>('#_inner_message_align').value = rightPageContent.alignment;
-    fieldsContainer.querySelector<HTMLInputElement>('#_inner_message_color').value = rightPageContent.color;
-  }
-
-  let imContainer2 = document.querySelector('#_video_inner_message_fields');
-  if (imContainer2) {
-    const leftPageContent = data.left;
-    imContainer2.querySelector<HTMLInputElement>('#_inner_message2_type').value = leftPageContent.type;
-    imContainer2.querySelector<HTMLInputElement>('#_inner_message2_video_id').value = leftPageContent.video_id;
-    imContainer2.querySelector<HTMLInputElement>('#_inner_message2_content').value = leftPageContent.message;
-    imContainer2.querySelector<HTMLInputElement>('#_inner_message2_font').value = leftPageContent.font_family;
-    imContainer2.querySelector<HTMLInputElement>('#_inner_message2_size').value = leftPageContent.font_size;
-    imContainer2.querySelector<HTMLInputElement>('#_inner_message2_align').value = leftPageContent.alignment;
-    imContainer2.querySelector<HTMLInputElement>('#_inner_message2_color').value = leftPageContent.color;
-  }
-
-  let variations_form = document.querySelector<HTMLFormElement>('form.cart');
-  if (variations_form) {
-    Spinner.show();
-    state.showModal = false;
-    variations_form.submit();
+  if ('single-product' === state.page) {
+    return onUpdateSingleProductInnerMessage(data);
   }
 }
 
