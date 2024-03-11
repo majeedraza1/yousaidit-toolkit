@@ -35,5 +35,9 @@ class Frontend {
 	public function frontend_scripts() {
 		wp_enqueue_style( 'yousaidit-toolkit-frontend' );
 		wp_enqueue_script( 'yousaidit-toolkit-frontend' );
+
+		if ( ! wp_script_is( "wc-cart-fragments", "enqueued" ) && wp_script_is( "wc-cart-fragments", "registered" ) ) {
+			wp_enqueue_script( "wc-cart-fragments" );
+		}
 	}
 }

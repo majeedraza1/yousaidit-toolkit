@@ -61,6 +61,7 @@ interface DynamicCardPayloadInterface {
 }
 
 export type {
+  ImageDataInterface,
   DynamicCardPayloadInterface,
   DynamicCardItemInterface
 }

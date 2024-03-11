@@ -10,7 +10,8 @@
 | Admin Inner message editor                              | &check; |
 | Admin Order Dispatcher                                  | &check; |
 | Admin Reminder                                          | &check; |
-| Admin Settings                                          | &check; |
+| Admin Settings: Dispatch Timer                          | &check; |
+| Admin Settings: Inner Message AI content writer         | &check; |
 | Admin Tree Planting                                     | &check; |
 | Frontend Designer Dashboard                             | &check; |
 | Frontend MyAccount Reminder                             | &check; |

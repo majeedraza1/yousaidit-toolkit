@@ -1,8 +1,8 @@
 import {css, html, LitElement} from "lit";
 import {customElement, property} from 'lit/decorators.js'
+import {ImageDataInterface} from "./interfaces";
 
-customElement('dynamic-card-background');
-
+@customElement('dynamic-card-background')
 export class DynamicCardBackground extends LitElement {
 
   @property({type: String, attribute: 'background-type'})
@@ -12,7 +12,7 @@ export class DynamicCardBackground extends LitElement {
   backgroundColor = '#ffffff'
 
   @property({type: Object, attribute: 'background-image'})
-  backgroundImage = {src: ''}
+  backgroundImage?: ImageDataInterface;
 
   // Styles are applied to the shadow root and scoped to this element
   static styles = css`

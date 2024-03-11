@@ -171,7 +171,7 @@ onMounted(() => {
         <ShaplaImage :width-ratio="150" :height-ratio="150">
           <div class="dynamic-card-canvas-container" ref="canvasContainer">
             <dynamic-card-canvas
-                :options='`${JSON.stringify(dynamicCardPayload)}`'
+                :data-options='`${JSON.stringify(dynamicCardPayload)}`'
                 :card-width-mm="150"
                 :card-height-mm="150"
                 :element-width-mm="pxToMm(state.previewWidth)"

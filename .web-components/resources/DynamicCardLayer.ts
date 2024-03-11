@@ -4,8 +4,7 @@ import {DynamicCardItemInterface} from "./interfaces";
 
 const convertMMtoPX = (mm: number) => mm * 3.7795275591
 
-customElement('dynamic-card-layer')
-
+@customElement('dynamic-card-layer')
 export class DynamicCardLayer extends LitElement {
 
   @property({type: String})
@@ -16,8 +15,8 @@ export class DynamicCardLayer extends LitElement {
     label: '', section_type: 'static-text', position: {left: 0, top: 0}, text: '', placeholder: '',
   };
 
-  @property({type: Boolean, attribute: 'show-edit-icon'})
-  showEditIcon = false;
+  @property({type: String, attribute: 'show-edit-icon'})
+  showEditIcon = 'no';
 
   @property({type: Number, attribute: 'index'})
   index = -1;
@@ -89,8 +88,6 @@ export class DynamicCardLayer extends LitElement {
       styles.push(`font-size: ${fontSize}pt`);
       styles.push(`text-align: ${this.section.textOptions.align}`);
       styles.push(`color: ${this.section.textOptions.color}`);
-
-      window.console.log(this.section.textOptions);
 
       if (this.section.textOptions.rotation) {
         styles.push(`--rotate: ${this.section.textOptions.rotation}deg`);
@@ -227,7 +224,6 @@ export class DynamicCardLayer extends LitElement {
 
   // Render the component's DOM by returning a Lit template
   render() {
-    window.console.log(this.section, this.section.userOptions);
     let classes = [
       'section',
       `section-type--${this.section.section_type}`,

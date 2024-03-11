@@ -17,7 +17,7 @@
             <template v-slot:canvas="slotProps">
               <dynamic-card-canvas
                   :show-edit-icon="true"
-                  :options="`${JSON.stringify(state.payload)}`"
+                  :data-options="`${JSON.stringify(state.payload)}`"
                   :active-section-index="state.activeSectionIndex"
                   :card-width-mm="card_dimension[0]"
                   :card-height-mm="card_dimension[1]"
@@ -132,9 +132,9 @@
                 </div>
               </ShaplaTab>
               <ShaplaTab name="Upload">
-                <file-uploader
+                <ShaplaFileUploader
                     :url="uploadUrl"
-                    @before:send="beforeSendEvent"
+                    @headers="beforeSendEvent"
                     @success="finishedEvent"
                     @failed="handleFileUploadFailed"
                 />
@@ -172,7 +172,15 @@
 
 <script lang="ts" setup>
 import axios from "../utils/axios.ts";
-import {ShaplaButton, ShaplaIcon, ShaplaImage, ShaplaModal, ShaplaTab, ShaplaTabs} from "@shapla/vue-components";
+import {
+  ShaplaButton,
+  ShaplaFileUploader,
+  ShaplaIcon,
+  ShaplaImage,
+  ShaplaModal,
+  ShaplaTab,
+  ShaplaTabs
+} from "@shapla/vue-components";
 import {Notify, Spinner} from '@shapla/vanilla-components'
 import EditableContent from "./components/EditableContent.vue";
 import EditorControls from "./components/EditorControls.vue";
@@ -288,7 +296,7 @@ const onChangeUserOptions = (newValue) => {
     state.payload.card_items[state.activeSectionIndex] = state.activeSection;
   }
 }
-const messagesLinesToString = (lines:string[]) => {
+const messagesLinesToString = (lines: string[]) => {
   let contentEl = document.createElement('div');
   lines.forEach(line => {
     let divEl = document.createElement('div');
@@ -411,11 +419,12 @@ const handleSubmit = () => {
     variations_form.submit();
   }
 }
-const beforeSendEvent = (xhr) => {
+const beforeSendEvent = computed(() => {
   if (window.StackonetToolkit.restNonce) {
-    xhr.setRequestHeader('X-WP-Nonce', window.StackonetToolkit.restNonce);
+    return {'X-WP-Nonce': window.StackonetToolkit.restNonce}
   }
-}
+  return {}
+})
 const finishedEvent = (fileObject, response) => {
   if (response.success) {
     state.images.unshift(response.data);

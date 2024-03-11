@@ -37,20 +37,22 @@ const itemStyles = computed(() => {
 })
 
 const calculateWidthAndHeight = () => {
-  let innerEL = root.value.querySelector<HTMLDivElement>('.swiper-slide-inner');
   const dimension = card_dimension();
 
   if (document.body.offsetWidth < 1024) {
     state.width = document.body.offsetWidth - 30 || root.value.offsetWidth;
     state.height = Math.round(state.width * (dimension[1] / dimension[0]));
   } else {
-    state.height = innerEL.offsetHeight;
-    state.width = Math.round(state.height * (dimension[0] / dimension[1]));
+    let innerEL = root.value.querySelector<HTMLDivElement>('.swiper-slide-inner');
+    if (innerEL) {
+      state.height = innerEL.offsetHeight;
+      state.width = Math.round(state.height * (dimension[0] / dimension[1]));
+    }
   }
 }
 
 onMounted(() => {
-  setTimeout(() => calculateWidthAndHeight());
+  setTimeout(() => calculateWidthAndHeight(), 50);
   window.addEventListener('resize', () => calculateWidthAndHeight())
 })
 </script>
