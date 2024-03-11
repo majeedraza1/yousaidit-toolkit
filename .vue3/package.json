@@ -6,12 +6,10 @@
   "scripts": {
     "replace-it-js": "replace-in-files '../assets/js/**' --string='process.env.NODE_ENV' --replacement='window.NODE_ENV'",
     "replace-it-css": "replace-in-files '../assets/css/**' --string='.fixed{position:fixed}' --replacement=''",
-    "dev:reminders-frontend": "vite --config vite.reminders-frontend.config.ts",
-    "build:reminders-frontend": "tsc --noEmit && vite build --config vite.reminders-frontend.config.ts && npm run replace-it-js",
     "dev:designer-dashboard": "vite --config vite.designer-dashboard.config.ts",
     "build:designer-dashboard": "tsc --noEmit && vite build --config vite.designer-dashboard.config.ts && npm run replace-it-js",
     "dev:admin": "vite --config vite.admin.config.ts",
-    "build:admin": "tsc --noEmit && vite build --config vite.admin.config.ts && npm run replace-it-js",
+    "build:admin": "tsc --noEmit && vite build --config vite.admin.config.ts && npm run replace-it-js && npm run replace-it-css",
     "dev:frontend": "vite --config vite.frontend.config.ts",
     "build:frontend": "tsc --noEmit && vite build --config vite.frontend.config.ts && npm run replace-it-js"
   },

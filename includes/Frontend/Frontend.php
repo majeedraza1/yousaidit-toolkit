@@ -33,7 +33,7 @@ class Frontend {
 	 * Load frontend scripts
 	 */
 	public function frontend_scripts() {
-		wp_enqueue_style( 'stackonet-toolkit-frontend' );
-		wp_enqueue_script( 'stackonet-toolkit-frontend' );
+		wp_enqueue_style( 'yousaidit-toolkit-frontend' );
+		wp_enqueue_script( 'yousaidit-toolkit-frontend' );
 	}
 }

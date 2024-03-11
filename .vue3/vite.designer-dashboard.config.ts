@@ -21,8 +21,8 @@ export default defineConfig({
     rollupOptions: {
       input: 'resources/frontend-designer-dashboard/main.ts',
       output: {
-        entryFileNames: 'js/designer-dashboard.js',
-        assetFileNames: 'css/designer-dashboard.css',
+        entryFileNames: 'js/designer-dashboard-vue3.js',
+        assetFileNames: 'css/designer-dashboard-vue3.css',
       },
     },
   },

@@ -120,6 +120,7 @@ interface DynamicCardSectionInterface {
   };
   position: { left: number | string; top: string | number }
   section_type: 'input-text' | 'input-image' | 'static-text' | 'static-image';
+  image?: { id: number; width: number; height: number; src: string; }
 }
 
 interface DynamicCardPayloadInterface {
@@ -161,5 +162,6 @@ export type {
   InnerMessagePropsInterface,
   OpenAiOptionInterface,
   InnerMessageCartItemPropsInterface,
-  InnerMessageCartItemDataInterface
+  InnerMessageCartItemDataInterface,
+  CardOptionsPropsInterfaces
 }

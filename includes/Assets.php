@@ -191,38 +191,17 @@ class Assets {
 	 */
 	public function get_scripts(): array {
 		return [
-			'yousaidit-toolkit-vendors'        => [
-				'src'       => static::get_assets_url() . '/js/vendors.js',
-				'in_footer' => true
-			],
 			'yousaidit-toolkit-web-components' => [
 				'src'       => static::get_assets_url() . '/js/web-components.js',
-				'deps'      => [ 'yousaidit-toolkit-vendors' ],
 				'in_footer' => true
 			],
-			'stackonet-inner-message'          => [
-				'src'       => static::get_assets_url() . '/js/inner-message.js',
-				'deps'      => [ 'wp-tinymce', 'yousaidit-toolkit-vendors', 'yousaidit-toolkit-web-components' ],
-				'in_footer' => true
-			],
-			'stackonet-toolkit-frontend'       => [
-				'src'       => static::get_assets_url() . '/js/frontend.js',
-				'deps'      => [ 'jquery', 'yousaidit-toolkit-vendors', 'yousaidit-toolkit-web-components' ],
-				'in_footer' => true
-			],
-			'yousaidit-inner-message'          => [
+			'yousaidit-toolkit-frontend'       => [
 				'src'       => static::get_assets_url() . '/js/frontend-vue3.js',
 				'deps'      => [ 'jquery', 'yousaidit-toolkit-web-components' ],
 				'in_footer' => true
 			],
-			'stackonet-designer-profile'       => [
-				'src'       => static::get_assets_url() . '/js/designer-profile.js',
-				'deps'      => [ 'yousaidit-toolkit-vendors' ],
-				'in_footer' => true
-			],
-			'stackonet-toolkit-admin'          => [
-				'src'       => static::get_assets_url() . '/js/admin.js',
-				'deps'      => [ 'jquery', 'react', 'react-dom', 'yousaidit-toolkit-vendors' ],
+			'yousaidit-designer-dashboard'     => [
+				'src'       => static::get_assets_url() . '/js/designer-dashboard-vue3.js',
 				'in_footer' => true
 			],
 			'yousaidit-toolkit-admin-vue3'     => [
@@ -240,16 +219,13 @@ class Assets {
 	 */
 	public function get_styles(): array {
 		return [
-			'stackonet-inner-message'    => [
-				'src' => static::get_assets_url() . '/css/inner-message.css'
+			'yousaidit-toolkit-frontend'   => [
+				'src' => static::get_assets_url() . '/css/frontend-vue3.css'
 			],
-			'stackonet-toolkit-frontend' => [
-				'src' => static::get_assets_url() . '/css/frontend.css'
+			'yousaidit-designer-dashboard' => [
+				'src' => static::get_assets_url() . '/css/designer-dashboard-vue3.css'
 			],
-			'stackonet-designer-profile' => [
-				'src' => static::get_assets_url() . '/css/designer-dashboard.css'
-			],
-			'stackonet-toolkit-admin'    => [
+			'yousaidit-toolkit-admin-vue3' => [
 				'src'  => static::get_assets_url() . '/css/admin-vue3.css',
 				'deps' => [ 'wp-color-picker' ],
 			],

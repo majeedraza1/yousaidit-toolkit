@@ -182,10 +182,8 @@ class DesignerProfile {
 		}
 		global $post;
 		if ( $post instanceof WP_Post && has_shortcode( $post->post_content, 'designer_profile_page' ) ) {
-			wp_enqueue_style( 'stackonet-designer-profile' );
-			wp_enqueue_script( 'stackonet-designer-dashboard',
-				Assets::get_assets_url( 'js/designer-dashboard.js' ),
-				[], null, true );
+			wp_enqueue_style( 'yousaidit-designer-dashboard' );
+			wp_enqueue_script( 'yousaidit-designer-dashboard' );
 		}
 	}
 
