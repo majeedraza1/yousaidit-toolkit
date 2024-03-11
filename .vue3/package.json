@@ -11,7 +11,9 @@
     "dev:admin": "vite --config vite.admin.config.ts",
     "build:admin": "tsc --noEmit && vite build --config vite.admin.config.ts && npm run replace-it-js && npm run replace-it-css",
     "dev:frontend": "vite --config vite.frontend.config.ts",
-    "build:frontend": "tsc --noEmit && vite build --config vite.frontend.config.ts && npm run replace-it-js"
+    "build:frontend": "tsc --noEmit && vite build --config vite.frontend.config.ts && npm run replace-it-js",
+    "build:wc": "tsc --noEmit && vite build --config vite.web-components.config.ts && npm run replace-it-js",
+    "build:all": "npm run build:wc && npm run build:designer-dashboard && npm run build:frontend && npm run build:admin"
   },
   "dependencies": {
     "@shapla/vanilla-components": "^0.4.0",

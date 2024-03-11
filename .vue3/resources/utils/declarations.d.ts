@@ -1,6 +1,6 @@
 import {InnerMessagePropsInterface} from "./interfaces";
 import {ReminderGroupInterface, ReminderInterface} from "../interfaces/reminders.ts";
-import {DesignerProfileInlineDataInterface} from "../interfaces/designer.ts";
+import {DesignerProfileFontInterface, DesignerProfileInlineDataInterface} from "../interfaces/designer.ts";
 
 interface YousaiditFontsListInterface {
   label: string;
@@ -24,7 +24,7 @@ declare global {
       topics: { slug: string; label: string; menu_order?: number; }[];
       common_holidays: { label: string; date_string: string; }[];
       special_holidays: Record<string, { label: string; date: string; }[]>;
-      fonts: { key: string }[],
+      fonts: DesignerProfileFontInterface[],
       pdfSizes: Record<string, number[]>;
       isUserLoggedIn: boolean;
       isRecordingEnabled: boolean;
