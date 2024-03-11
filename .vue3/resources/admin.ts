@@ -8,4 +8,4 @@ import './admin-settings-ai-content-writer/main.ts'
 import './admin-settings-dispatch-timer/main.ts'
 import './admin-tree-planting/main.ts'
 import './admin-common.js';
-import './admin.scss'
+import './scss/admin.scss'

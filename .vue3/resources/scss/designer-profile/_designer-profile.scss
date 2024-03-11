@@ -1,0 +1,19 @@
+.yousaidit-designer-profile {
+	.shapla-text-field__input,
+	.shapla-text-field__textarea {
+		margin-bottom: 0 !important;
+	}
+}
+
+// WordPress hack
+.shapla-dashboard {
+	.admin-bar & {
+		height: calc(100vh - 32px);
+		top: 32px;
+
+		@media screen and (max-width: 782px) {
+			height: calc(100vh - 46px);
+			top: 46px;
+		}
+	}
+}

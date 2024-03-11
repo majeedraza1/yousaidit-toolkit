@@ -2,19 +2,23 @@
 
 # Upgrade to Vue 3
 
-| Module                      | Status  |
-|-----------------------------|---------|
-| Admin Art Work              | &check; |
-| Admin Font Manager          | &check; |
-| Admin Inner message editor  | &check; |
-| Admin Reminder              | &check; |
-| Admin Tree Planting         | &check; |
-| Admin Order Dispatcher      | &check; |
-| Admin Designer              | &check; |
-| Frontend Designer Dashboard | &check; |
-| Frontend Reminder           | &check; |
-| Frontend Inner Message      | &check; |
-| Frontend Dynamic card       | &check; |
+| Module                                                  | Status  |
+|---------------------------------------------------------|---------|
+| Admin Art Work                                          | &check; |
+| Admin Designer                                          | &check; |
+| Admin Font Manager                                      | &check; |
+| Admin Inner message editor                              | &check; |
+| Admin Order Dispatcher                                  | &check; |
+| Admin Reminder                                          | &check; |
+| Admin Settings                                          | &check; |
+| Admin Tree Planting                                     | &check; |
+| Frontend Designer Dashboard                             | &check; |
+| Frontend MyAccount Reminder                             | &check; |
+| Frontend Single Product: Inner Message (& Dynamic card) | &check; |
+| Frontend Single Product: variation swatches             | &check; |
+| Frontend Shop: Inner Message (& Dynamic card) Popup     | &check; |
+| Frontend Shop: Rude Card                                | &check; |
+| Frontend Multi-step checkout                            | &check; |
 
 # Dependencies
 

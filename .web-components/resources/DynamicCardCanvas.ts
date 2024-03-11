@@ -5,7 +5,7 @@ import {customElement, property} from "lit/decorators.js";
 @customElement('dynamic-card-canvas')
 export class DynamicCardCanvas extends LitElement {
 
-  @property({type: Object, attribute: 'data-options'})
+  @property({type: Object, attribute: 'options'})
   options = {
     card_size: '', card_bg_type: '', card_bg_color: '', card_background: {}, card_items: []
   }

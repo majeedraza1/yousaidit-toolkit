@@ -2,11 +2,6 @@
 	$checkbox-image-path: "shapla-css/src/form/checkbox"
 );
 
-/*! @import */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 @include shapla.button;
 @include shapla.delete-icon;
 @include shapla.icon-container;

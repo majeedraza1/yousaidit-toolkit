@@ -6,3 +6,4 @@ import './frontend-multistep-checkout/style.scss';
 import './frontend-my-account-reminders/main.ts';
 import './frontend-rude-card/main.js';
 import './frontend-variation-swatches/main.js';
+import './scss/frontend.scss';
