@@ -1,7 +1,7 @@
 <template>
   <div class="yousaidit-designer-cards">
     <div class="yousaidit-designer-cards__statuses" v-if="state.cards.length">
-      <ShaplaRadio
+      <ShaplaRadioButton
           v-for="_status in cardStore.statuses"
           :key="_status.key"
           theme="primary"
@@ -9,7 +9,7 @@
           :value="_status.key"
           v-model="state.status"
       >{{ _status.label }} ({{ _status.count }})
-      </ShaplaRadio>
+      </ShaplaRadioButton>
     </div>
     <div class="all-type-cards">
       <ShaplaColumns multiline v-if="filtered_cards.length">
@@ -99,7 +99,7 @@ import {
   ShaplaColumns,
   ShaplaInput,
   ShaplaModal,
-  ShaplaRadio,
+  ShaplaRadio, ShaplaRadioButton,
 } from '@shapla/vue-components';
 import CardItem from "../components/CardItem.vue";
 import {Notify} from "@shapla/vanilla-components";
