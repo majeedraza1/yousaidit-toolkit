@@ -5,8 +5,8 @@
  */
 defined( 'ABSPATH' ) || exit;
 ?>
-<div class="bg-white bottom-4 fixed left-0 border border-solid border-gray-300 flex justify-center items-center"
-     style="z-index: 99">
+<div class="bg-white bottom-4 left-0 border border-solid border-gray-300 flex justify-center items-center"
+     style="z-index: 99;position: fixed">
     <label>
         <input type="checkbox" class="mb-0" value="customized" <?php checked( 'customized', $card_type ) ?>
                id="show-customized-card-product"/>

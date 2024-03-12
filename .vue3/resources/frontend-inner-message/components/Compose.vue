@@ -1,10 +1,10 @@
 <template>
-  <div ref="root" class="yousaidit-inner-message-compose flex flex-col h-full -m-4 p-4 sm:bg-gray-100">
-    <div class="h-full flex flex-wrap justify-center">
-      <div class="sm:w-full flex items-center justify-center flex-grow" id="editable-content-container">
+  <div ref="root" class="yousaidit-inner-message-compose flex flex-col h-full -m-4 p-4 bg-gray-100 lg:bg-white">
+    <div class="h-full flex flex-wrap lg:flex-nowrap justify-center">
+      <div class="w-full flex items-center justify-center flex-grow" id="editable-content-container">
         <EditableContent
             v-if="active"
-            class="shadow-lg sm:mb-4 sm:bg-white md:ml-auto md:mr-auto"
+            class="shadow-lg mb-4 bg-white md:ml-auto md:mr-auto"
             style="max-width: 400px;"
             placeholder="Please click here to write your message"
             :font-family="state.font_family"
@@ -18,9 +18,9 @@
           Oops... your message is too long, please keep inside the box.
         </div>
       </div>
-      <div class="sm:w-full sm:mt-4 sm:mb-4">
+      <div class="w-full lg:w-80 mt-4 mb-4 md:mt-0 md:mb-0">
         <div class="flex flex-col h-full bg-gray-100 w-80 ml-auto">
-          <EditorControls :value="state" @input="onInputEditorControls" @change="onChangeEditorControls"/>
+          <EditorControls :model-value="state" @input="onInputEditorControls" @change="onChangeEditorControls"/>
           <div class="flex-grow"></div>
           <div class="flex space-x-2 p-4 mt-4">
             <ShaplaButton theme="primary" outline @click="emitClose" class="flex-grow">Cancel</ShaplaButton>

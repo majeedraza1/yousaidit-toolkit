@@ -1,5 +1,5 @@
 <template>
-  <div class="multi-compose w-full h-full flex sm:flex-col md:flex-col lg:flex-row lg:space-x-4">
+  <div class="multi-compose w-full h-full flex flex-col lg:flex-row lg:space-x-4">
     <div class="flex flex-col flex-grow dynamic-card--canvas">
       <div class="w-full h-full flex dynamic-card--canvas-slider">
         <SwiperSlider :card_size="cardSize" :slide-to="state.slideTo" :hide-canvas="true"

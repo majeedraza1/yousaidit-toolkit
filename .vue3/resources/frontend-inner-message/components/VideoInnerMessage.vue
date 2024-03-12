@@ -140,7 +140,7 @@
 
 <script lang="ts" setup>
 import EditableContent from "./EditableContent.vue";
-import {ShaplaButton, ShaplaFileUploader, ShaplaImage,ShaplaProgress} from "@shapla/vue-components";
+import {ShaplaButton, ShaplaFileUploader, ShaplaImage, ShaplaProgress} from "@shapla/vue-components";
 import axios from "../../utils/axios";
 import {initRecording, stopRecording as _stopRecording} from "../helpers/recording.ts";
 import {Dialog, Notify} from "@shapla/vanilla-components";
@@ -199,8 +199,7 @@ const headers = computed(() => {
   return headers
 })
 
-const uploadUrl = 'dynamic-cards/video';
-
+const uploadUrl = window.StackonetToolkit.restRoot + '/dynamic-cards/video';
 
 const clearVideoData = () => {
   state.job_id = '';

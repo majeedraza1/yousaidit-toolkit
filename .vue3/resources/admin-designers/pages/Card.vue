@@ -33,9 +33,9 @@
                 <ShaplaButton theme="success" size="small" outline @click="state.showUpdateSkuModal = true">
                   Update SKU
                 </ShaplaButton>
-                <a class="ShaplaButton is-primary is-small" :href="store.card.product_edit_url" target="_blank">Edit
+                <a class="shapla-button is-primary is-small" :href="store.card.product_edit_url" target="_blank">Edit
                   Product</a>
-                <a class="ShaplaButton is-primary is-small is-outline" :href="store.card.product_url" target="_blank">View
+                <a class="shapla-button is-primary is-small is-outline" :href="store.card.product_url" target="_blank">View
                   Product</a>
               </template>
               <template v-if="hasCommissionData">

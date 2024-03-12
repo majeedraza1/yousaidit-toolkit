@@ -44,8 +44,8 @@ const onSelectEmoji = (emoji: EmojiOptionInterface) => emit('select', emoji.i)
 
 .v3-emoji-picker {
   height: 65vh;
-  width: 100%;
-  box-shadow: 0 2px 10px #0003;
+  width: calc(100% - 1rem);
+  //box-shadow: 0 2px 10px #0003;
   border-radius: 10px;
   margin: 0 auto .5rem;
   box-sizing: border-box;

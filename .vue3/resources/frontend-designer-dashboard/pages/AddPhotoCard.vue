@@ -167,7 +167,7 @@ onMounted(() => {
   <h2 class="text-center text-4xl bg-gray-100 p-2 border border-solid border-primary mb-4">Add Photo Card</h2>
   <div class="max-w-5xl mx-auto">
     <div v-if="state.stepDone === 0" class="flex">
-      <div class="sm:w-full md:w-1/2 p-2">
+      <div class="w-full md:w-1/2 p-2">
         <ShaplaImage :width-ratio="150" :height-ratio="150">
           <div class="dynamic-card-canvas-container" ref="canvasContainer">
             <dynamic-card-canvas
@@ -180,7 +180,7 @@ onMounted(() => {
           </div>
         </ShaplaImage>
       </div>
-      <div class="sm:w-full md:w-1/2 p-2">
+      <div class="w-full md:w-1/2 p-2">
         <div>
           <h2 class="text-2xl leading-none mb-4">Card Size</h2>
           <p>The size we're printing is square (15cm x 15cm), please upload the image in JPEG or PNG format with a

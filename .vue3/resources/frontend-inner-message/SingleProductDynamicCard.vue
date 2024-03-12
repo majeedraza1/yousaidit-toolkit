@@ -9,7 +9,7 @@
       class="modal--single-product-dynamic-card"
       content-class="modal-dynamic-card-content"
   >
-    <div class="w-full h-full flex sm:flex-col md:flex-col lg:flex-row lg:space-x-4">
+    <div class="w-full h-full flex flex-col lg:flex-row lg:space-x-4">
       <div class="flex flex-col flex-grow dynamic-card--canvas">
         <div class="w-full flex dynamic-card--canvas-slider">
           <SwiperSlider v-if="state.show_dynamic_card_editor && Object.keys(state.payload).length"

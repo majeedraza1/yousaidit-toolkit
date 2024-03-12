@@ -35,7 +35,7 @@
             <template v-slot:video-message>
               <editable-content
                   :editable="false"
-                  class="shadow-lg sm:mb-4 sm:bg-white"
+                  class="shadow-lg mb-4 bg-white"
                   :font-family="state.videoInnerMessage.font"
                   :font-size="state.videoInnerMessage.size"
                   :text-align="state.videoInnerMessage.align"
@@ -47,7 +47,7 @@
             <template v-slot:inner-message>
               <editable-content
                   :editable="false"
-                  class="shadow-lg sm:mb-4 sm:bg-white"
+                  class="shadow-lg mb-4 bg-white"
                   :font-family="state.innerMessage.font"
                   :font-size="state.innerMessage.size"
                   :text-align="state.innerMessage.align"
@@ -63,7 +63,7 @@
         <div style="max-width: 400px;" class="ml-auto mr-auto">
           <editable-content
               :editable="false"
-              class="shadow-lg sm:mb-4 sm:bg-white"
+              class="shadow-lg mb-4 bg-white"
               :font-family="state.videoInnerMessage.font"
               :font-size="state.videoInnerMessage.size"
               :text-align="state.videoInnerMessage.align"
@@ -77,7 +77,7 @@
         <div style="max-width: 400px;" class="ml-auto mr-auto">
           <editable-content
               :editable="false"
-              class="shadow-lg sm:mb-4 sm:bg-white"
+              class="shadow-lg mb-4 bg-white"
               :font-family="state.innerMessage.font"
               :font-size="state.innerMessage.size"
               :text-align="state.innerMessage.align"
