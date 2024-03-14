@@ -1,0 +1,8 @@
+
+.yousaidit-login-modal__input {
+  @apply px-2 py-4 mb-0 w-full rounded inline-flex border border-solid border-gray-200 focus:border-primary #{!important};
+}
+
+.yousaidit-login-modal__submit {
+  @apply w-full rounded #{!important};
+}

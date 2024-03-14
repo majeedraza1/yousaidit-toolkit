@@ -24,6 +24,7 @@ class Frontend {
 			self::$instance = new self();
 
 			add_action( 'wp_enqueue_scripts', [ self::$instance, 'frontend_scripts' ] );
+			add_action( 'wp_footer', [ self::$instance, 'frontend_login' ], 5 );
 		}
 
 		return self::$instance;
@@ -39,5 +40,9 @@ class Frontend {
 		if ( ! wp_script_is( "wc-cart-fragments", "enqueued" ) && wp_script_is( "wc-cart-fragments", "registered" ) ) {
 			wp_enqueue_script( "wc-cart-fragments" );
 		}
+	}
+
+	public function frontend_login() {
+		echo '<div id="yousaidit-frontend-login-popup"></div>';
 	}
 }

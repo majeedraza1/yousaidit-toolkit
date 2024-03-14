@@ -45,12 +45,30 @@ class UserRegistrationController extends ApiController {
 				'permission_callback' => '__return_true',
 			],
 		] );
+		register_rest_route( $this->namespace, '/designer-signup', [
+			[
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => [ $this, 'designer_signup' ],
+				'permission_callback' => '__return_true',
+			],
+		] );
 	}
 
 	/**
 	 * Creates one item from the collection.
 	 *
-	 * @param WP_REST_Request $request Full data about the request.
+	 * @param  WP_REST_Request  $request  Full data about the request.
+	 *
+	 * @return WP_REST_Response Response object
+	 */
+	public function designer_signup( WP_REST_Request $request ): WP_REST_Response {
+		return $this->respondCreated();
+	}
+
+	/**
+	 * Creates one item from the collection.
+	 *
+	 * @param  WP_REST_Request  $request  Full data about the request.
 	 *
 	 * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
 	 */

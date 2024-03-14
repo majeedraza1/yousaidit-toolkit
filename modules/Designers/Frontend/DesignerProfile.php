@@ -31,6 +31,7 @@ class DesignerProfile {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self();
 
+			add_shortcode( 'designer_signup_page', [ self::$instance, 'signup_page' ] );
 			add_shortcode( 'designer_profile_page', [ self::$instance, 'profile_page' ] );
 			add_action( 'wp_enqueue_scripts', [ self::$instance, 'designer_profile_scripts' ] );
 
@@ -297,6 +298,14 @@ class DesignerProfile {
 
 
 		return '<div id="designer_profile_page"></div>';
+	}
+
+	/**
+	 * Designer signup page
+	 * @return string
+	 */
+	public function signup_page(): string {
+		return '<div id="yousaidit-designer-signup"></div>';
 	}
 
 	/**
