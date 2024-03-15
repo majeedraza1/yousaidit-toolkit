@@ -1,20 +1,44 @@
 <script setup lang="ts">
 import {ShaplaButton, ShaplaColumn, ShaplaColumns} from "@shapla/vue-components";
-import InputPassword from "./InputPassword.vue";
 import {computed, reactive} from "vue";
 import {LoginInfoInterface} from "../interfaces.ts";
+import {validateEmailFromServer,validateEmail} from "../store.ts";
+
+interface StateInterface extends LoginInfoInterface {
+  loading: boolean;
+  emailErrors: string[];
+}
 
 const emit = defineEmits<{
   submit: [value: LoginInfoInterface]
 }>()
-const state = reactive<LoginInfoInterface>({
+const state = reactive<StateInterface>({
   name: '',
   email: '',
-  password: '',
+  loading: false,
+  emailErrors: [],
 })
 
-const canSubmit = computed(() => state.name.length >= 2 && state.email.length >= 3 && state.password.length >= 8)
-const onSubmit = () => emit('submit', state);
+const canSubmit = computed(() => state.name.length >= 2 && state.email.length >= 3 && validateEmail(state.email))
+const onSubmit = () => {
+  state.loading = true;
+  validateEmailFromServer(state.email)
+      .then(() => {
+        emit('submit', state)
+      })
+      .catch(errors => {
+        state.emailErrors = errors;
+      })
+      .finally(() => {
+        state.loading = false;
+      })
+}
+
+const onChangeEmail = () => {
+  if (state.emailErrors.length) {
+    state.emailErrors = [];
+  }
+}
 </script>
 
 <template>
@@ -37,29 +61,27 @@ const onSubmit = () => emit('submit', state);
       </h3>
       <p>Lets get started, first lets create your new account</p>
     </div>
-    <div class="signup__body">
-      <form action="" class="lg:px-16">
-        <ShaplaColumns multiline column-gap="1.5rem">
-          <ShaplaColumn :tablet="12" :desktop="6">
+    <div class="signup__body max-w-[300px] mx-auto">
+      <form action="" method="post" class="lg:px-4">
+        <ShaplaColumns multiline>
+          <ShaplaColumn :tablet="12">
             <label for="name">name</label>
             <input id="name" type="text" placeholder="Enter Name" class="yousaidit-login-modal__input"
-                   v-model="state.name">
+                   v-model="state.name" autocomplete="name">
           </ShaplaColumn>
-          <ShaplaColumn :tablet="12" :desktop="6">
+          <ShaplaColumn :tablet="12">
             <label for="email">Email</label>
             <input id="email" type="email" placeholder="Enter Email" class="yousaidit-login-modal__input"
-                   v-model="state.email">
-          </ShaplaColumn>
-          <ShaplaColumn :tablet="12" :desktop="6">
-            <label for="password">password</label>
-            <InputPassword v-model="state.password"/>
-            <p class="text-sm mt-2">Minimum 8 characters. Combine with uppercase latter, number and special
-              characters.</p>
+                   :class="{'has-error':state.emailErrors.length}" @input="onChangeEmail"
+                   v-model="state.email" autocomplete="email">
+            <p class="text-sm mt-1 text-red-600" v-if="state.emailErrors.length">{{ state.emailErrors[0] }}</p>
+            <p class="text-sm mt-2">Registration confirmation will be emailed to you.</p>
           </ShaplaColumn>
         </ShaplaColumns>
       </form>
       <div class="mt-16 text-center">
-        <ShaplaButton theme="primary" class="px-10 font-bold" :disabled="!canSubmit" @click.prevent="onSubmit">Next
+        <ShaplaButton theme="primary" class="px-10 font-bold" :disabled="!canSubmit" :loading="state.loading"
+                      @click.prevent="onSubmit">Next
         </ShaplaButton>
       </div>
     </div>

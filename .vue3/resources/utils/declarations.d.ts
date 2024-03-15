@@ -18,6 +18,7 @@ declare global {
     StackonetToolkit: {
       ajaxUrl: string
       restRoot: string
+      designerProfileBaseUrl: string
       restNonce?: string
       occasions: { slug: string; label: string; menu_order?: number; }[];
       recipients: { slug: string; label: string; menu_order?: number; }[];

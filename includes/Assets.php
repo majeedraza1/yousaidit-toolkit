@@ -240,20 +240,21 @@ class Assets {
 		$is_user_logged_in = $user->exists();
 
 		$data = [
-			'homeUrl'               => home_url(),
-			'ajaxUrl'               => admin_url( 'admin-ajax.php' ),
-			'restRoot'              => esc_url_raw( rest_url( 'yousaidit/v1' ) ),
-			'isUserLoggedIn'        => $is_user_logged_in,
-			'privacyPolicyUrl'      => get_privacy_policy_url(),
-			'placeholderUrlIM'      => self::get_assets_url( 'static-images/placeholder--inner-message.jpg' ),
-			'placeholderUrlIML'     => self::get_assets_url( 'static-images/inside-left.svg' ),
-			'placeholderUrlIMR'     => self::get_assets_url( 'static-images/inside-right.svg' ),
-			'videoMessagePrice'     => (float) SettingPage::get_option( 'video_inner_message_price' ),
-			'videoMessagePriceHTML' => wc_price( (float) SettingPage::get_option( 'video_inner_message_price' ) ),
-			'maxUploadLimitText'    => SettingPage::get_option( 'max_upload_limit_text' ),
-			'fileUploaderTermsHTML' => SettingPage::get_option( 'file_uploader_terms_and_condition' ),
-			'qrCodePlayInfo'        => SettingPage::get_option( 'video_message_qr_code_info_for_customer' ),
-			'isRecordingEnabled'    => Validate::checked( SettingPage::get_option( 'show_recording_option_for_video_message' ) ),
+			'homeUrl'                => home_url(),
+			'designerProfileBaseUrl' => site_url( 'designer' ),
+			'ajaxUrl'                => admin_url( 'admin-ajax.php' ),
+			'restRoot'               => esc_url_raw( rest_url( 'yousaidit/v1' ) ),
+			'isUserLoggedIn'         => $is_user_logged_in,
+			'privacyPolicyUrl'       => get_privacy_policy_url(),
+			'placeholderUrlIM'       => self::get_assets_url( 'static-images/placeholder--inner-message.jpg' ),
+			'placeholderUrlIML'      => self::get_assets_url( 'static-images/inside-left.svg' ),
+			'placeholderUrlIMR'      => self::get_assets_url( 'static-images/inside-right.svg' ),
+			'videoMessagePrice'      => (float) SettingPage::get_option( 'video_inner_message_price' ),
+			'videoMessagePriceHTML'  => wc_price( (float) SettingPage::get_option( 'video_inner_message_price' ) ),
+			'maxUploadLimitText'     => SettingPage::get_option( 'max_upload_limit_text' ),
+			'fileUploaderTermsHTML'  => SettingPage::get_option( 'file_uploader_terms_and_condition' ),
+			'qrCodePlayInfo'         => SettingPage::get_option( 'video_message_qr_code_info_for_customer' ),
+			'isRecordingEnabled'     => Validate::checked( SettingPage::get_option( 'show_recording_option_for_video_message' ) ),
 		];
 
 		$data['pdfSizes'] = FreePdfBase::get_sizes();

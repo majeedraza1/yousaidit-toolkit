@@ -177,10 +177,6 @@ class DesignerProfile {
 	 * Load designer scripts
 	 */
 	public function designer_profile_scripts() {
-		// On local development this javaScript will be loaded via vitejs
-		if ( function_exists( 'is_local_development' ) && is_local_development() ) {
-			return;
-		}
 		global $post;
 		if ( $post instanceof WP_Post && has_shortcode( $post->post_content, 'designer_profile_page' ) ) {
 			wp_enqueue_style( 'yousaidit-designer-dashboard' );
@@ -191,7 +187,7 @@ class DesignerProfile {
 	protected static function add_product_attributes( array &$data ) {
 		$attribute_taxonomies = wc_get_attribute_taxonomies();
 		$options              = (array) get_option( 'yousaiditcard_designers_settings' );
-		$attributes           = isset( $options['product_attribute_taxonomies'] ) ? $options['product_attribute_taxonomies'] : [];
+		$attributes           = $options['product_attribute_taxonomies'] ?? [];
 
 		foreach ( $attribute_taxonomies as $tax ) {
 			if ( ! in_array( $tax->attribute_name, $attributes ) ) {
