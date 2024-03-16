@@ -9,6 +9,7 @@ use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
+use YouSaidItCards\Modules\Designers\Admin\Settings;
 use YouSaidItCards\Modules\Designers\Emails\NewDesignerEmail;
 
 defined( 'ABSPATH' ) || exit;
@@ -132,7 +133,7 @@ class UserRegistrationController extends ApiController {
 
 		$user_data = array(
 			'show_admin_bar_front' => false,
-			'role'                 => get_option( 'yousaidit_designers_role', 'customer' ),
+			'role'                 => Settings::get_designer_role(),
 			'user_email'           => $email,
 			'meta_input'           => [
 				'_is_card_designer' => 'yes',

@@ -37,6 +37,12 @@ class Settings {
 		return isset( $options['designer_commission'] ) ? floatval( $options['designer_commission'] ) : 0;
 	}
 
+	public static function get_designer_role() {
+		$options = (array) get_option( 'yousaiditcard_designers_settings' );
+
+		return $options['designer_role'] ?? 'customer';
+	}
+
 	public static function designer_default_commission_for_yousaidit_trade() {
 		$options = (array) get_option( 'yousaiditcard_designers_settings' );
 
@@ -219,7 +225,8 @@ class Settings {
 				'type'              => 'select',
 				'multiple'          => true,
 				'title'             => __( 'Product categories for Mug', 'stackonet-yousaidit-toolkit' ),
-				'description'       => __( 'Product categories for designer mug uploader.', 'stackonet-yousaidit-toolkit' ),
+				'description'       => __( 'Product categories for designer mug uploader.',
+					'stackonet-yousaidit-toolkit' ),
 				'priority'          => 42,
 				'sanitize_callback' => function ( $value ) {
 					return array_map( 'sanitize_text_field', $value );
@@ -320,6 +327,16 @@ class Settings {
 				'priority'          => 50,
 				'sanitize_callback' => 'wp_filter_post_kses',
 			],
+			[
+				'section'           => 'general_settings_section',
+				'id'                => 'designer_role',
+				'type'              => 'select',
+				'title'             => __( 'Designer Role', 'stackonet-yousaidit-toolkit' ),
+				'description'       => __( 'Set designer role for new designer.', 'stackonet-yousaidit-toolkit' ),
+				'priority'          => 60,
+				'sanitize_callback' => 'sanitize_text_field',
+				'options'           => static::get_roles(),
+			],
 		];
 
 		$option_page->add_fields( $fields );
@@ -368,5 +385,15 @@ class Settings {
 		}
 
 		return $cats;
+	}
+
+	public static function get_roles(): array {
+		$roles = [];
+
+		foreach ( wp_roles()->get_names() as $slug => $label ) {
+			$roles[] = [ 'label' => esc_html( $label ), 'value' => $slug ];
+		}
+
+		return $roles;
 	}
 }
