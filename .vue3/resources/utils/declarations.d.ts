@@ -36,6 +36,10 @@ declare global {
       placeholderUrlIM: string;
       placeholderUrlIML: string;
       placeholderUrlIMR: string;
+      privacyPolicyUrl: string;
+      lostPasswordUrl: string;
+      signupUrl: string;
+      logOutUrl: string;
     }
     DesignerProfile: DesignerProfileInlineDataInterface;
     YousaiditMyAccountReminders: {

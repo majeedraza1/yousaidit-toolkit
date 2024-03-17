@@ -43,6 +43,8 @@ class Frontend {
 	}
 
 	public function frontend_login() {
-		echo '<div id="yousaidit-frontend-login-popup"></div>';
+		if ( ! current_user_can( 'read' ) ) {
+			echo '<div id="yousaidit-frontend-login-popup"></div>';
+		}
 	}
 }

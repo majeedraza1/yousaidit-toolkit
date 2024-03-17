@@ -1,11 +1,42 @@
 <script setup lang="ts">
-import {onMounted, reactive} from "vue";
-import {ShaplaCross, ShaplaModal} from "@shapla/vue-components";
+import {computed, onMounted, reactive} from "vue";
+import {ShaplaCheckbox, ShaplaCross, ShaplaModal} from "@shapla/vue-components";
+import {Spinner} from "@shapla/vanilla-components";
+import axios from "../utils/axios.ts";
+import InputPassword from "./steps/InputPassword.vue";
 
 const state = reactive({
   active: false,
-  showPassword: false,
+  remember: false,
+  user_login: '',
+  password: '',
+  errors: {
+    user_login: [],
+    password: [],
+  },
 })
+
+const submitForm = () => {
+  Spinner.show();
+  axios.post('web-login', {
+    username: state.user_login,
+    password: state.password,
+    remember: state.remember,
+  }).then(() => {
+    window.location.reload();
+  }).catch(error => {
+    Spinner.hide();
+    if (error.response && error.response.data.errors) {
+      state.errors = error.response.data.errors;
+    }
+  })
+}
+
+const lostPasswordUrl = computed(() => window.StackonetToolkit.lostPasswordUrl);
+const signupUrl = computed(() => window.StackonetToolkit.signupUrl);
+const canSubmit = computed(() => !!(state.user_login.length >= 4 && state.password.length >= 4))
+const hasUserLoginError = computed(() => !!(state.errors.user_login && state.errors.user_login.length))
+const hasPasswordError = computed(() => !!(state.errors.password && state.errors.password.length))
 
 onMounted(() => {
   document.body.addEventListener('click', (event) => {
@@ -18,7 +49,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <ShaplaModal :active="state.active" type="box" :show-close-icon="false">
+  <ShaplaModal :active="state.active" type="box" :show-close-icon="false" :close-on-background-click="true">
     <div class="px-8 pb-8">
       <div class="flex justify-end">
         <ShaplaCross size="large" @click="state.active = false"/>
@@ -30,40 +61,30 @@ onMounted(() => {
         <div class="">Sign In to manage your account</div>
       </div>
       <form action="" method="post">
-        <div class="modal__content__body__body__input">
+        <div class="modal__content__body__body__input mb-4">
           <label for="username">Username</label>
-          <input type="text" placeholder="username" class="yousaidit-login-modal__input">
+          <input type="text" placeholder="username" class="yousaidit-login-modal__input" autocomplete="username"
+                 v-model="state.user_login">
+          <p v-if="hasUserLoginError">{{ state.errors.user_login[0] }}</p>
         </div>
-        <div class="modal__content__body__body__input">
+        <div class="modal__content__body__body__input  mb-4">
           <label for="passwordModal">password</label>
-          <div class="relative">
-            <input :type="state.showPassword ? 'text' : 'password'" autocomplete="on" placeholder="Input password"
-                   class="yousaidit-login-modal__input pr-8">
-            <span class="btn-eye absolute top-2 right-1 inline-flex" @click="state.showPassword = !state.showPassword">
-            <svg v-if="state.showPassword" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"
-                 class="visibility-on w-6 h-6">
-              <path
-                  d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Zm0-300Zm0 220q113 0 207.5-59.5T832-500q-50-101-144.5-160.5T480-720q-113 0-207.5 59.5T128-500q50 101 144.5 160.5T480-280Z"/>
-            </svg>
-            <svg v-if="!state.showPassword" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"
-                 class="visibility-off w-6 h-6">
-              <path
-                  d="m644-428-58-58q9-47-27-88t-93-32l-58-58q17-8 34.5-12t37.5-4q75 0 127.5 52.5T660-500q0 20-4 37.5T644-428Zm128 126-58-56q38-29 67.5-63.5T832-500q-50-101-143.5-160.5T480-720q-29 0-57 4t-55 12l-62-62q41-17 84-25.5t90-8.5q151 0 269 83.5T920-500q-23 59-60.5 109.5T772-302Zm20 246L624-222q-35 11-70.5 16.5T480-200q-151 0-269-83.5T40-500q21-53 53-98.5t73-81.5L56-792l56-56 736 736-56 56ZM222-624q-29 26-53 57t-41 67q50 101 143.5 160.5T480-280q20 0 39-2.5t39-5.5l-36-38q-11 3-21 4.5t-21 1.5q-75 0-127.5-52.5T300-500q0-11 1.5-21t4.5-21l-84-82Zm319 93Zm-151 75Z"/>
-            </svg>
-          </span>
-          </div>
+          <InputPassword v-model="state.password" autocomplete="current-password"/>
+          <p v-if="hasPasswordError">{{ state.errors.password[0] }}</p>
+        </div>
+        <div class="modal__content__body__body__input mb-4">
+          <ShaplaCheckbox v-model="state.remember">Remember me</ShaplaCheckbox>
         </div>
         <div class="my-4">
-          <button type="submit" class="yousaidit-login-modal__submit">Sign In</button>
+          <button type="submit" class="yousaidit-login-modal__submit" @click.prevent="submitForm"
+                  :disabled="!canSubmit">Sign In
+          </button>
         </div>
         <div class="modal__content__body__body__foot text-center">
-          <p class="mb-2">Do not have an account ? <a href="#" class="text-primary">Sign Up</a></p>
-          <a href="" class="text-primary">Forgot password ?</a>
+          <p class="mb-2">Do not have an account ? <a :href="signupUrl" class="text-primary">Sign Up</a></p>
+          <a :href="lostPasswordUrl" class="text-primary">Forgot password ?</a>
         </div>
       </form>
     </div>
   </ShaplaModal>
 </template>
-
-<style lang="scss">
-</style>

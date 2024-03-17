@@ -286,10 +286,7 @@ class DesignerProfile {
 		add_action( 'wp_footer', [ $this, 'add_inline_scripts' ], 5 );
 
 		if ( ! $current_user->exists() ) {
-			$login_url = wp_login_url( get_permalink() );
-			$link      = '<a href="' . $login_url . '">You need to log in to view this page.</a>';
-
-			return '<div id="designer_profile_page_need_login">' . $link . '</div>';
+			return '<div id="yousaidit-designer-signup"></div>';
 		}
 
 
@@ -301,6 +298,12 @@ class DesignerProfile {
 	 * @return string
 	 */
 	public function signup_page(): string {
+		if ( current_user_can( 'read' ) ) {
+			$user = wp_get_current_user();
+			wp_safe_redirect( site_url( 'designer/' . $user->user_login ) );
+			exit();
+		}
+
 		return '<div id="yousaidit-designer-signup"></div>';
 	}
 

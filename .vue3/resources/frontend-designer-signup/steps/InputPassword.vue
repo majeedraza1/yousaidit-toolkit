@@ -6,7 +6,7 @@ const emit = defineEmits<{
 }>()
 const props = defineProps({
   modelValue: {type: String, default: ''},
-  autocomplete: {type: String, default: 'on'},
+  autocomplete: {type: String, default: 'current-password'},
   placeholder: {type: String, default: 'Input password'}
 })
 
