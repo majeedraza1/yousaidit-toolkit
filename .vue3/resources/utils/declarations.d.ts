@@ -16,6 +16,7 @@ declare global {
 
   interface Window {
     StackonetToolkit: {
+      homeUrl: string
       ajaxUrl: string
       restRoot: string
       designerProfileBaseUrl: string
