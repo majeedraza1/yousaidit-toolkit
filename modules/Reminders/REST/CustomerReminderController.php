@@ -5,6 +5,7 @@ namespace YouSaidItCards\Modules\Reminders\REST;
 use Stackonet\WP\Framework\Supports\Sanitize;
 use Stackonet\WP\Framework\Supports\Validate;
 use WC_Address_Book;
+use WC_Customer;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -75,7 +76,7 @@ class CustomerReminderController extends ApiController {
 	/**
 	 * Retrieves a collection of items.
 	 *
-	 * @param WP_REST_Request $request Full details about the request.
+	 * @param  WP_REST_Request  $request  Full details about the request.
 	 *
 	 * @return WP_REST_Response Response object on success, or WP_Error object on failure.
 	 */
@@ -93,7 +94,7 @@ class CustomerReminderController extends ApiController {
 	/**
 	 * Creates one item from the collection.
 	 *
-	 * @param WP_REST_Request $request Full details about the request.
+	 * @param  WP_REST_Request  $request  Full details about the request.
 	 *
 	 * @return WP_REST_Response Response object on success, or WP_Error object on failure.
 	 */
@@ -114,7 +115,7 @@ class CustomerReminderController extends ApiController {
 	/**
 	 * Updates one item from the collection.
 	 *
-	 * @param WP_REST_Request $request Full details about the request.
+	 * @param  WP_REST_Request  $request  Full details about the request.
 	 *
 	 * @return WP_REST_Response Response object on success, or WP_Error object on failure.
 	 */
@@ -140,7 +141,7 @@ class CustomerReminderController extends ApiController {
 	/**
 	 * Deletes one item from the collection.
 	 *
-	 * @param WP_REST_Request $request Full details about the request.
+	 * @param  WP_REST_Request  $request  Full details about the request.
 	 *
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
@@ -168,7 +169,7 @@ class CustomerReminderController extends ApiController {
 	/**
 	 * Prepares one item for create or update operation.
 	 *
-	 * @param WP_REST_Request $request Request object.
+	 * @param  WP_REST_Request  $request  Request object.
 	 *
 	 * @return array The prepared item, or WP_Error object on failure.
 	 */
@@ -208,7 +209,7 @@ class CustomerReminderController extends ApiController {
 	/**
 	 * Check if it has address data
 	 *
-	 * @param array $data The data to be saved.
+	 * @param  array  $data  The data to be saved.
 	 *
 	 * @return bool
 	 */
@@ -218,54 +219,66 @@ class CustomerReminderController extends ApiController {
 	}
 
 	/**
-	 * @param int $reminder_id The reminder id.
-	 * @param array $data The data to be saved.
-	 * @param string $mode The mode. Value can be 'create' or 'update'.
+	 * @param  int  $reminder_id  The reminder id.
+	 * @param  array  $data  The data to be saved.
+	 * @param  string  $mode  The mode. Value can be 'create' or 'update'.
 	 *
 	 * @return string
 	 */
 	public function to_woocommerce_address_book( int $reminder_id, array $data, string $mode = 'create' ): string {
-		if ( ! $this->has_address_data( $data ) || ! class_exists( WC_Address_Book::class ) ) {
+		if (
+			! $this->has_address_data( $data ) ||
+			! class_exists( WC_Address_Book::class ) ||
+			! class_exists( WC_Customer::class )
+		) {
 			return '';
 		}
 		$address = [
-			'first_name' => $data['first_name'] ?? '',
-			'last_name'  => $data['last_name'] ?? '',
-			'company'    => $data['company'] ?? '',
-			'address_1'  => $data['address_line1'],
-			'address_2'  => $data['address_line2'],
-			'city'       => $data['city'],
-			'state'      => $data['state'] ?? '',
-			'postcode'   => $data['postal_code'],
-			'country'    => $data['country_code'],
+			'address_nickname' => $data['name'],
+			'first_name'       => $data['first_name'] ?? '',
+			'last_name'        => $data['last_name'] ?? '',
+			'company'          => $data['company'] ?? '',
+			'address_1'        => $data['address_line1'],
+			'address_2'        => $data['address_line2'],
+			'city'             => $data['city'],
+			'state'            => $data['state'] ?? '',
+			'postcode'         => $data['postal_code'],
+			'country'          => $data['country_code'],
 		];
 
 
-		$user_id = get_current_user_id();
+		$user_id     = get_current_user_id();
+		$wc_customer = new WC_Customer( $user_id );
 
 		global $wpdb;
-		$sql = "SELECT * FROM {$wpdb->usermeta} WHERE user_id = %d AND meta_value = %s AND meta_key LIKE %s";
 		$row = $wpdb->get_row(
-			$wpdb->prepare( $sql, $user_id, $reminder_id, '%_reminder_id' ),
+			$wpdb->prepare(
+				"SELECT * FROM {$wpdb->usermeta} WHERE user_id = %d AND meta_value = %s AND meta_key LIKE %s",
+				$user_id,
+				$reminder_id,
+				'%_reminder_id'
+			),
 			ARRAY_A
 		);
 
 		$address_book  = WC_Address_Book::get_instance();
-		$address_names = $address_book->get_address_names( $user_id, 'shipping' );
+		$address_names = $address_book->get_address_names( $wc_customer, 'shipping' );
 
 		if ( 'update' == $mode && $row ) {
 			$name = str_replace( '_reminder_id', '', $row['meta_key'] );
 		} else {
-			$name = $address_book->set_new_address_name( $address_names, 'shipping' );
+			$name = $address_book->get_new_address_number( $address_names['addresses'] );
+
+			$address_names['addresses'][] = $name;
+			$address_book->save_address_names( $wc_customer, $address_names, 'shipping' );
 		}
+
+		$address_book->save_address( $wc_customer, $name, 'shipping', $address );
 
 		foreach ( $address as $key => $value ) {
 			update_user_meta( $user_id, "{$name}_{$key}", $value );
 		}
 
-		$address_names[] = $name;
-		update_user_meta( $user_id, "{$name}_address_nickname", $data['name'] );
-		update_user_meta( $user_id, "wc_address_book_shipping", $address_names );
 		update_user_meta( $user_id, "{$name}_reminder_id", $reminder_id );
 
 		return $name;
@@ -274,13 +287,14 @@ class CustomerReminderController extends ApiController {
 	/**
 	 * Checks if a given request has access to create items.
 	 *
-	 * @param WP_REST_Request $request Full details about the request.
+	 * @param  WP_REST_Request  $request  Full details about the request.
 	 *
 	 * @return true|WP_Error True if the request has access to create items, WP_Error object otherwise.
 	 */
 	public function create_item_permissions_check( $request ) {
 		if ( ! current_user_can( 'read' ) ) {
-			return new WP_Error( 'rest_forbidden_context', __( 'Sorry, you are not allowed to access this resource.' ) );
+			return new WP_Error( 'rest_forbidden_context',
+				__( 'Sorry, you are not allowed to access this resource.' ) );
 		}
 
 		return true;

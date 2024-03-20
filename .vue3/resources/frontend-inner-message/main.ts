@@ -10,5 +10,6 @@ if (dynamicCardEl) {
 
 let innerMessageEl = document.querySelector<HTMLDivElement>('#inner-message');
 if (innerMessageEl) {
+  document.querySelector('body').classList.add('has-inner-message');
   createApp(InnerMessage).mount(innerMessageEl);
 }

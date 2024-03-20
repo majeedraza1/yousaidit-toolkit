@@ -2,8 +2,13 @@
   <ShaplaModal :active="active" @close="closeEditModal" :title="title">
     <div>
       <div class="my-4">
-        <ShaplaSelect label="Occasion" :options="reminders_groups" :clearable="false"
-                      v-model="state.activeReminder.reminder_group_id" label-key="title" value-key="id"/>
+        <ShaplaSelectSimple
+            label="Occasion"
+            :options="reminders_groups"
+            v-model="state.activeReminder.reminder_group_id"
+            label-key="title"
+            value-key="id"
+        />
       </div>
       <div class="my-4">
         <ShaplaInput label="Title" help-text="Write reminder title. e.g. Mom's Birthday"
@@ -16,8 +21,13 @@
         </div>
       </div>
       <div class="my-4">
-        <ShaplaSelect label="Remind me" :options="remind_days" v-model="state.activeReminder.remind_days_count"
-                      :clearable="false"/>
+        <ShaplaSelectSimple
+            label="Remind me"
+            :options="remind_days"
+            v-model="state.activeReminder.remind_days_count"
+            label-key="label"
+            value-key="value"
+        />
       </div>
     </div>
     <div class="mb-4">
@@ -67,6 +77,7 @@
 import {ShaplaButton, ShaplaCheckbox, ShaplaInput, ShaplaModal, ShaplaSelect} from "@shapla/vue-components";
 import {computed, onMounted, reactive, watch} from "vue";
 import {ReminderInterface} from "../../interfaces/reminders.ts";
+import ShaplaSelectSimple from "./ShaplaSelectSimple.vue";
 
 const defaultReminder = (): ReminderInterface => {
   return {

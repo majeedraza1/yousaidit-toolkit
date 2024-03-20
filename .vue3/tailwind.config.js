@@ -6,6 +6,8 @@ export default {
         './resources/**/*.ts',
         './resources/**/*.tsx',
         './resources/**/*.scss',
+        '../templates/**/*.php',
+        '../modules/CardPopup/template-popup.php',
     ],
     theme: {
         extend: {
