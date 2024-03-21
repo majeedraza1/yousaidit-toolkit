@@ -14,7 +14,11 @@ const useAdminDesignerCardStore = defineStore('admin-designer-card', () => {
   const state = reactive<{
     card: DesignerCardInterface | null;
     commission: Record<string, string>
+    product_sku?: string;
+    product_price?: string;
     commission_type: 'fix' | 'percentage',
+    reject_reason: string;
+    note_to_designer: string;
     [key: string]: any;
   }>({
     card: null,

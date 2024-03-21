@@ -4,17 +4,17 @@
       <div class="flex space-x-4 w-full my-4 items-center">
         <div class="col-marketplace">Default Commission</div>
         <div v-for="size in card_sizes">
-          <ShaplaInput :label="`${size}`" v-model="commission[size]"/>
+          <ShaplaInput :label="`${size}`" v-model="state.commission[size]"/>
         </div>
       </div>
       <ShaplaToggle name="Commission for marketplace" subtext="Leave empty to use default commission."
-                    v-if="Object.keys(marketplace_commission).length">
+                    v-if="Object.keys(state.marketplace_commission).length">
         <div class="flex space-x-4 w-full my-4 items-center" v-for="marketplace in marketplaces" :key="marketplace">
           <div class="col-marketplace">{{ marketplace }}</div>
           <div v-for="size in card_sizes" :key="size">
             <ShaplaInput
                 :label="`${size}`"
-                :value="marketplace_commission[marketplace][size]"
+                :value="state.marketplace_commission[marketplace][size]"
                 @input="updateMarketPlaceCommission($event,marketplace,size)"
             />
           </div>
@@ -26,7 +26,7 @@
       <ShaplaInput
           type="textarea"
           label="Note to Designer (option)"
-          v-model="note_to_designer"
+          v-model="state.note_to_designer"
       />
     </div>
 

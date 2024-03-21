@@ -95,15 +95,21 @@ interface DesignerStandardCardBaseInterface {
   suggest_tags: '',
 }
 
+interface DesignerCardAttributeInterface {
+  attribute_name: string;
+  attribute_label: string;
+  options: { id: number, title: string; }[]
+}
+
 interface DesignerCardInterface extends DesignerCardBaseInterface {
   id: number;
   categories: { id: number, title: string }[],
   tags: { id: number, title: string }[],
   sizes: { id: number, title: string }[],
-  attributes: { id: number, title: string }[],
+  attributes: DesignerCardAttributeInterface[],
   image: { id: number; title: string; url: string; path: string; width: number; height: number; },
   gallery_images: any[],
-  pdf_data: Record<keyof TYPE_CARD_SIZE, { "id": number, "title": string, "url": string }[]>,
+  pdf_data: Record<(keyof TYPE_CARD_SIZE | string), { "id": number, "title": string, "url": string }[]>,
   "total_sale": number,
   "commission": {
     "commission_type": "fix",
@@ -115,7 +121,7 @@ interface DesignerCardInterface extends DesignerCardBaseInterface {
   "product_id": number,
   "designer_user_id": number,
   "rude_card": false,
-  "status": "accepted",
+  "status": "accepted" | "processing" | "trash",
   "card_sku": string,
   "suggest_tags": string,
   "market_place": TYPE_MARKETPLACE[],

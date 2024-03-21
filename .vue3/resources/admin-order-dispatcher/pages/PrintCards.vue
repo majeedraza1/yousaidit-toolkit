@@ -68,13 +68,13 @@ const getItems = (force = false) => {
 function calculateItems(items) {
   items.forEach(item => {
     if (item.is_other_products) {
-      this.others_items.push(item);
+      state.others_items.push(item);
     } else if (item.is_trade_order) {
-      this.marketplace_items.push(item);
+      state.marketplace_items.push(item);
     } else if (item.is_custom_card) {
-      this.custom_items.push(item);
+      state.custom_items.push(item);
     } else {
-      this.store_items.push(item);
+      state.store_items.push(item);
     }
   })
 }

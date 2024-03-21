@@ -24,9 +24,9 @@
               </template>
               <template
                   v-if="'accepted' === store.card.status && store.card.market_place.indexOf('yousaidit-trade') !== -1">
-                <ShaplaButton theme="primary" size="small" outline @click="state.createProductOnTradeSite">Create
-                  Product on
-                  Trade site
+                <ShaplaButton theme="primary" size="small" outline
+                              @click="() => store.createProductOnTradeSite(card_id)">
+                  Create Product on Trade site
                 </ShaplaButton>
               </template>
               <template v-if="'accepted' === store.card.status && store.card.product_id">
@@ -44,9 +44,9 @@
                 </ShaplaButton>
               </template>
               <ShaplaButton v-if="store.card.card_type === 'dynamic'" theme="secondary" size="small" outline
-                            @click="state.previewDynamicCardPDF">Preview PDF
+                            @click="() => store.previewDynamicCardPDF(card_id)">Preview PDF
               </ShaplaButton>
-              <ShaplaButton theme="secondary" size="small" outline @click="() => stote.generateCardImage(card_id)">
+              <ShaplaButton theme="secondary" size="small" outline @click="() => store.generateCardImage(card_id)">
                 Generate Image
               </ShaplaButton>
               <ShaplaButton theme="error" size="small" @click="()=> store.trashCard(card_id)"> Trash Card</ShaplaButton>
@@ -54,49 +54,37 @@
           </div>
         </ShaplaColumn>
       </ShaplaColumns>
-      <ShaplaToggles>
-        <ShaplaToggle name="Card Info" selected>
+      <ShaplaTabs>
+        <ShaplaTab name="Card Info" selected>
           <div class="yousaiditcard_designer_card__content" v-if="Object.keys(store.card).length">
             <ShaplaColumns multiline>
               <ShaplaColumn :tablet="3"><strong>Title</strong></ShaplaColumn>
               <ShaplaColumn :tablet="9">{{ store.card.card_title }}</ShaplaColumn>
-            </ShaplaColumns>
-            <ShaplaColumns multiline>
               <ShaplaColumn :tablet="3"><strong>SKU</strong></ShaplaColumn>
               <ShaplaColumn :tablet="9">
                 <span v-if="store.card.card_sku">{{ store.card.card_sku }}</span>
                 <span v-else>-</span>
               </ShaplaColumn>
-            </ShaplaColumns>
-            <ShaplaColumns multiline>
               <ShaplaColumn :tablet="3"><strong>Market places</strong></ShaplaColumn>
               <ShaplaColumn :tablet="9">
                 <shapla-chip v-for="market_place in store.card.market_place" :key="market_place">
                   {{ market_place }}
                 </shapla-chip>
               </ShaplaColumn>
-            </ShaplaColumns>
-            <ShaplaColumns multiline>
               <ShaplaColumn :tablet="3"><strong>Card Sizes</strong></ShaplaColumn>
               <ShaplaColumn :tablet="9" v-if="card_sizes">
                 <template v-for="_size in card_sizes" :key="_size.value">
                   <ShaplaChip v-if="store.card.card_sizes.indexOf(_size.value) !== -1"> {{ _size.label }}</ShaplaChip>
                 </template>
               </ShaplaColumn>
-            </ShaplaColumns>
-            <ShaplaColumns multiline>
               <ShaplaColumn :tablet="3"><strong>Card Categories</strong></ShaplaColumn>
               <ShaplaColumn :tablet="9">
                 <shapla-chip v-for="_cat in store.card.categories" :key="_cat.id">{{ _cat.title }}</shapla-chip>
               </ShaplaColumn>
-            </ShaplaColumns>
-            <ShaplaColumns multiline>
               <ShaplaColumn :tablet="3"><strong>Card Tags</strong></ShaplaColumn>
               <ShaplaColumn :tablet="9">
                 <shapla-chip v-for="_tag in store.card.tags" :key="_tag.id"> {{ _tag.title }}</shapla-chip>
               </ShaplaColumn>
-            </ShaplaColumns>
-            <ShaplaColumns multiline>
               <ShaplaColumn :tablet="3"><strong>Suggested Tags</strong></ShaplaColumn>
               <ShaplaColumn :tablet="9">
                 <span v-if="store.card.suggest_tags">{{ store.card.suggest_tags }}</span>
@@ -139,8 +127,8 @@
               </ShaplaColumn>
             </ShaplaColumns>
           </div>
-        </ShaplaToggle>
-        <ShaplaToggle name="Designer Info" v-if="store.card.designer">
+        </ShaplaTab>
+        <ShaplaTab name="Designer Info">
           <ShaplaColumns multiline>
             <ShaplaColumn :tablet="3"><strong>Name</strong></ShaplaColumn>
             <ShaplaColumn :tablet="9">{{ store.card.designer.display_name }}</ShaplaColumn>
@@ -153,8 +141,8 @@
             <ShaplaColumn :tablet="3"><strong>Total Cards</strong></ShaplaColumn>
             <ShaplaColumn :tablet="9">{{ store.card.designer.total_cards }}</ShaplaColumn>
           </ShaplaColumns>
-        </ShaplaToggle>
-        <ShaplaToggle name="Commission Info" v-if="'accepted' === store.card.status">
+        </ShaplaTab>
+        <ShaplaTab name="Commission Info" v-if="'accepted' === store.card.status">
           <template v-if="hasCommissionData">
             <ShaplaColumns multiline>
               <ShaplaColumn :tablet="3">Commission type</ShaplaColumn>
@@ -174,8 +162,8 @@
           <template v-else>
             No commission information yet
           </template>
-        </ShaplaToggle>
-      </ShaplaToggles>
+        </ShaplaTab>
+      </ShaplaTabs>
       <ShaplaModal :active="state.showRejectConfirmModal" @close="state.showRejectConfirmModal = false"
                    :show-close-icon="false" type="box">
         <div style="background: #fff;padding: 1rem;border-radius: 4px;">
@@ -305,6 +293,8 @@ import {
   ShaplaInput,
   ShaplaModal,
   ShaplaRadio,
+  ShaplaTab,
+  ShaplaTabs,
   ShaplaToggle,
   ShaplaToggles
 } from '@shapla/vue-components';
