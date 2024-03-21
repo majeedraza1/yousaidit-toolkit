@@ -2,6 +2,7 @@
 
 namespace YouSaidItCards\Modules\Designers\Frontend;
 
+use Stackonet\WP\Framework\Supports\ArrayHelper;
 use WC_Product;
 use WP_Post;
 use WP_Term;
@@ -13,6 +14,7 @@ use YouSaidItCards\Modules\Designers\Models\DesignerCard;
 use YouSaidItCards\Modules\FontManager\Font;
 use YouSaidItCards\Session\Session;
 use YouSaidItCards\Utilities\MarketPlace;
+use YouSaidItCards\Utils;
 
 // If this file is called directly, abort.
 defined( 'ABSPATH' ) || die;
@@ -45,9 +47,49 @@ class DesignerProfile {
 			 */
 			// add_action( 'woocommerce_after_shop_loop_item_title', [ self::$instance, 'show_designer_name' ], 99 );
 			// add_action( 'woocommerce_single_product_summary', [ self::$instance, 'show_designer_name' ], 99 );
+
+			// Add our endpoint to WooCommerce my-account menu list.
+			add_filter( 'woocommerce_account_menu_items', [ self::$instance, 'menu_items' ] );
+			add_filter( 'woocommerce_get_endpoint_url', [ self::$instance, 'endpoint_url' ], 10, 2 );
+			add_action( 'woocommerce_account_dashboard', [ self::$instance, 'account_dashboard' ] );
 		}
 
 		return self::$instance;
+	}
+
+	/**
+	 * Insert the new endpoint into the My Account menu.
+	 *
+	 * @param  array  $items
+	 *
+	 * @return array
+	 */
+	public function menu_items( $items ) {
+		if ( Utils::is_current_user_designer() || current_user_can( 'manage_options' ) ) {
+			return ArrayHelper::insert_after( $items, 'dashboard', [
+				'designer-dashboard' => __( 'Designer Dashboard', 'yousaidit-toolkit' ),
+			] );
+		}
+
+		return $items;
+	}
+
+	public function endpoint_url( $url, $endpoint ) {
+		if ( 'designer-dashboard' === $endpoint ) {
+			$url = site_url( 'dashboard' );
+		}
+
+		return $url;
+	}
+
+	public function account_dashboard() {
+		if ( Utils::is_current_user_designer() ) {
+			$html = '<div>';
+			$html .= '<a class="button--visit-dashboard shapla-button is-primary is-outline is-fullwidth" href="' . esc_url( site_url( 'dashboard' ) ) . '">Visit Designer Dashboard</a>';
+			$html .= '</div>';
+
+			echo $html;
+		}
 	}
 
 	/**

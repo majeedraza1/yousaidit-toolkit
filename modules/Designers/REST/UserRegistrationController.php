@@ -130,15 +130,17 @@ class UserRegistrationController extends ApiController {
 		$name_parts = explode( " ", $name );
 		$last_name  = array_pop( $name_parts );
 		$first_name = count( $name_parts ) > 0 ? implode( " ", $name_parts ) : "";
+		$brand_name = $request->get_param( 'brand_name' );
 
 		$user_data = array(
 			'show_admin_bar_front' => false,
 			'role'                 => Settings::get_designer_role(),
 			'user_email'           => $email,
+			'display_name'         => $brand_name,
 			'meta_input'           => [
 				'_is_card_designer' => 'yes',
 				'_paypal_email'     => $paypal_email,
-				'_business_name'    => $request->get_param( 'brand_name' ),
+				'_business_name'    => $brand_name,
 				'_location'         => $request->get_param( 'brand_location' ),
 				'_instagram_url'    => $request->get_param( 'brand_instagram_url' ),
 			],

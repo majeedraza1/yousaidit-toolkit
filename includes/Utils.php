@@ -3,6 +3,7 @@
 namespace YouSaidItCards;
 
 use Stackonet\WP\Framework\Supports\Validate;
+use YouSaidItCards\Modules\Designers\Admin\Settings;
 use YouSaidItCards\Providers\AWSElementalMediaConvert;
 
 class Utils {
@@ -316,5 +317,17 @@ class Utils {
 		}
 
 		return $formatted_meta;
+	}
+
+	public static function is_current_user_designer(): bool {
+		$user = wp_get_current_user();
+		if ( ! $user->exists() ) {
+			return false;
+		}
+		if ( in_array( Settings::get_designer_role(), $user->roles, true ) ) {
+			return true;
+		}
+
+		return false;
 	}
 }
