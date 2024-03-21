@@ -6,16 +6,16 @@ import {DesignerCardInterface, TYPE_CARD_SIZE} from "../../interfaces/designer.t
 
 interface SingleCardServerResponseInterface extends DesignerCardInterface {
   default_commissions: { 'yousaidit': number; 'yousaidit-trade': number; };
-  default_price: Record<TYPE_CARD_SIZE, '' | number>;
   default_sku: Record<TYPE_CARD_SIZE, string>;
+  default_price: Record<TYPE_CARD_SIZE, '' | number>;
 }
 
 const useAdminDesignerCardStore = defineStore('admin-designer-card', () => {
   const state = reactive<{
     card: DesignerCardInterface | null;
     commission: Record<string, string>
-    product_sku?: string;
-    product_price?: string;
+    product_sku?: Record<TYPE_CARD_SIZE, string>;
+    product_price?: Record<TYPE_CARD_SIZE, '' | number>;
     commission_type: 'fix' | 'percentage',
     reject_reason: string;
     note_to_designer: string;
