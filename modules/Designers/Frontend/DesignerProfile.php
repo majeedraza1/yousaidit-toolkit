@@ -52,9 +52,19 @@ class DesignerProfile {
 			add_filter( 'woocommerce_account_menu_items', [ self::$instance, 'menu_items' ] );
 			add_filter( 'woocommerce_get_endpoint_url', [ self::$instance, 'endpoint_url' ], 10, 2 );
 			add_action( 'woocommerce_account_dashboard', [ self::$instance, 'account_dashboard' ] );
+			add_filter( 'login_redirect', [ self::$instance, 'login_redirect' ] );
+			add_filter( 'woocommerce_login_redirect', [ self::$instance, 'login_redirect' ] );
 		}
 
 		return self::$instance;
+	}
+
+	public function login_redirect( $redirect_to ) {
+		if ( Utils::is_current_user_designer() ) {
+			$redirect_to = site_url( 'dashboard' );
+		}
+
+		return $redirect_to;
 	}
 
 	/**
