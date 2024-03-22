@@ -196,16 +196,16 @@ class Assets {
 				'in_footer' => true
 			],
 			'yousaidit-toolkit-frontend'       => [
-				'src'       => static::get_assets_url() . '/js/frontend-vue3.js',
+				'src'       => static::get_assets_url() . '/js/frontend.js',
 				'deps'      => [ 'jquery', 'yousaidit-toolkit-web-components' ],
 				'in_footer' => true
 			],
 			'yousaidit-designer-dashboard'     => [
-				'src'       => static::get_assets_url() . '/js/designer-dashboard-vue3.js',
+				'src'       => static::get_assets_url() . '/js/designer-dashboard.js',
 				'in_footer' => true
 			],
-			'yousaidit-toolkit-admin-vue3'     => [
-				'src'       => static::get_assets_url() . '/js/admin-vue3.js',
+			'yousaidit-toolkit-admin'          => [
+				'src'       => static::get_assets_url() . '/js/admin.js',
 				'deps'      => [ 'jquery' ],
 				'in_footer' => true
 			],
@@ -220,13 +220,13 @@ class Assets {
 	public function get_styles(): array {
 		return [
 			'yousaidit-toolkit-frontend'   => [
-				'src' => static::get_assets_url() . '/css/frontend-vue3.css'
+				'src' => static::get_assets_url() . '/css/frontend.css'
 			],
 			'yousaidit-designer-dashboard' => [
-				'src' => static::get_assets_url() . '/css/designer-dashboard-vue3.css'
+				'src' => static::get_assets_url() . '/css/designer-dashboard.css'
 			],
-			'yousaidit-toolkit-admin-vue3' => [
-				'src'  => static::get_assets_url() . '/css/admin-vue3.css',
+			'yousaidit-toolkit-admin'      => [
+				'src'  => static::get_assets_url() . '/css/admin.css',
 				'deps' => [ 'wp-color-picker' ],
 			],
 		];

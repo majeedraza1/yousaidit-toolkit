@@ -62,14 +62,14 @@ class Admin {
 			'nonce'   => wp_create_nonce( 'wp_rest' ),
 			'ajaxurl' => admin_url( 'admin-ajax.php' ),
 		);
-		wp_localize_script( 'yousaidit-toolkit-admin-vue3', 'Stackonet', $data );
+		wp_localize_script( 'yousaidit-toolkit-admin', 'Stackonet', $data );
 		if ( 'settings_page_stackonet-toolkit' === $hook_suffix ) {
-			wp_enqueue_style( 'yousaidit-toolkit-admin-vue3' );
+			wp_enqueue_style( 'yousaidit-toolkit-admin' );
 		}
 		if ( 'post.php' === $hook_suffix && $post instanceof \WP_Post ) {
 			if ( 'shop_order' === $post->post_type ) {
-				wp_enqueue_style( 'yousaidit-toolkit-admin-vue3' );
-				wp_enqueue_script( 'yousaidit-toolkit-admin-vue3' );
+				wp_enqueue_style( 'yousaidit-toolkit-admin' );
+				wp_enqueue_script( 'yousaidit-toolkit-admin' );
 			}
 		}
 	}
@@ -108,7 +108,7 @@ class Admin {
 	 */
 	public function init_hooks() {
 		wp_enqueue_media();
-		wp_enqueue_style( 'yousaidit-toolkit-admin-vue3' );
-		wp_enqueue_script( 'yousaidit-toolkit-admin-vue3' );
+		wp_enqueue_style( 'yousaidit-toolkit-admin' );
+		wp_enqueue_script( 'yousaidit-toolkit-admin' );
 	}
 }

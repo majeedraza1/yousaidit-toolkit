@@ -18,8 +18,8 @@ export default defineConfig({
         globals: {
           jquery: 'jQuery'
         },
-        entryFileNames: 'js/admin-vue3.js',
-        assetFileNames: 'css/admin-vue3.css',
+        entryFileNames: 'js/admin.js',
+        assetFileNames: 'css/admin.css',
       },
     },
   },

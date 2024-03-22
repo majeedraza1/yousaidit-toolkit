@@ -63,7 +63,7 @@ class ArtWorkManager {
 	 */
 	public function init_hooks() {
 		wp_enqueue_media();
-		wp_enqueue_style( 'yousaidit-toolkit-admin-vue3' );
-		wp_enqueue_script( 'yousaidit-toolkit-admin-vue3' );
+		wp_enqueue_style( 'yousaidit-toolkit-admin' );
+		wp_enqueue_script( 'yousaidit-toolkit-admin' );
 	}
 }

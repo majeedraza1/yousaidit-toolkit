@@ -24,8 +24,8 @@ export default defineConfig({
         globals: {
           jquery: 'jQuery'
         },
-        entryFileNames: 'js/frontend-vue3.js',
-        assetFileNames: 'css/frontend-vue3.css',
+        entryFileNames: 'js/frontend.js',
+        assetFileNames: 'css/frontend.css',
       },
     },
   },
