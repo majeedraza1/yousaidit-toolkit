@@ -12,7 +12,8 @@ const emit = defineEmits<{
 const props = defineProps({
   modelValue: {type: Object as PropType<CardOptionInterface>, default: () => ({})},
   errors: {type: Object as PropType<Record<string, string[]>>, default: () => ({})},
-  isMug: {type: Boolean, default: false}
+  isMug: {type: Boolean, default: false},
+  showMarketPlaces: {type: Boolean, default: false}
 })
 const card = ref<CardOptionInterface>({
   title: '',
@@ -137,7 +138,7 @@ onMounted(() => {
         />
       </div>
     </ShaplaColumn>
-    <ShaplaColumn :tablet="12">
+    <ShaplaColumn :tablet="12" v-if="showMarketPlaces">
       <div class="market-places">
         <h3 class="font-normal text-lg text-primary uppercase">Where to list your card</h3>
         <h4 class="font-normal text-sm">You can choose other market places for us to list your card on</h4>

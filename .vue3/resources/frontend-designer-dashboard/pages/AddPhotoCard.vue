@@ -11,7 +11,6 @@ import {
 import CardOptionsPreview from "../components/CardOptionsPreview.vue";
 import CardOptions from "../components/CardOptions.vue";
 import {useRouter} from "vue-router";
-import cardTestData from "../sample-data/photo-card-sample.ts";
 
 const store = useDesignerCardStore();
 const router = useRouter();
@@ -134,6 +133,16 @@ const handleDemoImageUploadFail = (fileObject, serverResponse) => {
   }
 }
 
+const canGoOnStepTwo = computed(() => (state.card.main_image_id > 0 && state.card.demo_image_id > 0))
+const canGoOnStepThree = computed(() => {
+  return (
+      state.card.title.length > 10 &&
+      state.card.description.length > 10 &&
+      state.card.categories_ids.length > 0 &&
+      state.card.tags_ids.length > 0
+  )
+})
+
 const calculateWidthAndHeight = () => {
   let innerEL = canvasContainer.value;
   let d = [150, 150];
@@ -249,14 +258,16 @@ onMounted(() => {
           </div>
         </div>
         <div>
-          <ShaplaButton theme="primary" size="large" fullwidth @click="state.stepDone = 1">Next</ShaplaButton>
+          <ShaplaButton theme="primary" size="large" fullwidth @click="state.stepDone = 1" :disabled="!canGoOnStepTwo">
+            Next
+          </ShaplaButton>
         </div>
       </div>
     </div>
     <div v-if="1 === state.stepDone" class="flex flex-col items-center">
       <CardOptions v-model="state.card"/>
       <div class="flex justify-center mt-4">
-        <ShaplaButton theme="primary" @click="state.stepDone = 2">Next</ShaplaButton>
+        <ShaplaButton theme="primary" @click="state.stepDone = 2" :disabled="!canGoOnStepThree">Next</ShaplaButton>
       </div>
     </div>
     <div v-if="2 === state.stepDone" class="mb-4">

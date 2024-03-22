@@ -85,4 +85,16 @@ class EnvelopeColours {
 
 		return $envelopImage;
 	}
+
+	/**
+	 * @throws ImagickException
+	 */
+	public static function image_to_envelope( int $image_id, int $resolution = 72 ): Imagick {
+		$image_path = get_attached_file( $image_id );
+		$im         = new Imagick( $image_path );
+		$im->setResolution( $resolution, $resolution );
+		$im->setImageFormat( 'jpg' );
+
+		return static::generate_thumb( $im, $resolution );
+	}
 }

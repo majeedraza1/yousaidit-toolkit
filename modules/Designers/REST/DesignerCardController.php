@@ -14,6 +14,8 @@ use YouSaidItCards\Modules\Designers\DynamicCard;
 use YouSaidItCards\Modules\Designers\Emails\CardRemoveRequestEmail;
 use YouSaidItCards\Modules\Designers\Models\CardDesigner;
 use YouSaidItCards\Modules\Designers\Models\DesignerCard;
+use YouSaidItCards\Modules\DynamicCard\EnvelopeColours;
+use YouSaidItCards\Utils;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -35,6 +37,19 @@ class DesignerCardController extends ApiController {
 		}
 
 		return self::$instance;
+	}
+
+	/**
+	 * Create item permissions check
+	 *
+	 * @return bool
+	 */
+	public function create_item_permissions_check( $request ) {
+		if ( Utils::is_current_user_designer() || current_user_can( 'manage_options' ) ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

@@ -23,6 +23,13 @@
           </CardItem>
         </ShaplaColumn>
       </ShaplaColumns>
+      <ShaplaTablePagination
+          :total-items="state.pagination.total_items"
+          :per-page="state.per_page"
+          :current-page="state.current_page"
+          :show-current-page-input="false"
+          @paginate="onPagination"
+      />
       <p v-if="!filtered_cards.length && state.readFromServer" class="card-not-found">No card found.</p>
     </div>
     <ShaplaModal v-if="cardStore.total_cards >= cardStore.maximum_allowed_card" :active="state.modalActive"
@@ -99,7 +106,9 @@ import {
   ShaplaColumns,
   ShaplaInput,
   ShaplaModal,
-  ShaplaRadio, ShaplaRadioButton,
+  ShaplaRadio,
+  ShaplaRadioButton,
+  ShaplaTablePagination
 } from '@shapla/vue-components';
 import CardItem from "../components/CardItem.vue";
 import {Notify} from "@shapla/vanilla-components";
@@ -201,9 +210,14 @@ const getCards = (merge = true) => {
   });
 }
 
+const onPagination = (page: number) => {
+  state.current_page = page;
+  getCards(false);
+}
+
 onMounted(() => {
   getCards();
-  paginateOnScroll();
+  // paginateOnScroll();
   state.limit_extend_request.username = store.user.display_name;
   if (cardStore.items.length < 1) {
     cardStore.getDesignerCards();

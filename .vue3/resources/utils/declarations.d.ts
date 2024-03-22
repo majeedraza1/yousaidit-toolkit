@@ -10,6 +10,10 @@ interface YousaiditFontsListInterface {
 }
 
 declare global {
+  interface JQuery {
+    select2(): JQuery;
+  }
+
   interface GlobalEventHandlersEventMap {
     "update.CardCategoryPopup": CustomEvent<InnerMessagePropsInterface>;
   }
