@@ -85,6 +85,7 @@ class DesignersManager {
 
 			if ( Utils::is_request( 'admin' ) ) {
 				Admin::init();
+				add_action( 'admin_init', [ DesignerCard::class, 'create_table' ] );
 			}
 		}
 
@@ -95,7 +96,7 @@ class DesignersManager {
 	 * Initial plugin activation functionality
 	 */
 	public static function activation() {
-		( new DesignerCard() )->create_table();
+		DesignerCard::create_table();
 		( new DesignerCommission() )->create_table();
 		( new Payment() )->create_table();
 		( new PaymentItem() )->create_table();

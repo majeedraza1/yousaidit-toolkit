@@ -12,6 +12,7 @@ use WP_REST_Response;
 use WP_REST_Server;
 use YouSaidItCards\Modules\Designers\DynamicCard;
 use YouSaidItCards\Modules\Designers\Emails\CardRemoveRequestEmail;
+use YouSaidItCards\Modules\Designers\Helper;
 use YouSaidItCards\Modules\Designers\Models\CardDesigner;
 use YouSaidItCards\Modules\Designers\Models\DesignerCard;
 use YouSaidItCards\Modules\DynamicCard\EnvelopeColours;
@@ -443,6 +444,12 @@ class DesignerCardController extends ApiController {
 
 			update_user_meta( $user_id, '_is_card_designer', 'yes' );
 
+			try {
+				$im = EnvelopeColours::image_to_envelope( $item->get_image_id() );
+				Helper::generate_product_image( $im, $item );
+			} catch ( ImagickException $e ) {
+			}
+
 			return $this->respondCreated( $item );
 		}
 
@@ -651,6 +658,7 @@ class DesignerCardController extends ApiController {
 			'categories_ids'   => $categories_ids,
 			'tags_ids'         => $tags_ids,
 			'attachment_ids'   => $attachment_ids,
+			'thumbnail_id'     => $image_id,
 			'attributes'       => $_attributes,
 			'designer_user_id' => $user_id,
 			'rude_card'        => Validate::checked( $request->get_param( 'rude_card' ) ) ? 'yes' : 'no',

@@ -136,6 +136,8 @@ class DesignerCard extends DatabaseModel {
 			'tags'                   => $this->get_tags(),
 			'sizes'                  => $this->get_sizes(),
 			'attributes'             => $this->get_attributes(),
+			'image_id'               => $this->get_image_id(),
+			'product_thumbnail_id'   => $this->get_product_thumbnail_id(),
 			'image'                  => $this->get_image(),
 			'gallery_images'         => $this->get_gallery_images(),
 			'pdf_data'               => $this->get_pdf_data(),
@@ -169,7 +171,7 @@ class DesignerCard extends DatabaseModel {
 	}
 
 	/**
-	 * Get market places
+	 * Get marketplaces
 	 *
 	 * @return array
 	 */
@@ -177,7 +179,7 @@ class DesignerCard extends DatabaseModel {
 		$market_places = $this->get( 'market_places' );
 		$market_places = is_array( $market_places ) ? $market_places : [];
 
-		if ( false === array_search( 'yousaidit', $market_places, true ) ) {
+		if ( ! in_array( 'yousaidit', $market_places, true ) ) {
 			$market_places[] = 'yousaidit';
 		}
 
@@ -190,11 +192,20 @@ class DesignerCard extends DatabaseModel {
 	 * @return int
 	 */
 	public function get_id(): int {
-		if ( $this->has( 'id' ) ) {
-			return intval( $this->get( 'id' ) );
+		if ( $this->has_prop( 'id' ) ) {
+			return intval( $this->get_prop( 'id' ) );
 		}
 
 		return parent::get_id();
+	}
+
+	/**
+	 * Get card title
+	 *
+	 * @return string
+	 */
+	public function get_title(): string {
+		return (string) $this->get_prop( 'card_title' );
 	}
 
 	/**
@@ -203,7 +214,7 @@ class DesignerCard extends DatabaseModel {
 	 * @return int
 	 */
 	public function get_designer_user_id(): int {
-		return intval( $this->get( $this->created_by ) );
+		return intval( $this->get_prop( $this->created_by ) );
 	}
 
 	/**
@@ -526,7 +537,7 @@ class DesignerCard extends DatabaseModel {
 	 * @return array
 	 */
 	public function get_attachment_ids(): array {
-		return (array) $this->get( 'attachment_ids' );
+		return (array) $this->get_prop( 'attachment_ids' );
 	}
 
 	/**
@@ -548,12 +559,35 @@ class DesignerCard extends DatabaseModel {
 	}
 
 	/**
+	 * Get card thumbnail id
+	 *
+	 * @return int
+	 */
+	public function get_product_thumbnail_id(): int {
+		return (int) $this->get_prop( 'product_thumbnail_id' );
+	}
+
+	/**
 	 * Get image id
 	 *
 	 * @return int
 	 */
 	public function get_image_id(): int {
-		return isset( $this->get_attachment_ids()['image_id'] ) ? (int) $this->get_attachment_ids()['image_id'] : 0;
+		$image_id = (int) $this->get_prop( 'image_id' );
+		if ( $image_id ) {
+			return $image_id;
+		}
+
+		// Backward compatibility.
+		if ( isset( $this->get_attachment_ids()['image_id'] ) ) {
+			$image_id = (int) $this->get_attachment_ids()['image_id'];
+			$this->set_prop( 'image_id', $image_id );
+			$this->update();
+
+			return $image_id;
+		}
+
+		return 0;
 	}
 
 	/**
@@ -561,7 +595,7 @@ class DesignerCard extends DatabaseModel {
 	 *
 	 * @return int
 	 */
-	public function get_product_image_id() {
+	public function get_product_image_id(): int {
 		if ( ! $this->get_product_id() ) {
 			return 0;
 		}
@@ -939,9 +973,9 @@ class DesignerCard extends DatabaseModel {
 	/**
 	 * Create table
 	 */
-	public function create_table() {
+	public static function create_table() {
 		global $wpdb;
-		$table_name = $this->get_table_name( $this->table );
+		$table_name = static::get_table_name();
 		$collate    = $wpdb->get_charset_collate();
 
 		$tables = "CREATE TABLE IF NOT EXISTS {$table_name} (
@@ -964,33 +998,15 @@ class DesignerCard extends DatabaseModel {
 			created_at DATETIME NULL DEFAULT NULL,
 			updated_at DATETIME NULL DEFAULT NULL,
 			deleted_at DATETIME NULL DEFAULT NULL,
-			PRIMARY KEY  (id)
+			PRIMARY KEY  (id),
+    		INDEX `designer_user_id` (`designer_user_id`),
+    		INDEX `status` (`status`)
 		) $collate;";
 
 		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 		dbDelta( $tables );
 
-		$this->get_table_column();
-
 		$option = get_option( $table_name . '-version', '1.0.0' );
-		if ( version_compare( $option, '1.0.1', '<' ) ) {
-			$sql = "ALTER TABLE `{$table_name}` ADD INDEX `designer_user_id` (`designer_user_id`);";
-			$wpdb->query( $sql );
-
-			$sql = "ALTER TABLE `{$table_name}` ADD INDEX `status` (`status`);";
-			$wpdb->query( $sql );
-
-			update_option( 'designer_cards_table_version', '1.0.1' );
-		}
-	}
-
-	/**
-	 * Add table column
-	 */
-	public function get_table_column() {
-		global $wpdb;
-		$table_name = $this->get_table_name();
-		$option     = get_option( $table_name . '-version', '1.0.0' );
 		if ( version_compare( $option, '1.0.4', '<' ) ) {
 			$sql = "ALTER TABLE {$table_name} ADD `market_places` TEXT NULL DEFAULT NULL AFTER `suggest_tags`;";
 			$wpdb->query( $sql );
@@ -1014,6 +1030,13 @@ class DesignerCard extends DatabaseModel {
 			$sql = "ALTER TABLE `{$table_name}` ADD `description` TEXT NULL DEFAULT NULL AFTER `card_title`;";
 			$wpdb->query( $sql );
 			update_option( $table_name . '-version', '1.2.2' );
+		}
+		if ( version_compare( $option, '1.2.4', '<' ) ) {
+			$sql = "ALTER TABLE `{$table_name}` ADD `product_thumbnail_id` bigint(20) UNSIGNED NOT NULL DEFAULT 0 AFTER `product_id`;";
+			$wpdb->query( $sql );
+			$sql = "ALTER TABLE `{$table_name}` ADD `image_id` bigint(20) UNSIGNED NOT NULL DEFAULT 0 AFTER `product_id`;";
+			$wpdb->query( $sql );
+			update_option( $table_name . '-version', '1.2.4' );
 		}
 	}
 }

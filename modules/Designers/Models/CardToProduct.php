@@ -14,8 +14,8 @@ defined( 'ABSPATH' ) || exit;
 
 class CardToProduct {
 	/**
-	 * @param int|DesignerCard $card_id
-	 * @param array $args
+	 * @param  int|DesignerCard  $card_id
+	 * @param  array  $args
 	 *
 	 * @return int|WP_Error
 	 * @throws WC_Data_Exception
@@ -53,8 +53,8 @@ class CardToProduct {
 	}
 
 	/**
-	 * @param DesignerCard $designer_card
-	 * @param array $args
+	 * @param  DesignerCard  $designer_card
+	 * @param  array  $args
 	 *
 	 * @return int
 	 * @throws WC_Data_Exception
@@ -81,7 +81,8 @@ class CardToProduct {
 
 		$default_content = $options['default_product_content'] ?? '';
 		$default_content = str_replace( "{{card_title}}", $designer_card->get( 'card_title' ), $default_content );
-		$default_content = str_replace( "{{card_description}}", $designer_card->get( 'description' ), $default_content );
+		$default_content = str_replace( "{{card_description}}", $designer_card->get( 'description' ),
+			$default_content );
 		$product->set_description( wp_filter_post_kses( $default_content ) );
 
 		$product->set_status( 'draft' );
@@ -158,8 +159,8 @@ class CardToProduct {
 	}
 
 	/**
-	 * @param DesignerCard $designer_card
-	 * @param array $args
+	 * @param  DesignerCard  $designer_card
+	 * @param  array  $args
 	 *
 	 * @return int
 	 */
@@ -177,19 +178,19 @@ class CardToProduct {
 
 		$options       = (array) get_option( 'yousaiditcard_designers_settings' );
 		$default_title = $options['default_product_title'] ?? '';
-		$default_title = str_replace( "{{card_title}}", $designer_card->get( 'card_title' ), $default_title );
+		$default_title = str_replace( "{{card_title}}", $designer_card->get_title(), $default_title );
 		$product->set_name( wp_filter_post_kses( $default_title ) );
 
 		$default_content = $options['default_product_content'] ?? '';
-		$default_content = str_replace( "{{card_title}}", $designer_card->get( 'card_title' ), $default_content );
+		$default_content = str_replace( "{{card_title}}", $designer_card->get_title(), $default_content );
 		$product->set_description( wp_filter_post_kses( $default_content ) );
 
 		$product->set_status( 'draft' );
 
-		$product->set_category_ids( $designer_card->get( 'categories_ids' ) );
-		$product->set_tag_ids( $designer_card->get( 'tags_ids' ) );
+		$product->set_category_ids( $designer_card->get_prop( 'categories_ids' ) );
+		$product->set_tag_ids( $designer_card->get_prop( 'tags_ids' ) );
 
-		$product->set_image_id( $designer_card->get_image_id() );
+		$product->set_image_id( $designer_card->get_product_thumbnail_id() );
 
 		$gallery_ids = $designer_card->get_gallery_images_ids();
 		if ( $gallery_ids ) {
@@ -215,7 +216,7 @@ class CardToProduct {
 		$card_size_attr = CardSizeAttribute::init()->get_attribute();
 
 		$size_ids = [];
-		foreach ( $designer_card->get( 'card_sizes' ) as $_size ) {
+		foreach ( $designer_card->get_prop( 'card_sizes' ) as $_size ) {
 			$term       = get_term_by( 'slug', $_size, $card_size_attr->get_taxonomy() );
 			$size_ids[] = $term->term_id;
 		}
@@ -242,7 +243,7 @@ class CardToProduct {
 		$product_id = $product->save();
 
 		// Add variation
-		foreach ( $designer_card->get( 'card_sizes' ) as $size ) {
+		foreach ( $designer_card->get_prop( 'card_sizes' ) as $size ) {
 			try {
 				$variation_sku = isset( $_sku[ $size ] ) ? sanitize_text_field( $_sku[ $size ] ) : '';
 				$_attrs        = [ $card_size_attr->get_name() => $size ];
@@ -272,7 +273,8 @@ class CardToProduct {
 		}
 
 		// Update item product id
-		$designer_card->update( [ 'id' => $designer_card->get( 'id' ), 'product_id' => $product_id ] );
+		$designer_card->set_prop( 'product_id', $product_id );
+		$designer_card->update();
 
 		return $product_id;
 	}
@@ -280,8 +282,8 @@ class CardToProduct {
 	/**
 	 * Generate PDF from Image
 	 *
-	 * @param DesignerCard $designer_card
-	 * @param string|null $sku
+	 * @param  DesignerCard  $designer_card
+	 * @param  string|null  $sku
 	 *
 	 * @return int
 	 */

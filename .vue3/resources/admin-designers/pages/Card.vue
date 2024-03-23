@@ -49,7 +49,7 @@
               <ShaplaButton theme="secondary" size="small" outline @click="() => store.generateCardImage(card_id)">
                 Generate Image
               </ShaplaButton>
-              <ShaplaButton theme="error" size="small" @click="()=> store.trashCard(card_id)"> Trash Card</ShaplaButton>
+              <ShaplaButton theme="error" size="small" @click="()=> store.trashCard(card_id)">Trash Card</ShaplaButton>
             </template>
           </div>
         </ShaplaColumn>
