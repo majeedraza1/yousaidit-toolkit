@@ -33,7 +33,11 @@ import {ShaplaIcon} from '@shapla/vue-components';
 
 defineProps({
   icon: {type: String, required: true},
-  size: {type: String, default: 'medium', validator: value => ['small', 'medium', 'large'].indexOf(value) !== -1},
+  size: {
+    type: String,
+    default: 'medium',
+    validator: (value: string) => ['small', 'medium', 'large'].includes(value)
+  },
   hoverable: {type: Boolean, default: false},
 })
 

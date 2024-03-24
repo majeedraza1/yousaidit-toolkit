@@ -3,6 +3,8 @@
 namespace YouSaidItCards\Modules\Designers;
 
 use YouSaidItCards\Modules\Designers\Admin\Admin;
+use YouSaidItCards\Modules\Designers\Admin\ExportCard;
+use YouSaidItCards\Modules\Designers\Admin\ImportCard;
 use YouSaidItCards\Modules\Designers\Admin\Settings;
 use YouSaidItCards\Modules\Designers\Frontend\DesignerCustomerProfile;
 use YouSaidItCards\Modules\Designers\Frontend\DesignerProfile;
@@ -85,6 +87,8 @@ class DesignersManager {
 
 			if ( Utils::is_request( 'admin' ) ) {
 				Admin::init();
+				ExportCard::init();
+				ImportCard::init();
 				add_action( 'admin_init', [ DesignerCard::class, 'create_table' ] );
 			}
 		}

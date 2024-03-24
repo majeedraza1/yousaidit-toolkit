@@ -192,11 +192,6 @@ class CardToProduct {
 
 		$product->set_image_id( $designer_card->get_product_thumbnail_id() );
 
-		$gallery_ids = $designer_card->get_gallery_images_ids();
-		if ( $gallery_ids ) {
-			$product->set_gallery_image_ids( $gallery_ids );
-		}
-
 		$attributes = [];
 
 		// Add product attribute

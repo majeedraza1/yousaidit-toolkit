@@ -31,16 +31,6 @@ class DesignerCard extends DatabaseModel {
 	protected $cache_group = 'designer_cards';
 
 	/**
-	 * @var array
-	 */
-	protected $gallery_images = [];
-
-	/**
-	 * @var bool
-	 */
-	protected $gallery_images_read = false;
-
-	/**
 	 * Card categories
 	 *
 	 * @var array
@@ -139,7 +129,6 @@ class DesignerCard extends DatabaseModel {
 			'image_id'               => $this->get_image_id(),
 			'product_thumbnail_id'   => $this->get_product_thumbnail_id(),
 			'image'                  => $this->get_image(),
-			'gallery_images'         => $this->get_gallery_images(),
 			'pdf_data'               => $this->get_pdf_data(),
 			'total_sale'             => $this->get_all_sizes_total_sales(),
 			'commission'             => $this->get_commission_data(),
@@ -257,7 +246,7 @@ class DesignerCard extends DatabaseModel {
 	 * @return mixed|array
 	 */
 	public function get_dynamic_card_payload() {
-		return $this->get( 'dynamic_card_payload' );
+		return $this->get_prop( 'dynamic_card_payload' );
 	}
 
 	public function get_all_sizes_total_sales() {
@@ -543,19 +532,15 @@ class DesignerCard extends DatabaseModel {
 	/**
 	 * Get gallery images ids
 	 *
-	 * @return int[]
-	 */
-	public function get_gallery_images_ids() {
-		return isset( $this->get_attachment_ids()['gallery_images_ids'] ) ? $this->get_attachment_ids()['gallery_images_ids'] : 0;
-	}
-
-	/**
-	 * Get gallery images ids
-	 *
 	 * @return array
 	 */
-	public function get_pdf_ids() {
-		return isset( $this->get_attachment_ids()['pdf_ids'] ) ? $this->get_attachment_ids()['pdf_ids'] : [];
+	public function get_pdf_ids(): array {
+		$attachment_ids = $this->get_attachment_ids();
+		if ( isset( $attachment_ids['pdf_ids'] ) && is_array( $attachment_ids['pdf_ids'] ) ) {
+			return $attachment_ids['pdf_ids'];
+		}
+
+		return [];
 	}
 
 	/**
@@ -564,7 +549,18 @@ class DesignerCard extends DatabaseModel {
 	 * @return int
 	 */
 	public function get_product_thumbnail_id(): int {
-		return (int) $this->get_prop( 'product_thumbnail_id' );
+		$id = (int) $this->get_prop( 'product_thumbnail_id' );
+		if ( empty( $id ) && $this->is_dynamic_card() ) {
+			$image_id = $this->get_image_id();
+			if ( $image_id ) {
+				$this->set_prop( 'product_thumbnail_id', $image_id );
+				$this->update();
+
+				return $id;
+			}
+		}
+
+		return $id;
 	}
 
 	/**
@@ -579,8 +575,9 @@ class DesignerCard extends DatabaseModel {
 		}
 
 		// Backward compatibility.
-		if ( isset( $this->get_attachment_ids()['image_id'] ) ) {
-			$image_id = (int) $this->get_attachment_ids()['image_id'];
+		$attachment_ids = $this->get_attachment_ids();
+		if ( isset( $attachment_ids['image_id'] ) ) {
+			$image_id = (int) $attachment_ids['image_id'];
 			$this->set_prop( 'image_id', $image_id );
 			$this->update();
 
@@ -634,40 +631,11 @@ class DesignerCard extends DatabaseModel {
 	}
 
 	/**
-	 * Get gallery images
-	 *
-	 * @param  string  $size
-	 *
-	 * @return array
-	 */
-	public function get_gallery_images( $size = 'full' ) {
-		if ( ! $this->gallery_images_read ) {
-			$ids = $this->get_gallery_images_ids();
-			foreach ( $ids as $id ) {
-				$img = wp_get_attachment_image_src( $id, $size );
-				if ( false === $img ) {
-					continue;
-				}
-				$this->gallery_images[] = [
-					'id'     => $id,
-					'title'  => get_the_title( $id ),
-					'url'    => $img[0],
-					'width'  => $img[1],
-					'height' => $img[2],
-				];
-			}
-			$this->gallery_images_read = true;
-		}
-
-		return $this->gallery_images;
-	}
-
-	/**
 	 * Get PDF data
 	 *
 	 * @return array
 	 */
-	public function get_pdf_data() {
+	public function get_pdf_data(): array {
 		$pdf_ids = $this->get_pdf_ids();
 		$data    = [];
 		foreach ( $pdf_ids as $size => $ids ) {

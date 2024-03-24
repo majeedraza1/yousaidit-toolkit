@@ -1,6 +1,62 @@
 <template>
-  <div class="yousaidit-designer-card" v-if="item">
-    <div class="yousaidit-designer-card__actions-top">
+  <div v-if="item"
+       class="yousaidit-designer-card flex flex-col h-full relative shadow border border-solid border-gray-100">
+    <div class="yousaidit-designer-card__image">
+      <ShaplaImage :width-ratio="item.image.width" :height-ratio="item.image.height">
+        <img class="yousaidit-designer-profile-card__image" :src="item.image.url" :alt="item.image.title">
+      </ShaplaImage>
+    </div>
+    <div class="yousaidit-designer-card__info px-2">
+      <div class="font-bold text-lg mb-2">{{ item.card_title }}</div>
+      <div class="flex mb-2">
+        <div class="w-1/3 flex items-center space-x-1 font-bold">Status:</div>
+        <div class="w-2/3">
+          <div :class="`yousaidit-designer-card__status status-${item.status} rounded px-2 py-1 leading-0`">
+            {{ item.status }}
+          </div>
+        </div>
+      </div>
+      <div class="flex mb-2">
+        <div class="w-1/3 flex items-center space-x-1">
+          <ShaplaIcon>
+            <svg xmlns="http://www.w3.org/2000/svg" height="24" width="24">
+              <use xlink:href="#icon-svg-print"></use>
+            </svg>
+          </ShaplaIcon>
+          <strong>Sizes:</strong>
+        </div>
+        <div class="w-2/3">
+          <ShaplaChip v-for="_size in item.sizes" small :key="_size.id">{{ _size.title }}</ShaplaChip>
+        </div>
+      </div>
+      <div class="flex mb-2">
+        <div class="w-1/3 flex items-center space-x-1">
+          <ShaplaIcon>
+            <svg xmlns="http://www.w3.org/2000/svg" height="24" width="24">
+              <use xlink:href="#icon-svg-category"></use>
+            </svg>
+          </ShaplaIcon>
+          <strong>Category:</strong>
+        </div>
+        <div class="w-2/3">
+          <ShaplaChip v-for="tag in item.categories" small :key="tag.id">{{ tag.title }}</ShaplaChip>
+        </div>
+      </div>
+      <div class="flex mb-2">
+        <div class="w-1/3 flex items-center space-x-1">
+          <ShaplaIcon>
+            <svg xmlns="http://www.w3.org/2000/svg" height="24" width="24">
+              <use xlink:href="#icon-svg-tags"></use>
+            </svg>
+          </ShaplaIcon>
+          <strong>Tags:</strong>
+        </div>
+        <div class="w-2/3">
+          <ShaplaChip v-for="tag in item.tags" :key="tag.id">{{ tag.title }}</ShaplaChip>
+        </div>
+      </div>
+    </div>
+    <div class="yousaidit-designer-card__actions">
       <div class="yousaidit-designer-card__comments" @click="$emit('click:comments',item)"
            v-if="item.comments_count >0">
         <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
@@ -29,113 +85,30 @@
         </svg>
       </div>
     </div>
-    <div :class="`yousaidit-designer-card__status status-${item.status}`">
-      {{ item.status }}
-    </div>
-    <div class="yousaidit-designer-card__image">
-      <image-container :width-ratio="item.image.width" :height-ratio="item.image.height">
-        <img class="yousaidit-designer-profile-card__image" :src="item.image.url" :alt="item.image.title">
-      </image-container>
-    </div>
-    <div class="yousaidit-designer-card__spacer"></div>
-    <div class="yousaidit-designer-card__actions">
-      <div class="yousaidit-designer-card__title">{{ item.card_title }}</div>
-      <div class="yousaidit-designer-card__dropdown-icon">
-        <icon-container hoverable>
-          <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
-            <path v-if="!menuActive" d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
-            <path v-if="menuActive" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/>
-            <path d="M0 0h24v24H0z" fill="none"/>
-          </svg>
-        </icon-container>
-      </div>
-
-      <dropdown-menu :active="menuActive">
-        <div class="shapla-dropdown-item">
-          <icon-container>
-            <svg xmlns="http://www.w3.org/2000/svg" height="24" width="24">
-              <use xlink:href="#icon-svg-print"></use>
-            </svg>
-          </icon-container>
-          <strong>Sizes:</strong>
-          <div>
-            <shapla-chip v-for="_size in item.sizes" small :key="_size.id">{{ _size.title }}</shapla-chip>
-          </div>
-        </div>
-        <span class="shapla-dropdown-divider"></span>
-        <div class="shapla-dropdown-item">
-          <icon-container>
-            <svg xmlns="http://www.w3.org/2000/svg" height="24" width="24">
-              <use xlink:href="#icon-svg-category"></use>
-            </svg>
-          </icon-container>
-          <strong>Category:</strong>
-          <div>
-            <shapla-chip v-for="tag in item.categories" small :key="tag.id">{{ tag.title }}</shapla-chip>
-          </div>
-        </div>
-        <span class="shapla-dropdown-divider"></span>
-        <div class="shapla-dropdown-item">
-          <icon-container>
-            <svg xmlns="http://www.w3.org/2000/svg" height="24" width="24">
-              <use xlink:href="#icon-svg-tags"></use>
-            </svg>
-          </icon-container>
-          <strong>Tags:</strong>
-          <div>
-            <shapla-chip v-for="tag in item.tags" :key="tag.id">{{ tag.title }}</shapla-chip>
-          </div>
-        </div>
-      </dropdown-menu>
-    </div>
   </div>
 </template>
 
-<script lang="ts">
-import {
-  ShaplaChip as shaplaChip,
-  ShaplaDropdownMenu as dropdownMenu,
-  ShaplaIcon as iconContainer,
-  ShaplaImage as imageContainer
-} from '@shapla/vue-components';
+<script lang="ts" setup>
+import {ShaplaChip, ShaplaIcon, ShaplaImage} from '@shapla/vue-components';
 import {Dialog} from "@shapla/vanilla-components";
+import {PropType} from "vue";
+import {ServerCardResponseInterface} from "../../interfaces/designer-card.ts";
 
-export default {
-  name: "CardItem",
-  components: {imageContainer, iconContainer, dropdownMenu, shaplaChip},
-  props: {
-    item: {type: Object}
-  },
-  data() {
-    return {
-      menuActive: false,
+const emit = defineEmits<{
+  "click:delete": [item: ServerCardResponseInterface];
+  "click:comments": [item: ServerCardResponseInterface];
+  "click:settings": [item: ServerCardResponseInterface];
+}>()
+
+defineProps({
+  item: {type: Object as PropType<ServerCardResponseInterface>}
+});
+
+const handleDeleteItem = (item: ServerCardResponseInterface) => {
+  Dialog.confirm('Are you sure to delete?').then(confirmed => {
+    if (confirmed) {
+      emit('click:delete', item);
     }
-  },
-  mounted() {
-    document.addEventListener('click', event => {
-      let cardDropdown = this.$el.querySelector('.yousaidit-designer-card__actions');
-      let cardDropdownIcon = this.$el.querySelector('.yousaidit-designer-card__dropdown-icon');
-
-      let isIconClick = cardDropdownIcon.contains(event.target);
-      let dropdownClick = this.menuActive && !cardDropdown.contains(event.target);
-
-      if (isIconClick) {
-        this.menuActive = true;
-      }
-
-      if (dropdownClick) {
-        this.menuActive = false;
-      }
-    });
-  },
-  methods: {
-    handleDeleteItem(item) {
-      Dialog.confirm('Are you sure to delete?').then(confirmed => {
-        if (confirmed) {
-          this.$emit('click:delete', item);
-        }
-      })
-    }
-  }
+  })
 }
 </script>
