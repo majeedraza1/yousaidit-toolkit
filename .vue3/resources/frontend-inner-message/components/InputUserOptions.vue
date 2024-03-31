@@ -10,10 +10,10 @@ interface UserInputOptionInterface {
 }
 
 const emit = defineEmits<{
-  change: [value: UserInputOptionInterface]
+  "change:modelValue": [value: UserInputOptionInterface]
 }>()
 const props = defineProps({
-  value: {
+  modelValue: {
     type: Object as PropType<UserInputOptionInterface>,
     default: () => ({
       rotate: 0,
@@ -35,8 +35,8 @@ const state = reactive<{
   }
 })
 
-watch(() => props.value, (newValue: UserInputOptionInterface) => state.userOptions = newValue, {deep: true})
-watch(() => state.userOptions, (newValue: UserInputOptionInterface) => emit('change', newValue), {deep: true})
+watch(() => props.modelValue, (newValue: UserInputOptionInterface) => state.userOptions = newValue, {deep: true})
+watch(() => state.userOptions, (newValue: UserInputOptionInterface) => emit('change:modelValue', newValue), {deep: true})
 
 const updateRotate = (rotate: string) => {
   const factor = 5;

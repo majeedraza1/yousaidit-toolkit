@@ -82,7 +82,15 @@ class ImportCard {
 										$image_src
 									);
 									if ( is_numeric( $image_id ) ) {
-										$card['dynamic_card_payload']['card_items'][ $index ]['imageOptions']['id'] = $image_id;
+										$img = wp_get_attachment_image_src( $image_id, 'full' );
+										if ( is_array( $img ) ) {
+											$card['dynamic_card_payload']['card_items'][ $index ]['imageOptions']['img'] = [
+												'id'     => $image_id,
+												'src'    => $img[0],
+												'width'  => $img[1],
+												'height' => $img[2],
+											];
+										}
 									}
 								}
 							}

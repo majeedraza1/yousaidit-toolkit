@@ -7,6 +7,7 @@ use WC_Order;
 use WC_Order_Item_Product;
 use YouSaidItCards\Assets;
 use YouSaidItCards\FreePdfExtended;
+use YouSaidItCards\Modules\DynamicCard\ImageGenerator;
 use YouSaidItCards\Modules\FontManager\Font;
 use YouSaidItCards\Modules\FontManager\Models\FontInfo;
 use YouSaidItCards\Modules\OrderDispatcher\QrCode;
@@ -195,6 +196,15 @@ class OrderItemDynamicCard {
 		// Add sections
 		$this->addSections( $fpd );
 
+		try {
+			$image_generator = ( new ImageGenerator( $this ) )->generate_image_card();
+
+			header( 'Content-Type: ' . $image_generator->getImageMimeType() );
+			echo $image_generator->getImageBlob();
+		} catch ( \ImagickException|\ImagickPixelException $e ) {
+		}
+		die;
+
 		$fpd->Output( $args['dest'] ?? '', $args['name'] ?? '' );
 //		header( "Content-Type: application/pdf" );
 //		$fpd->Output();
@@ -314,9 +324,9 @@ class OrderItemDynamicCard {
 		$fpd->SetFont( $section->get_text_option( 'fontFamily' ), '', $section->get_text_option( 'size' ) );
 
 		$text_width = $fpd->GetStringWidth( $section->get_text() );
-		$y_pos      = + $section->get_position_from_top() + FreePdfBase::points_to_mm( $section->get_text_option( 'size' ) * 0.75 );
+		$y_pos      = + $section->get_position_from_top_mm() + FreePdfBase::points_to_mm( $section->get_text_option( 'size' ) * 0.75 );
 
-		$x_pos = ( $fpd->GetPageWidth() / 2 ) + $section->get_position_from_left();
+		$x_pos = ( $fpd->GetPageWidth() / 2 ) + $section->get_position_from_left_mm();
 		if ( 'center' == $section->get_text_option( 'align' ) ) {
 			$x_pos = ( $fpd->GetPageWidth() / 4 * 3 ) - ( $text_width / 2 );
 		}
@@ -345,7 +355,7 @@ class OrderItemDynamicCard {
 		$actual_height = FreePdfBase::px_to_mm( $image['height'] );
 		$height        = $width * ( $actual_height / $actual_width );
 
-		$x_pos = ( $fpd->GetPageWidth() / 2 ) + $section->get_position_from_left();
+		$x_pos = ( $fpd->GetPageWidth() / 2 ) + $section->get_position_from_left_mm();
 		if ( 'center' == $section->get_image_option( 'align' ) ) {
 			$x_pos = ( $fpd->GetPageWidth() / 4 * 3 ) - ( $width / 2 );
 		}
@@ -353,10 +363,10 @@ class OrderItemDynamicCard {
 			$x_pos = $fpd->GetPageWidth() - ( $width + $section->get_image_option( 'marginRight' ) );
 		}
 
-		$y_pos = $section->get_position_from_top();
+		$y_pos = $section->get_position_from_top_mm();
 
-		$x_pos += $section->get_user_position_from_left();
-		$y_pos += $section->get_user_position_from_top();
+		$x_pos += $section->get_user_position_from_left_mm();
+		$y_pos += $section->get_user_position_from_top_mm();
 
 		$zoom = $section->get_user_zoom();
 		if ( $zoom > 0 ) {
@@ -395,23 +405,14 @@ class OrderItemDynamicCard {
 		}
 	}
 
+	public function get_background(): CardBackgroundOption {
+		return $this->background;
+	}
+
 	/**
-	 * Add color to background for testing purpose
-	 *
-	 * @param  tFPDF  $fpd
-	 *
-	 * @return void
+	 * @return CardSectionBase[]
 	 */
-	private function addColorToBackground( tFPDF &$fpd ) {
-		$width          = 154;
-		$height         = 156;
-		$args           = [
-			'action' => 'yousaidit_color_image',
-			'w'      => $width,
-			'h'      => $height,
-			'c'      => rawurlencode( '#ff0000' )
-		];
-		$bg_color_image = add_query_arg( $args, admin_url( 'admin-ajax.php' ) );
-		$fpd->Image( $bg_color_image, $fpd->GetPageWidth() - $width, 0, $width, $height, 'png' );
+	public function get_card_sections(): array {
+		return $this->card_sections;
 	}
 }

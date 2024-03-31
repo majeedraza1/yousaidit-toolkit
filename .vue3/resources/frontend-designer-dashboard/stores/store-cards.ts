@@ -233,6 +233,23 @@ const useDesignerCardStore = defineStore('designer-cards', () => {
     })
   }
 
+  const deleteImage = (id: number) => {
+    return new Promise((resolve, reject) => {
+      Spinner.show();
+      axios
+        .delete(`designers-attachment/${id}`)
+        .then(() => {
+          resolve(true);
+        })
+        .catch(errors => {
+          reject(errors.response.data);
+        })
+        .finally(() => {
+          Spinner.hide();
+        })
+    })
+  }
+
   const attachment_upload_url = computed(() => {
     return window.DesignerProfile.restRoot + '/designers/' + designer_id.value + '/attachment'
   })
@@ -250,6 +267,7 @@ const useDesignerCardStore = defineStore('designer-cards', () => {
     submitRequest,
     getCardComments,
     createNewFont,
+    deleteImage,
     attachment_upload_url,
   }
 });

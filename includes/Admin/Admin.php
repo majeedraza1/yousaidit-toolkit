@@ -24,9 +24,14 @@ class Admin {
 
 			add_action( 'admin_enqueue_scripts', [ self::$instance, 'admin_scripts' ] );
 			add_action( 'admin_notices', [ self::$instance, 'admin_notices' ] );
+			add_action( 'admin_head', [ self::$instance, 'admin_head' ] );
 		}
 
 		return self::$instance;
+	}
+
+	public function admin_head() {
+		echo '<style>table.fixed{position:static !important;}</style>';
 	}
 
 	/**

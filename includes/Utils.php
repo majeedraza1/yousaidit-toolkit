@@ -7,6 +7,9 @@ use YouSaidItCards\Modules\Designers\Admin\Settings;
 use YouSaidItCards\Providers\AWSElementalMediaConvert;
 
 class Utils {
+	const SQUARE_CARD_WIDTH_MM = 154;
+	const SQUARE_CARD_HEIGHT_MM = 156;
+
 	/**
 	 * What type of request is this?
 	 *
@@ -77,6 +80,19 @@ class Utils {
 
 		// 1 inch is equal to 25.4 millimeters.
 		return round( $millimeters * ( $dpi / 25.4 ) );
+	}
+
+	/**
+	 * @param  float  $pixels  Centimeter to calculate.
+	 * @param  int  $dpi  dots/pixels per inch.
+	 *
+	 * @return int
+	 */
+	public static function pixels_to_millimeter( float $pixels, int $dpi = 300 ): int {
+		$dpi = max( 72, min( 300, $dpi ) );
+
+		// 1 inch is equal to 25.4 millimeters.
+		return round( $pixels * ( 25.4 / $dpi ) );
 	}
 
 

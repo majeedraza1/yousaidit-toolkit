@@ -55,12 +55,12 @@ export class DynamicCardLayer extends LitElement {
     let styles = [],
       // _top = Math.round(100 / this.elementHeightMM * this.section.position.top),
       // _left = Math.round(100 / this.elementWidthMM * this.section.position.left);
-      _top = Math.round(this.elementHeightMM * (top / this.cardHeightMM)),
-      _left = Math.round(this.elementWidthMM * (left / this.cardWidthMM));
+      _top = Math.round(100 * (top / this.cardHeightMM)),
+      _left = Math.round(100 * (left / this.cardWidthMM));
 
     styles.push(`--scaling-factor: ${(this.elementWidthMM / this.cardWidthMM).toFixed(3)}`);
-    styles.push(`left: ${convertMMtoPX(_left)}px`);
-    styles.push(`top: ${convertMMtoPX(_top)}px`);
+    styles.push(`left: ${_left}%`);
+    styles.push(`top: ${_top}%`);
 
     if (userOptions) {
       styles.push(`--rotate: ${userOptions.rotate}deg`);
@@ -115,7 +115,7 @@ export class DynamicCardLayer extends LitElement {
     if (this.section.imageOptions) {
       if (['center', 'right'].indexOf(this.section.imageOptions.align) !== -1) {
         styles.push('width: 100%');
-        styles.push('left: 0%');
+        // styles.push('left: 0%');
       }
       if ('center' === this.section.imageOptions.align) {
         styles.push('width: 100%');

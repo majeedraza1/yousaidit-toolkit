@@ -110,7 +110,7 @@
               <ShaplaTab name="Settings" selected>
                 <InputUserOptions
                     v-model="state.activeSection.userOptions"
-                    @change="onChangeUserOptions"
+                    @change:modelValue="onChangeUserOptions"
                     :card-width-mm="card_dimension[0]"
                     :card-height-mm="card_dimension[1]"
                 />
@@ -292,6 +292,7 @@ const loadCardInfo = () => {
 }
 
 const onChangeUserOptions = (newValue) => {
+  window.console.log(newValue)
   if (state.activeSectionIndex >= 0) {
     state.payload.card_items[state.activeSectionIndex] = state.activeSection;
   }

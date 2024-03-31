@@ -14,6 +14,20 @@ class CardSectionImageOption extends CardSectionBase {
 	}
 
 	/**
+	 * Get image url
+	 *
+	 * @return string
+	 */
+	public function get_image_url(): string {
+		$src = wp_get_attachment_image_src( $this->get_image_id(), 'full' );
+		if ( ! is_array( $src ) ) {
+			return '';
+		}
+
+		return $src[0];
+	}
+
+	/**
 	 * @return array|false
 	 */
 	public function get_image() {
@@ -35,6 +49,30 @@ class CardSectionImageOption extends CardSectionBase {
 		}
 
 		return $options[ $key ] ?? '';
+	}
+
+	/**
+	 * Get image width in millimeters
+	 * @return int
+	 */
+	public function get_image_area_width_mm(): int {
+		$width = $this->get_image_option( 'width' );
+
+		return intval( $width );
+	}
+
+	/**
+	 * Get image height in millimeters
+	 * @return int
+	 */
+	public function get_image_area_height_mm(): int {
+		$height = $this->get_image_option( 'height' );
+
+		if ( 'auto' === $height ) {
+			// @TODO calculate image height
+		}
+
+		return intval( $height );
 	}
 
 	/**
@@ -67,24 +105,30 @@ class CardSectionImageOption extends CardSectionBase {
 		return $rotate;
 	}
 
-	public function get_user_position_from_top(): int {
+	public function get_user_position_from_top_mm(): int {
 		$options = $this->get_user_options();
-		$top     = isset( $options['position']['top'] ) ? intval( $options['position']['top'] ) : 0;
 
-		return $top;
+		return isset( $options['position']['top'] ) ? intval( $options['position']['top'] ) : 0;
 	}
 
-	public function get_user_position_from_left(): int {
+	public function get_user_position_from_left_mm(): int {
 		$options = $this->get_user_options();
-		$top     = isset( $options['position']['left'] ) ? intval( $options['position']['left'] ) : 0;
 
-		return $top;
+		return isset( $options['position']['left'] ) ? intval( $options['position']['left'] ) : 0;
 	}
 
 	public function get_user_zoom(): float {
 		$options = $this->get_user_options();
 		$zoom    = isset( $options['zoom'] ) ? intval( $options['zoom'] ) : 0;
 
-		return $zoom;
+		return min( 100, max( - 50, $zoom ) );
+	}
+
+	public function get_computed_position_from_top_mm(): int {
+		return $this->get_position_from_top_mm() + $this->get_user_position_from_top_mm();
+	}
+
+	public function get_computed_position_from_left_mm(): int {
+		return $this->get_position_from_left_mm() + $this->get_user_position_from_left_mm();
 	}
 }

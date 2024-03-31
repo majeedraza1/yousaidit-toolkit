@@ -5,6 +5,12 @@ namespace YouSaidItCards\Modules\DynamicCard\Models;
 use Stackonet\WP\Framework\Abstracts\Data;
 
 class CardBackgroundOption extends Data {
+	/**
+	 * If the background has image
+	 *
+	 * @var bool
+	 */
+	protected $has_image = false;
 
 	/**
 	 * Class constructor
@@ -29,6 +35,24 @@ class CardBackgroundOption extends Data {
 	}
 
 	/**
+	 * If it is image background
+	 *
+	 * @return bool
+	 */
+	public function is_image_background(): bool {
+		return 'image' === $this->get_type() && $this->has_image;
+	}
+
+	/**
+	 * If it is image background
+	 *
+	 * @return bool
+	 */
+	public function is_color_background(): bool {
+		return 'color' === $this->get_type();
+	}
+
+	/**
 	 * Get image extension
 	 *
 	 * @return string
@@ -42,12 +66,21 @@ class CardBackgroundOption extends Data {
 	 *
 	 * @return string
 	 */
-	public function get_image_src() {
+	public function get_image_src(): string {
 		if ( ! $this->has_prop( 'image_src' ) ) {
 			$this->read_image_data();
 		}
 
 		return $this->get_prop( 'image_src' );
+	}
+
+	/**
+	 * Get background color
+	 *
+	 * @return mixed
+	 */
+	public function get_hex_color() {
+		return $this->get_prop( 'color', '#ffffff' );
 	}
 
 	/**
@@ -83,6 +116,7 @@ class CardBackgroundOption extends Data {
 				$this->set_prop( 'image_height', $src[2] );
 				$file_ext = explode( '.', basename( $src[0] ) );
 				$this->set_prop( 'image_ext', end( $file_ext ) );
+				$this->has_image = true;
 			}
 		}
 	}

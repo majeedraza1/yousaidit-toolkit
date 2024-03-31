@@ -102,11 +102,11 @@
               <ShaplaColumn :tablet="9">
                 <pdf-image-item
                     :is-multiple="false"
-                    :images="store.card.image"
+                    :images="store.card.product_thumbnail"
                 />
               </ShaplaColumn>
             </ShaplaColumns>
-            <ShaplaColumns multiline>
+            <ShaplaColumns multiline v-if="store.card.gallery_images">
               <ShaplaColumn :tablet="3"><strong>Card Gallery Images</strong></ShaplaColumn>
               <ShaplaColumn :tablet="9">
                 <pdf-image-item
@@ -115,7 +115,7 @@
                 />
               </ShaplaColumn>
             </ShaplaColumns>
-            <ShaplaColumns multiline>
+            <ShaplaColumns multiline v-if="'static' === store.card.card_type">
               <ShaplaColumn :tablet="3"><strong>Card PDFs</strong></ShaplaColumn>
               <ShaplaColumn :tablet="9">
                 <PdfCardItem
@@ -178,7 +178,7 @@
             </ShaplaColumn>
             <ShaplaColumn :tablet="12">
               <ShaplaButton theme="primary" :disabled="store.reject_reason.length < 10"
-                            @click="()=>store.rejectCard(card_id)"> Confirm Reject
+                            @click="()=>onRejectCard(card_id)"> Confirm Reject
               </ShaplaButton>
             </ShaplaColumn>
           </ShaplaColumns>
@@ -213,7 +213,7 @@
               />
             </ShaplaColumn>
             <ShaplaColumn :tablet="12">
-              <ShaplaButton theme="primary" :disabled="!enableAcceptButton" @click="() => store.acceptCard(card_id)">
+              <ShaplaButton theme="primary" :disabled="!enableAcceptButton" @click="() => onAcceptCard(card_id)">
                 Confirm Accept
               </ShaplaButton>
             </ShaplaColumn>
@@ -247,7 +247,7 @@
         </ShaplaColumns>
         <template v-slot:foot>
           <ShaplaButton theme="primary" :disabled="!enableCreateProductButton"
-                        @click="()=>store.createProduct(card_id)">
+                        @click="()=>onCreateProduct(card_id)">
             Create Product
           </ShaplaButton>
         </template>
@@ -263,7 +263,7 @@
               />
             </ShaplaColumn>
             <ShaplaColumn :tablet="12">
-              <ShaplaButton theme="primary" @click="()=> store.updateSku(card_id,store.card.card_sku)">Update
+              <ShaplaButton theme="primary" @click="()=> onUpdateSku(card_id,store.card.card_sku)">Update
               </ShaplaButton>
             </ShaplaColumn>
           </ShaplaColumns>
@@ -294,10 +294,9 @@ import {
   ShaplaModal,
   ShaplaRadio,
   ShaplaTab,
-  ShaplaTabs,
-  ShaplaToggle,
-  ShaplaToggles
+  ShaplaTabs
 } from '@shapla/vue-components';
+import {Notify} from '@shapla/vanilla-components'
 import PdfCardItem from "../components/PdfCardItem.vue";
 import PdfImageItem from "../components/PdfImageItem.vue";
 import ModalCardCommission from "../components/ModalCardCommission.vue";
@@ -360,7 +359,9 @@ const card_sizes = computed(() => {
 })
 
 const handleCommissionUpdate = (commissions, marketplace_commissions) => {
-  store.handleCommissionUpdate(card_id.value, commissions, marketplace_commissions);
+  store.handleCommissionUpdate(card_id.value, commissions, marketplace_commissions).then(() => {
+    state.showEditCommissionModal = false;
+  });
 }
 
 const getHeaderText = (size_slug: string) => {
@@ -370,6 +371,33 @@ const getHeaderText = (size_slug: string) => {
   }
   return '';
 }
+
+const onUpdateSku = (card_id: number, card_sku: string) => {
+  store.updateCard(card_id, {card_sku: card_sku}).then(() => {
+    Notify.success('Card SKU has been updated.', 'Success!');
+  }).finally(() => {
+    state.showUpdateSkuModal = false;
+  })
+}
+
+const onCreateProduct = (card_id: number) => {
+  store.createProduct(card_id).then(() => {
+    state.showCreateProductModal = false;
+  })
+}
+
+const onAcceptCard = (card_id: number) => {
+  store.acceptCard(card_id).then(() => {
+    state.showAcceptConfirmModal = false;
+  })
+}
+
+const onRejectCard= (card_id: number) => {
+  store.rejectCard(card_id).then(() => {
+    state.showRejectConfirmModal = false;
+  })
+}
+
 
 onMounted(() => {
   card_id.value = parseInt(route.params.id);

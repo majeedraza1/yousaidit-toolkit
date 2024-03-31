@@ -108,6 +108,7 @@ interface DesignerCardInterface extends DesignerCardBaseInterface {
   sizes: { id: number, title: string }[],
   attributes: DesignerCardAttributeInterface[],
   image: { id: number; title: string; url: string; path: string; width: number; height: number; },
+  product_thumbnail: { id: number; title: string; url: string; path: string; width: number; height: number; },
   gallery_images: any[],
   pdf_data: Record<(keyof TYPE_CARD_SIZE | string), { "id": number, "title": string, "url": string }[]>,
   "total_sale": number,

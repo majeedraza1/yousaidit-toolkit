@@ -112,20 +112,26 @@ const useAdminDesignerCardStore = defineStore('admin-designer-card', () => {
   }
 
   const acceptCard = (card_id: number) => {
-    let data: Record<string, any> = {status: 'accepted'};
-    data.commission_type = state.commission_type;
-    data.commission = state.commission;
-    data.note_to_designer = state.note_to_designer;
-    updateCard(card_id, data).then(() => {
-      Notify.success('Card acceptance status has been updated.', 'Success!');
+    return new Promise(resolve => {
+      let data: Record<string, any> = {status: 'accepted'};
+      data.commission_type = state.commission_type;
+      data.commission = state.commission;
+      data.note_to_designer = state.note_to_designer;
+      updateCard(card_id, data).then((data) => {
+        Notify.success('Card acceptance status has been updated.', 'Success!');
+        resolve(data);
+      })
     })
   }
 
   const rejectCard = (card_id: number) => {
-    let data: Record<string, any> = {status: 'rejected'};
-    data.reject_reason = state.reject_reason;
-    updateCard(card_id, data).then(() => {
-      Notify.success('Card acceptance status has been updated.', 'Success!');
+    return new Promise(resolve => {
+      let data: Record<string, any> = {status: 'rejected'};
+      data.reject_reason = state.reject_reason;
+      updateCard(card_id, data).then((data) => {
+        resolve(data);
+        Notify.success('Card acceptance status has been updated.', 'Success!');
+      })
     })
   }
 
@@ -139,23 +145,26 @@ const useAdminDesignerCardStore = defineStore('admin-designer-card', () => {
   }
 
   const createProduct = (card_id: number) => {
-    Spinner.show();
-    axios.post('designers-cards/' + card_id + '/product', {
-      product_sku: state.product_sku,
-      product_price: state.product_price,
+    return new Promise(resolve => {
+      Spinner.show();
+      axios.post('designers-cards/' + card_id + '/product', {
+        product_sku: state.product_sku,
+        product_price: state.product_price,
+      })
+        .then(response => {
+          _updateCard(response.data.data)
+          resolve(response.data.data)
+        })
+        .catch(error => {
+          const responseData = error.response.data;
+          if (responseData.message) {
+            Notify.error(responseData.message, 'Error!');
+          }
+        })
+        .finally(() => {
+          Spinner.hide();
+        })
     })
-      .then(response => {
-        _updateCard(response.data.data)
-      })
-      .catch(error => {
-        const responseData = error.response.data;
-        if (responseData.message) {
-          Notify.error(responseData.message, 'Error!');
-        }
-      })
-      .finally(() => {
-        Spinner.hide();
-      })
   }
 
   const changeCommission = (card_id: number) => {
@@ -193,24 +202,27 @@ const useAdminDesignerCardStore = defineStore('admin-designer-card', () => {
   }
 
   const handleCommissionUpdate = (card_id: number, commission, marketplace_commission) => {
-    Spinner.show();
-    axios.post('designers-cards/' + card_id + '/commission', {
-      commission: commission,
-      marketplace_commission: marketplace_commission
+    return new Promise(resolve => {
+      Spinner.show();
+      axios.post('designers-cards/' + card_id + '/commission', {
+        commission: commission,
+        marketplace_commission: marketplace_commission
+      })
+        .then((response) => {
+          _updateCard(response.data.data)
+          resolve(response.data.data)
+          Notify.success('Commission has been update successfully.')
+        })
+        .catch(error => {
+          const responseData = error.response.data;
+          if (responseData.message) {
+            Notify.error(responseData.message, 'Error!');
+          }
+        })
+        .finally(() => {
+          Spinner.hide();
+        })
     })
-      .then((response) => {
-        _updateCard(response.data.data)
-        Notify.success('Commission has been update successfully.')
-      })
-      .catch(error => {
-        const responseData = error.response.data;
-        if (responseData.message) {
-          Notify.error(responseData.message, 'Error!');
-        }
-      })
-      .finally(() => {
-        Spinner.hide();
-      })
   }
 
   const previewDynamicCardPDF = (card_id: string | number) => {
@@ -242,6 +254,7 @@ const useAdminDesignerCardStore = defineStore('admin-designer-card', () => {
     ...toRefs(state),
     getCardById,
     createProductOnTradeSite,
+    updateCard,
     updateSku,
     acceptCard,
     rejectCard,

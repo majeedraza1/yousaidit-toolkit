@@ -18,6 +18,20 @@ defined( 'ABSPATH' ) || exit;
 class DesignerCardAttachmentController extends ApiController {
 
 	/**
+	 * List of capabilities based on the request method.
+	 *
+	 * @var array
+	 */
+	protected $capabilities = [
+		'read_items' => 'read',
+		'read_item'  => 'read',
+		'create'     => 'read',
+		'update'     => 'read',
+		'delete'     => 'read',
+		'batch'      => 'delete_others_pages',
+	];
+
+	/**
 	 * @var self
 	 */
 	private static $instance;
@@ -43,12 +57,19 @@ class DesignerCardAttachmentController extends ApiController {
 			[
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => [ $this, 'get_items' ],
-				'permission_callback' => '__return_true',
+				'permission_callback' => [ $this, 'get_items_permissions_check' ],
 			],
 			[
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => [ $this, 'create_item' ],
-				'permission_callback' => '__return_true',
+				'permission_callback' => [ $this, 'create_item_permissions_check' ],
+			],
+		] );
+		register_rest_route( $this->namespace, '/designers-attachment/(?P<attachment_id>\d+)', [
+			[
+				'methods'             => WP_REST_Server::DELETABLE,
+				'callback'            => [ $this, 'delete_item' ],
+				'permission_callback' => [ $this, 'delete_item_permissions_check' ],
 			],
 		] );
 	}
@@ -187,6 +208,31 @@ class DesignerCardAttachmentController extends ApiController {
 		$attachment = Utils::prepare_media_item_for_response( $image_id );
 
 		return $this->respondOK( [ 'attachment' => $attachment, 'query' => $query_args ] );
+	}
+
+	/**
+	 * Deletes one item from the collection.
+	 *
+	 * @param  WP_REST_Request  $request  Full details about the request.
+	 *
+	 * @return WP_REST_Response Response object.
+	 */
+	public function delete_item( $request ) {
+		$attachment_id = (int) $request->get_param( 'attachment_id' );
+		$attachment    = get_post( $attachment_id );
+		if ( ! $attachment instanceof \WP_Post ) {
+			return $this->respondNotFound();
+		}
+
+		if ( $attachment->post_author !== get_current_user_id() ) {
+			return $this->respondUnauthorized();
+		}
+
+		wp_delete_attachment( $attachment_id );
+
+		return $this->respondOK( [
+			'id' => $attachment_id,
+		] );
 	}
 
 	/**

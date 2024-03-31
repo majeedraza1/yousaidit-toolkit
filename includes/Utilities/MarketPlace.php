@@ -25,12 +25,12 @@ class MarketPlace {
 				'logo'    => Assets::get_assets_url( '/static-images/logo-yousaidit-trade.png' ),
 				'storeId' => (int) SettingPage::get_option( 'shipstation_yousaidit_trade_store_id' ),
 			],
-			[
-				'key'     => 'etsy',
-				'label'   => 'Etsy',
-				'logo'    => Assets::get_assets_url( '/static-images/logo-etsy.svg' ),
-				'storeId' => (int) SettingPage::get_option( 'shipstation_etsy_store_id' ),
-			],
+//			[
+//				'key'     => 'etsy',
+//				'label'   => 'Etsy',
+//				'logo'    => Assets::get_assets_url( '/static-images/logo-etsy.svg' ),
+//				'storeId' => (int) SettingPage::get_option( 'shipstation_etsy_store_id' ),
+//			],
 			[
 				'key'     => 'amazon',
 				'label'   => 'Amazon',

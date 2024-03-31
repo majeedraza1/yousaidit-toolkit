@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import {computed, onMounted, reactive} from "vue";
 import {ShaplaButton, ShaplaColumn, ShaplaFileUploader, ShaplaIcon, ShaplaImage} from "@shapla/vue-components";
+import {Notify} from "@shapla/vanilla-components";
 import CardOptions from "../components/CardOptions.vue";
 import CardOptionsPreview from "../components/CardOptionsPreview.vue";
 import {StandardCardBaseInterface, UploadedAttachmentInterface} from "../../interfaces/designer-card.ts";
 import {useRouter} from "vue-router";
 import useDesignerCardStore from "../stores/store-cards.ts";
+import sampleData from '../sample-data/static-card-sample.ts'
 
 const store = useDesignerCardStore();
 const router = useRouter();
@@ -71,8 +73,22 @@ const onSubmit = () => {
   })
 }
 
+const removeImage = () => {
+  store
+      .deleteImage(state.card.image_id)
+      .catch(errors => {
+        if (errors.message) {
+          Notify.error(errors.message, 'Error!');
+        }
+      })
+      .finally(() => {
+        state.card.image_id = 0;
+        state.card.image = null;
+      })
+}
+
 onMounted(() => {
-  // state.card = sampleData;
+  state.card = sampleData;
   // state.stepDone = 4;
 })
 </script>
@@ -100,6 +116,9 @@ onMounted(() => {
             </div>
           </div>
         </ShaplaImage>
+        <div class="mt-2 flex justify-center">
+          <ShaplaButton v-if="state.card.image_id" theme="primary" @click="removeImage">Remove Image</ShaplaButton>
+        </div>
       </div>
       <div class="w-full md:w-1/2 p-2">
         <div>
@@ -141,7 +160,7 @@ onMounted(() => {
       </div>
     </div>
     <div v-if="1 === state.stepDone" class="flex flex-col items-center">
-      <CardOptions v-model="state.card"/>
+      <CardOptions v-model="state.card" :show-market-places="true"/>
       <div class="flex justify-center mt-4">
         <ShaplaButton theme="primary" @click="state.stepDone = 2">Next</ShaplaButton>
       </div>
