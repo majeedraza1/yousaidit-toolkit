@@ -59,8 +59,8 @@ export class DynamicCardLayer extends LitElement {
       _left = Math.round(100 * (left / this.cardWidthMM));
 
     styles.push(`--scaling-factor: ${(this.elementWidthMM / this.cardWidthMM).toFixed(3)}`);
-    styles.push(`left: ${_left}%`);
-    styles.push(`top: ${_top}%`);
+    styles.push(`--left: ${_left}%`);
+    styles.push(`--top: ${_top}%`);
 
     if (userOptions) {
       styles.push(`--rotate: ${userOptions.rotate}deg`);
@@ -247,6 +247,8 @@ export class DynamicCardLayer extends LitElement {
       .section {
           position: absolute;
           line-height: 1;
+          left: calc(var(--left, 0) * var(--scaling-factor, 1));
+          top: calc(var(--top, 0) * var(--scaling-factor, 1));
       }
 
       .section-edit.is-image-edit {

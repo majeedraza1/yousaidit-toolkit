@@ -95,6 +95,16 @@ class Utils {
 		return round( $pixels * ( 25.4 / $dpi ) );
 	}
 
+	/**
+	 * @param  int  $font_size
+	 * @param  int  $ppi
+	 *
+	 * @return float
+	 */
+	public static function font_size_pt_to_px( int $font_size, int $ppi = 300 ): float {
+		return round( $font_size * $ppi / 72 );
+	}
+
 
 	/**
 	 * Prepares the item for the REST response.
