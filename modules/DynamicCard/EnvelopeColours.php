@@ -70,6 +70,9 @@ class EnvelopeColours {
 	 */
 	public static function generate_thumb( Imagick $imagick, int $resolution = 72 ): Imagick {
 		$color = self::get_random_color();
+		if ( $imagick->getImageColorspace() === Imagick::COLORSPACE_CMYK ) {
+			$imagick->transformImageColorspace( Imagick::COLORSPACE_SRGB );
+		}
 
 		$envelopImage = new Imagick();
 		$envelopImage->setSize( $color['width'], $color['height'] );
