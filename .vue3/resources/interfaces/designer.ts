@@ -26,8 +26,8 @@ interface DesignerInterface {
   card_logo_url: string;
   total_cards: number;
   profile_base_url: string;
-  maximum_allowed_card: string;
-  can_add_dynamic_card: string;
+  maximum_allowed_card: number;
+  can_add_dynamic_card: boolean;
   total_sales: number;
   paypal_email: string;
   location: string;
