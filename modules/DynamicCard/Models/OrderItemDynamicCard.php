@@ -196,14 +196,14 @@ class OrderItemDynamicCard {
 		// Add sections
 		$this->addSections( $fpd );
 
-		try {
-			$image_generator = ( new ImageGenerator( $this ) )->generate_image_card();
-
-			header( 'Content-Type: ' . $image_generator->getImageMimeType() );
-			echo $image_generator->getImageBlob();
-		} catch ( \ImagickException|\ImagickPixelException $e ) {
-		}
-		die;
+//		try {
+//			$image_generator = ( new ImageGenerator( $this ) )->generate_image_card();
+//
+//			header( 'Content-Type: ' . $image_generator->getImageMimeType() );
+//			echo $image_generator->getImageBlob();
+//		} catch ( \ImagickException|\ImagickPixelException $e ) {
+//		}
+//		die;
 
 		$fpd->Output( $args['dest'] ?? '', $args['name'] ?? '' );
 //		header( "Content-Type: application/pdf" );

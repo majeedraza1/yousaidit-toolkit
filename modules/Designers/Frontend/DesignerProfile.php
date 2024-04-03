@@ -415,6 +415,7 @@ class DesignerProfile {
 			$data['order_statuses']       = wc_get_order_statuses();
 			$data['marketPlaces']         = MarketPlace::all();
 			$data['fonts']                = Font::get_fonts_for_designer();
+			$data['enabled_card_types']   = Settings::get_enabled_card_types();
 			$data['templates']            = [
 				'ps' => Assets::get_assets_url( 'static-images/Square Template - You Said It Cards.psd' ),
 				'ai' => Assets::get_assets_url( 'static-images/Square Template - You Said It Cards.ai' ),

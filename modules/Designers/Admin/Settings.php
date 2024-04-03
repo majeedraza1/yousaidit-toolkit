@@ -43,6 +43,15 @@ class Settings {
 		return $options['designer_role'] ?? 'customer';
 	}
 
+	public static function get_enabled_card_types(): array {
+		$options = (array) get_option( 'yousaiditcard_designers_settings' );
+		if ( is_array( $options['enabled_card_types'] ) ) {
+			return $options['enabled_card_types'];
+		}
+
+		return [ 'standard' ];
+	}
+
 	public static function designer_default_commission_for_yousaidit_trade() {
 		$options = (array) get_option( 'yousaiditcard_designers_settings' );
 
@@ -336,6 +345,24 @@ class Settings {
 				'priority'          => 60,
 				'sanitize_callback' => 'sanitize_text_field',
 				'options'           => static::get_roles(),
+			],
+			[
+				'section'           => 'general_settings_section',
+				'id'                => 'enabled_card_types',
+				'type'              => 'select',
+				'multiple'          => true,
+				'title'             => __( 'Enabled Card', 'stackonet-yousaidit-toolkit' ),
+				'description'       => __( 'Choose card types to enable it', 'stackonet-yousaidit-toolkit' ),
+				'priority'          => 65,
+				'sanitize_callback' => function ( $value ) {
+					return array_map( 'sanitize_text_field', ( is_array( $value ) ? $value : [] ) );
+				},
+				'options'           => [
+					[ 'label' => 'Standard Card', 'value' => 'standard' ],
+					[ 'label' => 'Photo Card', 'value' => 'photo-card' ],
+					[ 'label' => 'Text Card', 'value' => 'text-card' ],
+					[ 'label' => 'Mug', 'value' => 'mug' ],
+				],
 			],
 		];
 

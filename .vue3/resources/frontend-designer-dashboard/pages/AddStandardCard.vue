@@ -7,7 +7,6 @@ import CardOptionsPreview from "../components/CardOptionsPreview.vue";
 import {StandardCardBaseInterface, UploadedAttachmentInterface} from "../../interfaces/designer-card.ts";
 import {useRouter} from "vue-router";
 import useDesignerCardStore from "../stores/store-cards.ts";
-import sampleData from '../sample-data/static-card-sample.ts'
 
 const store = useDesignerCardStore();
 const router = useRouter();
@@ -88,7 +87,7 @@ const removeImage = () => {
 }
 
 onMounted(() => {
-  state.card = sampleData;
+  // state.card = sampleData;
   // state.stepDone = 4;
 })
 </script>

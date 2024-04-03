@@ -225,10 +225,10 @@ class SettingHandler {
 		$fields       = $this->get_fields();
 		$options      = (array) $this->get_options();
 		foreach ( $fields as $field ) {
-			$key     = isset( $field['id'] ) ? $field['id'] : null;
-			$default = isset( $field['default'] ) ? $field['default'] : null;
-			$type    = isset( $field['type'] ) ? $field['type'] : 'text';
-			$value   = isset( $input[ $field['id'] ] ) ? $input[ $field['id'] ] : $options[ $field['id'] ];
+			$key     = $field['id'] ?? null;
+			$default = $field['default'] ?? null;
+			$type    = $field['type'] ?? 'text';
+			$value   = $input[ $field['id'] ] ?? $options[ $field['id'] ];
 
 			if ( ! empty( $field['sanitize_callback'] ) && is_callable( $field['sanitize_callback'] ) ) {
 				$output_array[ $key ] = call_user_func( $field['sanitize_callback'], $value );
@@ -254,9 +254,9 @@ class SettingHandler {
 
 	/**
 	 * @param array $options
-	 * @param bool $individual
+	 * @param  bool  $individual
 	 */
-	public function update( array $options, $individual = false ) {
+	public function update( array $options, bool $individual = false ) {
 		$sanitized_options = $this->sanitize_options( $options );
 		if ( $individual ) {
 			foreach ( $sanitized_options as $option_name => $option_value ) {

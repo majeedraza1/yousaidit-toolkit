@@ -159,6 +159,7 @@ interface DesignerProfileInlineDataInterface extends DesignerProfileInlineGenera
   termsUrl: string;
   lostPasswordUrl: string;
   logOutUrl: string;
+  enabled_card_types: string[];
   user: { id: number; display_name: string; avatar_url: string; author_posts_url: string; };
   user_card_categories: number[];
   order_statuses: Record<string, string>;
