@@ -30,7 +30,7 @@ const changeStatus = (newStatus) => {
 function onActionClick(action: string, item) {
   if ('sync' === action) {
     syncPurchase(item.id).then(() => {
-      this.getItems();
+      getItems();
     })
   }
 }
@@ -41,8 +41,8 @@ function onSelectItems(selectedItems: number[]) {
 
 function deleteSelectedItems() {
   deleteItems(state.selectedItems).then(() => {
-    this.selectedItems = [];
-    this.getItems();
+    state.selectedItems = [];
+    getItems();
   });
 }
 

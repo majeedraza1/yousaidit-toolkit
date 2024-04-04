@@ -9,6 +9,9 @@ const useDesignerProfileStore = defineStore('designer-profile', () => {
   const state = reactive<{
     designer: DesignerInterface;
     images: UploadedAttachmentInterface[];
+    current_password: string;
+    new_password: string;
+    confirm_password: string;
   }>({
     designer: {
       id: 0,
@@ -47,6 +50,9 @@ const useDesignerProfileStore = defineStore('designer-profile', () => {
       cover_photo_id: 0
     },
     images: [],
+    current_password: '',
+    new_password: '',
+    confirm_password: '',
   });
 
   const designer_id = window.DesignerProfile.user.id
@@ -147,6 +153,27 @@ const useDesignerProfileStore = defineStore('designer-profile', () => {
       })
   }
 
+  const updateProfileUrl = () => {
+    let currentLogin = state.designer.user_login;
+    Spinner.show();
+    axios
+      .put('designers/' + designer_id, {user_login: state.designer.user_login})
+      .then(response => {
+        Notify.success('Profile updated.');
+        state.designer = response.data.data.designer;
+        window.location.reload();
+      })
+      .catch(errors => {
+        state.designer.user_login = currentLogin;
+        if (typeof errors.response.data.message === "string") {
+          Notify.error(errors.response.data.message, 'Error!');
+        }
+      })
+      .finally(() => {
+        Spinner.hide();
+      });
+  }
+
   return {
     ...toRefs(state),
     designer_id,
@@ -156,6 +183,7 @@ const useDesignerProfileStore = defineStore('designer-profile', () => {
     getUserData,
     getUserUploadedImages,
     update,
+    updateProfileUrl,
   }
 });
 

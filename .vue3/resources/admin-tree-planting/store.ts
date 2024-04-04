@@ -1,7 +1,8 @@
 import axios from "../utils/axios";
 import {Dialog, Notify, Spinner} from "@shapla/vanilla-components";
+import {ServerCollectionResponseDataInterface} from "../utils/CrudOperation.ts";
 
-const getPurchases = (page: number = 1, status: string = 'complete') => {
+const getPurchases = (page: number = 1, status: string = 'complete'):Promise<ServerCollectionResponseDataInterface> => {
   return new Promise(resolve => {
     Spinner.show();
     axios.get('tree-planting', {params: {page: page, per_page: 20, status: status}})

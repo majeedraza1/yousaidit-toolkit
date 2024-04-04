@@ -1,134 +1,134 @@
 <template>
   <div class="yousaidit-designer-profile">
     <designer-profile-header
-        :designer-name="designer.display_name"
-        :designer-location="designer.location"
-        :designer-bio="designer.description"
-        :cover-photo-url="designer.cover_photo_url"
-        :profile-photo-url="designer.avatar_url"
-        @change:cover="showChangeCoverModal = true"
-        @change:profile="showChangeProfileModal = true"
+        :designer-name="store.designer.display_name"
+        :designer-location="store.designer.location"
+        :designer-bio="store.designer.description"
+        :cover-photo-url="store.designer.cover_photo_url"
+        :profile-photo-url="store.designer.avatar_url"
+        @change:cover="state.showChangeCoverModal = true"
+        @change:profile="state.showChangeProfileModal = true"
     />
     <p>&nbsp;</p>
-    <tabs fullwidth tab-style="toggle">
-      <tab name="Personal Detail" selected>
-        <profile-field title="Name" :content="`${designer.first_name} ${designer.last_name}`"
+    <ShaplaTabs fullwidth tab-style="toggle">
+      <ShaplaTab name="Personal Detail" selected>
+        <profile-field title="Name" :content="`${store.designer.first_name} ${store.designer.last_name}`"
                        @save="updateName">
-          <text-field type="text" label="First Name" v-model="designer.first_name"/>
-          <text-field type="text" label="Last Name" v-model="designer.last_name"/>
+          <ShaplaInput type="text" label="First Name" v-model="store.designer.first_name"/>
+          <ShaplaInput type="text" label="Last Name" v-model="store.designer.last_name"/>
         </profile-field>
 
-        <profile-field title="Display Name" :content="designer.display_name" @save="updateDisplayName">
-          <select-field
+        <profile-field title="Display Name" :content="store.designer.display_name" @save="updateDisplayName">
+          <ShaplaSelect
               label="Display Name"
-              v-model="designer.display_name"
-              :options="displayNameOptions"
+              v-model="store.designer.display_name"
+              :options="store.displayNameOptions"
           />
         </profile-field>
 
-        <profile-field title="Location" :content="designer.location" @save="updateLocation">
-          <text-field type="text" label="Location" v-model="designer.location"/>
+        <profile-field title="Location" :content="store.designer.location" @save="updateLocation">
+          <ShaplaInput type="text" label="Location" v-model="store.designer.location"/>
         </profile-field>
 
         <profile-field title="Password" content="**********" @save="updatePassword">
-          <text-field type="password" label="Current Password" v-model="current_password"/>
-          <text-field type="password" label="New Password" v-model="new_password"/>
-          <text-field type="password" label="Confirm Password" v-model="confirm_password"/>
+          <ShaplaInput type="password" label="Current Password" v-model="store.current_password"/>
+          <ShaplaInput type="password" label="New Password" v-model="store.new_password"/>
+          <ShaplaInput type="password" label="Confirm Password" v-model="store.confirm_password"/>
         </profile-field>
 
-        <profile-field title="About Yourself" :content="designer.description" field-width="500px"
+        <profile-field title="About Yourself" :content="store.designer.description" field-width="500px"
                        @save="updateDescription">
-          <text-field type="textarea" label="Detail" v-model="designer.description"/>
+          <ShaplaInput type="textarea" label="Detail" v-model="store.designer.description"/>
         </profile-field>
 
-        <profile-field title="Profile URL" :content="`${designer.profile_base_url}/${designer.user_login}`"
-                       @save="updateProfileUrl">
-          <span v-html="`${designer.profile_base_url}/${designer.user_login}`"></span>
-          <text-field type="url" label="Username" v-model="designer.user_login"
+        <profile-field title="Profile URL" :content="`${store.designer.profile_base_url}/${store.designer.user_login}`"
+                       @save="store.updateProfileUrl">
+          <span v-html="`${store.designer.profile_base_url}/${store.designer.user_login}`"></span>
+          <ShaplaInput type="url" label="Username" v-model="store.designer.user_login"
                       help-text="Your username will be used as your profile page URL."/>
         </profile-field>
 
-        <profile-field title="Instagram Profile" :content="designer.instagram_url" field-width="500px"
+        <profile-field title="Instagram Profile" :content="store.designer.instagram_url" field-width="500px"
                        @save="updateInstagramUrl">
-          <text-field type="url" label="URL" v-model="designer.instagram_url"/>
+          <ShaplaInput type="url" label="URL" v-model="store.designer.instagram_url"/>
         </profile-field>
-      </tab>
+      </ShaplaTab>
 
-      <tab name="Business Detail">
-        <profile-field title="Business Name" :content="designer.business_name" @save="updateBusinessName">
-          <text-field type="text" label="Business Name" v-model="designer.business_name"/>
+      <ShaplaTab name="Business Detail">
+        <profile-field title="Business Name" :content="store.designer.business_name" @save="updateBusinessName">
+          <ShaplaInput type="text" label="Business Name" v-model="store.designer.business_name"/>
         </profile-field>
 
         <profile-field title="Business Address" @save="updateBusinessAddress"
-                       :content="designer.formatted_address">
-          <text-field type="text" label="Address Line 1" autocomplete="address-line1"
-                      v-model="designer.business_address.address_1" name="address_1"/>
-          <text-field type="text" label="Address Line 2" autocomplete="address-line2"
-                      v-model="designer.business_address.address_2" name="address_2"/>
-          <text-field type="text" label="City" autocomplete="address-level2"
-                      v-model="designer.business_address.city" name="city"/>
-          <text-field type="text" label="Post Code" autocomplete="postal-code"
-                      v-model="designer.business_address.post_code" name="post_code"/>
-          <text-field type="text" label="Country" autocomplete="country"
-                      v-model="designer.business_address.country" name="country"/>
+                       :content="store.designer.formatted_address">
+          <ShaplaInput type="text" label="Address Line 1" autocomplete="address-line1"
+                      v-model="store.designer.business_address.address_1" name="address_1"/>
+          <ShaplaInput type="text" label="Address Line 2" autocomplete="address-line2"
+                      v-model="store.designer.business_address.address_2" name="address_2"/>
+          <ShaplaInput type="text" label="City" autocomplete="address-level2"
+                      v-model="store.designer.business_address.city" name="city"/>
+          <ShaplaInput type="text" label="Post Code" autocomplete="postal-code"
+                      v-model="store.designer.business_address.post_code" name="post_code"/>
+          <ShaplaInput type="text" label="Country" autocomplete="country"
+                      v-model="store.designer.business_address.country" name="country"/>
         </profile-field>
 
-        <profile-field title="VAT" :content="designer.vat_registration_number" @save="updateVatInfo">
-          <text-field type="text" label="Vat Registration Number" v-model="designer.vat_registration_number"/>
-          <text-field type="date" label="Vat Certificate Issue Date"
-                      v-model="designer.vat_certificate_issue_date"/>
+        <profile-field title="VAT" :content="store.designer.vat_registration_number" @save="updateVatInfo">
+          <ShaplaInput type="text" label="Vat Registration Number" v-model="store.designer.vat_registration_number"/>
+          <ShaplaInput type="date" label="Vat Certificate Issue Date"
+                      v-model="store.designer.vat_certificate_issue_date"/>
         </profile-field>
-      </tab>
+      </ShaplaTab>
 
-      <tab name="Payouts">
-        <profile-field title="PayPal Email Address" :content="designer.paypal_email" @save="updatePayPalEmail">
-          <text-field type="email" label="Email Address" v-model="designer.paypal_email"/>
+      <ShaplaTab name="Payouts">
+        <profile-field title="PayPal Email Address" :content="store.designer.paypal_email" @save="updatePayPalEmail">
+          <ShaplaInput type="email" label="Email Address" v-model="store.designer.paypal_email"/>
         </profile-field>
-      </tab>
+      </ShaplaTab>
 
-      <tab name="Card Settings">
-        <div v-if="designer.card_logo_id">
+      <ShaplaTab name="Card Settings">
+        <div v-if="store.designer.card_logo_id">
           <div class="max-w-sm">
-            <img :src="designer.card_logo_url" alt="">
+            <img :src="store.designer.card_logo_url" alt="">
           </div>
-          <shapla-button theme="primary" @click="showCardLogoModal = true">Change image</shapla-button>
+          <ShaplaButton theme="primary" @click="state.showCardLogoModal = true">Change image</ShaplaButton>
         </div>
-        <div v-if="!designer.card_logo_id">
-          <shapla-button theme="primary" @click="showCardLogoModal = true">Upload image</shapla-button>
+        <div v-if="!store.designer.card_logo_id">
+          <ShaplaButton theme="primary" @click="state.showCardLogoModal = true">Upload image</ShaplaButton>
         </div>
-      </tab>
-    </tabs>
+      </ShaplaTab>
+    </ShaplaTabs>
     <p>&nbsp;</p>
-    <media-modal
-        v-if="showChangeProfileModal"
-        :active="showChangeProfileModal"
-        :images="images"
-        :url="uploadUrl"
+    <ShaplaMediaModal
+        v-if="state.showChangeProfileModal"
+        :active="state.showChangeProfileModal"
+        :images="store.images"
+        :url="store.uploadUrl"
         primary-key="id"
         src-key="attachment_url"
-        @close="showChangeProfileModal = false"
+        @close="state.showChangeProfileModal = false"
         @select:image="handleChooseProfileImage"
         @before:send="addNonceHeaderForProfileImage"
         @success="(file,response)=>refreshMediaList(response,'avatar')"
     />
-    <media-modal
-        v-if="showChangeCoverModal"
-        :active="showChangeCoverModal"
-        :images="images"
-        :url="uploadUrl"
+    <ShaplaMediaModal
+        v-if="state.showChangeCoverModal"
+        :active="state.showChangeCoverModal"
+        :images="store.images"
+        :url="store.uploadUrl"
         primary-key="id"
         src-key="attachment_url"
-        @close="showChangeCoverModal = false"
+        @close="state.showChangeCoverModal = false"
         @select:image="handleChooseCoverImage"
         @before:send="addNonceHeaderForCover"
         @success="(file,response)=>refreshMediaList(response,'cover')"
     />
-    <media-modal
-        v-if="showCardLogoModal"
-        :active="showCardLogoModal"
-        @close="showCardLogoModal = false"
-        :images="images"
-        :url="uploadUrl"
+    <ShaplaMediaModal
+        v-if="state.showCardLogoModal"
+        :active="state.showCardLogoModal"
+        @close="state.showCardLogoModal = false"
+        :images="store.images"
+        :url="store.uploadUrl"
         primary-key="id"
         src-key="attachment_url"
         @select:image="handleCardLogoImageId"
@@ -138,238 +138,104 @@
   </div>
 </template>
 
-<script>
-import axios from "../../utils/axios";
+<script lang="ts" setup>
 import {
-  ShaplaButton as shaplaButton,
-  ShaplaInput as textField,
-  ShaplaMediaModal as MediaModal,
-  ShaplaSelect as selectField,
-  ShaplaTab as tab,
-  ShaplaTabs as tabs
+  ShaplaButton,
+  ShaplaInput,
+  ShaplaMediaModal,
+  ShaplaSelect,
+  ShaplaTab,
+  ShaplaTabs
 } from '@shapla/vue-components'
 import ProfileField from "../components/ProfileField.vue";
 import DesignerProfileHeader from "../components/DesignerProfileHeader.vue";
-import {Notify, Spinner} from "@shapla/vanilla-components";
+import useDesignerProfileStore from "../stores/store-profile.ts";
+import {onMounted, reactive} from "vue";
 
-export default {
-  name: "Profile",
-  components: {MediaModal, DesignerProfileHeader, ProfileField, tabs, tab, textField, selectField, shaplaButton},
-  data() {
-    return {
-      showChangeCoverModal: false,
-      showChangeProfileModal: false,
-      showCardLogoModal: false,
-      images: [],
-      current_password: '',
-      new_password: '',
-      confirm_password: '',
-      user_login: '',
-      designer: {
-        display_name: '',
-        first_name: '',
-        last_name: '',
-        paypal_email: '',
-        description: '',
-        user_url: '',
-        location: '',
-        business_name: '',
-        formatted_address: '',
-        user_login: '',
-        profile_base_url: '',
-        instagram_url: '',
-        business_address: {
-          address_1: '',
-          address_2: '',
-          city: '',
-          post_code: '',
-          country: '',
-          state: '',
-        },
-        vat_registration_number: '',
-        vat_certificate_issue_date: '',
-        avatar_url: '',
-        cover_photo_url: '',
-      },
-      display_name: '',
-    }
-  },
-  computed: {
-    user() {
-      return DesignerProfile.user
-    },
-    uploadUrl() {
-      return 'designers/' + this.user.id + '/attachment';
-    },
-    displayNameOptions() {
-      let options = [];
-      if (!this.designer) {
-        return options;
-      }
+const store = useDesignerProfileStore();
+const state = reactive({
+  showChangeCoverModal: false,
+  showChangeProfileModal: false,
+  showCardLogoModal: false,
+})
 
-      if (this.designer.first_name) {
-        options.push(this.designer.first_name);
-      }
+onMounted(()=>{
+  store.getUserData();
+  store.getUserUploadedImages();
+})
 
-      if (this.designer.last_name) {
-        options.push(this.designer.last_name);
-      }
 
-      if (this.designer.first_name && this.designer.last_name) {
-        options.push(`${this.designer.first_name} ${this.designer.last_name}`);
-      }
-
-      if (this.designer.business_name) {
-        options.push(this.designer.business_name);
-      }
-
-      if (this.designer.display_name && options.indexOf(this.designer.display_name) === -1) {
-        options.push(this.designer.display_name);
-      }
-
-      if (this.display_name && options.indexOf(this.display_name) === -1) {
-        options.push(this.display_name);
-      }
-
-      return options;
-    }
-  },
-  mounted() {
-    this.getUserData();
-    this.getUserUploadedImages();
-  },
-  methods: {
-    refreshMediaList(response, type = 'avatar') {
-      let image = response.data.attachment;
-      if ('avatar' === type) {
-        this.update({avatar_id: image.id});
-        this.showChangeProfileModal = false;
-      }
-      if ('cover' === type) {
-        this.update({cover_photo_id: image.id});
-        this.showChangeCoverModal = false;
-      }
-      if ('card-logo' === type) {
-        this.update({card_logo_id: image.id});
-        this.showCardLogoModal = false;
-      }
-    },
-    getUserUploadedImages() {
-      Spinner.show();
-      axios.get('designers/' + this.user.id + '/attachment', {
-        params: {
-          mime_types: ['image/jpeg', 'image/png']
-        }
-      }).then(response => {
-        Spinner.hide();
-        this.images = response.data.data;
-      }).catch(errors => {
-        Spinner.hide();
-        console.log(errors);
-      });
-    },
-    handleChooseProfileImage(image) {
-      this.update({avatar_id: image.id});
-    },
-    handleCardLogoImageId(image) {
-      this.update({card_logo_id: image.id});
-    },
-    handleChooseCoverImage(image) {
-      this.update({cover_photo_id: image.id});
-    },
-    addNonceHeaderForCardLogo(xhr, formData) {
-      xhr.setRequestHeader('X-WP-Nonce', window.DesignerProfile.restNonce);
-      formData.append('type', 'card-logo');
-    },
-    addNonceHeaderForCover(xhr, formData) {
-      xhr.setRequestHeader('X-WP-Nonce', window.DesignerProfile.restNonce);
-      formData.append('type', 'cover');
-    },
-    addNonceHeaderForProfileImage(xhr, formData) {
-      xhr.setRequestHeader('X-WP-Nonce', window.DesignerProfile.restNonce);
-      formData.append('type', 'avatar');
-    },
-    getUserData() {
-      Spinner.show();
-      axios.get('designers/' + this.user.id).then(response => {
-        Spinner.hide();
-        let data = response.data.data;
-        this.designer = data.designer;
-        this.display_name = data.designer.display_name;
-        this.user_login = data.designer.user_login;
-      }).catch(errors => {
-        Spinner.hide();
-        console.log(errors);
-      });
-    },
-    update(data) {
-      Spinner.show();
-      axios.put('designers/' + this.user.id, data).then(response => {
-        Spinner.hide();
-        Notify.success('Profile updated.');
-        let data = response.data.data;
-        this.designer = data.designer;
-      }).catch(errors => {
-        Spinner.hide();
-        if (typeof errors.response.data.message === "string") {
-          Notify.error(errors.response.data.message, 'Error!');
-        }
-      });
-    },
-    updateName() {
-      this.update({first_name: this.designer.first_name, last_name: this.designer.last_name});
-    },
-    updateDisplayName() {
-      this.update({display_name: this.designer.display_name});
-    },
-    updateLocation() {
-      this.update({location: this.designer.location});
-    },
-    updatePassword() {
-      this.update({
-        current_password: this.current_password,
-        new_password: this.new_password,
-        confirm_password: this.confirm_password,
-      });
-    },
-    updateDescription() {
-      this.update({description: this.designer.description});
-    },
-    updatePayPalEmail() {
-      this.update({paypal_email: this.designer.paypal_email});
-    },
-    updateProfileUrl() {
-      let currentLogin = this.user_login;
-      Spinner.show();
-      axios.put('designers/' + this.user.id, {user_login: this.designer.user_login}).then(response => {
-        Spinner.hide();
-        Notify.success('Profile updated.');
-        let data = response.data.data;
-        this.designer = data.designer;
-        window.location.reload();
-      }).catch(errors => {
-        Spinner.hide();
-        this.designer.user_login = currentLogin;
-        if (typeof errors.response.data.message === "string") {
-          Notify.error(errors.response.data.message, 'Error!');
-        }
-      });
-    },
-    updateInstagramUrl() {
-      this.update({instagram_url: this.designer.instagram_url});
-    },
-    updateBusinessName() {
-      this.update({business_name: this.designer.business_name});
-    },
-    updateBusinessAddress() {
-      this.update({business_address: this.designer.business_address});
-    },
-    updateVatInfo() {
-      this.update({
-        vat_registration_number: this.designer.vat_registration_number,
-        vat_certificate_issue_date: this.designer.vat_certificate_issue_date,
-      });
-    },
+const refreshMediaList = (response, type = 'avatar') => {
+  let image = response.data.attachment;
+  if ('avatar' === type) {
+    store.update({avatar_id: image.id});
+    state.showChangeProfileModal = false;
   }
+  if ('cover' === type) {
+    store.update({cover_photo_id: image.id});
+    state.showChangeCoverModal = false;
+  }
+  if ('card-logo' === type) {
+    store.update({card_logo_id: image.id});
+    state.showCardLogoModal = false;
+  }
+}
+const handleChooseProfileImage = (image) => {
+  store.update({avatar_id: image.id});
+}
+const handleCardLogoImageId = (image) => {
+  store.update({card_logo_id: image.id});
+}
+const handleChooseCoverImage =(image) => {
+  store.update({cover_photo_id: image.id});
+}
+const addNonceHeaderForCardLogo =(xhr, formData) => {
+  xhr.setRequestHeader('X-WP-Nonce', window.DesignerProfile.restNonce);
+  formData.append('type', 'card-logo');
+}
+const addNonceHeaderForCover =(xhr, formData) => {
+  xhr.setRequestHeader('X-WP-Nonce', window.DesignerProfile.restNonce);
+  formData.append('type', 'cover');
+}
+const addNonceHeaderForProfileImage = (xhr, formData) => {
+  xhr.setRequestHeader('X-WP-Nonce', window.DesignerProfile.restNonce);
+  formData.append('type', 'avatar');
+}
+const updateName = () => {
+  store.update({first_name: store.designer.first_name, last_name: store.designer.last_name});
+}
+const updateDisplayName  = () => {
+  store.update({display_name: store.designer.display_name});
+}
+const updateLocation = () => {
+  store.update({location: store.designer.location});
+}
+const updatePassword = () => {
+  store.update({
+    current_password: store.current_password,
+    new_password: store.new_password,
+    confirm_password: store.confirm_password,
+  });
+}
+const updateDescription = () => {
+  store.update({description: store.designer.description});
+}
+const updatePayPalEmail = () => {
+  store.update({paypal_email: store.designer.paypal_email});
+}
+const updateInstagramUrl = () => {
+  store.update({instagram_url: store.designer.instagram_url});
+}
+const updateBusinessName = () => {
+  store.update({business_name: store.designer.business_name});
+}
+const updateBusinessAddress = () => {
+  store.update({business_address: store.designer.business_address});
+}
+const updateVatInfo = () => {
+  store.update({
+    vat_registration_number: store.designer.vat_registration_number,
+    vat_certificate_issue_date: store.designer.vat_certificate_issue_date,
+  });
 }
 </script>
