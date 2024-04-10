@@ -2,8 +2,9 @@
   <div v-if="item"
        class="yousaidit-designer-card flex flex-col h-full relative shadow border border-solid border-gray-100">
     <div class="yousaidit-designer-card__image">
-      <ShaplaImage :width-ratio="item.image.width" :height-ratio="item.image.height">
-        <img class="yousaidit-designer-profile-card__image" :src="item.image.url" :alt="item.image.title">
+      <ShaplaImage :width-ratio="item.product_thumbnail.width" :height-ratio="item.product_thumbnail.height">
+        <img class="yousaidit-designer-profile-card__image" :src="item.product_thumbnail.url"
+             :alt="item.product_thumbnail.title">
       </ShaplaImage>
     </div>
     <div class="yousaidit-designer-card__info px-2">
@@ -14,6 +15,14 @@
           <div :class="`yousaidit-designer-card__status status-${item.status} rounded px-2 py-1 leading-0`">
             {{ item.status }}
           </div>
+        </div>
+      </div>
+      <div class="flex mb-2" v-if="item.product_id">
+        <div class="w-1/3 flex items-center space-x-1">
+          <strong>Product:</strong>
+        </div>
+        <div class="w-2/3">
+          <a :href="item.product_url" target="_blank" class="text-primary font-bold text-sm">View</a>
         </div>
       </div>
       <div class="flex mb-2">
@@ -56,6 +65,7 @@
         </div>
       </div>
     </div>
+    <div class="flex-grow"></div>
     <div class="yousaidit-designer-card__actions">
       <div class="yousaidit-designer-card__comments" @click="$emit('click:comments',item)"
            v-if="item.comments_count >0">
@@ -92,19 +102,19 @@
 import {ShaplaChip, ShaplaIcon, ShaplaImage} from '@shapla/vue-components';
 import {Dialog} from "@shapla/vanilla-components";
 import {PropType} from "vue";
-import {ServerCardResponseInterface} from "../../interfaces/designer-card.ts";
+import {DesignerCardModelInterface} from "../../interfaces/designer-card.ts";
 
 const emit = defineEmits<{
-  "click:delete": [item: ServerCardResponseInterface];
-  "click:comments": [item: ServerCardResponseInterface];
-  "click:settings": [item: ServerCardResponseInterface];
+  "click:delete": [item: DesignerCardModelInterface];
+  "click:comments": [item: DesignerCardModelInterface];
+  "click:settings": [item: DesignerCardModelInterface];
 }>()
 
 defineProps({
-  item: {type: Object as PropType<ServerCardResponseInterface>}
+  item: {type: Object as PropType<DesignerCardModelInterface>}
 });
 
-const handleDeleteItem = (item: ServerCardResponseInterface) => {
+const handleDeleteItem = (item: DesignerCardModelInterface) => {
   Dialog.confirm('Are you sure to delete?').then(confirmed => {
     if (confirmed) {
       emit('click:delete', item);

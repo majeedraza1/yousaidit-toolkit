@@ -3,9 +3,9 @@ import {Notify, Spinner} from "@shapla/vanilla-components";
 import {defineStore} from "pinia";
 import {computed, reactive, toRefs} from "vue";
 import {
+  DesignerCardModelInterface,
   PhotoCardBaseInterface,
   ServerCardCollectionResponseInterface,
-  ServerCardResponseInterface,
   StandardCardBaseInterface,
   TextCardBaseInterface
 } from "../../interfaces/designer-card.ts";
@@ -148,7 +148,7 @@ const useDesignerCardStore = defineStore('designer-cards', () => {
     })
   }
 
-  const deleteCard = (card: ServerCardResponseInterface): Promise<ServerCardResponseInterface> => {
+  const deleteCard = (card: DesignerCardModelInterface): Promise<DesignerCardModelInterface> => {
     return new Promise(resolve => {
       Spinner.show();
       axios.delete('designers/' + designer_id.value + '/cards/' + card.id, {params: {action: 'delete'}})
@@ -166,7 +166,7 @@ const useDesignerCardStore = defineStore('designer-cards', () => {
     })
   }
 
-  const getCardComments = (card: ServerCardResponseInterface) => {
+  const getCardComments = (card: DesignerCardModelInterface) => {
     return new Promise(resolve => {
       Spinner.show();
       axios
@@ -187,7 +187,7 @@ const useDesignerCardStore = defineStore('designer-cards', () => {
     })
   }
 
-  const submitRequest = (activeCard: ServerCardResponseInterface, request_for: 'pause' | 'remove', message: string) => {
+  const submitRequest = (activeCard: DesignerCardModelInterface, request_for: 'pause' | 'remove', message: string) => {
     return new Promise(resolve => {
       Spinner.show();
       axios.put(`designers/${designer_id.value}/cards/${activeCard.id}/requests`, {

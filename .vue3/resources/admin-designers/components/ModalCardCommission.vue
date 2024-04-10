@@ -14,8 +14,7 @@
           <div v-for="size in card_sizes" :key="size">
             <ShaplaInput
                 :label="`${size}`"
-                :value="state.marketplace_commission[marketplace][size]"
-                @input="updateMarketPlaceCommission($event,marketplace,size)"
+                v-model="state.marketplace_commission[marketplace][size]"
             />
           </div>
         </div>
@@ -76,8 +75,8 @@ const updateCommission = () => {
   emit('submit', state.commission, state.marketplace_commission);
 }
 
-const updateMarketPlaceCommission = (event, marketplace, size) => {
-  state.marketplace_commission[marketplace][size] = event;
+const updateMarketPlaceCommission = (value, marketplace, size) => {
+  state.marketplace_commission[marketplace][size] = value;
 }
 
 onMounted(() => {

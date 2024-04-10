@@ -151,7 +151,7 @@ class DesignerCard extends DatabaseModel {
 			$data['product_edit_url'] = $this->get_product_edit_url();
 		}
 
-		if ( ! empty( $this->get( 'deleted_at' ) ) ) {
+		if ( ! empty( $this->get_prop( 'deleted_at' ) ) ) {
 			$data['status'] = 'trash';
 		}
 
@@ -510,7 +510,7 @@ class DesignerCard extends DatabaseModel {
 				}
 
 				$_attributes[] = [
-					'attribute_id'    => $tax->attribute_id,
+					'attribute_id'    => (int) $tax->attribute_id,
 					'attribute_name'  => $tax->attribute_name,
 					'attribute_label' => esc_html( $tax->attribute_label ),
 					'options'         => $options,

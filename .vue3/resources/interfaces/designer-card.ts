@@ -120,15 +120,51 @@ interface TextCardBaseInterface extends CardOptionInterface {
   dynamic_card_payload?: DynamicCardPayloadInterface;
 }
 
-interface ServerCardResponseInterface {
+interface DesignerCardImageInterface {
+  height: number;
   id: number;
+  path: string;
+  title: string;
+  url: string;
+  width: number;
+}
+
+interface DesignerCardTermInterface {
+  id: number;
+  title: string;
+}
+
+interface DesignerCardAttributeInterface {
+  attribute_id: number;
+  attribute_name: string;
+  attribute_label: string;
+  options: DesignerCardTermInterface[];
+}
+
+interface DesignerCardModelInterface {
+  id: number;
+  card_type: 'dynamic' | 'static';
+  card_title: string;
+  description: string;
+  card_sizes: string[];
+  categories: DesignerCardTermInterface[];
+  tags: DesignerCardTermInterface[];
+  sizes: DesignerCardTermInterface[];
+  attributes: DesignerCardAttributeInterface[];
+  image_id: number;
+  product_thumbnail_id: number;
+  image: DesignerCardImageInterface;
+  product_thumbnail: DesignerCardImageInterface;
   status: string;
+  product_id: number;
+  product_url?: string;
+  product_edit_url?: string;
 
   [key: string]: any;
 }
 
 interface ServerCardCollectionResponseInterface {
-  items: ServerCardResponseInterface[];
+  items: DesignerCardModelInterface[];
   pagination: PaginationDataInterface;
   maximum_allowed_card: number;
   can_add_dynamic_card: boolean;
@@ -148,8 +184,8 @@ export type {
   DynamicCardTextSectionInterface,
   DynamicCardImageSectionInterface,
   DynamicCardPayloadInterface,
-  ServerCardResponseInterface,
   ServerCardCollectionResponseInterface,
   PaginationDataInterface,
   StatusDataInterface,
+  DesignerCardModelInterface,
 }

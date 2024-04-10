@@ -115,7 +115,7 @@ import {Notify} from "@shapla/vanilla-components";
 import useDesignerDashboardStore from "../store.js";
 import {computed, onMounted, reactive} from "vue";
 import useDesignerCardStore from "../stores/store-cards.ts";
-import {ServerCardCollectionResponseInterface, ServerCardResponseInterface} from "../../interfaces/designer-card.ts";
+import {DesignerCardModelInterface, ServerCardCollectionResponseInterface,} from "../../interfaces/designer-card.ts";
 
 const store = useDesignerDashboardStore();
 const cardStore = useDesignerCardStore();
@@ -134,7 +134,7 @@ const state = reactive({
   },
   pagination_lock: false,
   end: false,
-  per_page: 12,
+  per_page: 48,
   current_page: 1,
   activeCard: {},
   card_request: {
@@ -170,7 +170,7 @@ const showComments = (card) => {
     state.comments = comments;
   })
 }
-const openCardSettingsModal = (card: ServerCardResponseInterface) => {
+const openCardSettingsModal = (card: DesignerCardModelInterface) => {
   state.activeCard = card;
 }
 const handleSubmitRequest = () => {
