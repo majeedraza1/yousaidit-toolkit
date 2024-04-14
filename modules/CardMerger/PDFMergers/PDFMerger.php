@@ -10,6 +10,7 @@ use setasign\Fpdi\PdfParser\StreamReader;
 use setasign\Fpdi\PdfParser\Type\PdfTypeException;
 use setasign\Fpdi\PdfReader\PageBoundaries;
 use setasign\Fpdi\PdfReader\PdfReaderException;
+use Stackonet\WP\Framework\Supports\Logger;
 use WC_Order_Item_Product;
 use YouSaidItCards\Admin\SettingPage;
 use YouSaidItCards\Modules\InnerMessage\PdfGenerator;
@@ -87,9 +88,9 @@ class PDFMerger {
 	protected $bottom_padding = 0;
 
 	/**
-	 * @param OrderItem[] $order_items
-	 * @param Fpdi $pdf
-	 * @param array $args
+	 * @param  OrderItem[]  $order_items
+	 * @param  Fpdi  $pdf
+	 * @param  array  $args
 	 *
 	 * @throws CrossReferenceException
 	 * @throws FilterException
@@ -120,11 +121,21 @@ class PDFMerger {
 			foreach ( range( 1, $order_item->get_quantity() ) as $qty ) {
 				if ( in_array( $type, [ 'both', 'pdf' ] ) ) {
 					// Import card
-					self::import_base_card( $pdf, $order_item );
+					try {
+						self::import_base_card( $pdf, $order_item );
+					} catch ( \Exception $exception ) {
+						Logger::log( [
+							'pdf_error_message' => $exception->getMessage(),
+							'pdf_url'           => $order_item->get_pdf_url(),
+						] );
+						continue;
+					}
 					$is_in_other_products = false;
-					if ($order_item->has_product()){
-						$is_in_other_products = in_array( $order_item->get_product()->get_id(), $other_products_ids, true ) ||
-					                        in_array( $order_item->get_product()->get_parent_id(), $other_products_ids, true );
+					if ( $order_item->has_product() ) {
+						$is_in_other_products = in_array( $order_item->get_product()->get_id(), $other_products_ids,
+								true ) ||
+						                        in_array( $order_item->get_product()->get_parent_id(),
+							                        $other_products_ids, true );
 					}
 
 					if ( ! $order_item->is_dynamic_card_type() && ! $is_in_other_products ) {
@@ -142,17 +153,18 @@ class PDFMerger {
 
 				if ( in_array( $type, [ 'both', 'im' ] ) ) {
 					// Add new page for inner message
-					self::_add_message( $pdf, $order_item, $order_item->get_pdf_width(), $order_item->get_pdf_height() );
+					self::_add_message( $pdf, $order_item, $order_item->get_pdf_width(),
+						$order_item->get_pdf_height() );
 				}
 			}
 		}
 	}
 
 	/**
-	 * @param Fpdi $pdf
-	 * @param OrderItem $order_item
-	 * @param int|float $card_width
-	 * @param int|float $card_height
+	 * @param  Fpdi  $pdf
+	 * @param  OrderItem  $order_item
+	 * @param  int|float  $card_width
+	 * @param  int|float  $card_height
 	 */
 	protected static function add_inner_message( Fpdi &$pdf, OrderItem $order_item, $card_width, $card_height ) {
 		$pdf->addPage();
@@ -190,7 +202,7 @@ class PDFMerger {
 	}
 
 	/**
-	 * @param int $px
+	 * @param  int  $px
 	 *
 	 * @return float|int
 	 */
@@ -199,10 +211,10 @@ class PDFMerger {
 	}
 
 	/**
-	 * @param Fpdi $pdf
-	 * @param int|string $order_id
-	 * @param int $card_width
-	 * @param int $card_height
+	 * @param  Fpdi  $pdf
+	 * @param  int|string  $order_id
+	 * @param  int  $card_width
+	 * @param  int  $card_height
 	 */
 	protected static function add_qr_code( Fpdi &$pdf, $order_id, $card_width, $card_height ) {
 		$qr_size = 10;
@@ -217,8 +229,8 @@ class PDFMerger {
 	/**
 	 * Add functionality to add designer logo
 	 *
-	 * @param Fpdi $pdf
-	 * @param OrderItem $order_item
+	 * @param  Fpdi  $pdf
+	 * @param  OrderItem  $order_item
 	 */
 	public static function add_designer_logo( Fpdi &$pdf, OrderItem $order_item ) {
 		if ( ! $order_item->get_designer_id() ) {
@@ -238,19 +250,34 @@ class PDFMerger {
 		$y_position  = ( $pdf_height / 4 ) - ( $qr_size / 2 );
 		$text_length = ( 11 * 1.5 ); // Character length + letter spacing
 
+		$mime_type = wp_get_image_mime( $logo_url );
+		if ( ! in_array( $mime_type, [ 'image/jpeg', 'image/gif', 'image/png' ] ) ) {
+			return;
+		}
+		if ( 'image/png' === $mime_type ) {
+			$type = 'png';
+		} elseif ( 'image/gif' === $mime_type ) {
+			$type = 'gif';
+		} else {
+			$type = 'jpg';
+		}
+
 		$pdf->SetFont( 'Courier' );
 		$pdf->Cell( ( $pdf_width / 2 ) - $text_length, 10, 'Designed by', 0, 0, 'C' );
 		$pdf->Image(
 			$logo_url, // QR file Path
 			$x_position, // x position
 			$y_position, // y position
-			$qr_size, $qr_size, 'jpeg' );
+			$qr_size,
+			$qr_size,
+			$type
+		);
 	}
 
 	/**
-	 * @param Fpdi $pdf
-	 * @param int $card_height
-	 * @param int|string $total_qty
+	 * @param  Fpdi  $pdf
+	 * @param  int  $card_height
+	 * @param  int|string  $total_qty
 	 */
 	protected static function add_total_qty( Fpdi &$pdf, $card_height, $total_qty = 0 ) {
 		$file_path  = QtyCode::get_qty_code_file( $total_qty );
@@ -267,8 +294,8 @@ class PDFMerger {
 	}
 
 	/**
-	 * @param Fpdi $pdf
-	 * @param OrderItem $order_item
+	 * @param  Fpdi  $pdf
+	 * @param  OrderItem  $order_item
 	 * @param $card_width
 	 * @param $card_height
 	 *
@@ -297,10 +324,9 @@ class PDFMerger {
 	}
 
 	/**
-	 * @param Fpdi $pdf
-	 * @param OrderItem $order_item
+	 * @param  Fpdi  $pdf
+	 * @param  OrderItem  $order_item
 	 *
-	 * @return mixed
 	 * @throws CrossReferenceException
 	 * @throws FilterException
 	 * @throws PdfParserException
@@ -319,8 +345,6 @@ class PDFMerger {
 		$pageId = $pdf->importPage( 1, PageBoundaries::MEDIA_BOX );
 		list( $card_width, $card_height ) = $pdf->getImportedPageSize( $pageId );
 		$pdf->useImportedPage( $pageId, 0, 0, $card_width, $card_height );
-
-		return $card_height;
 	}
 
 	/**
@@ -335,7 +359,7 @@ class PDFMerger {
 	/**
 	 * Set PDF orientation
 	 *
-	 * @param string $orientation
+	 * @param  string  $orientation
 	 *
 	 * @return self
 	 */
@@ -360,7 +384,7 @@ class PDFMerger {
 	/**
 	 * Set PDF size
 	 *
-	 * @param string|array $size
+	 * @param  string|array  $size
 	 *
 	 * @return self
 	 */
@@ -391,7 +415,7 @@ class PDFMerger {
 	/**
 	 * Set unit
 	 *
-	 * @param string $unit
+	 * @param  string  $unit
 	 *
 	 * @return self
 	 */
@@ -434,7 +458,7 @@ class PDFMerger {
 	/**
 	 * Set files
 	 *
-	 * @param array $files
+	 * @param  array  $files
 	 *
 	 * @return self
 	 */
@@ -456,7 +480,7 @@ class PDFMerger {
 	/**
 	 * Set card width
 	 *
-	 * @param float|int $card_width
+	 * @param  float|int  $card_width
 	 *
 	 * @return self
 	 */
@@ -478,7 +502,7 @@ class PDFMerger {
 	/**
 	 * Set card height
 	 *
-	 * @param float|int $card_height
+	 * @param  float|int  $card_height
 	 *
 	 * @return self
 	 */
@@ -500,7 +524,7 @@ class PDFMerger {
 	/**
 	 * Set top padding
 	 *
-	 * @param float|int $top_padding
+	 * @param  float|int  $top_padding
 	 *
 	 * @return self
 	 */
@@ -522,7 +546,7 @@ class PDFMerger {
 	/**
 	 * Set right padding
 	 *
-	 * @param float|int $right_padding
+	 * @param  float|int  $right_padding
 	 *
 	 * @return self
 	 */
@@ -544,7 +568,7 @@ class PDFMerger {
 	/**
 	 * Set bottom padding
 	 *
-	 * @param float|int $bottom_padding
+	 * @param  float|int  $bottom_padding
 	 *
 	 * @return self
 	 */
@@ -656,7 +680,8 @@ class PDFMerger {
 				$stream1      = StreamReader::createByString( $file1Content );
 				$pdf->setSourceFile( $stream1 );
 				$page1Id = $pdf->importPage( 1, PageBoundaries::MEDIA_BOX );
-				$pdf->useImportedPage( $page1Id, self::get_x_point(), self::get_first_y_point(), $this->get_card_width() );
+				$pdf->useImportedPage( $page1Id, self::get_x_point(), self::get_first_y_point(),
+					$this->get_card_width() );
 			}
 
 			if ( ! empty( $pdf2_path ) ) {
@@ -664,7 +689,8 @@ class PDFMerger {
 				$stream2      = StreamReader::createByString( $file2Content );
 				$pdf->setSourceFile( $stream2 );
 				$page2Id = $pdf->importPage( 1, PageBoundaries::MEDIA_BOX );
-				$pdf->useImportedPage( $page2Id, self::get_x_point(), self::get_second_y_point(), $this->get_card_width() );
+				$pdf->useImportedPage( $page2Id, self::get_x_point(), self::get_second_y_point(),
+					$this->get_card_width() );
 			}
 		}
 
@@ -674,8 +700,8 @@ class PDFMerger {
 	/**
 	 * Output PDF
 	 *
-	 * @param string $destination
-	 * @param string $name
+	 * @param  string  $destination
+	 * @param  string  $name
 	 */
 	public function output( $destination = 'D', $name = 'doc.pdf' ) {
 		try {
