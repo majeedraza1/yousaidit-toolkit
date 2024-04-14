@@ -109,7 +109,7 @@ class CardDesigner implements JsonSerializable {
 	/**
 	 * CardDesigner constructor.
 	 *
-	 * @param WP_User|int|null $user
+	 * @param  WP_User|int|null  $user
 	 */
 	public function __construct( $user = null ) {
 		if ( $user instanceof WP_User ) {
@@ -124,8 +124,8 @@ class CardDesigner implements JsonSerializable {
 	}
 
 	/**
-	 * @param int $designer_id
-	 * @param array $filters
+	 * @param  int  $designer_id
+	 * @param  array  $filters
 	 *
 	 * @return array List of product ids
 	 */
@@ -157,7 +157,8 @@ class CardDesigner implements JsonSerializable {
 		if ( count( $product_ids ) ) {
 			global $wpdb;
 			$ids       = array_map( 'intval', $product_ids );
-			$sql       = "SELECT `term_taxonomy_id` FROM `{$wpdb->term_relationships}` WHERE `object_id` IN(" . implode( ", ", $ids ) . ")";
+			$sql       = "SELECT `term_taxonomy_id` FROM `{$wpdb->term_relationships}` WHERE `object_id` IN(" . implode( ", ",
+					$ids ) . ")";
 			$results   = $wpdb->get_results( $sql, ARRAY_A );
 			$terms_ids = wp_list_pluck( $results, 'term_taxonomy_id' );
 			$terms_ids = array_unique( array_map( 'intval', $terms_ids ) );
@@ -191,6 +192,7 @@ class CardDesigner implements JsonSerializable {
 			'card_logo_url'        => $this->get_card_logo_url(),
 			'total_cards'          => $this->get_total_cards_count(),
 			'profile_base_url'     => $this->get_profile_base_url(),
+			'profile_edit_url'     => $this->get_profile_edit_url(),
 			'maximum_allowed_card' => $this->get_maximum_allowed_card(),
 			'can_add_dynamic_card' => $this->can_add_dynamic_card(),
 			'total_sales'          => 0,
@@ -289,7 +291,7 @@ class CardDesigner implements JsonSerializable {
 	/**
 	 * Get avatar url
 	 *
-	 * @param int $size
+	 * @param  int  $size
 	 *
 	 * @return string
 	 */
@@ -361,7 +363,7 @@ class CardDesigner implements JsonSerializable {
 	}
 
 	/**
-	 * @param array $args
+	 * @param  array  $args
 	 *
 	 * @return array
 	 */
@@ -383,8 +385,8 @@ class CardDesigner implements JsonSerializable {
 	}
 
 	/**
-	 * @param int $user_id
-	 * @param array $data
+	 * @param  int  $user_id
+	 * @param  array  $data
 	 *
 	 * @return int|\WP_Error
 	 */
@@ -397,8 +399,8 @@ class CardDesigner implements JsonSerializable {
 	/**
 	 * Update user meta
 	 *
-	 * @param int $user_id
-	 * @param array $data
+	 * @param  int  $user_id
+	 * @param  array  $data
 	 */
 	public function update_meta_data( $user_id, array $data ) {
 		foreach ( $data as $key => $value ) {
@@ -422,7 +424,7 @@ class CardDesigner implements JsonSerializable {
 	/**
 	 * Read user card
 	 *
-	 * @param array $args
+	 * @param  array  $args
 	 *
 	 * @return array|DesignerCard[]
 	 */
@@ -502,6 +504,13 @@ class CardDesigner implements JsonSerializable {
 	 */
 	public function get_profile_base_url() {
 		return site_url( static::PROFILE_ENDPOINT );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function get_profile_edit_url(): string {
+		return add_query_arg( [ 's' => $this->user->user_email ], admin_url( 'users.php' ) );
 	}
 
 	/**

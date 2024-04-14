@@ -129,39 +129,48 @@
           </div>
         </ShaplaTab>
         <ShaplaTab name="Designer Info">
-          <ShaplaColumns multiline>
-            <ShaplaColumn :tablet="3"><strong>Name</strong></ShaplaColumn>
-            <ShaplaColumn :tablet="9">{{ store.card.designer.display_name }}</ShaplaColumn>
-          </ShaplaColumns>
-          <ShaplaColumns multiline>
-            <ShaplaColumn :tablet="3"><strong>Email</strong></ShaplaColumn>
-            <ShaplaColumn :tablet="9">{{ store.card.designer.email }}</ShaplaColumn>
-          </ShaplaColumns>
-          <ShaplaColumns multiline>
-            <ShaplaColumn :tablet="3"><strong>Total Cards</strong></ShaplaColumn>
-            <ShaplaColumn :tablet="9">{{ store.card.designer.total_cards }}</ShaplaColumn>
-          </ShaplaColumns>
+          <div class="yousaiditcard_designer_card__content">
+            <ShaplaColumns multiline>
+              <ShaplaColumn :tablet="3"><strong>Name</strong></ShaplaColumn>
+              <ShaplaColumn :tablet="9">{{ store.card.designer.display_name }}</ShaplaColumn>
+            </ShaplaColumns>
+            <ShaplaColumns multiline>
+              <ShaplaColumn :tablet="3"><strong>Email</strong></ShaplaColumn>
+              <ShaplaColumn :tablet="9">
+                {{ store.card.designer.email }}<br>
+                <p>
+                  <a class="button" href="#" @click.prevent="goToDesignerPage(store.card.designer.id)">View designer</a>
+                </p>
+              </ShaplaColumn>
+            </ShaplaColumns>
+            <ShaplaColumns multiline>
+              <ShaplaColumn :tablet="3"><strong>Total Cards</strong></ShaplaColumn>
+              <ShaplaColumn :tablet="9">{{ store.card.designer.total_cards }}</ShaplaColumn>
+            </ShaplaColumns>
+          </div>
         </ShaplaTab>
         <ShaplaTab name="Commission Info" v-if="'accepted' === store.card.status">
-          <template v-if="hasCommissionData">
-            <ShaplaColumns multiline>
-              <ShaplaColumn :tablet="3">Commission type</ShaplaColumn>
-              <ShaplaColumn :tablet="9">
-                {{ store.card.commission.commission_type }}
-              </ShaplaColumn>
-            </ShaplaColumns>
-            <ShaplaColumns multiline>
-              <ShaplaColumn :tablet="3">Commission Amount</ShaplaColumn>
-              <ShaplaColumn :tablet="9">
-                <div v-for="(amount,key) in store.card.commission.commission_amount">
-                  <strong>{{ amount }}</strong> <small>for size: {{ key }}</small>
-                </div>
-              </ShaplaColumn>
-            </ShaplaColumns>
-          </template>
-          <template v-else>
-            No commission information yet
-          </template>
+          <div class="yousaiditcard_designer_card__content">
+            <template v-if="hasCommissionData">
+              <ShaplaColumns multiline>
+                <ShaplaColumn :tablet="3">Commission type</ShaplaColumn>
+                <ShaplaColumn :tablet="9">
+                  {{ store.card.commission.commission_type }}
+                </ShaplaColumn>
+              </ShaplaColumns>
+              <ShaplaColumns multiline>
+                <ShaplaColumn :tablet="3">Commission Amount</ShaplaColumn>
+                <ShaplaColumn :tablet="9">
+                  <div v-for="(amount,key) in store.card.commission.commission_amount">
+                    <strong>{{ amount }}</strong> <small>for size: {{ key }}</small>
+                  </div>
+                </ShaplaColumn>
+              </ShaplaColumns>
+            </template>
+            <template v-else>
+              No commission information yet
+            </template>
+          </div>
         </ShaplaTab>
       </ShaplaTabs>
       <ShaplaModal :active="state.showRejectConfirmModal" @close="state.showRejectConfirmModal = false"
@@ -300,11 +309,12 @@ import {Notify} from '@shapla/vanilla-components'
 import PdfCardItem from "../components/PdfCardItem.vue";
 import PdfImageItem from "../components/PdfImageItem.vue";
 import ModalCardCommission from "../components/ModalCardCommission.vue";
-import {useRoute} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 import useAdminDesignerCardStore from "../stores/card-store.ts";
 import {computed, onMounted, reactive, ref} from "vue";
 
 const route = useRoute();
+const router = useRouter();
 const store = useAdminDesignerCardStore();
 const card_id = ref<number>(0)
 const state = reactive({
@@ -392,10 +402,14 @@ const onAcceptCard = (card_id: number) => {
   })
 }
 
-const onRejectCard= (card_id: number) => {
+const onRejectCard = (card_id: number) => {
   store.rejectCard(card_id).then(() => {
     state.showRejectConfirmModal = false;
   })
+}
+
+const goToDesignerPage = (designer_id: number | string) => {
+  router.push({name: 'Designer', params: {id: designer_id}});
 }
 
 

@@ -18,7 +18,10 @@
           </ShaplaColumns>
           <ShaplaColumns multiline>
             <ShaplaColumn :tablet="3">Email</ShaplaColumn>
-            <ShaplaColumn :tablet="9">{{ designer.email }}</ShaplaColumn>
+            <ShaplaColumn :tablet="9">
+              <div>{{ designer.email }}</div>
+              <a :href="designer.profile_edit_url" target="_blank">View on user table</a>
+            </ShaplaColumn>
           </ShaplaColumns>
           <ShaplaColumns multiline>
             <ShaplaColumn :tablet="3">Business Name</ShaplaColumn>
@@ -76,6 +79,8 @@
         <ShaplaTable
             :items="store.designer_cards"
             :columns="columns"
+            :actions="[{label:'View',key:'view'}]"
+            @click:action="onCardActionClick"
         />
         <div class="mt-2">
           <ShaplaTablePagination
@@ -86,7 +91,7 @@
           />
         </div>
       </ShaplaTab>
-      <ShaplaTab name="Commissions" selected>
+      <ShaplaTab name="Commissions">
         <div class="mb-2">
           <ShaplaTablePagination
               :current-page="store.commissions_pagination.current_page"
@@ -164,12 +169,14 @@ import {
 } from '@shapla/vue-components';
 import {computed, onMounted, reactive} from "vue";
 import useAdminDesignerStore from "../store.ts";
-import {useRoute} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 import {DesignerInterface} from "../../interfaces/designer.ts";
 import {PaginationDataInterface} from "../../utils/CrudOperation.ts";
+import {DesignerCardModelInterface} from "../../interfaces/designer-card.ts";
 
 const store = useAdminDesignerStore();
 const route = useRoute();
+const router = useRouter();
 
 const state = reactive({
   id: 0,
@@ -192,7 +199,7 @@ const columns = [
   {key: 'total_sale', label: 'Total Sales', numeric: true},
 ]
 
-const commissions_columns =[
+const commissions_columns = [
   {key: 'order_id', label: 'Order'},
   {key: 'product_title', label: 'Product Title'},
   {key: 'card_size', label: 'Card Size'},
@@ -203,12 +210,18 @@ const commissions_columns =[
   {key: 'total_commission', label: 'Total Commission', numeric: true},
 ];
 
+const onCardActionClick = (action: string, item: DesignerCardModelInterface) => {
+  if ('view' === action) {
+    router.push({name: 'Card', params: {id: item.id}})
+  }
+}
+
 onMounted(() => {
   state.id = parseInt(route.params.id);
   if (state.id) {
     store.getDesigner(state.id);
     store.getDesignerCards(1, state.id)
-    store.getDesignerCommissions( 1,state.id)
+    store.getDesignerCommissions(1, state.id)
   }
 })
 </script>

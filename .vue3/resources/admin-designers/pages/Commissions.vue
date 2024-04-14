@@ -19,6 +19,12 @@
             :items="state.commissions"
             :columns="columns"
         >
+          <template v-slot:product_title="data">
+            <a href="#" @click.prevent="goToCardPage(data.row.card_id)">{{ data.row.product_title }}</a>
+          </template>
+          <template v-slot:designer_name="data">
+            <a href="#" @click.prevent="goToDesignerPage(data.row.designer_id)">{{ data.row.designer_name }}</a>
+          </template>
           <template v-slot:payment_status="data">
 					<span :class="`payment-status--${data.row.payment_status}`">
 						{{ data.row.payment_status }}
@@ -117,6 +123,9 @@ import {
 } from '@shapla/vue-components';
 import {Dialog, Notify, Spinner} from "@shapla/vanilla-components";
 import {computed, onMounted, reactive, watch} from "vue";
+import {useRouter} from "vue-router";
+
+const router = useRouter();
 
 const state = reactive({
   commissions: [],
@@ -232,6 +241,14 @@ const deleteCommission = (data) => {
       });
     }
   })
+}
+
+const goToDesignerPage = (designer_id: number | string) => {
+  router.push({name: 'Designer', params: {id: designer_id}});
+}
+
+const goToCardPage = (card_id: number | string) => {
+  router.push({name: 'Card', params: {id: card_id}});
 }
 
 watch(() => state.designer, () => getCommissions())
