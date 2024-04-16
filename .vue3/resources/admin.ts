@@ -8,6 +8,7 @@ import './admin-order-dispatcher/main.ts'
 import './admin-reminders/main.ts'
 import './admin-settings-ai-content-writer/main.ts'
 import './admin-settings-dispatch-timer/main.ts'
+import './admin-stability-ai/main.ts'
 import './admin-tree-planting/main.ts'
 import './scss/admin.scss'
 

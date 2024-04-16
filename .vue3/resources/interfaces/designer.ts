@@ -26,7 +26,7 @@ interface DesignerInterface {
   card_logo_url: string;
   total_cards: number;
   profile_base_url: string;
-  profile_edit_url: string;
+  profile_edit_url?: string;
   maximum_allowed_card: number;
   can_add_dynamic_card: boolean;
   total_sales: number;

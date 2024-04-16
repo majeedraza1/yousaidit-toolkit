@@ -30,6 +30,7 @@ use YouSaidItCards\Modules\OrderDispatcher\OrderDispatcherManager;
 use YouSaidItCards\Modules\PackingSlip\PackingSlipManager;
 use YouSaidItCards\Modules\Reminders\RemindersManager;
 use YouSaidItCards\Modules\RudeProduct\RudeProductManager;
+use YouSaidItCards\Modules\StabilityAi\StabilityAiManager;
 use YouSaidItCards\Modules\TradeSite\TradeSiteManager;
 use YouSaidItCards\Modules\TreePlanting\TreePlantingManager;
 use YouSaidItCards\Modules\WooCommerce\WooCommerceManager;
@@ -163,6 +164,7 @@ class Plugin {
 		$this->container['module_font_manager']      = FontManager::init();
 		$this->container['module_local_development'] = Manager::init();
 		$this->container['module_art_work']          = ArtWorkManager::init();
+		$this->container['module_stability_ai']      = StabilityAiManager::init();
 	}
 
 	/**

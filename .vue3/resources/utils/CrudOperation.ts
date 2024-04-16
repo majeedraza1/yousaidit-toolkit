@@ -1,5 +1,5 @@
 import {AxiosInstance} from 'axios';
-import {Notify, Spinner} from '@shapla/vue-components';
+import {Notify, Spinner} from '@shapla/vanilla-components';
 
 interface PaginationDataInterface {
   total_items: number;
@@ -61,7 +61,7 @@ class CrudOperation {
    */
   public getItems(params: CollectionArgumentInterface = {}): Promise<ServerCollectionResponseDataInterface> {
     return new Promise((resolve) => {
-      Spinner.activate();
+      Spinner.show();
       this.http
         .get(this.endpoint, {params})
         .then((response) => {
@@ -77,7 +77,7 @@ class CrudOperation {
           }
         })
         .finally(() => {
-          Spinner.deactivate();
+          Spinner.hide();
         });
     });
   }
@@ -89,7 +89,7 @@ class CrudOperation {
    */
   public getItem(id: number): Promise<Record<string, unknown>> {
     return new Promise((resolve) => {
-      Spinner.activate();
+      Spinner.show();
       this.http
         .get(`${this.endpoint}/${id}`)
         .then((response) => {
@@ -105,7 +105,7 @@ class CrudOperation {
           }
         })
         .finally(() => {
-          Spinner.deactivate();
+          Spinner.hide();
         });
     });
   }
@@ -117,7 +117,7 @@ class CrudOperation {
    */
   public createItem(data: Record<string, any>): Promise<unknown> {
     return new Promise((resolve) => {
-      Spinner.activate();
+      Spinner.show();
       this.http
         .post(this.endpoint, data)
         .then((response) => {
@@ -134,7 +134,7 @@ class CrudOperation {
           }
         })
         .finally(() => {
-          Spinner.deactivate();
+          Spinner.hide();
         });
     });
   }
@@ -147,7 +147,7 @@ class CrudOperation {
    */
   public updateItem(id: number, data: Record<string, any>): Promise<Record<string, unknown>> {
     return new Promise((resolve) => {
-      Spinner.activate();
+      Spinner.show();
       this.http
         .put(`${this.endpoint}/${id}`, data)
         .then((response) => {
@@ -164,7 +164,7 @@ class CrudOperation {
           }
         })
         .finally(() => {
-          Spinner.deactivate();
+          Spinner.hide();
         });
     });
   }
@@ -176,7 +176,7 @@ class CrudOperation {
    */
   public deleteItem(id: number): Promise<any> {
     return new Promise((resolve) => {
-      Spinner.activate();
+      Spinner.show();
       this.http
         .delete(`${this.endpoint}/${id}`)
         .then((response) => {
@@ -193,7 +193,7 @@ class CrudOperation {
           }
         })
         .finally(() => {
-          Spinner.deactivate();
+          Spinner.hide();
         });
     });
   }
@@ -205,7 +205,7 @@ class CrudOperation {
    */
   public trashItem(id: number): Promise<any> {
     return new Promise((resolve) => {
-      Spinner.activate();
+      Spinner.show();
       this.http
         .post(`${this.endpoint}/${id}/trash`)
         .then((response) => {
@@ -222,7 +222,7 @@ class CrudOperation {
           }
         })
         .finally(() => {
-          Spinner.deactivate();
+          Spinner.hide();
         });
     });
   }
@@ -234,7 +234,7 @@ class CrudOperation {
    */
   public restoreItem(id: number): Promise<any> {
     return new Promise((resolve) => {
-      Spinner.activate();
+      Spinner.show();
       this.http
         .post(`${this.endpoint}/${id}/restore`)
         .then((response) => {
@@ -251,14 +251,14 @@ class CrudOperation {
           }
         })
         .finally(() => {
-          Spinner.deactivate();
+          Spinner.hide();
         });
     });
   }
 
   public batch(action, payload = []): Promise<any> {
     return new Promise((resolve) => {
-      Spinner.activate();
+      Spinner.show();
       this.http
         .post(`${this.endpoint}/batch`, {action, payload})
         .then((response) => {
@@ -275,14 +275,14 @@ class CrudOperation {
           }
         })
         .finally(() => {
-          Spinner.deactivate();
+          Spinner.hide();
         });
     });
   }
 
   public post(endpoint, payload = []): Promise<any> {
     return new Promise((resolve) => {
-      Spinner.activate();
+      Spinner.show();
       this.http
         .post(endpoint, payload)
         .then((response) => {
@@ -298,7 +298,7 @@ class CrudOperation {
           }
         })
         .finally(() => {
-          Spinner.deactivate();
+          Spinner.hide();
         });
     });
   }
