@@ -7,7 +7,6 @@ use WC_Order;
 use WC_Order_Item_Product;
 use YouSaidItCards\Assets;
 use YouSaidItCards\FreePdfExtended;
-use YouSaidItCards\Modules\DynamicCard\ImageGenerator;
 use YouSaidItCards\Modules\FontManager\Font;
 use YouSaidItCards\Modules\FontManager\Models\FontInfo;
 use YouSaidItCards\Modules\OrderDispatcher\QrCode;
@@ -27,6 +26,9 @@ class OrderItemDynamicCard {
 	protected $background_type = 'color';
 	protected $background_color = '#ffffff';
 	protected $background_image = 0;
+	/**
+	 * @var CardSectionTextOption[]|CardSectionImageOption[]
+	 */
 	protected $card_sections = [];
 	protected $order;
 	protected $order_item;
@@ -321,7 +323,8 @@ class OrderItemDynamicCard {
 	private function addTextSection( FreePdfExtended &$fpd, CardSectionTextOption $section ) {
 		list( $red, $green, $blue ) = FreePdfBase::find_rgb_color( $section->get_text_option( 'color' ) );
 		$fpd->SetTextColor( $red, $green, $blue );
-		$fpd->SetFont( $section->get_text_option( 'fontFamily' ), '', $section->get_text_option( 'size' ) );
+		$font = Font::find_font_info( $section->get_font_family() );
+		$fpd->SetFont( $font->get_font_family_for_dompdf(), '', $section->get_text_option( 'size' ) );
 
 		$text_width = $fpd->GetStringWidth( $section->get_text() );
 		$y_pos      = + $section->get_position_from_top_mm() + FreePdfBase::points_to_mm( $section->get_text_option( 'size' ) * 0.75 );
@@ -390,10 +393,11 @@ class OrderItemDynamicCard {
 	private function addCustomFonts( tFPDF &$fpd ) {
 		$added_fonts = [];
 		foreach ( $this->card_sections as $item ) {
-			if ( ! in_array( $item['section_type'], [ 'static-text', 'input-text' ] ) ) {
+			if ( ! $item instanceof CardSectionTextOption ) {
 				continue;
 			}
-			$font = Font::find_font_info( $item['textOptions']['fontFamily'] );
+
+			$font = Font::find_font_info( $item->get_font_family() );
 			if ( ! $font instanceof FontInfo ) {
 				continue;
 			}
