@@ -2,27 +2,33 @@
 import {onMounted, reactive} from "vue";
 import CrudOperation from "../utils/CrudOperation.ts";
 import http from "../utils/axios.ts";
-import {SettingResponseInterface} from "./interfaces.ts";
+import {SettingInterface, SettingResponseInterface, StabilityAiEngineInterface} from "./interfaces.ts";
 import {ShaplaButton} from "@shapla/vue-components";
 
 const crud = new CrudOperation('admin/stability-ai-logs/settings', http);
 
-const state = reactive({
+const state = reactive<{
+  readFromServer: boolean;
+  editable: boolean;
+  message: string;
+  style_presets: string[];
+  engines: StabilityAiEngineInterface[];
+  settings: SettingInterface;
+}>({
   readFromServer: false,
   editable: false,
   message: '',
   engines: [],
   style_presets: [],
   settings: {
-    apiKey: '',
+    api_key: '',
     engine_id: 'stable-diffusion-v1-6',
     style_preset: '',
-    imageWidth: 1280,
-    imageHeight: 720,
-    defaultPrompt: '',
-    autoGenerateThumbnail: false,
-    generateThumbnailFor: ['post'],
-    fileNamingMethod: 'post_title',
+    default_prompt: '',
+    file_naming_method: 'uuid',
+    max_allowed_images_for_guest_user: 5,
+    max_allowed_images_for_auth_user: 20,
+    remove_images_after_days: 30,
   },
 });
 
@@ -66,7 +72,7 @@ onMounted(() => {
       <tr>
         <th>Stability.ai API Key</th>
         <td>
-          <input type="text" class="regular-text" v-model="state.settings.apiKey"/>
+          <input type="text" class="regular-text" v-model="state.settings.api_key"/>
         </td>
       </tr>
       <tr>
@@ -97,21 +103,39 @@ onMounted(() => {
       <tr>
         <th>Prompt</th>
         <td>
-          <textarea class="large-text code" :rows='5' v-model="state.settings.defaultPrompt"></textarea>
+          <textarea class="large-text code" :rows='5' v-model="state.settings.default_prompt"></textarea>
           <p class="description">
             Available placeholders<br>
             <span v-text="`{{title}}`"></span> to get post title
           </p>
         </td>
       </tr>
+      <tr>
+        <th>Daily maximum allowed images for guest user</th>
+        <td>
+          <input type="number" class="regular-text" v-model="state.settings.max_allowed_images_for_guest_user"/>
+        </td>
+      </tr>
+      <tr>
+        <th>Daily maximum allowed images for auth user</th>
+        <td>
+          <input type="number" class="regular-text" v-model="state.settings.max_allowed_images_for_auth_user"/>
+        </td>
+      </tr>
+      <tr>
+        <th>Keep images on server (in days)</th>
+        <td>
+          <input type="number" class="regular-text" v-model="state.settings.remove_images_after_days"/>
+        </td>
+      </tr>
     </table>
+    <p class="submit">
+      <button class="button button-primary" @click="updateSettings">
+        Save Changes
+      </button>
+    </p>
     <div v-if="!state.editable" class="absolute top-0 left-0 w-full h-full bg-red-200 bg-opacity-25"></div>
   </div>
-  <p class="submit">
-    <button class="button button-primary" @click="updateSettings">
-      Save Changes
-    </button>
-  </p>
   <div v-if="state.editable" class="bg-white p-1 rounded border border-solid border-red-600">
     <p class="text-base font-bold m-0">
       You can also define the setting via 'wp-config.php' file.
@@ -120,17 +144,22 @@ onMounted(() => {
     <div class="p-2 mt-2">
       <pre class="flex flex-col bg-gray-100 overflow-x-auto m-0">
         <code class="w-full bg-gray-100">define( 'STABILITY_AI_SETTINGS', json_encode( [</code>
-        <code class="w-full bg-gray-100">    'apiKey' =&gt; '{{ state.settings.apiKey }}',</code>
+        <code class="w-full bg-gray-100">    'api_key' =&gt; '{{ state.settings.api_key }}',</code>
         <code class="w-full bg-gray-100">    'engine_id' =&gt; '{{ state.settings.engine_id }}',</code>
         <code class="w-full bg-gray-100">    'style_preset' =&gt; '{{ state.settings.style_preset }}',</code>
-        <code class="w-full bg-gray-100">    'imageWidth' =&gt; {{ state.settings.imageWidth }},</code>
-        <code class="w-full bg-gray-100">    'imageHeight' =&gt; {{ state.settings.imageHeight }},</code>
-        <code class="w-full bg-gray-100">    'defaultPrompt' =&gt; '{{ state.settings.defaultPrompt }}',</code>
-        <code class="w-full bg-gray-100">    'fileNamingMethod' =&gt; '{{ state.settings.fileNamingMethod }}',</code>
-        <code
-            class="w-full bg-gray-100">    'autoGenerateThumbnail' =&gt; {{
-            state.settings.autoGenerateThumbnail ? 'true' : 'false'
+        <code class="w-full bg-gray-100">    'default_prompt' =&gt; '{{ state.settings.default_prompt }}',</code>
+        <code class="w-full bg-gray-100">    'max_allowed_images_for_guest_user' =&gt; {{
+            state.settings.max_allowed_images_for_guest_user
           }},</code>
+        <code class="w-full bg-gray-100">    'max_allowed_images_for_auth_user' =&gt; {{
+            state.settings.max_allowed_images_for_auth_user
+          }},</code>
+        <code class="w-full bg-gray-100">    'remove_images_after_days' =&gt; {{
+            state.settings.remove_images_after_days
+          }},</code>
+        <code class="w-full bg-gray-100">    'file_naming_method' =&gt; '{{
+            state.settings.file_naming_method
+          }}',</code>
         <code class="w-full bg-gray-100">] ) );</code>
       </pre>
     </div>

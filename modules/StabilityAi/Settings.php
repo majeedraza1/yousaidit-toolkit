@@ -3,7 +3,6 @@
 namespace YouSaidItCards\Modules\StabilityAi;
 
 use Stackonet\WP\Framework\Supports\Sanitize;
-use Stackonet\WP\Framework\Supports\Validate;
 
 /**
  * Settings class
@@ -21,13 +20,16 @@ class Settings {
 	 */
 	public static function defaults(): array {
 		return [
-			'apiKey'                => '',
-			'engine_id'             => 'stable-diffusion-v1-6',
-			'style_preset'          => '',
-			'imageWidth'            => 1024,
-			'imageHeight'           => 1024,
-			'defaultPrompt'         => 'White background with text "{{title}}". Make font size bigger so the text cover 75% of image.',
-			'fileNamingMethod'      => 'uuid',
+			'api_key'                           => '',
+			'engine_id'                         => 'stable-diffusion-v1-6',
+			'style_preset'                      => '',
+			'max_allowed_images_for_guest_user' => 5,
+			'max_allowed_images_for_auth_user'  => 20,
+			'remove_images_after_days'          => 30,
+			'image_width'                       => 1024,
+			'image_height'                      => 1024,
+			'default_prompt'                    => 'Generate a {{style}} image for my {{recipient}} {{occasion}} occasion.',
+			'file_naming_method'                => 'uuid',
 		];
 	}
 
@@ -66,7 +68,7 @@ class Settings {
 	/**
 	 * Update settings
 	 *
-	 * @param  mixed $value  Raw value to be updated.
+	 * @param  mixed  $value  Raw value to be updated.
 	 *
 	 * @return array
 	 */
@@ -84,8 +86,6 @@ class Settings {
 						StabilityAiClient::get_style_presets(),
 						true
 					) ? $value[ $key ] : '';
-				} elseif ( 'autoGenerateThumbnail' === $key ) {
-					$sanitized[ $key ] = Validate::checked( $value[ $key ] );
 				} else {
 					$sanitized[ $key ] = Sanitize::deep( $value[ $key ] );
 				}
@@ -104,7 +104,7 @@ class Settings {
 	/**
 	 * Get setting
 	 *
-	 * @param  string $key  The setting key.
+	 * @param  string  $key  The setting key.
 	 * @param  mixed  $default  The default value.
 	 *
 	 * @return false|mixed
@@ -121,7 +121,7 @@ class Settings {
 	 * @return string
 	 */
 	public static function get_api_key(): string {
-		return (string) static::get_setting( 'apiKey' );
+		return (string) static::get_setting( 'api_key' );
 	}
 
 	/**
@@ -130,7 +130,7 @@ class Settings {
 	 * @return string
 	 */
 	public static function get_default_prompt(): string {
-		return (string) static::get_setting( 'defaultPrompt' );
+		return (string) static::get_setting( 'default_prompt' );
 	}
 
 	/**
@@ -139,7 +139,7 @@ class Settings {
 	 * @return string
 	 */
 	public static function get_file_naming_method(): string {
-		$naming_method = static::get_setting( 'fileNamingMethod' );
+		$naming_method = static::get_setting( 'file_naming_method' );
 		$valid         = [ 'uuid', 'post_title' ];
 
 		return in_array( $naming_method, $valid, true ) ? $naming_method : 'post_title';
@@ -169,7 +169,7 @@ class Settings {
 	 * @return int
 	 */
 	public static function get_image_width(): int {
-		$width = (int) static::get_setting( 'imageWidth' );
+		$width = (int) static::get_setting( 'image_width' );
 		if ( 'stable-diffusion-v1-6' === static::get_engine_id() ) {
 			$width = min( 1536, max( 320, $width ) );
 		}
@@ -189,7 +189,7 @@ class Settings {
 	 * @return int
 	 */
 	public static function get_image_height(): int {
-		$height = (int) static::get_setting( 'imageHeight' );
+		$height = (int) static::get_setting( 'image_height' );
 		if ( 'stable-diffusion-v1-6' === static::get_engine_id() ) {
 			$height = min( 1536, max( 320, $height ) );
 		}

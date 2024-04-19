@@ -50,12 +50,14 @@ class StabilityAiManager {
 				)
 			);
 		}
-		$response = Settings::get_api_key();
-		var_dump( [
-			$response,
-			'valid'  => $response / 64,
-			'valid2' => 960 % 64,
-		] );
+		$image    = StabilityAiClient::generate_stable_image_core( 'lovely bird' );
+		if ( is_wp_error( $image ) ) {
+			var_dump( $image );
+			wp_die();
+		}
+		header( 'Content-type: image/png' );
+		echo $image;
+//		var_dump( $image );
 		wp_die();
 	}
 }

@@ -48,6 +48,67 @@ class BackgroundGenerateThumbnail extends BackgroundProcessWithUiHelper {
 	}
 
 	/**
+	 * @param  string  $image_string
+	 * @param  string|null  $filename
+	 *
+	 * @return false|int|\WP_Error
+	 */
+	public static function create_image_from_string( string $image_string, ?string $filename = null ) {
+		if ( empty( $filename ) ) {
+			$filename = wp_generate_uuid4() . '.webp';
+		}
+		$directory     = rtrim( Uploader::get_upload_dir(), DIRECTORY_SEPARATOR );
+		$new_file_path = $directory . DIRECTORY_SEPARATOR . $filename;
+
+		try {
+			$imagick = new \Imagick();
+			$imagick->readImageBlob( $image_string );
+			$imagick->setImageFormat( 'webp' );
+			$imagick->setImageCompressionQuality( 83 );
+			$imagick->writeImage( $new_file_path );
+
+			$imagick->destroy();
+
+			// Set correct file permissions.
+			$stat  = stat( dirname( $new_file_path ) );
+			$perms = $stat['mode'] & 0000666;
+			chmod( $new_file_path, $perms );
+		} catch ( ImagickException $e ) {
+			Logger::log( $e->getMessage() );
+
+			return false;
+		}
+
+		$upload_dir = wp_upload_dir();
+		$data       = [
+			'guid'           => str_replace( $upload_dir['basedir'], $upload_dir['baseurl'], $new_file_path ),
+			'post_title'     => preg_replace( '/\.[^.]+$/', '', basename( $new_file_path ) ),
+			'post_status'    => 'inherit',
+			'post_mime_type' => 'image/webp',
+			'post_author'    => get_current_user_id(),
+		];
+
+		$attachment_id = wp_insert_attachment( $data, $new_file_path );
+
+		if ( ! is_wp_error( $attachment_id ) ) {
+			// Make sure that this file is included, as wp_read_video_metadata() depends on it.
+			require_once ABSPATH . 'wp-admin/includes/media.php';
+			// Make sure that this file is included, as wp_generate_attachment_metadata() depends on it.
+			require_once ABSPATH . 'wp-admin/includes/image.php';
+
+			// Generate the metadata for the attachment, and update the database record.
+			$attach_data = wp_generate_attachment_metadata( $attachment_id, $new_file_path );
+			wp_update_attachment_metadata( $attachment_id, $attach_data );
+
+			update_post_meta( $attachment_id, '_create_via', 'stability.ai' );
+
+			return $attachment_id;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Generate thumbnail for post.
 	 *
 	 * @param  WP_Post  $post  The post object.
@@ -84,56 +145,7 @@ class BackgroundGenerateThumbnail extends BackgroundProcessWithUiHelper {
 			$filename = sanitize_title_with_dashes( $post->post_title . ' image' ) . '.webp';
 		}
 
-		$directory     = rtrim( Uploader::get_upload_dir(), DIRECTORY_SEPARATOR );
-		$new_file_path = $directory . DIRECTORY_SEPARATOR . $filename;
-
-		try {
-			$imagick = new \Imagick();
-			$imagick->readImageBlob( $image_string );
-			$imagick->setImageFormat( 'webp' );
-			$imagick->setImageCompressionQuality( 83 );
-			$imagick->writeImage( $new_file_path );
-
-			$imagick->destroy();
-
-			// Set correct file permissions.
-			$stat  = stat( dirname( $new_file_path ) );
-			$perms = $stat['mode'] & 0000666;
-			chmod( $new_file_path, $perms );
-		} catch ( ImagickException $e ) {
-			Logger::log( $e->getMessage() );
-
-			return false;
-		}
-
-		$upload_dir = wp_upload_dir();
-		$data       = [
-			'guid'           => str_replace( $upload_dir['basedir'], $upload_dir['baseurl'], $new_file_path ),
-			'post_title'     => preg_replace( '/\.[^.]+$/', '', sanitize_text_field( $post->post_title . ' image' ) ),
-			'post_status'    => 'inherit',
-			'post_mime_type' => 'image/webp',
-			'post_author'    => $post->post_author,
-		];
-
-		$attachment_id = wp_insert_attachment( $data, $new_file_path );
-
-		if ( ! is_wp_error( $attachment_id ) ) {
-			// Make sure that this file is included, as wp_read_video_metadata() depends on it.
-			require_once ABSPATH . 'wp-admin/includes/media.php';
-			// Make sure that this file is included, as wp_generate_attachment_metadata() depends on it.
-			require_once ABSPATH . 'wp-admin/includes/image.php';
-
-			// Generate the metadata for the attachment, and update the database record.
-			$attach_data = wp_generate_attachment_metadata( $attachment_id, $new_file_path );
-			wp_update_attachment_metadata( $attachment_id, $attach_data );
-
-			set_post_thumbnail( $post, $attachment_id );
-			update_post_meta( $attachment_id, '_create_via', 'stability.ai' );
-
-			return $attachment_id;
-		}
-
-		return false;
+		return self::create_image_from_string( $image_string, $filename );
 	}
 
 	/**

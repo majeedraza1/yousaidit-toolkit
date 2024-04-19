@@ -8,8 +8,60 @@ use WP_Error;
 
 /**
  * StabilityAiClient
+ * @link https://platform.stability.ai/docs/api-reference
  */
 class StabilityAiClient extends RestClient {
+	const OCCASIONS = [
+		"birthday"            => "Birthday",
+		"christmas"           => "Christmas",
+		"valentines_day"      => "Valentines",
+		"wedding_anniversary" => "Wedding anniversary",
+		"mothers_day"         => "Mother's day",
+		"fathers_day"         => "Father's day",
+		"new_baby"            => "New baby",
+		"get_well"            => "Get well",
+		"thank_you"           => "Thank you",
+		"congratulations"     => "Congratulations",
+		"break_up"            => "Break up",
+	];
+
+	const RECIPIENTS = [
+		"friend"        => "Friend",
+		"husband"       => "Husband",
+		"wife"          => "Wife",
+		"mother"        => "Mother",
+		"father"        => "Father",
+		"daughter"      => "Daughter",
+		"son"           => "Son",
+		"grandmother"   => "Grandmother",
+		"grandfather"   => "Grandfather",
+		"granddaughter" => "Granddaughter",
+		"grandson"      => "Grandson",
+		"sister"        => "Sister",
+		"brother"       => "Brother",
+		"aunt"          => "Aunt",
+		"uncle"         => "Uncle",
+		"cousin"        => "Cousin",
+		"nephew"        => "Nephew",
+		"niece"         => "Niece",
+		"colleague"     => "Colleague",
+		"boss"          => "Boss",
+		"teacher"       => "Teacher",
+	];
+
+	const TOPICS = [
+		"sun_moon_and_stars" => "Sun, moon and stars",
+		"animals"            => "Animals",
+		"flowers"            => "Flowers",
+		"food"               => "Food",
+		"nature"             => "Nature",
+		"travel"             => "Travel",
+		"music"              => "Music",
+		"sports"             => "Sports",
+		"star_wars"          => "Star Wars",
+		"marvel"             => "Marvel",
+		"pokemon"            => "Pokemon",
+	];
 
 	/**
 	 * Get available engines
@@ -18,12 +70,36 @@ class StabilityAiClient extends RestClient {
 	 */
 	public static function get_available_engines(): array {
 		return [
-			'esrgan-v1-x2plus',
-			'stable-diffusion-xl-1024-v0-9',
-			'stable-diffusion-xl-1024-v1-0',
-			'stable-diffusion-v1-6',
-			'stable-diffusion-512-v2-1',
-			'stable-diffusion-xl-beta-v2-2-2',
+			[
+				'id'          => 'esrgan-v1-x2plus',
+				'name'        => 'Real-ESRGAN x2',
+				'description' => 'Real-ESRGAN_x2plus upscaler model',
+			],
+			[
+				'id'          => 'stable-diffusion-xl-1024-v0-9',
+				'name'        => 'Stable Diffusion XL v0.9',
+				'description' => 'Stability-AI Stable Diffusion XL v0.9',
+			],
+			[
+				'id'          => 'stable-diffusion-xl-1024-v1-0',
+				'name'        => 'Stable Diffusion XL v1.0',
+				'description' => 'Stability-AI Stable Diffusion XL v1.0',
+			],
+			[
+				'id'          => 'stable-diffusion-v1-6',
+				'name'        => 'Stable Diffusion v1.6',
+				'description' => 'Stability-AI Stable Diffusion v1.6',
+			],
+			[
+				'id'          => 'stable-diffusion-512-v2-1',
+				'name'        => 'Stable Diffusion v2.1',
+				'description' => 'Stability-AI Stable Diffusion v2.1',
+			],
+			[
+				'id'          => 'stable-diffusion-xl-beta-v2-2-2',
+				'name'        => 'Stable Diffusion v2.2.2-XL Beta',
+				'description' => 'Stability-AI Stable Diffusion XL Beta v2.2.2',
+			],
 		];
 	}
 
@@ -56,12 +132,37 @@ class StabilityAiClient extends RestClient {
 		];
 	}
 
+	public static function get_images_sizes(): array {
+		return [
+			'stable-diffusion-xl-1024-v1-0'   => [
+				'enum' => [
+					[ 'width' => 1024, 'height' => 1024 ],
+					[ 'width' => 1152, 'height' => 896 ],
+					[ 'width' => 896, 'height' => 1152 ],
+					[ 'width' => 1216, 'height' => 832 ],
+					[ 'width' => 1344, 'height' => 768 ],
+					[ 'width' => 768, 'height' => 1344 ],
+					[ 'width' => 1536, 'height' => 640 ],
+					[ 'width' => 640, 'height' => 1536 ],
+				]
+			],
+			'stable-diffusion-v1-6'           => [
+				'min' => 320,
+				'max' => 1536,
+			],
+			'stable-diffusion-xl-beta-v2-2-2' => [
+				'min' => 128,
+				'max' => 896,
+			]
+		];
+	}
+
 	/**
 	 * Class constructor
 	 */
 	public function __construct() {
 		$this->add_auth_header( Settings::get_api_key(), 'Bearer' );
-		parent::__construct( 'https://api.stability.ai/v1' );
+		parent::__construct( 'https://api.stability.ai' );
 	}
 
 	/**
@@ -73,7 +174,7 @@ class StabilityAiClient extends RestClient {
 		$list = get_transient( 'stability_ai_engines_list' );
 		if ( ! is_array( $list ) ) {
 			$list     = [];
-			$response = ( new static() )->get( 'engines/list' );
+			$response = ( new static() )->get( 'v1/engines/list' );
 			if ( is_wp_error( $response ) ) {
 				Logger::log( $response->get_error_message() );
 			}
@@ -81,6 +182,10 @@ class StabilityAiClient extends RestClient {
 				set_transient( 'stability_ai_engines_list', $response, DAY_IN_SECONDS );
 				$list = $response;
 			}
+		}
+
+		if ( empty( $list ) ) {
+			$list = static::get_available_engines();
 		}
 
 		return $list;
@@ -118,7 +223,7 @@ class StabilityAiClient extends RestClient {
 		}
 
 		$response = $self->post(
-			sprintf( 'generation/%s/text-to-image', Settings::get_engine_id() ),
+			sprintf( 'v1/generation/%s/text-to-image', Settings::get_engine_id() ),
 			wp_json_encode( $data )
 		);
 		if ( is_wp_error( $response ) ) {
@@ -131,5 +236,58 @@ class StabilityAiClient extends RestClient {
 		$image_base64_string = $response['artifacts'][0]['base64'];
 
 		return base64_decode( $image_base64_string );
+	}
+
+	public static function generate_stable_image_core( string $prompt, bool $save = true ) {
+		if ( mb_strlen( $prompt ) > 2000 ) {
+			return new WP_Error(
+				'max_characters_length_exists',
+				'Prompts characters length cannot be more than 2000.'
+			);
+		}
+		$filename = md5( $prompt ) . '-ai-image.webp';
+		$boundary = wp_generate_password( 24, false, false );
+
+		$self = new static();
+		$self->add_headers( 'Content-Type', 'multipart/form-data; boundary=' . $boundary );
+		$self->add_headers( 'Accept', 'application/json' );
+
+		$data         = [
+			'prompt'        => $prompt,
+			'aspect_ratio'  => '1:1',
+			'output_format' => 'webp'
+		];
+		$style_preset = Settings::get_style_preset();
+		if ( in_array( $style_preset, static::get_style_presets(), true ) ) {
+			$data['style_preset'] = $style_preset;
+		}
+
+		$payload = '';
+		// First, add the standard POST fields:
+		foreach ( $data as $name => $value ) {
+			$payload .= '--' . $boundary;
+			$payload .= PHP_EOL;
+			$payload .= 'Content-Disposition: form-data; name="' . $name . '"';
+			$payload .= PHP_EOL . PHP_EOL;
+			$payload .= $value;
+			$payload .= PHP_EOL;
+		}
+		$payload .= '--' . $boundary . '--';
+
+		$response = $self->post( 'v2beta/stable-image/generate/core', $payload );
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		if ( ! ( isset( $response['image'] ) && is_string( $response['image'] ) ) ) {
+			return new WP_Error( 'unexpected_response_type', 'Rest Client Error: unexpected response type' );
+		}
+
+		$image_string = base64_decode( $response['image'] );
+		if ( $save ) {
+			BackgroundGenerateThumbnail::create_image_from_string( $image_string, $filename );
+		}
+
+		return $image_string;
 	}
 }

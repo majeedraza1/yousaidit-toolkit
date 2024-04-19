@@ -121,7 +121,7 @@ class AdminLogController extends ApiController {
 	 * @return string
 	 */
 	public function setting_page_message(): string {
-		$message = "Settings are defined via 'wp-config.php' file and cannot edit here. ";
+		$message = "Settings are defined via 'wp-config.php' file and cannot be edited here. ";
 		$message .= sprintf(
 			"To edit setting here, delete '%s' constant from 'wp-config.php' file.",
 			Settings::OPTION_NAME

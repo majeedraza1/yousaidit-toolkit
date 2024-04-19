@@ -31,8 +31,8 @@ class Admin {
 	/**
 	 * Add top level menu
 	 */
-	public static function add_menu() {
-		add_submenu_page(
+	public function add_menu() {
+		$hook = add_submenu_page(
 			'options-general.php',
 			__( 'Stability AI', 'yousaidit-toolkit' ),
 			__( 'Stability AI', 'yousaidit-toolkit' ),
@@ -41,6 +41,8 @@ class Admin {
 			[ self::$instance, 'menu_page_callback' ],
 			99.99
 		);
+
+		add_action( 'load-' . $hook, [ $this, 'init_hooks' ] );
 	}
 
 	/**
@@ -48,5 +50,13 @@ class Admin {
 	 */
 	public static function menu_page_callback() {
 		echo '<div class="wrap border-box-all"><div id="stability-ai-admin"></div></div>';
+	}
+
+	/**
+	 * Menu page scripts
+	 */
+	public function init_hooks() {
+		wp_enqueue_style( 'yousaidit-toolkit-admin' );
+		wp_enqueue_script( 'yousaidit-toolkit-admin' );
 	}
 }

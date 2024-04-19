@@ -98,7 +98,7 @@ class Admin {
 			}
 		}
 
-		add_action( 'load-' . $hook, [ self::$instance, 'init_hooks' ] );
+		add_action( 'load-' . $hook, [ $this, 'init_hooks' ] );
 	}
 
 	/**
