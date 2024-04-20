@@ -11,57 +11,6 @@ use WP_Error;
  * @link https://platform.stability.ai/docs/api-reference
  */
 class StabilityAiClient extends RestClient {
-	const OCCASIONS = [
-		"birthday"            => "Birthday",
-		"christmas"           => "Christmas",
-		"valentines_day"      => "Valentines",
-		"wedding_anniversary" => "Wedding anniversary",
-		"mothers_day"         => "Mother's day",
-		"fathers_day"         => "Father's day",
-		"new_baby"            => "New baby",
-		"get_well"            => "Get well",
-		"thank_you"           => "Thank you",
-		"congratulations"     => "Congratulations",
-		"break_up"            => "Break up",
-	];
-
-	const RECIPIENTS = [
-		"friend"        => "Friend",
-		"husband"       => "Husband",
-		"wife"          => "Wife",
-		"mother"        => "Mother",
-		"father"        => "Father",
-		"daughter"      => "Daughter",
-		"son"           => "Son",
-		"grandmother"   => "Grandmother",
-		"grandfather"   => "Grandfather",
-		"granddaughter" => "Granddaughter",
-		"grandson"      => "Grandson",
-		"sister"        => "Sister",
-		"brother"       => "Brother",
-		"aunt"          => "Aunt",
-		"uncle"         => "Uncle",
-		"cousin"        => "Cousin",
-		"nephew"        => "Nephew",
-		"niece"         => "Niece",
-		"colleague"     => "Colleague",
-		"boss"          => "Boss",
-		"teacher"       => "Teacher",
-	];
-
-	const TOPICS = [
-		"sun_moon_and_stars" => "Sun, moon and stars",
-		"animals"            => "Animals",
-		"flowers"            => "Flowers",
-		"food"               => "Food",
-		"nature"             => "Nature",
-		"travel"             => "Travel",
-		"music"              => "Music",
-		"sports"             => "Sports",
-		"star_wars"          => "Star Wars",
-		"marvel"             => "Marvel",
-		"pokemon"            => "Pokemon",
-	];
 
 	/**
 	 * Get available engines
@@ -238,15 +187,20 @@ class StabilityAiClient extends RestClient {
 		return base64_decode( $image_base64_string );
 	}
 
-	public static function generate_stable_image_core( string $prompt, bool $save = true ) {
+	public static function generate_stable_image_core(
+		string $prompt,
+		bool $save = true,
+		string $return_type = 'image_string'
+	) {
 		if ( mb_strlen( $prompt ) > 2000 ) {
 			return new WP_Error(
 				'max_characters_length_exists',
 				'Prompts characters length cannot be more than 2000.'
 			);
 		}
-		$filename = md5( $prompt ) . '-ai-image.webp';
-		$boundary = wp_generate_password( 24, false, false );
+		$return_type = 'image_id' === $return_type ? 'image_id' : 'image_string';
+		$filename    = md5( $prompt ) . '-ai-image.webp';
+		$boundary    = wp_generate_password( 24, false, false );
 
 		$self = new static();
 		$self->add_headers( 'Content-Type', 'multipart/form-data; boundary=' . $boundary );
@@ -285,9 +239,23 @@ class StabilityAiClient extends RestClient {
 
 		$image_string = base64_decode( $response['image'] );
 		if ( $save ) {
-			BackgroundGenerateThumbnail::create_image_from_string( $image_string, $filename );
+			$image_id = BackgroundGenerateThumbnail::create_image_from_string( $image_string, $filename );
+			if ( is_numeric( $image_id ) && 'image_id' === $return_type ) {
+				return $image_id;
+			}
 		}
 
 		return $image_string;
+	}
+
+	public static function generate_image( string $occasion, string $recipient, string $mode, string $topic ) {
+		$prompt = Settings::get_prompt( [
+			'occasion'  => $occasion,
+			'recipient' => $recipient,
+			'mode'      => $mode,
+			'topic'     => $topic,
+		] );
+
+		return static::generate_stable_image_core( $prompt, true, 'image_id' );
 	}
 }

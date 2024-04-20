@@ -2,12 +2,12 @@
 
 namespace YouSaidItCards\Modules\StabilityAi\Rest;
 
-use YouSaidItCards\Modules\StabilityAi\Settings;
-use YouSaidItCards\Modules\StabilityAi\StabilityAiClient;
-use YouSaidItCards\REST\ApiController;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
+use YouSaidItCards\Modules\StabilityAi\Settings;
+use YouSaidItCards\Modules\StabilityAi\StabilityAiClient;
+use YouSaidItCards\REST\ApiController;
 
 /**
  * AdminLogController class
@@ -82,6 +82,10 @@ class AdminLogController extends ApiController {
 				'settings'      => Settings::get_settings(),
 				'engines'       => StabilityAiClient::get_engines_list(),
 				'style_presets' => StabilityAiClient::get_style_presets(),
+				'occasions'     => Settings::get_occasions(),
+				'recipients'    => Settings::get_recipients(),
+				'topics'        => Settings::get_topics(),
+				'moods'         => Settings::get_moods(),
 			]
 		);
 	}
@@ -101,8 +105,16 @@ class AdminLogController extends ApiController {
 			);
 		}
 
-		$params   = $request->get_params();
-		$settings = Settings::update_settings( $params );
+		$params    = $request->get_params();
+		$settings  = Settings::update_settings( $params );
+		$occasions = $request->get_param( 'occasions' );
+		Settings::update_occasions( $occasions );
+		$recipients = $request->get_param( 'recipients' );
+		Settings::update_recipients( $recipients );
+		$moods = $request->get_param( 'moods' );
+		Settings::update_moods( $moods );
+		$topics = $request->get_param( 'topics' );
+		Settings::update_topics( $topics );
 
 		return $this->respondOK(
 			[
@@ -111,6 +123,10 @@ class AdminLogController extends ApiController {
 				'settings'      => $settings,
 				'engines'       => StabilityAiClient::get_engines_list(),
 				'style_presets' => StabilityAiClient::get_style_presets(),
+				'occasions'     => Settings::get_occasions(),
+				'recipients'    => Settings::get_recipients(),
+				'topics'        => Settings::get_topics(),
+				'moods'         => Settings::get_moods(),
 			]
 		);
 	}

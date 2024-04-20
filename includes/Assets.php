@@ -7,6 +7,7 @@ use Stackonet\WP\Framework\Supports\Validate;
 use YouSaidItCards\Admin\SettingPage;
 use YouSaidItCards\Modules\DispatchTimer\Settings;
 use YouSaidItCards\Modules\InnerMessage\Fonts;
+use YouSaidItCards\Modules\StabilityAi\Settings as StabilityAiSettings;
 use YouSaidItCards\OpenAI\Setting;
 use YouSaidItCards\Utilities\FreePdfBase;
 
@@ -246,6 +247,7 @@ class Assets {
 			'restRoot'               => esc_url_raw( rest_url( 'yousaidit/v1' ) ),
 			'isUserLoggedIn'         => $is_user_logged_in,
 			'privacyPolicyUrl'       => get_privacy_policy_url(),
+			'termsAndConditionsUrl'  => get_privacy_policy_url(),
 			'lostPasswordUrl'        => wp_lostpassword_url(),
 			'signupUrl'              => wp_registration_url(),
 			'logOutUrl'              => wp_logout_url( get_permalink() ),
@@ -259,6 +261,10 @@ class Assets {
 			'qrCodePlayInfo'         => SettingPage::get_option( 'video_message_qr_code_info_for_customer' ),
 			'isRecordingEnabled'     => Validate::checked( SettingPage::get_option( 'show_recording_option_for_video_message' ) ),
 		];
+
+		if ( function_exists( 'wc_terms_and_conditions_page_id' ) ) {
+			$data['termsAndConditionsUrl'] = get_permalink( wc_terms_and_conditions_page_id() );
+		}
 
 		$data['pdfSizes'] = FreePdfBase::get_sizes();
 		$data['fonts']    = Fonts::get_list_for_web();
@@ -285,6 +291,18 @@ class Assets {
 
 		$data['common_holidays']  = Settings::get_common_public_holidays();
 		$data['special_holidays'] = Settings::get_special_holidays();
+
+		if ( StabilityAiSettings::is_module_enabled() ) {
+			$data['stability_ai_enabled'] = true;
+			$data['stability_ai']         = [
+				'occasions'  => StabilityAiSettings::get_occasions(),
+				'topics'     => StabilityAiSettings::get_topics(),
+				'recipients' => StabilityAiSettings::get_recipients(),
+				'moods'      => StabilityAiSettings::get_moods(),
+			];
+		} else {
+			$data['stability_ai_enabled'] = false;
+		}
 
 		echo '<script>window.StackonetToolkit = ' . wp_json_encode( $data ) . '</script>' . PHP_EOL;
 	}

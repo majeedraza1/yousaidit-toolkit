@@ -139,6 +139,9 @@
                     @failed="handleFileUploadFailed"
                 />
               </ShaplaTab>
+              <ShaplaTab v-if="stability_ai_enabled" name="Use AI">
+                <AiImageControls @aiImageGenerated="onGeneratedAiImage"/>
+              </ShaplaTab>
             </ShaplaTabs>
           </div>
         </template>
@@ -189,6 +192,7 @@ import GustLocalStorage from "./helpers/GustLocalStorage.ts";
 import VideoInnerMessage from "./components/VideoInnerMessage.vue";
 import InputUserOptions from "./components/InputUserOptions.vue";
 import {computed, onMounted, reactive, watch} from "vue";
+import AiImageControls from "./components/AiImageControls.vue";
 
 const state = reactive({
   slideTo: 0,
@@ -222,6 +226,7 @@ const state = reactive({
   showLengthError: false,
 })
 
+const stability_ai_enabled = window.StackonetToolkit.stability_ai_enabled;
 const placeholder_im_left = window.StackonetToolkit.placeholderUrlIML;
 const placeholder_im_right = window.StackonetToolkit.placeholderUrlIMR;
 const uploadUrl = window.StackonetToolkit.restRoot + '/dynamic-cards/media';
@@ -435,6 +440,14 @@ const finishedEvent = (fileObject, response) => {
     // Set it to active image
     handleImageSelect(response.data);
   }
+}
+const onGeneratedAiImage = (data) => {
+  state.images.unshift(data);
+  if (!isUserLoggedIn) {
+    GustLocalStorage.appendMedia(data.id);
+  }
+  // Set it to active image
+  handleImageSelect(data);
 }
 const handleFileUploadFailed = (fileObject, response) => {
   if (response.message) {

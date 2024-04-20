@@ -42,9 +42,17 @@ declare global {
       placeholderUrlIML: string;
       placeholderUrlIMR: string;
       privacyPolicyUrl: string;
+      termsAndConditionsUrl: string;
       lostPasswordUrl: string;
       signupUrl: string;
       logOutUrl: string;
+      stability_ai_enabled: boolean;
+      stability_ai?: {
+        occasions: { slug: string; label: string; menu_order?: number; }[];
+        recipients: { slug: string; label: string; menu_order?: number; }[];
+        topics: { slug: string; label: string; menu_order?: number; }[];
+        moods: { slug: string; label: string; menu_order?: number; }[];
+      }
     }
     DesignerProfile: DesignerProfileInlineDataInterface;
     YousaiditMyAccountReminders: {
