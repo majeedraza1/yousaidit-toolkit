@@ -149,7 +149,7 @@ class Settings {
 				if ( 'style_preset' === $key ) {
 					$sanitized[ $key ] = in_array(
 						$value[ $key ],
-						StabilityAiClient::get_style_presets(),
+						StabilityAiClient::get_style_presets_slug(),
 						true
 					) ? $value[ $key ] : '';
 				} else {
@@ -462,5 +462,27 @@ class Settings {
 		}
 
 		return $label;
+	}
+
+	/**
+	 * Get style presets
+	 * Pass in a style preset to guide the image model towards a particular style.
+	 * This list of style presets is subject to change.
+	 *
+	 * @return string[]
+	 */
+	public static function get_style_presets(): array {
+		$presets_slugs = StabilityAiClient::get_style_presets_slug();
+		$url_base      = YOUSAIDIT_TOOLKIT_ASSETS . '/static-images/ai-image-style-presets';
+		$presets       = [];
+		foreach ( $presets_slugs as $slug ) {
+			$presets[] = [
+				'slug'  => $slug,
+				'label' => ucwords( str_replace( '-', ' ', $slug ) ),
+				'icon'  => $url_base . '/' . sprintf( '%s.png', $slug )
+			];
+		}
+
+		return $presets;
 	}
 }

@@ -295,10 +295,11 @@ class Assets {
 		if ( StabilityAiSettings::is_module_enabled() ) {
 			$data['stability_ai_enabled'] = true;
 			$data['stability_ai']         = [
-				'occasions'  => StabilityAiSettings::get_occasions(),
-				'topics'     => StabilityAiSettings::get_topics(),
-				'recipients' => StabilityAiSettings::get_recipients(),
-				'moods'      => StabilityAiSettings::get_moods(),
+				'occasions'     => StabilityAiSettings::get_occasions(),
+				'topics'        => StabilityAiSettings::get_topics(),
+				'recipients'    => StabilityAiSettings::get_recipients(),
+				'moods'         => StabilityAiSettings::get_moods(),
+				'style_presets' => StabilityAiSettings::get_style_presets(),
 			];
 		} else {
 			$data['stability_ai_enabled'] = false;

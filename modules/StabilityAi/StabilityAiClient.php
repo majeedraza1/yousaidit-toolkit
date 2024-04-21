@@ -59,7 +59,7 @@ class StabilityAiClient extends RestClient {
 	 *
 	 * @return string[]
 	 */
-	public static function get_style_presets(): array {
+	public static function get_style_presets_slug(): array {
 		return [
 			'3d-model',
 			'analog-film',
@@ -77,7 +77,6 @@ class StabilityAiClient extends RestClient {
 			'origami',
 			'photographic',
 			'pixel-art',
-			'tile-texture',
 		];
 	}
 
@@ -167,7 +166,7 @@ class StabilityAiClient extends RestClient {
 		);
 
 		$style_preset = Settings::get_style_preset();
-		if ( in_array( $style_preset, static::get_style_presets(), true ) ) {
+		if ( in_array( $style_preset, static::get_style_presets_slug(), true ) ) {
 			$data['style_preset'] = $style_preset;
 		}
 
@@ -212,7 +211,7 @@ class StabilityAiClient extends RestClient {
 			'output_format' => 'webp'
 		];
 		$style_preset = Settings::get_style_preset();
-		if ( in_array( $style_preset, static::get_style_presets(), true ) ) {
+		if ( in_array( $style_preset, static::get_style_presets_slug(), true ) ) {
 			$data['style_preset'] = $style_preset;
 		}
 
