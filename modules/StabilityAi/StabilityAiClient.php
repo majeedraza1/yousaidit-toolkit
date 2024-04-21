@@ -2,6 +2,7 @@
 
 namespace YouSaidItCards\Modules\StabilityAi;
 
+use Stackonet\WP\Framework\Media\Uploader;
 use Stackonet\WP\Framework\Supports\Logger;
 use Stackonet\WP\Framework\Supports\RestClient;
 use WP_Error;
@@ -12,42 +13,27 @@ use WP_Error;
  */
 class StabilityAiClient extends RestClient {
 
-	/**
-	 * Get available engines
-	 *
-	 * @return string[]
-	 */
-	public static function get_available_engines(): array {
+	public static function get_api_versions(): array {
 		return [
-			[
-				'id'          => 'esrgan-v1-x2plus',
-				'name'        => 'Real-ESRGAN x2',
-				'description' => 'Real-ESRGAN_x2plus upscaler model',
-			],
-			[
-				'id'          => 'stable-diffusion-xl-1024-v0-9',
-				'name'        => 'Stable Diffusion XL v0.9',
-				'description' => 'Stability-AI Stable Diffusion XL v0.9',
-			],
-			[
-				'id'          => 'stable-diffusion-xl-1024-v1-0',
-				'name'        => 'Stable Diffusion XL v1.0',
-				'description' => 'Stability-AI Stable Diffusion XL v1.0',
-			],
 			[
 				'id'          => 'stable-diffusion-v1-6',
 				'name'        => 'Stable Diffusion v1.6',
-				'description' => 'Stability-AI Stable Diffusion v1.6',
+				'description' => '1536 pixels image will be generated.',
 			],
 			[
-				'id'          => 'stable-diffusion-512-v2-1',
-				'name'        => 'Stable Diffusion v2.1',
-				'description' => 'Stability-AI Stable Diffusion v2.1',
+				'id'          => 'stable-diffusion-v2',
+				'name'        => 'Stable Image Core',
+				'description' => '1536 pixels image will be generated. 3 credits per successful generation.'
 			],
 			[
-				'id'          => 'stable-diffusion-xl-beta-v2-2-2',
-				'name'        => 'Stable Diffusion v2.2.2-XL Beta',
-				'description' => 'Stability-AI Stable Diffusion XL Beta v2.2.2',
+				'id'          => 'sd3',
+				'name'        => 'Stable Diffusion 3.0 (SD3)',
+				'description' => '1024 pixels image will be generated. 6.5 credits per successful generation.'
+			],
+			[
+				'id'          => 'sd3-turbo',
+				'name'        => 'Stable Diffusion 3.0 Turbo (SD3 Turbo)',
+				'description' => '1024 pixels image will be generated. 4 credits per successful generation.'
 			],
 		];
 	}
@@ -80,31 +66,6 @@ class StabilityAiClient extends RestClient {
 		];
 	}
 
-	public static function get_images_sizes(): array {
-		return [
-			'stable-diffusion-xl-1024-v1-0'   => [
-				'enum' => [
-					[ 'width' => 1024, 'height' => 1024 ],
-					[ 'width' => 1152, 'height' => 896 ],
-					[ 'width' => 896, 'height' => 1152 ],
-					[ 'width' => 1216, 'height' => 832 ],
-					[ 'width' => 1344, 'height' => 768 ],
-					[ 'width' => 768, 'height' => 1344 ],
-					[ 'width' => 1536, 'height' => 640 ],
-					[ 'width' => 640, 'height' => 1536 ],
-				]
-			],
-			'stable-diffusion-v1-6'           => [
-				'min' => 320,
-				'max' => 1536,
-			],
-			'stable-diffusion-xl-beta-v2-2-2' => [
-				'min' => 128,
-				'max' => 896,
-			]
-		];
-	}
-
 	/**
 	 * Class constructor
 	 */
@@ -132,10 +93,6 @@ class StabilityAiClient extends RestClient {
 			}
 		}
 
-		if ( empty( $list ) ) {
-			$list = static::get_available_engines();
-		}
-
 		return $list;
 	}
 
@@ -146,7 +103,7 @@ class StabilityAiClient extends RestClient {
 	 *
 	 * @return string|WP_Error
 	 */
-	public static function generate_text_to_image( string $prompt ) {
+	protected static function generate_text_to_image( string $prompt, string $style_preset = '' ) {
 		if ( mb_strlen( $prompt ) > 2000 ) {
 			return new WP_Error(
 				'max_characters_length_exists',
@@ -165,13 +122,12 @@ class StabilityAiClient extends RestClient {
 			],
 		);
 
-		$style_preset = Settings::get_style_preset();
 		if ( in_array( $style_preset, static::get_style_presets_slug(), true ) ) {
 			$data['style_preset'] = $style_preset;
 		}
 
 		$response = $self->post(
-			sprintf( 'v1/generation/%s/text-to-image', Settings::get_engine_id() ),
+			'v1/generation/stable-diffusion-v1-6/text-to-image',
 			wp_json_encode( $data )
 		);
 		if ( is_wp_error( $response ) ) {
@@ -183,38 +139,128 @@ class StabilityAiClient extends RestClient {
 		}
 		$image_base64_string = $response['artifacts'][0]['base64'];
 
-		return base64_decode( $image_base64_string );
+		$filename     = md5( $prompt ) . '-ai-image.webp';
+		$image_string = base64_decode( $image_base64_string );
+		$image_id     = static::create_image_from_string( $image_string, $filename );
+		if ( ! is_numeric( $image_id ) ) {
+			return new WP_Error( 'unexpected_internal_server_error', 'Fail to save image string.' );
+		}
+
+		return $image_id;
 	}
 
-	public static function generate_stable_image_core(
-		string $prompt,
-		bool $save = true,
-		string $return_type = 'image_string'
-	) {
+	protected static function generate_stable_image_core( string $prompt, string $style_preset = '' ) {
 		if ( mb_strlen( $prompt ) > 2000 ) {
 			return new WP_Error(
 				'max_characters_length_exists',
 				'Prompts characters length cannot be more than 2000.'
 			);
 		}
-		$return_type = 'image_id' === $return_type ? 'image_id' : 'image_string';
-		$filename    = md5( $prompt ) . '-ai-image.webp';
-		$boundary    = wp_generate_password( 24, false, false );
+		$filename = md5( $prompt ) . '-ai-image.webp';
+		$boundary = wp_generate_password( 24, false, false );
 
 		$self = new static();
 		$self->add_headers( 'Content-Type', 'multipart/form-data; boundary=' . $boundary );
 		$self->add_headers( 'Accept', 'application/json' );
 
-		$data         = [
+		$data = [
 			'prompt'        => $prompt,
 			'aspect_ratio'  => '1:1',
 			'output_format' => 'webp'
 		];
-		$style_preset = Settings::get_style_preset();
 		if ( in_array( $style_preset, static::get_style_presets_slug(), true ) ) {
 			$data['style_preset'] = $style_preset;
 		}
 
+		$response = $self->post( 'v2beta/stable-image/generate/core', static::form_data_payload( $data, $boundary ) );
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		if ( ! ( isset( $response['image'] ) && is_string( $response['image'] ) ) ) {
+			return new WP_Error( 'unexpected_response_type', 'Rest Client Error: unexpected response type' );
+		}
+
+		$image_string = base64_decode( $response['image'] );
+		$image_id     = static::create_image_from_string( $image_string, $filename );
+		if ( ! is_numeric( $image_id ) ) {
+			return new WP_Error( 'unexpected_internal_server_error', 'Fail to save image string.' );
+		}
+
+		return $image_id;
+	}
+
+	protected static function generate_stable_diffusion_image( string $prompt, string $model = 'sd3' ) {
+		$model = in_array( $model, [ 'sd3', 'sd3-turbo' ], true ) ? $model : '';
+
+		$data     = [
+			'prompt'        => $prompt,
+			'model'         => $model,
+			'aspect_ratio'  => '1:1',
+			'output_format' => 'png',
+			'mode'          => 'text-to-image',
+		];
+		$filename = md5( $prompt ) . '-ai-image.webp';
+		$boundary = wp_generate_password( 24, false, false );
+
+		$self = new static();
+		$self->add_headers( 'Content-Type', 'multipart/form-data; boundary=' . $boundary );
+		$self->add_headers( 'Accept', 'application/json' );
+
+		$response = $self->post( 'v2beta/stable-image/generate/core', static::form_data_payload( $data, $boundary ) );
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		if ( ! ( isset( $response['image'] ) && is_string( $response['image'] ) ) ) {
+			return new WP_Error( 'unexpected_response_type', 'Rest Client Error: unexpected response type' );
+		}
+
+		$image_string = base64_decode( $response['image'] );
+		$image_id     = static::create_image_from_string( $image_string, $filename );
+		if ( ! is_numeric( $image_id ) ) {
+			return new WP_Error( 'unexpected_internal_server_error', 'Fail to save image string.' );
+		}
+
+		return $image_id;
+	}
+
+	public static function generate_image(
+		string $occasion,
+		string $recipient,
+		string $mode,
+		string $topic,
+		string $style_preset = 'photographic'
+	) {
+		$prompt = Settings::get_prompt( [
+			'occasion'     => $occasion,
+			'recipient'    => $recipient,
+			'mode'         => $mode,
+			'topic'        => $topic,
+			'style_preset' => $style_preset,
+		] );
+
+		$version = Settings::get_api_version();
+		if ( in_array( $version, [ 'sd3', 'sd3-turbo' ], true ) ) {
+			$preset = Settings::get_label_for( 'style_presets', $style_preset );
+			$prompt .= sprintf( ' And the image style should be %s.', $preset );
+
+			return static::generate_stable_diffusion_image( $prompt, $version );
+		}
+		if ( 'stable-diffusion-v2' === $version ) {
+			return static::generate_stable_image_core( $prompt, $style_preset );
+		}
+
+		return static::generate_text_to_image( $prompt, $style_preset );
+	}
+
+	/**
+	 * @param  array  $data
+	 * @param  string  $boundary
+	 *
+	 * @return string
+	 */
+	protected static function form_data_payload( array $data, string $boundary ): string {
 		$payload = '';
 		// First, add the standard POST fields:
 		foreach ( $data as $name => $value ) {
@@ -227,34 +273,67 @@ class StabilityAiClient extends RestClient {
 		}
 		$payload .= '--' . $boundary . '--';
 
-		$response = $self->post( 'v2beta/stable-image/generate/core', $payload );
-		if ( is_wp_error( $response ) ) {
-			return $response;
-		}
-
-		if ( ! ( isset( $response['image'] ) && is_string( $response['image'] ) ) ) {
-			return new WP_Error( 'unexpected_response_type', 'Rest Client Error: unexpected response type' );
-		}
-
-		$image_string = base64_decode( $response['image'] );
-		if ( $save ) {
-			$image_id = BackgroundGenerateThumbnail::create_image_from_string( $image_string, $filename );
-			if ( is_numeric( $image_id ) && 'image_id' === $return_type ) {
-				return $image_id;
-			}
-		}
-
-		return $image_string;
+		return $payload;
 	}
 
-	public static function generate_image( string $occasion, string $recipient, string $mode, string $topic ) {
-		$prompt = Settings::get_prompt( [
-			'occasion'  => $occasion,
-			'recipient' => $recipient,
-			'mode'      => $mode,
-			'topic'     => $topic,
-		] );
+	/**
+	 * @param  string  $image_string
+	 * @param  string|null  $filename
+	 *
+	 * @return false|int|\WP_Error
+	 */
+	public static function create_image_from_string( string $image_string, ?string $filename = null ) {
+		if ( empty( $filename ) ) {
+			$filename = wp_generate_uuid4() . '.webp';
+		}
+		$directory     = rtrim( Uploader::get_upload_dir(), DIRECTORY_SEPARATOR );
+		$new_file_path = $directory . DIRECTORY_SEPARATOR . $filename;
 
-		return static::generate_stable_image_core( $prompt, true, 'image_id' );
+		try {
+			$imagick = new \Imagick();
+			$imagick->readImageBlob( $image_string );
+			$imagick->setImageFormat( 'webp' );
+			$imagick->setImageCompressionQuality( 83 );
+			$imagick->writeImage( $new_file_path );
+
+			$imagick->destroy();
+
+			// Set correct file permissions.
+			$stat  = stat( dirname( $new_file_path ) );
+			$perms = $stat['mode'] & 0000666;
+			chmod( $new_file_path, $perms );
+		} catch ( \ImagickException $e ) {
+			Logger::log( $e->getMessage() );
+
+			return false;
+		}
+
+		$upload_dir = wp_upload_dir();
+		$data       = [
+			'guid'           => str_replace( $upload_dir['basedir'], $upload_dir['baseurl'], $new_file_path ),
+			'post_title'     => preg_replace( '/\.[^.]+$/', '', basename( $new_file_path ) ),
+			'post_status'    => 'inherit',
+			'post_mime_type' => 'image/webp',
+			'post_author'    => get_current_user_id(),
+		];
+
+		$attachment_id = wp_insert_attachment( $data, $new_file_path );
+
+		if ( ! is_wp_error( $attachment_id ) ) {
+			// Make sure that this file is included, as wp_read_video_metadata() depends on it.
+			require_once ABSPATH . 'wp-admin/includes/media.php';
+			// Make sure that this file is included, as wp_generate_attachment_metadata() depends on it.
+			require_once ABSPATH . 'wp-admin/includes/image.php';
+
+			// Generate the metadata for the attachment, and update the database record.
+			$attach_data = wp_generate_attachment_metadata( $attachment_id, $new_file_path );
+			wp_update_attachment_metadata( $attachment_id, $attach_data );
+
+			update_post_meta( $attachment_id, '_create_via', 'stability.ai' );
+
+			return $attachment_id;
+		}
+
+		return false;
 	}
 }

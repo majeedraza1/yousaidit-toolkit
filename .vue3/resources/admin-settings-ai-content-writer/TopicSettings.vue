@@ -111,7 +111,7 @@ onMounted(() => {
       </div>
     </div>
     <button class='button' @click.prevent="state.showAddNewItemModal = true">Add New Recipient</button>
-    <ShaplaModal :active="state.showAddNewItemModal" title='Add New Recipient'>
+    <ShaplaModal :active="state.showAddNewItemModal" title='Add New Recipient' @click="state.showAddNewItemModal = false">
       <table class="form-table">
         <tbody>
         <tr>

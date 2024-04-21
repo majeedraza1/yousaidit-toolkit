@@ -11,19 +11,16 @@ const state = reactive<{
   readFromServer: boolean;
   editable: boolean;
   message: string;
-  style_presets: string[];
-  engines: StabilityAiEngineInterface[];
+  api_versions: StabilityAiEngineInterface[];
   settings: SettingInterface;
 }>({
   readFromServer: false,
   editable: false,
   message: '',
-  engines: [],
-  style_presets: [],
+  api_versions: [],
   settings: {
     api_key: '',
-    engine_id: 'stable-diffusion-v1-6',
-    style_preset: '',
+    api_version: 'stable-diffusion-v2',
     default_prompt: '',
     file_naming_method: 'uuid',
     max_allowed_images_for_guest_user: 5,
@@ -37,8 +34,7 @@ const getSettings = () => {
     state.editable = data.editable;
     state.message = data.message;
     state.settings = data.settings;
-    state.engines = data.engines;
-    state.style_presets = data.style_presets;
+    state.api_versions = data.api_versions;
   });
 }
 
@@ -47,8 +43,7 @@ const updateSettings = () => {
     state.editable = data.editable;
     state.message = data.message;
     state.settings = data.settings;
-    state.engines = data.engines;
-    state.style_presets = data.style_presets;
+    state.api_versions = data.api_versions;
   });
 }
 
@@ -76,28 +71,19 @@ onMounted(() => {
         </td>
       </tr>
       <tr>
-        <th>Engine</th>
+        <th>API versions</th>
         <td>
-          <label v-for="engine in state.engines" :key="engine.id"
+          <label v-for="version in state.api_versions" :key="version.id"
                  class="flex space-x-2 items-center border border-solid border-gray-400 mb-2 rounded p-1">
-            <input type="radio" :value="engine.id" v-model="state.settings.engine_id"/>
+            <input type="radio" :value="version.id" v-model="state.settings.api_version"/>
             <span>
               <span class="flex space-x-2">
-                <strong>{{ engine.name }}</strong>
-                <span class="text-gray-400 italic">({{ engine.id }})</span>
+                <strong>{{ version.name }}</strong>
+                <span class="text-gray-400 italic">({{ version.id }})</span>
               </span>
-              <span class="block description">{{ engine.description }}</span>
+              <span class="block description">{{ version.description }}</span>
             </span>
           </label>
-        </td>
-      </tr>
-      <tr>
-        <th>Style Preset</th>
-        <td>
-          <select v-model="state.settings.style_preset">
-            <option value=''>None</option>
-            <option v-for="preset in state.style_presets" :value='preset'>{{ preset }}</option>
-          </select>
         </td>
       </tr>
       <tr>
@@ -106,7 +92,11 @@ onMounted(() => {
           <textarea class="large-text code" :rows='5' v-model="state.settings.default_prompt"></textarea>
           <p class="description">
             Available placeholders<br>
-            <span v-text="`{{title}}`"></span> to get post title
+            <span v-text="`{{occasion}}`"></span> to get occasion from user choice<br>
+            <span v-text="`{{recipient}}`"></span> to get recipient from user choice<br>
+            <span v-text="`{{mood}}`"></span> to get mood from user choice<br>
+            <span v-text="`{{topic}}`"></span> to get topic from user choice<br>
+            <span v-text="`{{style_preset}}`"></span> to get style preset from user choice<br>
           </p>
         </td>
       </tr>

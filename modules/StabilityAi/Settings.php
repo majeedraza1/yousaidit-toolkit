@@ -78,8 +78,7 @@ class Settings {
 	public static function defaults(): array {
 		return [
 			'api_key'                           => '',
-			'engine_id'                         => 'stable-diffusion-v1-6',
-			'style_preset'                      => '',
+			'api_version'                       => 'stable-diffusion-v1-6',
 			'max_allowed_images_for_guest_user' => 5,
 			'max_allowed_images_for_auth_user'  => 20,
 			'remove_images_after_days'          => 30,
@@ -105,6 +104,10 @@ class Settings {
 	 * @return bool
 	 */
 	public static function is_module_enabled(): bool {
+		if ( wp_get_environment_type() !== 'production' ) {
+			return true;
+		}
+
 		return defined( 'STABILITY_AI_ENABLED' ) && STABILITY_AI_ENABLED;
 	}
 
@@ -191,6 +194,15 @@ class Settings {
 	}
 
 	/**
+	 * Get api key
+	 *
+	 * @return string
+	 */
+	public static function get_api_version(): string {
+		return (string) static::get_setting( 'api_version' );
+	}
+
+	/**
 	 * Get default prompt
 	 *
 	 * @return string
@@ -207,12 +219,13 @@ class Settings {
 	public static function get_prompt( array $options ): string {
 		$prompt = static::get_default_prompt();
 		$prompt = str_replace(
-			[ '{{occasion}}', '{{recipient}}', '{{mood}}', '{{topic}}' ],
+			[ '{{occasion}}', '{{recipient}}', '{{mood}}', '{{topic}}', '{{style_preset}}' ],
 			[
 				static::get_label_for( 'occasions', $options['occasion'] ?? '' ),
 				static::get_label_for( 'recipients', $options['recipient'] ?? '' ),
 				static::get_label_for( 'moods', $options['mood'] ?? '' ),
 				static::get_label_for( 'topics', $options['topic'] ?? '' ),
+				static::get_label_for( 'style_presets', $options['style_preset'] ?? '' ),
 			],
 			$prompt
 		);
@@ -450,6 +463,8 @@ class Settings {
 			$options = static::get_moods();
 		} elseif ( 'topics' === $group ) {
 			$options = static::get_topics();
+		} elseif ( 'style_presets' === $group ) {
+			$options = static::get_style_presets();
 		}
 
 		$label = $slug;

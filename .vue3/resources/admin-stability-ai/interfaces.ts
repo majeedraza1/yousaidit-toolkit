@@ -2,13 +2,11 @@ interface StabilityAiEngineInterface {
   id: string;
   name: string;
   description: string;
-  type: 'PICTURE';
 }
 
 interface SettingInterface {
   api_key: string;
-  engine_id: string;
-  style_preset: string;
+  api_version: string;
   max_allowed_images_for_guest_user: number;
   max_allowed_images_for_auth_user: number;
   remove_images_after_days: number;
@@ -20,7 +18,7 @@ interface SettingResponseInterface {
   editable: boolean;
   message: string;
   settings: SettingInterface;
-  engines: StabilityAiEngineInterface[];
+  api_versions: StabilityAiEngineInterface[];
   style_presets: string[];
 }
 

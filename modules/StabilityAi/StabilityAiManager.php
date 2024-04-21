@@ -31,7 +31,6 @@ class StabilityAiManager {
 				add_action( 'wp_ajax_nopriv_yousaidit_ai_image_generator', [ self::$instance, 'image_generator' ] );
 				Admin::init();
 				AdminLogController::init();
-				BackgroundGenerateThumbnail::init();
 			}
 		}
 
@@ -73,7 +72,7 @@ class StabilityAiManager {
 		if ( '__custom' === $topic ) {
 			$topic = $custom_topic;
 		}
-		$image_id = StabilityAiClient::generate_image( $occasion, $recipient, $mode, $topic );
+		$image_id = StabilityAiClient::generate_image( $occasion, $recipient, $mode, $topic,$style_preset );
 		if ( is_wp_error( $image_id ) ) {
 			wp_send_json_error( [ 'message' => $image_id->get_error_message() ], 400 );
 		}
