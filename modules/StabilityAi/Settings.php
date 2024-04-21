@@ -494,7 +494,7 @@ class Settings {
 			$presets[] = [
 				'slug'  => $slug,
 				'label' => ucwords( str_replace( '-', ' ', $slug ) ),
-				'icon'  => $url_base . '/' . sprintf( '%s.png', $slug )
+				'icon'  => $url_base . '/' . sprintf( '%s.webp', $slug )
 			];
 		}
 
