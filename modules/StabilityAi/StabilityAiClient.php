@@ -330,6 +330,7 @@ class StabilityAiClient extends RestClient {
 			wp_update_attachment_metadata( $attachment_id, $attach_data );
 
 			update_post_meta( $attachment_id, '_create_via', 'stability.ai' );
+			update_post_meta( $attachment_id, '_should_delete_after_time', time() + MONTH_IN_SECONDS );
 
 			return $attachment_id;
 		}

@@ -84,6 +84,8 @@ interface DynamicCardImageSectionInterface extends DynamicCardItemBaseInterface 
 }
 
 type DynamicCardItemInterface = {
+  label: string;
+  section_type: string;
   text: string,
   placeholder: string,
   textOptions: DynamicCardTextOptionsInterface,
@@ -188,4 +190,5 @@ export type {
   PaginationDataInterface,
   StatusDataInterface,
   DesignerCardModelInterface,
+  DynamicCardImageOptionsInterface
 }

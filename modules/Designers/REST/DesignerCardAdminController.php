@@ -396,6 +396,16 @@ class DesignerCardAdminController extends ApiController {
 			$data['default_sku'][ $size ]   = $sku;
 		}
 
+		if ( $item->is_dynamic_card() ) {
+			$data['dynamic_card_payload'] = $item->get_dynamic_card_payload();
+		}
+
+		$data['export_url'] = add_query_arg( [
+			'download'                   => 'true',
+			'content'                    => 'yousaidit-designer-card',
+			'yousaidit-designer-card-id' => $item->get_id()
+		], admin_url( 'export.php' ) );
+
 		return $data;
 	}
 }

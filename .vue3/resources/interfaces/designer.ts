@@ -1,3 +1,5 @@
+import {DynamicCardPayloadInterface} from "./designer-card.ts";
+
 type TYPE_CARD_SIZE = "square" | "a4";
 type TYPE_CARD_TYPE = "dynamic" | "static";
 type TYPE_MARKETPLACE = "amazon" | "ebay" | "etsy" | "yousaidit" | "yousaidit-trade";
@@ -132,7 +134,9 @@ interface DesignerCardInterface extends DesignerCardBaseInterface {
   "updated_at": string,
   "product_url": string,
   "product_edit_url": string,
-  designer: DesignerInterface
+  designer: DesignerInterface;
+  dynamic_card_payload?: DynamicCardPayloadInterface;
+  export_url: string;
 }
 
 interface DesignerProfileFontInterface {

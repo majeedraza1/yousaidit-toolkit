@@ -212,7 +212,7 @@ class InnerMessageManager {
 	}
 
 	public function manage_media_columns( $columns ) {
-		$columns['video_message'] = _x( 'Video Message', 'column name', 'yousaidit-toolkit' );
+		$columns['video_message'] = _x( 'Extra info', 'column name', 'yousaidit-toolkit' );
 
 		return $columns;
 	}

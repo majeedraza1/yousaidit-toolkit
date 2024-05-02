@@ -38,6 +38,7 @@ class ExportCard {
 	 */
 	public function custom_export() {
 		$content = isset( $_GET['content'] ) ? sanitize_text_field( $_GET['content'] ) : '';
+		$card_id = isset( $_GET['yousaidit-designer-card-id'] ) ? intval( $_GET['yousaidit-designer-card-id'] ) : '';
 		?>
         <p>
             <label>
@@ -50,7 +51,7 @@ class ExportCard {
             <li>
                 <fieldset>
                     <label for="yousaidit-designer-card-id" class="label-responsive">Designer Card Id:</label>
-                    <input type="text" name="yousaidit-designer-card-id" id="yousaidit-designer-card-id">
+                    <input type="text" name="yousaidit-designer-card-id" id="yousaidit-designer-card-id" value="<?php echo esc_attr($card_id) ?>">
                 </fieldset>
             </li>
         </ul>

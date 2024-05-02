@@ -10,6 +10,8 @@
         </ShaplaColumn>
         <ShaplaColumn :tablet="6">
           <div class="yousaiditcard_designer_card__actions-top">
+            <ShaplaButton theme="success" size="small" outline @click="()=>store.getCardById(card_id)">Refresh
+            </ShaplaButton>
             <template v-if="'trash' !== store.card.status">
               <template v-if="'processing' === store.card.status">
                 <ShaplaButton theme="success" size="small" @click="state.showAcceptConfirmModal = true">Accept
@@ -172,6 +174,108 @@
             </template>
           </div>
         </ShaplaTab>
+        <ShaplaTab v-if="store.card.card_type === 'dynamic'" name="Card Design Info">
+          <div class="flex justify-end mb-4">
+            <a :href="store.card.export_url" class="shapla-button is-primary is-small is-outline">Export Card</a>
+          </div>
+          <div>
+            <div class="card-background bg-white p-4">
+              <div class="card-sections__heading font-medium mb-4 border-0 border-b border-solid border-gray-200 pb-2">
+                Background
+              </div>
+              <ShaplaColumns>
+                <ShaplaColumn :tablet="3">Background Type</ShaplaColumn>
+                <ShaplaColumn :tablet="9">{{ store.card.dynamic_card_payload.card_bg_type }}</ShaplaColumn>
+              </ShaplaColumns>
+              <ShaplaColumns>
+                <ShaplaColumn :tablet="3">Background Color</ShaplaColumn>
+                <ShaplaColumn :tablet="9">{{ store.card.dynamic_card_payload.card_bg_color }}</ShaplaColumn>
+              </ShaplaColumns>
+              <div v-if="store.card.dynamic_card_payload.card_bg_type === 'image'">
+                <ShaplaColumns>
+                  <ShaplaColumn :tablet="3">Image Info</ShaplaColumn>
+                  <ShaplaColumn :tablet="9">
+                    <ImageInfo :image="store.card.dynamic_card_payload.card_background"/>
+                  </ShaplaColumn>
+                </ShaplaColumns>
+              </div>
+            </div>
+            <div class="card-sections">
+              <div class="card-sections__heading font-medium my-4">Sections</div>
+              <div v-for="section in store.card.dynamic_card_payload.card_items"
+                   class="card-section bg-white p-4 relative mb-4">
+                <div class="border-0 border-b border-solid border-gray-200 mb-4 flex justify-between">
+                  <div class="font-medium pb-2">{{ section.label }}</div>
+                  <div class="p-1 text-primary font-medium rounded">
+                    {{ section.section_type }}
+                  </div>
+                </div>
+                <ShaplaColumns>
+                  <ShaplaColumn :tablet="3">Position</ShaplaColumn>
+                  <ShaplaColumn :tablet="9">
+                    <div class="bg-gray-100 p-4 rounded">
+                      <ShaplaColumns multiline>
+                        <ShaplaColumn :tablet="3">From Top (mm)</ShaplaColumn>
+                        <ShaplaColumn :tablet="9">{{ section.position.top }}</ShaplaColumn>
+                        <ShaplaColumn :tablet="3">From Left (mm)</ShaplaColumn>
+                        <ShaplaColumn :tablet="9">{{ section.position.left }}</ShaplaColumn>
+                      </ShaplaColumns>
+                    </div>
+                  </ShaplaColumn>
+                </ShaplaColumns>
+                <ShaplaColumns v-if="['input-text','static-text'].includes(section.section_type)">
+                  <ShaplaColumn :tablet="3">Text Options</ShaplaColumn>
+                  <ShaplaColumn :tablet="9">
+                    <div class="bg-gray-100 p-4 rounded">
+                      <ShaplaColumns multiline>
+                        <ShaplaColumn :tablet="3">Font Family</ShaplaColumn>
+                        <ShaplaColumn :tablet="9">{{ section.textOptions.fontFamily }}</ShaplaColumn>
+                        <ShaplaColumn :tablet="3">Font Size (pt)</ShaplaColumn>
+                        <ShaplaColumn :tablet="9">{{ section.textOptions.size }}</ShaplaColumn>
+                        <ShaplaColumn :tablet="3">Alignment</ShaplaColumn>
+                        <ShaplaColumn :tablet="9">{{ section.textOptions.align }}</ShaplaColumn>
+                        <ShaplaColumn :tablet="3">Text Color</ShaplaColumn>
+                        <ShaplaColumn :tablet="9">{{ section.textOptions.color }}</ShaplaColumn>
+                        <ShaplaColumn :tablet="3">Spacing</ShaplaColumn>
+                        <ShaplaColumn :tablet="9">{{ section.textOptions.spacing }}</ShaplaColumn>
+                        <ShaplaColumn :tablet="3">Rotation (degree)</ShaplaColumn>
+                        <ShaplaColumn :tablet="9">{{ section.textOptions.rotation }}</ShaplaColumn>
+                        <ShaplaColumn :tablet="3">Placeholder Text</ShaplaColumn>
+                        <ShaplaColumn :tablet="9">{{ section.placeholder }}</ShaplaColumn>
+                      </ShaplaColumns>
+                    </div>
+                  </ShaplaColumn>
+                </ShaplaColumns>
+                <template v-if="['input-image','static-image'].includes(section.section_type)">
+                  <ShaplaColumns>
+                    <ShaplaColumn :tablet="3">Image Options</ShaplaColumn>
+                    <ShaplaColumn :tablet="9">
+                      <div class="bg-gray-100 p-4 rounded">
+                        <ShaplaColumns multiline>
+                          <ShaplaColumn :tablet="3">Image Width (mm)</ShaplaColumn>
+                          <ShaplaColumn :tablet="9">{{ section.imageOptions.width }}
+                          </ShaplaColumn>
+                          <ShaplaColumn :tablet="3">Image Height (mm)</ShaplaColumn>
+                          <ShaplaColumn :tablet="9">{{ section.imageOptions.height }}
+                          </ShaplaColumn>
+                          <ShaplaColumn :tablet="3">Alignment</ShaplaColumn>
+                          <ShaplaColumn :tablet="9">{{ section.imageOptions.align }}
+                          </ShaplaColumn>
+                        </ShaplaColumns>
+                      </div>
+                    </ShaplaColumn>
+                  </ShaplaColumns>
+                  <ShaplaColumns>
+                    <ShaplaColumn :tablet="3">Image Info</ShaplaColumn>
+                    <ShaplaColumn :tablet="9">
+                      <ImageInfo :image="section.imageOptions.img"/>
+                    </ShaplaColumn>
+                  </ShaplaColumns>
+                </template>
+              </div>
+            </div>
+          </div>
+        </ShaplaTab>
       </ShaplaTabs>
       <ShaplaModal :active="state.showRejectConfirmModal" @close="state.showRejectConfirmModal = false"
                    :show-close-icon="false" type="box">
@@ -312,6 +416,7 @@ import ModalCardCommission from "../components/ModalCardCommission.vue";
 import {useRoute, useRouter} from "vue-router";
 import useAdminDesignerCardStore from "../stores/card-store.ts";
 import {computed, onMounted, reactive, ref} from "vue";
+import ImageInfo from "../components/ImageInfo.vue";
 
 const route = useRoute();
 const router = useRouter();
