@@ -23,6 +23,8 @@
                   :card-height-mm="card_dimension[1]"
                   :element-width-mm="`${pxToMm(slotProps.sizes.width)}`"
                   :element-height-mm="`${pxToMm(slotProps.sizes.height)}`"
+                  :element-width-px="`${slotProps.sizes.width}`"
+                  :element-height-px="`${slotProps.sizes.height}`"
                   @edit:layer="(event) => handleEditSection(event.detail.section,event.detail.index)"
               ></dynamic-card-canvas>
             </template>
@@ -332,8 +334,8 @@ const changeVideoInnerMessage = (type, value) => {
     state.innerMessage2.video_id = 0;
   }
 }
-const pxToMm = (px) => {
-  return Math.round(px * 0.2645833333);
+const pxToMm = (px: number, ppi: number = 72) => {
+  return Math.round(px * (25.4 / ppi));
 }
 const onLengthError = (error) => {
   state.showLengthError = error;

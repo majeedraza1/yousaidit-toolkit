@@ -174,7 +174,7 @@
             </template>
           </div>
         </ShaplaTab>
-        <ShaplaTab v-if="store.card.card_type === 'dynamic'" name="Card Design Info">
+        <ShaplaTab v-if="store.card.card_type === 'dynamic'" name="Dynamic Card Data">
           <div class="flex justify-end mb-4">
             <a :href="store.card.export_url" class="shapla-button is-primary is-small is-outline">Export Card</a>
           </div>

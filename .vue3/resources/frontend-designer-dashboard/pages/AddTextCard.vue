@@ -10,7 +10,6 @@ import {
 } from "../../interfaces/designer-card.ts";
 import {ShaplaButton, ShaplaFileUploader, ShaplaImage} from "@shapla/vue-components";
 import useDesignerCardStore from "../stores/store-cards.ts";
-import cardTestData from '../sample-data/text-card-sample.ts';
 import SvgIcon from "../components/SvgIcon.vue";
 import {Dialog} from "@shapla/vanilla-components";
 import InputImageSection from "../components/InputImageSection.vue";
@@ -21,6 +20,7 @@ import ModalAddFont from "../components/ModalAddFont.vue";
 import {FontInfoInterface} from "../../interfaces/custom-font.ts";
 import {DesignerProfileFontInterface} from "../../interfaces/designer.ts";
 import {useRouter} from "vue-router";
+import cardTestData from '../sample-data/text-card-sample.ts'
 
 const store = useDesignerCardStore();
 const router = useRouter();
@@ -70,7 +70,7 @@ const hasMainImage = computed<boolean>(() => state.card && state.card.main_image
 
 const calculateWidthAndHeight = () => {
   let innerEL = canvasContainer.value;
-  let d = [150, 150];
+  let d = [154, 156];
 
   if (innerEL) {
     state.previewWidth = innerEL.offsetWidth || (document.body.offsetWidth - 30);
@@ -210,8 +210,8 @@ onMounted(() => {
           <div class="dynamic-card-canvas-container" ref="canvasContainer">
             <dynamic-card-canvas
                 :data-options='`${JSON.stringify(dynamicCardPayload)}`'
-                :card-width-mm="150"
-                :card-height-mm="150"
+                :card-width-mm="154"
+                :card-height-mm="156"
                 :element-width-mm="pxToMm(state.previewWidth)"
                 :element-height-mm="pxToMm(state.previewHeight)"
             ></dynamic-card-canvas>

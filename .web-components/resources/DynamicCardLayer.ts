@@ -52,15 +52,17 @@ export class DynamicCardLayer extends LitElement {
     if (userOptions && userOptions.position.left) {
       left += parseFloat(userOptions.position.left.toString());
     }
-    let styles = [],
+    let styles = [];
       // _top = Math.round(100 / this.elementHeightMM * this.section.position.top),
       // _left = Math.round(100 / this.elementWidthMM * this.section.position.left);
-      _top = Math.round(100 * (top / this.cardHeightMM)),
-      _left = Math.round(100 * (left / this.cardWidthMM));
+      // _top = Math.round(100 * (top / this.cardHeightMM)),
+      // _left = Math.round(100 * (left / this.cardWidthMM));
 
+    styles.push(`--card-width-mm: ${this.cardWidthMM}`);
+    styles.push(`--card-height-mm: ${this.cardHeightMM}`);
+    styles.push(`--from-left-mm: ${left}`);
+    styles.push(`--from-top-mm: ${top}`);
     styles.push(`--scaling-factor: ${(this.elementWidthMM / this.cardWidthMM).toFixed(3)}`);
-    styles.push(`--left: ${_left}%`);
-    styles.push(`--top: ${_top}%`);
 
     if (userOptions) {
       styles.push(`--rotate: ${userOptions.rotate}deg`);
@@ -247,8 +249,8 @@ export class DynamicCardLayer extends LitElement {
       .section {
           position: absolute;
           line-height: 1;
-          left: calc(var(--left, 0) * var(--scaling-factor, 1));
-          top: calc(var(--top, 0) * var(--scaling-factor, 1));
+          left: calc(100% * (var(--from-left-mm) / var(--card-width-mm)));
+          top: calc(100% * (var(--from-top-mm) / var(--card-height-mm)));
       }
 
       .section-edit.is-image-edit {

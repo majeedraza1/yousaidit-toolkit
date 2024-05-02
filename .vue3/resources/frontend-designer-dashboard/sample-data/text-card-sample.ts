@@ -1,18 +1,18 @@
 export default {
   card: {
-    "main_image_id": 77677,
+    "main_image_id": 77292,
     "main_image": {
-      "id": 77677,
+      "id": 77292,
       "title": "CH-0008-01",
-      "attachment_url": "http://yousaidit-main.yousaidit.co.uk/CH-0008-01-4.jpg",
+      "attachment_url": "https://yousaidit-main.yousaidit.co.uk/test-image-upload-for-sizes-add-text-01-11.jpg",
       "token": "q8ndmaOENct6bqNDnXtB",
       "thumbnail": {
-        "src": "http://yousaidit-main.yousaidit.co.uk/CH-0008-01-4-150x150.jpg",
+        "src": "https://yousaidit-main.yousaidit.co.uk/test-image-upload-for-sizes-add-text-01-11.jpg",
         "width": 150,
         "height": 150
       },
       "full": {
-        "src": "http://yousaidit-main.yousaidit.co.uk/CH-0008-01-4.jpg",
+        "src": "https://yousaidit-main.yousaidit.co.uk/test-image-upload-for-sizes-add-text-01-11.jpg",
         "width": 1819,
         "height": 1843
       }
@@ -57,34 +57,21 @@ export default {
   },
   sections: [
     {
-      "label": "Image section",
-      "section_type": "input-image",
-      "position": {"left": 120, "top": 120},
-      "imageOptions": {
-        "img": {
-          "id": 77679,
-          "src": "http://yousaidit-main.yousaidit.co.uk/Metal-Single-Sofa-l-SSC-607-10-1-07-1.jpg",
-          "width": 1200,
-          "height": 1200
-        },
-        "width": 25,
-        "height": 25,
-        "align": "left"
-      }
-    },
-    {
-      "label": "Text section",
       "section_type": "input-text",
-      "position": {"left": 10, "top": 70},
+      "label": "Text section",
+      "position": {
+        "top": 116,
+        "left": 0
+      },
+      "placeholder": "Text should be on this line",
       "text": "",
-      "placeholder": "Enter you name",
       "textOptions": {
-        "fontFamily": "Gagalin",
-        "size": "40",
+        "fontFamily": "arial",
+        "size": 16,
+        "rotation": 0,
+        "spacing": 0,
         "align": "center",
-        "color": "#fff",
-        "rotation": 5,
-        "spacing": 0
+        "color": "#000"
       }
     }
   ]
