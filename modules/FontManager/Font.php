@@ -366,6 +366,9 @@ class Font {
 	 * @return false|FontInfo
 	 */
 	public static function find_font( string $font_family_or_slug ) {
+		if ( 'arial' === $font_family_or_slug ) {
+			$font_family_or_slug = 'OpenSans';
+		}
 		$toArray             = explode( ",", $font_family_or_slug );
 		$font_family_or_slug = trim( str_replace( [ "'", '"' ], '', $toArray[0] ) );
 		$_fonts              = static::get_fonts_info();

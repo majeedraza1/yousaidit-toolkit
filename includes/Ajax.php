@@ -361,7 +361,7 @@ class Ajax {
 			die;
 		}
 
-		$pdf_id = DynamicCard::create_card_pdf( $card );
+		$pdf_id = DynamicCard::create_card_pdf( $card, true );
 		try {
 			$new_file_path = get_attached_file( $pdf_id );
 			DynamicCard::clone_pdf_to_jpg( $card, $new_file_path );

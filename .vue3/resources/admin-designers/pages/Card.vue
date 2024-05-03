@@ -1,5 +1,5 @@
 <template>
-  <div class="yousaiditcard_designer_card">
+  <div class="yousaiditcard_designer_card" ref="canvasContainer">
     <h1 class="wp-heading-inline">Card</h1>
     <hr class="wp-header-end">
     <template v-if="store.card">
@@ -275,6 +275,20 @@
               </div>
             </div>
           </div>
+          <div class="dynamic-card-canvas-container max-w-[600px] min-h-[300px] mx-auto bg-white hidden">
+            <ShaplaImage :width-ratio="154" :height-ratio="156" class="dynamic-card-canvas-image-container">
+              <dynamic-card-canvas
+                  v-if="state.previewWidth && state.previewHeight"
+                  :data-options="`${JSON.stringify(store.card.dynamic_card_payload)}`"
+                  :card-width-mm="154"
+                  :card-height-mm="156"
+                  :element-width-px="`${state.previewWidth}`"
+                  :element-height-px="`${state.previewHeight}`"
+                  :element-width-mm="`${convertPXtoMM(state.previewWidth)}`"
+                  :element-height-mm="`${convertPXtoMM(state.previewHeight)}`"
+              ></dynamic-card-canvas>
+            </ShaplaImage>
+          </div>
         </ShaplaTab>
       </ShaplaTabs>
       <ShaplaModal :active="state.showRejectConfirmModal" @close="state.showRejectConfirmModal = false"
@@ -403,6 +417,7 @@ import {
   ShaplaChip,
   ShaplaColumn,
   ShaplaColumns,
+  ShaplaImage,
   ShaplaInput,
   ShaplaModal,
   ShaplaRadio,
@@ -417,7 +432,9 @@ import {useRoute, useRouter} from "vue-router";
 import useAdminDesignerCardStore from "../stores/card-store.ts";
 import {computed, onMounted, reactive, ref} from "vue";
 import ImageInfo from "../components/ImageInfo.vue";
+import {convertPXtoMM} from "../../utils/helper.ts";
 
+const canvasContainer = ref(null);
 const route = useRoute();
 const router = useRouter();
 const store = useAdminDesignerCardStore();
@@ -428,6 +445,8 @@ const state = reactive({
   showCreateProductModal: false,
   showEditCommissionModal: false,
   showUpdateSkuModal: false,
+  previewWidth: 0,
+  previewHeight: 0
 })
 
 const hasCommissionData = computed(() => !!(store.card && Object.keys(store.card.commission).length))
@@ -479,6 +498,19 @@ const handleCommissionUpdate = (commissions, marketplace_commissions) => {
   });
 }
 
+
+const calculateWidthAndHeight = () => {
+  let innerEL = canvasContainer.value.querySelector('.dynamic-card-canvas-container');
+  window.console.log(canvasContainer.value, innerEL);
+  let d = [154, 156];
+
+  if (innerEL) {
+    state.previewWidth = innerEL.offsetWidth;
+    window.console.log(innerEL.offsetWidth);
+    state.previewHeight = Math.round(state.previewWidth * (d[1] / d[0]));
+  }
+}
+
 const getHeaderText = (size_slug: string) => {
   if (card_sizes) {
     let item = card_sizes.value.find(size => size.value === size_slug);
@@ -520,6 +552,8 @@ const goToDesignerPage = (designer_id: number | string) => {
 
 onMounted(() => {
   card_id.value = parseInt(route.params.id);
-  store.getCardById(card_id.value);
+  store.getCardById(card_id.value).then(() => {
+    setTimeout(() => calculateWidthAndHeight(), 100);
+  });
 })
 </script>

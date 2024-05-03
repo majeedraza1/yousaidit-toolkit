@@ -1,4 +1,6 @@
-const convertPXtoMM = (px: number) => px * 0.2645833333
+const convertPXtoMM = (px: number, ppi: number = 72) => {
+  return Math.round(px * (25.4 / ppi));
+}
 const convertMMtoPX = (mm: number) => mm * 3.7795275591
 const convertPTtoMM = (points: number) => points * 0.352778
 const convertMMtoPT = (mm: number) => mm * 2.835

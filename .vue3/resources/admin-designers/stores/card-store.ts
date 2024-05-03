@@ -48,20 +48,24 @@ const useAdminDesignerCardStore = defineStore('admin-designer-card', () => {
   }
 
   const getCardById = (card_id: number) => {
-    Spinner.show();
-    axios.get('designers-cards/' + card_id)
-      .then(response => {
-        _updateCard(response.data.data as SingleCardServerResponseInterface)
-      })
-      .catch(error => {
-        const responseData = error.response.data;
-        if (responseData.message) {
-          Notify.error(responseData.message, 'Error!');
-        }
-      })
-      .finally(() => {
-        Spinner.hide();
-      })
+    return new Promise(resolve => {
+      Spinner.show();
+      axios.get('designers-cards/' + card_id)
+        .then(response => {
+          const data = response.data.data as SingleCardServerResponseInterface;
+          _updateCard(data)
+          resolve(data);
+        })
+        .catch(error => {
+          const responseData = error.response.data;
+          if (responseData.message) {
+            Notify.error(responseData.message, 'Error!');
+          }
+        })
+        .finally(() => {
+          Spinner.hide();
+        })
+    })
   }
   const createProductOnTradeSite = (card_id: number) => {
     Dialog.confirm('Are you sure?').then(confirmed => {

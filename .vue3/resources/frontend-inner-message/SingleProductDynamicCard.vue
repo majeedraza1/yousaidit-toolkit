@@ -19,12 +19,10 @@
                   :show-edit-icon="true"
                   :data-options="`${JSON.stringify(state.payload)}`"
                   :active-section-index="state.activeSectionIndex"
-                  :card-width-mm="card_dimension[0]"
-                  :card-height-mm="card_dimension[1]"
+                  :card-width-mm="154"
+                  :card-height-mm="156"
                   :element-width-mm="`${pxToMm(slotProps.sizes.width)}`"
                   :element-height-mm="`${pxToMm(slotProps.sizes.height)}`"
-                  :element-width-px="`${slotProps.sizes.width}`"
-                  :element-height-px="`${slotProps.sizes.height}`"
                   @edit:layer="(event) => handleEditSection(event.detail.section,event.detail.index)"
               ></dynamic-card-canvas>
             </template>

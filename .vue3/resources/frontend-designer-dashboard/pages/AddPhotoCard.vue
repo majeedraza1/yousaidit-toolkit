@@ -11,6 +11,7 @@ import {
 import CardOptionsPreview from "../components/CardOptionsPreview.vue";
 import CardOptions from "../components/CardOptions.vue";
 import {useRouter} from "vue-router";
+import {convertPXtoMM} from "../../utils/helper.ts";
 
 const store = useDesignerCardStore();
 const router = useRouter();
@@ -109,7 +110,6 @@ const dynamicCardPayload = computed<DynamicCardPayloadInterface>(() => {
 })
 
 const canvasContainer = ref(null);
-const pxToMm = (px: number) => Math.round(px * 0.2645833333);
 
 const handleMainImageUpload = (fileObject, serverResponse) => {
   const attachment = serverResponse.data.attachment as UploadedAttachmentInterface;
@@ -145,7 +145,7 @@ const canGoOnStepThree = computed(() => {
 
 const calculateWidthAndHeight = () => {
   let innerEL = canvasContainer.value;
-  let d = [150, 150];
+  let d = [154, 156];
 
   if (innerEL) {
     state.previewWidth = innerEL.offsetWidth || (document.body.offsetWidth - 30);
@@ -181,10 +181,10 @@ onMounted(() => {
           <div class="dynamic-card-canvas-container" ref="canvasContainer">
             <dynamic-card-canvas
                 :data-options='`${JSON.stringify(dynamicCardPayload)}`'
-                :card-width-mm="150"
-                :card-height-mm="150"
-                :element-width-mm="pxToMm(state.previewWidth)"
-                :element-height-mm="pxToMm(state.previewHeight)"
+                :card-width-mm="154"
+                :card-height-mm="156"
+                :element-width-mm="convertPXtoMM(state.previewWidth)"
+                :element-height-mm="convertPXtoMM(state.previewHeight)"
             ></dynamic-card-canvas>
           </div>
         </ShaplaImage>

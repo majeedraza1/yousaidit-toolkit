@@ -207,7 +207,7 @@ class Assets {
 			],
 			'yousaidit-toolkit-admin'          => [
 				'src'       => static::get_assets_url() . '/js/admin.js',
-				'deps'      => [ 'jquery' ],
+				'deps'      => [ 'jquery', 'yousaidit-toolkit-web-components' ],
 				'in_footer' => true
 			],
 		];

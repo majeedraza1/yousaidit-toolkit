@@ -21,6 +21,7 @@ import {FontInfoInterface} from "../../interfaces/custom-font.ts";
 import {DesignerProfileFontInterface} from "../../interfaces/designer.ts";
 import {useRouter} from "vue-router";
 import cardTestData from '../sample-data/text-card-sample.ts'
+import {convertPXtoMM} from "../../utils/helper.ts";
 
 const store = useDesignerCardStore();
 const router = useRouter();
@@ -64,7 +65,6 @@ const state = reactive<{
 })
 
 const canvasContainer = ref(null);
-const pxToMm = (px: number) => Math.round(px * 0.2645833333);
 
 const hasMainImage = computed<boolean>(() => state.card && state.card.main_image_id > 0);
 
@@ -212,8 +212,8 @@ onMounted(() => {
                 :data-options='`${JSON.stringify(dynamicCardPayload)}`'
                 :card-width-mm="154"
                 :card-height-mm="156"
-                :element-width-mm="pxToMm(state.previewWidth)"
-                :element-height-mm="pxToMm(state.previewHeight)"
+                :element-width-mm="convertPXtoMM(state.previewWidth)"
+                :element-height-mm="convertPXtoMM(state.previewHeight)"
             ></dynamic-card-canvas>
           </div>
         </ShaplaImage>
