@@ -98,9 +98,9 @@ class AdminLogController extends ApiController {
 	 * @return WP_REST_Response
 	 */
 	public function update_settings( WP_REST_Request $request ) {
-		if ( Settings::is_in_config_file() ) {
-			$params   = $request->get_params();
-			$settings = Settings::update_settings( $params );
+		if ( ! Settings::is_in_config_file() ) {
+			$params = $request->get_params();
+			Settings::update_settings( $params );
 		}
 
 		$occasions = $request->get_param( 'occasions' );
