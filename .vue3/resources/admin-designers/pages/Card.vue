@@ -275,17 +275,14 @@
               </div>
             </div>
           </div>
-          <div class="dynamic-card-canvas-container max-w-[600px] min-h-[300px] mx-auto bg-white hidden">
+          <div class="dynamic-card-canvas-container max-w-[600px] min-h-[300px] mx-auto bg-white" v-if="showPreview">
             <ShaplaImage :width-ratio="154" :height-ratio="156" class="dynamic-card-canvas-image-container">
               <dynamic-card-canvas
-                  v-if="state.previewWidth && state.previewHeight"
                   :data-options="`${JSON.stringify(store.card.dynamic_card_payload)}`"
                   :card-width-mm="154"
                   :card-height-mm="156"
-                  :element-width-px="`${state.previewWidth}`"
-                  :element-height-px="`${state.previewHeight}`"
-                  :element-width-mm="`${convertPXtoMM(state.previewWidth)}`"
-                  :element-height-mm="`${convertPXtoMM(state.previewHeight)}`"
+                  :element-width-mm="`${convertPXtoMM(600)}`"
+                  :element-height-mm="`${convertPXtoMM(608)}`"
               ></dynamic-card-canvas>
             </ShaplaImage>
           </div>
@@ -435,6 +432,7 @@ import ImageInfo from "../components/ImageInfo.vue";
 import {convertPXtoMM} from "../../utils/helper.ts";
 
 const canvasContainer = ref(null);
+const showPreview = ref(false);
 const route = useRoute();
 const router = useRouter();
 const store = useAdminDesignerCardStore();
@@ -555,5 +553,9 @@ onMounted(() => {
   store.getCardById(card_id.value).then(() => {
     setTimeout(() => calculateWidthAndHeight(), 100);
   });
+
+  if (document.body.offsetWidth >= 1024) {
+    showPreview.value = true;
+  }
 })
 </script>

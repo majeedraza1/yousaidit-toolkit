@@ -20,7 +20,7 @@ const style_presets = stability_ai.style_presets;
 const card_options = reactive({
   occasion: '',
   recipient: '',
-  topic: '',
+  topic: '__custom',
   custom_topic: '',
   mood: '',
   style_preset: 'cinematic',
@@ -94,16 +94,8 @@ const generateAiImage = () => {
         </select>
       </div>
       <div>
-        <label for="Topic" class="text-center">Topic/Interests (optional)</label>
-        <select id="Topic" v-model="card_options.topic">
-          <option v-for="_topic in topics" :value="_topic.slug" :key="_topic.slug">
-            {{ _topic.label }}
-          </option>
-          <option value="__custom">Custom, Give me to write my own topic</option>
-        </select>
-        <div class="mt-4" v-if="'__custom' === card_options.topic">
-          <input type="text" v-model="card_options.custom_topic" placeholder="Write your topic">
-        </div>
+        <label for="Topic" class="text-center">Let us know what they like</label>
+        <input type="text" v-model="card_options.custom_topic" placeholder="e.g cars and unicorns">
       </div>
       <div>
         <label for="style_preset" class="text-center">Style</label>

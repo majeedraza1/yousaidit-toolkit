@@ -99,28 +99,32 @@ class AdminLogController extends ApiController {
 	 */
 	public function update_settings( WP_REST_Request $request ) {
 		if ( Settings::is_in_config_file() ) {
-			return $this->respondForbidden(
-				null,
-				'Config defined on wp-config.php file and cannot edit via settings.'
-			);
+			$params   = $request->get_params();
+			$settings = Settings::update_settings( $params );
 		}
 
-		$params    = $request->get_params();
-		$settings  = Settings::update_settings( $params );
 		$occasions = $request->get_param( 'occasions' );
-		Settings::update_occasions( $occasions );
+		if ( $occasions ) {
+			Settings::update_occasions( $occasions );
+		}
 		$recipients = $request->get_param( 'recipients' );
-		Settings::update_recipients( $recipients );
+		if ( $recipients ) {
+			Settings::update_recipients( $recipients );
+		}
 		$moods = $request->get_param( 'moods' );
-		Settings::update_moods( $moods );
+		if ( $moods ) {
+			Settings::update_moods( $moods );
+		}
 		$topics = $request->get_param( 'topics' );
-		Settings::update_topics( $topics );
+		if ( $topics ) {
+			Settings::update_topics( $topics );
+		}
 
 		return $this->respondOK(
 			[
 				'editable'      => false === Settings::is_in_config_file(),
 				'message'       => $this->setting_page_message(),
-				'settings'      => $settings,
+				'settings'      => Settings::get_settings(),
 				'api_versions'  => StabilityAiClient::get_api_versions(),
 				'style_presets' => StabilityAiClient::get_style_presets_slug(),
 				'occasions'     => Settings::get_occasions(),

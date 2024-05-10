@@ -50,7 +50,6 @@ declare global {
       stability_ai?: {
         occasions: { slug: string; label: string; menu_order?: number; }[];
         recipients: { slug: string; label: string; menu_order?: number; }[];
-        topics: { slug: string; label: string; menu_order?: number; }[];
         moods: { slug: string; label: string; menu_order?: number; }[];
         style_presets: { slug: string; label: string; icon: string; }[];
       }
