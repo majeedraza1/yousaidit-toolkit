@@ -500,4 +500,12 @@ class Settings {
 
 		return $presets;
 	}
+
+	public static function get_max_allowed_images_for_guest_user(): int {
+		return (int) static::get_setting( 'max_allowed_images_for_guest_user', 1 );
+	}
+
+	public static function get_max_allowed_images_for_auth_user(): int {
+		return (int) static::get_setting( 'max_allowed_images_for_auth_user', 5 );
+	}
 }

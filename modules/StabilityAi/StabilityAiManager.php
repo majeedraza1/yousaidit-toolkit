@@ -4,6 +4,7 @@ namespace YouSaidItCards\Modules\StabilityAi;
 
 use YouSaidItCards\Modules\StabilityAi\Admin\Admin;
 use YouSaidItCards\Modules\StabilityAi\Rest\AdminLogController;
+use YouSaidItCards\Utils;
 
 /**
  * StabilityAiManager class
@@ -63,6 +64,24 @@ class StabilityAiManager {
 	}
 
 	public function image_generator() {
+		$user_id               = get_current_user_id();
+		$date                  = date( 'Y-m-d', time() );
+		$auth_user_cache_key   = sprintf( 'stability_ai_used_quota_%s_%s', $user_id, $date );
+		$auth_user_used_quota  = (int) get_transient( $auth_user_cache_key );
+		$guest_user_cache_key  = sprintf( 'stability_ai_used_quota_%s_%s', Utils::get_remote_ip(), $date );
+		$guest_user_used_quota = (int) get_transient( $guest_user_cache_key );
+
+		if ( $user_id ) {
+			$auth_user_quota = Settings::get_max_allowed_images_for_auth_user();
+			if ( $auth_user_used_quota >= $auth_user_quota ) {
+				wp_send_json_error( [ 'message' => 'Max quota reached for today.' ], 400 );
+			}
+		} else {
+			$guest_user_quota = Settings::get_max_allowed_images_for_guest_user();
+			if ( $guest_user_used_quota >= $guest_user_quota ) {
+				wp_send_json_error( [ 'message' => 'Max quota reached for today.' ], 400 );
+			}
+		}
 		$style_preset = $_REQUEST['style_preset'] ?? '';
 		$occasion     = $_REQUEST['occasion'] ?? '';
 		$recipient    = $_REQUEST['recipient'] ?? '';
@@ -72,11 +91,16 @@ class StabilityAiManager {
 		if ( '__custom' === $topic ) {
 			$topic = $custom_topic;
 		}
-		$image_id = StabilityAiClient::generate_image( $occasion, $recipient, $mode, $topic,$style_preset );
+		$image_id = StabilityAiClient::generate_image( $occasion, $recipient, $mode, $topic, $style_preset );
 		if ( is_wp_error( $image_id ) ) {
 			wp_send_json_error( [ 'message' => $image_id->get_error_message() ], 400 );
 		}
 		if ( is_numeric( $image_id ) ) {
+			if ( $user_id ) {
+				set_transient( $auth_user_cache_key, $auth_user_used_quota + 1, DAY_IN_SECONDS );
+			} else {
+				set_transient( $guest_user_cache_key, $guest_user_used_quota + 1, DAY_IN_SECONDS );
+			}
 			wp_send_json_success( $this->_prepare_item_for_response( $image_id ) );
 		}
 		wp_send_json_error( [ 'message' => 'Something went wrong.' ], 500 );
