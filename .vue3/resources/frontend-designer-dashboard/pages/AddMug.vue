@@ -1,13 +1,7 @@
 <script setup lang="ts">
 import {computed, onMounted, reactive} from "vue";
-import {
-  ShaplaButton,
-  ShaplaCheckbox,
-  ShaplaColumn,
-  ShaplaFileUploader,
-  ShaplaIcon,
-  ShaplaImage
-} from "@shapla/vue-components";
+import {ShaplaButton, ShaplaColumn, ShaplaFileUploader, ShaplaIcon, ShaplaImage} from "@shapla/vue-components";
+import {Notify} from "@shapla/vanilla-components";
 import CardOptions from "../components/CardOptions.vue";
 import CardOptionsPreview from "../components/CardOptionsPreview.vue";
 import {StandardCardBaseInterface, UploadedAttachmentInterface} from "../../interfaces/designer-card.ts";
@@ -81,6 +75,20 @@ const onSubmit = () => {
   })
 }
 
+const removeImage = () => {
+  store
+      .deleteImage(state.card.image_id)
+      .catch(errors => {
+        if (errors.message) {
+          Notify.error(errors.message, 'Error!');
+        }
+      })
+      .finally(() => {
+        state.card.image_id = 0;
+        state.card.image = null;
+      })
+}
+
 onMounted(() => {
   // state.card = mugTestData as StandardCardBaseInterface;
   // state.stepDone = 4;
@@ -90,12 +98,35 @@ onMounted(() => {
 <template>
   <h2 class="text-center text-4xl bg-gray-100 p-2 border border-solid border-primary mb-4">Add Mug</h2>
   <div class="max-w-5xl mx-auto">
-    <div v-if="0 === state.stepDone" class="flex justify-center">
-      <div class="p-2 max-w-[600px]">
+    <div v-if="0 === state.stepDone" class="flex">
+      <div class="w-full md:w-1/2 p-2">
+        <ShaplaImage :width-ratio="210" :height-ratio="99" class="shadow">
+          <img v-if="state.card.image_id" :src="state.card.image.attachment_url" alt="">
+          <div v-if="!state.card.image_id" class="w-full h-full">
+            <ShaplaFileUploader
+                class="static-card-image-uploader"
+                :url="store.attachment_upload_url"
+                @success="handleImageUpload"
+                @fail="handleImageUploadFailed"
+                text-max-upload-limit="Max upload filesize: 5MB"
+                :headers="fileRequestHeaders"
+                :params="{type:'card_image',card_size:state.cardSize,card_type:'mug'}"
+            />
+            <div v-if="state.upload_error_message.length">
+              <div v-html="state.upload_error_message"
+                   class="p-2 text-red-600 border border-solid border-red-600"></div>
+            </div>
+          </div>
+        </ShaplaImage>
+        <div class="mt-2 flex justify-center">
+          <ShaplaButton v-if="state.card.image_id" theme="primary" @click="removeImage">Remove Image</ShaplaButton>
+        </div>
+      </div>
+      <div class="w-full md:w-1/2 p-2">
         <div>
           <h2 class="text-2xl leading-none mb-4">Card Size</h2>
           <p>The size we're printing is square (21cm x 9.9cm), please upload the image in JPEG format with a minimum
-            resolution of <strong>1819 x 1843 px</strong>.</p>
+            resolution of <strong>2480 x 1169 px</strong>.</p>
         </div>
         <div>
           <h2 class="text-2xl leading-none mb-4">Templates</h2>
@@ -117,41 +148,9 @@ onMounted(() => {
           </div>
         </div>
         <div class="mt-4">
-          <div class="mb-2">
-            <ShaplaCheckbox
-                v-model="state.readRequirement"
-                label="I read it and confirm my card is ready as the requirements."
-            />
-          </div>
-          <ShaplaButton theme="primary" :disabled="!state.readRequirement" @click="state.stepDone = 1">Next
+          <ShaplaButton theme="primary" :disabled="!hasImage" @click="state.stepDone = 1">Next
           </ShaplaButton>
         </div>
-      </div>
-    </div>
-    <div v-if="1 === state.stepDone" class="flex justify-center">
-      <div class="w-full lg:max-w-[600px]">
-        <ShaplaFileUploader
-            class="static-card-image-uploader"
-            :url="store.attachment_upload_url"
-            @success="handleImageUpload"
-            @fail="handleImageUploadFailed"
-            text-max-upload-limit="Max upload filesize: 5MB"
-            :headers="fileRequestHeaders"
-            :params="{type:'card_image',card_size:state.cardSize,card_type:'mug'}"
-        />
-        <div v-if="state.upload_error_message.length">
-          <div v-html="state.upload_error_message" class="p-2 text-red-600 border border-solid border-red-600"></div>
-        </div>
-      </div>
-    </div>
-    <div v-if="2 === state.stepDone && hasImage" class="flex flex-col items-center">
-      <div class="max-w-[600px] min-w-[300px]">
-        <ShaplaImage>
-          <img :src="state.card.image.full.src" alt=""/>
-        </ShaplaImage>
-      </div>
-      <div class="flex justify-center mt-4">
-        <ShaplaButton theme="primary" @click="state.stepDone = 3">Next</ShaplaButton>
       </div>
     </div>
     <div v-if="3 === state.stepDone" class="flex flex-col items-center">
@@ -160,7 +159,7 @@ onMounted(() => {
         <ShaplaButton theme="primary" @click="state.stepDone = 4">Next</ShaplaButton>
       </div>
     </div>
-    <div v-if="4 === state.stepDone" class="flex flex-col items-center">
+    <div v-if="1 === state.stepDone" class="flex flex-col items-center">
       <CardOptionsPreview :card="state.card" :is-mug="true">
         <template v-slot:before-column-end>
           <template v-if="state.card.image">
