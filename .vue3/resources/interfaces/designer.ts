@@ -1,7 +1,7 @@
 import {DynamicCardPayloadInterface} from "./designer-card.ts";
 
 type TYPE_CARD_SIZE = "square" | "a4";
-type TYPE_CARD_TYPE = "dynamic" | "static";
+type TYPE_CARD_TYPE = "dynamic" | "static" | 'mug';
 type TYPE_MARKETPLACE = "amazon" | "ebay" | "etsy" | "yousaidit" | "yousaidit-trade";
 
 interface UploadedAttachmentInterface {

@@ -49,6 +49,7 @@ class Ajax {
 			add_action( 'wp_ajax_yousaidit_dompdf_install_font', [ self::$instance, 'dompdf_install_font' ] );
 			add_action( 'wp_ajax_yousaidit_tfpdf_install_font', [ self::$instance, 'tfpdf_install_font' ] );
 			add_action( 'wp_ajax_yousaidit_clear_transient_cache', [ self::$instance, 'clear_transient_cache' ] );
+			add_action( 'wp_ajax_yousaidit_download_mug_asset', [ self::$instance, 'download_mug_asset' ] );
 		}
 
 		return self::$instance;
@@ -402,6 +403,46 @@ class Ajax {
 			}
 		}
 		echo 'Process run successfully. You can close this window.';
+		die;
+	}
+
+	public function download_mug_asset() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( __( 'Sorry. This link only for admin.', 'yousaidit-toolkit' ) );
+		}
+
+		$card_id = $_REQUEST['card_id'] ?? 0;
+		$card    = ( new DesignerCard )->find_by_id( intval( $card_id ) );
+		if ( ! $card instanceof DesignerCard ) {
+			wp_die( 'No card available.' );
+		}
+
+		if ( ! $card->is_mug() ) {
+			wp_die( 'Card type is not a mug.' );
+		}
+		$image_id = $card->get_image_id();
+		$img      = wp_get_attachment_image_src( $image_id, 'full' );
+		if ( ! is_array( $img ) ) {
+			wp_die( 'Mug image not found.' );
+		}
+
+		$asset_type = $_REQUEST['asset_type'] ?? 'image';
+		$asset_type = in_array( $asset_type, [ 'image', 'pdf' ], true ) ? $asset_type : 'image';
+
+		if ( 'image' === $asset_type ) {
+			header( 'Content-Type: application/octet-stream' );
+			header( "Content-Transfer-Encoding: Binary" );
+			header( "Content-disposition: attachment; filename=\"" . basename( $img[0] ) . "\"" );
+			readfile( $img[0] );
+		}
+		if ( 'pdf' === $asset_type ) {
+			$fpd = new FreePdfExtended( 'landscape', 'mm', [ 210, 99 ] );
+			$fpd->AddPage();
+			$fpd->Image( $img[0], 0, 0, $fpd->GetPageWidth(), $fpd->GetPageHeight() );
+			$fpd->Output( 'D', sprintf( 'mug-image-%s.pdf', $card_id ) );
+		}
+
+
 		die;
 	}
 

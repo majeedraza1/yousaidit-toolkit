@@ -242,6 +242,14 @@ class DesignerCard extends DatabaseModel {
 	}
 
 	/**
+	 * Check if card type static
+	 * @return bool
+	 */
+	public function is_mug(): bool {
+		return 'mug' == $this->get_card_type();
+	}
+
+	/**
 	 * Get dynamic card payload
 	 *
 	 * @return mixed|array

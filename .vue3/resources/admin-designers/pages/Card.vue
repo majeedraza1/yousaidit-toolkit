@@ -48,7 +48,8 @@
               <ShaplaButton v-if="store.card.card_type === 'dynamic'" theme="secondary" size="small" outline
                             @click="() => store.previewDynamicCardPDF(card_id)">Preview PDF
               </ShaplaButton>
-              <ShaplaButton theme="secondary" size="small" outline @click="() => store.generateCardImage(card_id)">
+              <ShaplaButton v-if="store.card.card_type !== 'mug'" theme="secondary" size="small" outline
+                            @click="() => store.generateCardImage(card_id)">
                 Generate Image
               </ShaplaButton>
               <ShaplaButton theme="error" size="small" @click="()=> store.trashCard(card_id)">Trash Card</ShaplaButton>
@@ -174,7 +175,7 @@
             </template>
           </div>
         </ShaplaTab>
-        <ShaplaTab v-if="store.card.card_type === 'dynamic'" name="Dynamic Card Data">
+        <ShaplaTab name="Dynamic Card Data" v-if="store.card.card_type === 'dynamic'">
           <div class="flex justify-end mb-4">
             <a :href="store.card.export_url" class="shapla-button is-primary is-small is-outline">Export Card</a>
           </div>
@@ -285,6 +286,28 @@
                   :element-height-mm="`${convertPXtoMM(608)}`"
               ></dynamic-card-canvas>
             </ShaplaImage>
+          </div>
+        </ShaplaTab>
+        <ShaplaTab name="Mug Info" v-if="store.card.card_type === 'mug'">
+          <div class="bg-white p-4">
+            <table class="form-table">
+              <tr>
+                <th>Mug Image</th>
+                <td>
+                  <div class="max-w-[300px]">
+                    <ShaplaImage :width-ratio="store.card.image.width" :height-ratio="store.card.image.height">
+                      <img :src="store.card.image.url" alt="">
+                    </ShaplaImage>
+                  </div>
+                  <div class="flex space-x-2">
+                    <ShaplaButton theme="primary" @click="()=> downloadMugAsset('image')">Download Original Image
+                    </ShaplaButton>
+                    <ShaplaButton theme="primary" outline @click="()=> downloadMugAsset('pdf')">Download as PDF
+                    </ShaplaButton>
+                  </div>
+                </td>
+              </tr>
+            </table>
           </div>
         </ShaplaTab>
       </ShaplaTabs>
@@ -496,10 +519,22 @@ const handleCommissionUpdate = (commissions, marketplace_commissions) => {
   });
 }
 
+const downloadMugAsset = (asset_type: 'image' | 'pdf') => {
+  const url = new URL(window.StackonetToolkit.ajaxUrl);
+  url.searchParams.append('action', 'yousaidit_download_mug_asset');
+  url.searchParams.append('asset_type', asset_type);
+  url.searchParams.append('card_id', store.card.id.toString());
+
+  const a = document.createElement('a');
+  a.href = url.toString();
+  a.target = '_blank';
+  a.click();
+  a.remove();
+}
+
 
 const calculateWidthAndHeight = () => {
   let innerEL = canvasContainer.value.querySelector('.dynamic-card-canvas-container');
-  window.console.log(canvasContainer.value, innerEL);
   let d = [154, 156];
 
   if (innerEL) {
