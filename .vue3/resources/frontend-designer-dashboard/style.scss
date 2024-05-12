@@ -13,6 +13,10 @@ body.designer-profile-page {
   header.site-header {
     z-index: -1;
   }
+
+  .shapla-dashboard-content__inner {
+    overflow-x: visible;
+  }
 }
 
 .yousaidit-designer-profile {
@@ -116,11 +120,11 @@ body.designer-profile-page {
     //border-radius: 4px;
     background: shapla.$primary;
     color: shapla.$on-primary;
-    //display: inline-flex;
-    //padding: 0.25rem;
-    //position: absolute;
-    //top: 5px;
-    //right: 5px;
+    display: inline-flex;
+    padding: 0.25rem;
+    position: absolute;
+    top: 5px;
+    right: 5px;
     //z-index: 1;
 
     &.status-accepted {
