@@ -71,15 +71,13 @@ class SettingHandler {
 	/**
 	 * Get settings data as array
 	 */
-	public function to_array() {
-		$data = [
+	public function to_array(): array {
+		return [
 			'panels'   => $this->get_panels(),
 			'sections' => $this->get_sections(),
 			'fields'   => $this->get_fields(),
 			'options'  => $this->get_options(),
 		];
-
-		return $data;
 	}
 
 	/**
@@ -331,9 +329,7 @@ class SettingHandler {
 		if ( $individual ) {
 			$options = [];
 			foreach ( $this->get_fields() as $value ) {
-				$default = isset( $value['default'] ) ? $value['default'] : '';
-
-				$options[ $value['id'] ] = get_option( $value['id'], $default );
+				$options[ $value['id'] ] = get_option( $value['id'], ($value['default'] ?? '') );
 			}
 
 			return $this->options = $options;
@@ -342,7 +338,7 @@ class SettingHandler {
 		$defaults = array();
 
 		foreach ( $this->get_fields() as $value ) {
-			$defaults[ $value['id'] ] = isset( $value['default'] ) ? $value['default'] : '';
+			$defaults[ $value['id'] ] = $value['default'] ?? '';
 		}
 
 		$options = wp_parse_args( get_option( $this->option_name ), $defaults );

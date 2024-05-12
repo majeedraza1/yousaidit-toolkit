@@ -37,6 +37,19 @@ class Settings {
 		return isset( $options['designer_commission'] ) ? floatval( $options['designer_commission'] ) : 0;
 	}
 
+	public static function designer_default_mug_commission_for_yousaidit() {
+		$options = (array) get_option( 'yousaiditcard_designers_settings' );
+
+		return isset( $options['designer_commission_for_mug'] ) ? floatval( $options['designer_commission_for_mug'] ) : 0;
+	}
+
+	public static function designer_mug_sku_prefix(): string {
+		$options = (array) get_option( 'yousaiditcard_designers_settings' );
+
+		return isset( $options['designer_mug_sku_prefix'] ) ?
+			sanitize_text_field( $options['designer_mug_sku_prefix'] ) : '';
+	}
+
 	public static function get_designer_role() {
 		$options = (array) get_option( 'yousaiditcard_designers_settings' );
 
@@ -163,6 +176,13 @@ class Settings {
 				'description' => __( 'Plugin product options.', 'stackonet-yousaidit-toolkit' ),
 				'panel'       => 'general_settings_panel',
 				'priority'    => 20,
+			],
+			[
+				'id'          => 'section_mug',
+				'title'       => __( 'Mug Settings', 'stackonet-yousaidit-toolkit' ),
+				'description' => __( 'Mug product options.', 'stackonet-yousaidit-toolkit' ),
+				'panel'       => 'general_settings_panel',
+				'priority'    => 30,
 			]
 		];
 
@@ -367,6 +387,32 @@ class Settings {
 		];
 
 		$option_page->add_fields( $fields );
+
+		$mug_fields = [
+			[
+				'section'           => 'section_mug',
+				'id'                => 'designer_commission_for_mug',
+				'type'              => 'text',
+				'title'             => __( 'Designer Commission (Fix amount)', 'stackonet-yousaidit-toolkit' ),
+				'description'       => __( 'Designer commission per sale for mug product.',
+					'stackonet-yousaidit-toolkit' ),
+				'priority'          => 10,
+				'default'           => 0.30,
+				'sanitize_callback' => 'floatval',
+			],
+			[
+				'section'           => 'section_mug',
+				'id'                => 'designer_mug_sku_prefix',
+				'type'              => 'text',
+				'title'             => __( 'Product SKU for Mug', 'stackonet-yousaidit-toolkit' ),
+				'description'       => __( "{{designer_id}} will be replaced with card designer user id. {{card_id}} will be replaced with card id.",
+					'stackonet-yousaidit-toolkit' ),
+				'priority'          => 20,
+				'default'           => 'MUG-{{designer_id}}-{{card_id}}',
+				'sanitize_callback' => 'sanitize_text_field',
+			],
+		];
+		$option_page->add_fields( $mug_fields );
 	}
 
 	/**
