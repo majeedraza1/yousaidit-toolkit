@@ -1,18 +1,18 @@
 export default {
-  "main_image_id": 77673,
+  "main_image_id": 77331,
   "demo_image_id": 77674,
   "main_image": {
-    "id": 77673,
+    "id": 77331,
     "title": "frame@300dpi",
-    "attachment_url": "http://yousaidit-main.yousaidit.co.uk/frame%40300dpi-3.png",
+    "attachment_url": "http://yousaidit-main.yousaidit.co.uk/sample-image-card.png",
     "token": "q8ndmaOENct6bqNDnXtB",
     "thumbnail": {
-      "src": "http://yousaidit-main.yousaidit.co.uk/frame%40300dpi-3.png",
+      "src": "http://yousaidit-main.yousaidit.co.uk/sample-image-card-150x150.png",
       "width": 150,
       "height": 150
     },
     "full": {
-      "src": "http://yousaidit-main.yousaidit.co.uk/frame%40300dpi-3.png",
+      "src": "http://yousaidit-main.yousaidit.co.uk/sample-image-card.png",
       "width": 1819,
       "height": 1843
     }

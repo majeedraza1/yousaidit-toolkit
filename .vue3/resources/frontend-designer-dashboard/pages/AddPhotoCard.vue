@@ -13,6 +13,8 @@ import CardOptions from "../components/CardOptions.vue";
 import {useRouter} from "vue-router";
 import {convertPXtoMM} from "../../utils/helper.ts";
 
+import cardTestData from '../sample-data/photo-card-sample.ts'
+
 const store = useDesignerCardStore();
 const router = useRouter();
 
@@ -73,8 +75,8 @@ const dynamicCardPayload = computed<DynamicCardPayloadInterface>(() => {
             width: state.card.demo_image.full.width,
             height: state.card.demo_image.full.height,
           },
-          width: 150,
-          height: 150,
+          width: 154,
+          height: 155,
           align: 'left'
         }
       }
@@ -92,8 +94,8 @@ const dynamicCardPayload = computed<DynamicCardPayloadInterface>(() => {
             width: state.card.main_image.full.width,
             height: state.card.main_image.full.height,
           },
-          width: 150,
-          height: 150,
+          width: 154,
+          height: 156,
           align: 'left'
         }
       }
@@ -166,7 +168,7 @@ const onSubmit = () => {
 
 onMounted(() => {
   // @TODO remove it after testing.
-  // state.card = cardTestData;
+  state.card = cardTestData;
 
   setTimeout(() => calculateWidthAndHeight(), 1000)
 })
@@ -185,6 +187,8 @@ onMounted(() => {
                 :card-height-mm="156"
                 :element-width-mm="convertPXtoMM(state.previewWidth)"
                 :element-height-mm="convertPXtoMM(state.previewHeight)"
+                :element-width-px="state.previewWidth"
+                :element-height-px="state.previewHeight"
             ></dynamic-card-canvas>
           </div>
         </ShaplaImage>

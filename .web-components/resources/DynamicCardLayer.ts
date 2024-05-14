@@ -2,8 +2,6 @@ import {css, html, LitElement} from "lit";
 import {customElement, property} from 'lit/decorators.js'
 import {DynamicCardItemInterface} from "./interfaces";
 
-const convertMMtoPX = (mm: number) => mm * 3.7795275591
-
 @customElement('dynamic-card-layer')
 export class DynamicCardLayer extends LitElement {
 
@@ -138,8 +136,8 @@ export class DynamicCardLayer extends LitElement {
     // when card width 15mm, then width 101mm/150mm * 15mm
     let styles = [];
     if (this.section.imageOptions) {
-      let width = Math.round((parseInt(this.section.imageOptions.width.toString()) / this.cardWidthMM) * this.elementWidthMM);
-      styles.push(`width: ${convertMMtoPX(width)}px`);
+      let width = Math.round((parseInt(this.section.imageOptions.width.toString()) / this.cardWidthMM) * 100);
+      styles.push(`width: ${width}%`);
     }
     return styles.join(';');
   }
