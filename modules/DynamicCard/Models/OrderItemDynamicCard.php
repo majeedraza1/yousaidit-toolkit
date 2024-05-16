@@ -296,8 +296,8 @@ class OrderItemDynamicCard {
 			return;
 		}
 
-		$width     = 154;
-		$height    = 156;
+		$width     = Utils::SQUARE_CARD_WIDTH_MM;
+		$height    = Utils::SQUARE_CARD_HEIGHT_MM;
 		$x_pos     = $fpd->GetPageWidth() - $width;
 		$y_pos     = 0;
 		$image_src = $this->background->get_image_src();
@@ -326,11 +326,14 @@ class OrderItemDynamicCard {
 		$fpd->SetFont( $font->get_font_family_for_dompdf(), '', $section->get_text_option( 'size' ) );
 
 		$text_width = $fpd->GetStringWidth( $section->get_text() );
-		$y_pos      = + $section->get_position_from_top_mm() + FreePdfBase::points_to_mm( $section->get_text_option( 'size' ) * 0.75 );
+		$y_pos      = $section->get_position_from_top_mm() + FreePdfBase::points_to_mm( $section->get_text_option( 'size' ) );
 
-		$x_pos = ( $fpd->GetPageWidth() / 2 ) + $section->get_position_from_left_mm();
+
+		$back_width = $fpd->GetPageWidth() - Utils::SQUARE_CARD_WIDTH_MM;
+
+		$x_pos = $back_width + $section->get_position_from_left_mm();
 		if ( 'center' == $section->get_text_option( 'align' ) ) {
-			$x_pos = ( $fpd->GetPageWidth() / 4 * 3 ) - ( $text_width / 2 );
+			$x_pos = ( $back_width + ( Utils::SQUARE_CARD_WIDTH_MM / 2 ) ) - ( $text_width / 2 );
 		}
 		if ( 'right' == $section->get_text_option( 'align' ) ) {
 			$x_pos = $fpd->GetPageWidth() - ( $text_width + $section->get_text_option( 'marginRight' ) );

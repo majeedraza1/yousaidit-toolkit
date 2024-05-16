@@ -7,3 +7,6 @@ https://yousaidit-mediaconvert.s3.ap-south-1.amazonaws.com/source/NZ%20MILF%20Sl
 
 Photo card
 http://yousaidit.test/wp-admin/admin-ajax.php?action=generate_dynamic_card_pdf&order_id=77336&order_item_id=149631
+
+Text card
+http://yousaidit.test/wp-admin/admin-ajax.php?action=generate_dynamic_card_pdf&order_id=77337&order_item_id=149634
