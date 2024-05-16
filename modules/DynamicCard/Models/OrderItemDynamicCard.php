@@ -12,6 +12,7 @@ use YouSaidItCards\Modules\FontManager\Models\FontInfo;
 use YouSaidItCards\Modules\OrderDispatcher\QrCode;
 use YouSaidItCards\ShipStation\Order;
 use YouSaidItCards\Utilities\FreePdfBase;
+use YouSaidItCards\Utils;
 
 class OrderItemDynamicCard {
 	protected $card_id = 0;
@@ -165,7 +166,7 @@ class OrderItemDynamicCard {
 		return false;
 	}
 
-	public function pdf( array $args = [] ) {
+	public function pdf( string $filename = '', string $dest = 'I', array $args = [] ) {
 		$fpd = new FreePdfExtended( 'L', 'mm', [ $this->card_width, $this->card_height ] );
 
 		// Add custom fonts
@@ -189,28 +190,26 @@ class OrderItemDynamicCard {
 		// Add qr code
 		$this->addQrCode( $fpd );
 
-		// Test to mark section
-//		$this->addColorToBackground( $fpd );
-
 		// Add background
 		$this->addBackground( $fpd );
 
 		// Add sections
 		$this->addSections( $fpd );
 
-//		try {
-//			$image_generator = ( new ImageGenerator( $this ) )->generate_image_card();
-//
-//			header( 'Content-Type: ' . $image_generator->getImageMimeType() );
-//			echo $image_generator->getImageBlob();
-//		} catch ( \ImagickException|\ImagickPixelException $e ) {
-//		}
-//		die;
+		if ( 'production' === wp_get_environment_type() ) {
+			$fpd->Output( $dest, $filename );
+		} else {
+			// Draw rect on back side
+			$fpd->SetAlpha( .05 );
+			$fpd->SetLineWidth( 0 );
+			$fpd->SetFillColor( 255, 0, 0 );
+			$fpd->Rect( 0, 0, $fpd->GetPageWidth() - 154, $fpd->GetPageHeight(), 'DF' );
+			$fpd->SetAlpha( 1 );
 
-		$fpd->Output( $args['dest'] ?? '', $args['name'] ?? '' );
-//		header( "Content-Type: application/pdf" );
-//		$fpd->Output();
-//		die;
+			// Output to browser
+			$fpd->Output();
+			die;
+		}
 	}
 
 	/**
@@ -349,42 +348,66 @@ class OrderItemDynamicCard {
 			return;
 		}
 
-		$width        = $section->get_image_option( 'width' );
-		$actual_width = FreePdfBase::px_to_mm( $image['width'] );
-		if ( $actual_width < $width ) {
-			$width = $actual_width;
-		}
+		$image_area_width  = $section->get_image_area_width_mm();
+		$image_area_height = $section->get_image_area_height_mm();
+		$image_width       = $section->get_image_width_mm();
+		$image_height      = $section->get_image_height_mm();
 
-		$actual_height = FreePdfBase::px_to_mm( $image['height'] );
-		$height        = $width * ( $actual_height / $actual_width );
+		$back_width = $fpd->GetPageWidth() - Utils::SQUARE_CARD_WIDTH_MM;
 
-		$x_pos = ( $fpd->GetPageWidth() / 2 ) + $section->get_position_from_left_mm();
-		if ( 'center' == $section->get_image_option( 'align' ) ) {
-			$x_pos = ( $fpd->GetPageWidth() / 4 * 3 ) - ( $width / 2 );
+
+		$x_pos = $back_width + $section->get_position_from_left_mm();
+		if ( $section->is_image_alignment_center() ) {
+			$x_pos = ( $back_width + ( Utils::SQUARE_CARD_WIDTH_MM / 2 ) ) - ( $image_area_width / 2 );
 		}
-		if ( 'right' == $section->get_image_option( 'align' ) ) {
-			$x_pos = $fpd->GetPageWidth() - ( $width + $section->get_image_option( 'marginRight' ) );
+		if ( $section->is_image_alignment_right() ) {
+			$x_pos = $fpd->GetPageWidth() - ( $image_area_width + $section->get_image_option( 'marginRight' ) );
 		}
 
 		$y_pos = $section->get_position_from_top_mm();
 
-		$x_pos += $section->get_user_position_from_left_mm();
-		$y_pos += $section->get_user_position_from_top_mm();
-
-		$zoom = $section->get_user_zoom();
-		if ( $zoom > 0 ) {
-			$width  = $width + ( $width * $zoom / 100 );
-			$height = $height + ( $height * $zoom / 100 );
+		$user_x_pos = $section->get_user_position_from_left_mm();
+		if ( $user_x_pos ) {
+			$x_pos            += $user_x_pos;
+			$image_area_width -= $user_x_pos;
 		}
 
-		$fpd->RotatedImage(
-			$image['url'],
-			$x_pos,
-			$y_pos,
-			min( $width, 154 ),
-			min( $height, 156 ),
-			$section->get_user_rotation()
-		);
+		$user_y_pos = $section->get_user_position_from_top_mm();
+		if ( $user_y_pos ) {
+			$y_pos             += $user_y_pos;
+			$image_area_height -= $user_y_pos;
+		}
+
+		$zoom        = $section->get_user_zoom();
+		$zoom_width  = ( $image_area_width * absint( $zoom ) / 100 );
+		$zoom_height = ( $image_area_height * absint( $zoom ) / 100 );
+		if ( $zoom > 0 ) {
+			$image_area_width  += $zoom_width;
+			$image_area_height += $zoom_height;
+		} elseif ( $zoom < 0 ) {
+			$image_area_width  -= $zoom_width;
+			$image_area_height -= $zoom_height;
+		}
+
+		$rotation = $section->get_user_rotation();
+		if ( $rotation ) {
+			$fpd->RotatedImage(
+				$section->get_image_url(),
+				$x_pos,
+				$y_pos,
+				min( $image_area_width, 154 ),
+				min( $image_area_height, 156 ),
+				$section->get_user_rotation()
+			);
+		} else {
+			$fpd->Image(
+				$section->get_image_url(),
+				$x_pos,
+				$y_pos,
+				min( $image_area_width, 154 ),
+				min( $image_area_height, 156 )
+			);
+		}
 	}
 
 	/**

@@ -2,6 +2,8 @@
 
 namespace YouSaidItCards\Modules\DynamicCard\Models;
 
+use YouSaidItCards\Utilities\ImagickUtils;
+
 class CardSectionImageOption extends CardSectionBase {
 
 	/**
@@ -32,6 +34,50 @@ class CardSectionImageOption extends CardSectionBase {
 	 */
 	public function get_image() {
 		return self::get_image_data( $this->get_image_id() );
+	}
+
+	/**
+	 * Get image width in pixels
+	 *
+	 * @return int
+	 */
+	public function get_image_width_px(): int {
+		$image = static::get_image();
+		if ( is_array( $image ) ) {
+			return intval( $image['width'] );
+		}
+
+		return 0;
+	}
+
+	/**
+	 * Get image width in mm
+	 * @return float
+	 */
+	public function get_image_width_mm(): float {
+		return ImagickUtils::px_to_mm( $this->get_image_width_px(), 300 );
+	}
+
+	/**
+	 * Get image height in pixels
+	 *
+	 * @return int
+	 */
+	public function get_image_height_px(): int {
+		$image = static::get_image();
+		if ( is_array( $image ) ) {
+			return intval( $image['height'] );
+		}
+
+		return 0;
+	}
+
+	/**
+	 * Get image width in mm
+	 * @return float
+	 */
+	public function get_image_height_mm(): float {
+		return ImagickUtils::px_to_mm( $this->get_image_height_px(), 300 );
 	}
 
 	/**
@@ -69,10 +115,29 @@ class CardSectionImageOption extends CardSectionBase {
 		$height = $this->get_image_option( 'height' );
 
 		if ( 'auto' === $height ) {
-			// @TODO calculate image height
+			$height = $this->get_image_area_width_mm() * ( $this->get_image_height_px() / $this->get_image_width_px() );
 		}
 
 		return intval( $height );
+	}
+
+	/**
+	 * Get image alignment
+	 *
+	 * @return string
+	 */
+	public function get_image_alignment(): string {
+		$align = $this->get_image_option( 'align' );
+
+		return in_array( $align, [ 'left', 'center', 'right' ] ) ? $align : 'left';
+	}
+
+	public function is_image_alignment_center(): bool {
+		return 'center' === $this->get_image_alignment();
+	}
+
+	public function is_image_alignment_right(): bool {
+		return 'right' === $this->get_image_alignment();
 	}
 
 	/**
