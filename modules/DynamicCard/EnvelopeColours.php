@@ -70,6 +70,9 @@ class EnvelopeColours {
 	 */
 	public static function generate_thumb( Imagick $imagick, int $resolution = 72 ): Imagick {
 		$color = self::get_random_color();
+		if ( $imagick->getImageColorspace() !== Imagick::COLORSPACE_SRGB ) {
+			$imagick->transformImageColorspace( Imagick::COLORSPACE_SRGB );
+		}
 
 		$envelopImage = new Imagick();
 		$envelopImage->setSize( $color['width'], $color['height'] );
@@ -84,5 +87,17 @@ class EnvelopeColours {
 		);
 
 		return $envelopImage;
+	}
+
+	/**
+	 * @throws ImagickException
+	 */
+	public static function image_to_envelope( int $image_id, int $resolution = 72 ): Imagick {
+		$image_path = get_attached_file( $image_id );
+		$im         = new Imagick( $image_path );
+		$im->setResolution( $resolution, $resolution );
+		$im->setImageFormat( 'jpg' );
+
+		return static::generate_thumb( $im, $resolution );
 	}
 }

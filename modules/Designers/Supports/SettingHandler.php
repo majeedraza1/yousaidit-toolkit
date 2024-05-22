@@ -71,15 +71,13 @@ class SettingHandler {
 	/**
 	 * Get settings data as array
 	 */
-	public function to_array() {
-		$data = [
+	public function to_array(): array {
+		return [
 			'panels'   => $this->get_panels(),
 			'sections' => $this->get_sections(),
 			'fields'   => $this->get_fields(),
 			'options'  => $this->get_options(),
 		];
-
-		return $data;
 	}
 
 	/**
@@ -225,10 +223,10 @@ class SettingHandler {
 		$fields       = $this->get_fields();
 		$options      = (array) $this->get_options();
 		foreach ( $fields as $field ) {
-			$key     = isset( $field['id'] ) ? $field['id'] : null;
-			$default = isset( $field['default'] ) ? $field['default'] : null;
-			$type    = isset( $field['type'] ) ? $field['type'] : 'text';
-			$value   = isset( $input[ $field['id'] ] ) ? $input[ $field['id'] ] : $options[ $field['id'] ];
+			$key     = $field['id'] ?? null;
+			$default = $field['default'] ?? null;
+			$type    = $field['type'] ?? 'text';
+			$value   = $input[ $field['id'] ] ?? $options[ $field['id'] ];
 
 			if ( ! empty( $field['sanitize_callback'] ) && is_callable( $field['sanitize_callback'] ) ) {
 				$output_array[ $key ] = call_user_func( $field['sanitize_callback'], $value );
@@ -254,9 +252,9 @@ class SettingHandler {
 
 	/**
 	 * @param array $options
-	 * @param bool $individual
+	 * @param  bool  $individual
 	 */
-	public function update( array $options, $individual = false ) {
+	public function update( array $options, bool $individual = false ) {
 		$sanitized_options = $this->sanitize_options( $options );
 		if ( $individual ) {
 			foreach ( $sanitized_options as $option_name => $option_value ) {
@@ -331,9 +329,7 @@ class SettingHandler {
 		if ( $individual ) {
 			$options = [];
 			foreach ( $this->get_fields() as $value ) {
-				$default = isset( $value['default'] ) ? $value['default'] : '';
-
-				$options[ $value['id'] ] = get_option( $value['id'], $default );
+				$options[ $value['id'] ] = get_option( $value['id'], ($value['default'] ?? '') );
 			}
 
 			return $this->options = $options;
@@ -342,7 +338,7 @@ class SettingHandler {
 		$defaults = array();
 
 		foreach ( $this->get_fields() as $value ) {
-			$defaults[ $value['id'] ] = isset( $value['default'] ) ? $value['default'] : '';
+			$defaults[ $value['id'] ] = $value['default'] ?? '';
 		}
 
 		$options = wp_parse_args( get_option( $this->option_name ), $defaults );

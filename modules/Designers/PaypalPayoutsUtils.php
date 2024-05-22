@@ -280,7 +280,7 @@ class PaypalPayoutsUtils {
 			'transaction_status' => $data->transaction_status,
 			'currency'           => $item->amount->currency,
 			'total_commissions'  => (float) $item->amount->value,
-			'error_message'      => isset( $data->errors->message ) ? $data->errors->message : '',
+			'error_message'      => $data->errors->message ?? '',
 		];
 	}
 }

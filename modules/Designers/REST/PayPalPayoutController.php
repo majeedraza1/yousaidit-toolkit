@@ -44,6 +44,7 @@ class PayPalPayoutController extends ApiController {
 			[
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => [ $this, 'get_items' ],
+				'args'                => $this->get_collection_params(),
 				'permission_callback' => '__return_true',
 			],
 			[
@@ -76,11 +77,23 @@ class PayPalPayoutController extends ApiController {
 			return $this->respondOK();
 		}
 
-		$items = ( new Payment() )->find();
+		$page       = (int) $request->get_param( 'page' );
+		$per_page   = (int) $request->get_param( 'per_page' );
+		$items      = Payment::find_multiple( [
+			'per_page' => $per_page,
+			'page'     => $page,
+		] );
+		$count      = Payment::count_records();
+		$pagination = static::get_pagination_data( $count['all'] );
 
 		$counts     = DesignerCommission::count_card_for_payout();
 		$min_amount = Settings::designer_minimum_amount_to_pay();
-		$response   = [ 'items' => $items, 'count_cards' => $counts, 'min_amount' => $min_amount ];
+		$response   = [
+			'items'      => $items,
+			'pagination' => $pagination,
+			'statuses'   => $counts,
+			'min_amount' => $min_amount
+		];
 
 		return $this->respondOK( $response );
 	}
@@ -133,7 +146,7 @@ class PayPalPayoutController extends ApiController {
 	/**
 	 * Retrieves one item from the collection.
 	 *
-	 * @param WP_REST_Request $request Full details about the request.
+	 * @param  WP_REST_Request  $request  Full details about the request.
 	 *
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */

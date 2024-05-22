@@ -14,10 +14,9 @@
       "./resources/admin/tree-planting/main.js",
       "./resources/admin/font-manager/main.js"
     ],
-    "designer-profile": [
+    "designer-dashboard": [
       "./resources/frontend/designers/main.js",
-      "./resources/frontend/login/main.js",
-      "./resources/frontend/how-it-works/main.js"
+      "./resources/frontend/login/main.js"
     ],
     "frontend": [
       "./resources/frontend/main.js",
@@ -26,11 +25,9 @@
       "./resources/frontend/card-popup/card-category-popup.ts",
       "./resources/frontend/card-popup/add-to-cart.ts",
       "./resources/scss/_multistep-checkout.scss",
-      "./resources/scss/frontend.scss"
-    ],
-    "inner-message": [
       "./resources/frontend/inner-message/main.js",
-      "./resources/frontend/dynamic-card/main.js"
+      "./resources/frontend/dynamic-card/main.js",
+      "./resources/scss/frontend.scss"
     ],
     "web-components": [
       "./resources/web-components/DynamicCardLayer.ts",

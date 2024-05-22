@@ -2,6 +2,7 @@
 
 namespace YouSaidItCards\Modules\Designers\Frontend;
 
+use Stackonet\WP\Framework\Supports\ArrayHelper;
 use WC_Product;
 use WP_Post;
 use WP_Term;
@@ -13,6 +14,7 @@ use YouSaidItCards\Modules\Designers\Models\DesignerCard;
 use YouSaidItCards\Modules\FontManager\Font;
 use YouSaidItCards\Session\Session;
 use YouSaidItCards\Utilities\MarketPlace;
+use YouSaidItCards\Utils;
 
 // If this file is called directly, abort.
 defined( 'ABSPATH' ) || die;
@@ -31,6 +33,7 @@ class DesignerProfile {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self();
 
+			add_shortcode( 'designer_signup_page', [ self::$instance, 'signup_page' ] );
 			add_shortcode( 'designer_profile_page', [ self::$instance, 'profile_page' ] );
 			add_action( 'wp_enqueue_scripts', [ self::$instance, 'designer_profile_scripts' ] );
 
@@ -44,9 +47,59 @@ class DesignerProfile {
 			 */
 			// add_action( 'woocommerce_after_shop_loop_item_title', [ self::$instance, 'show_designer_name' ], 99 );
 			// add_action( 'woocommerce_single_product_summary', [ self::$instance, 'show_designer_name' ], 99 );
+
+			// Add our endpoint to WooCommerce my-account menu list.
+			add_filter( 'woocommerce_account_menu_items', [ self::$instance, 'menu_items' ] );
+			add_filter( 'woocommerce_get_endpoint_url', [ self::$instance, 'endpoint_url' ], 10, 2 );
+			add_action( 'woocommerce_account_dashboard', [ self::$instance, 'account_dashboard' ] );
+			add_filter( 'login_redirect', [ self::$instance, 'login_redirect' ] );
+			add_filter( 'woocommerce_login_redirect', [ self::$instance, 'login_redirect' ] );
 		}
 
 		return self::$instance;
+	}
+
+	public function login_redirect( $redirect_to ) {
+		if ( Utils::is_current_user_designer() ) {
+			$redirect_to = site_url( 'dashboard' );
+		}
+
+		return $redirect_to;
+	}
+
+	/**
+	 * Insert the new endpoint into the My Account menu.
+	 *
+	 * @param  array  $items
+	 *
+	 * @return array
+	 */
+	public function menu_items( $items ) {
+		if ( Utils::is_current_user_designer() || current_user_can( 'manage_options' ) ) {
+			return ArrayHelper::insert_after( $items, 'dashboard', [
+				'designer-dashboard' => __( 'Designer Dashboard', 'yousaidit-toolkit' ),
+			] );
+		}
+
+		return $items;
+	}
+
+	public function endpoint_url( $url, $endpoint ) {
+		if ( 'designer-dashboard' === $endpoint ) {
+			$url = site_url( 'dashboard' );
+		}
+
+		return $url;
+	}
+
+	public function account_dashboard() {
+		if ( Utils::is_current_user_designer() ) {
+			$html = '<div>';
+			$html .= '<a class="button--visit-dashboard shapla-button is-primary is-outline is-fullwidth" href="' . esc_url( site_url( 'dashboard' ) ) . '">Visit Designer Dashboard</a>';
+			$html .= '</div>';
+
+			echo $html;
+		}
 	}
 
 	/**
@@ -178,15 +231,15 @@ class DesignerProfile {
 	public function designer_profile_scripts() {
 		global $post;
 		if ( $post instanceof WP_Post && has_shortcode( $post->post_content, 'designer_profile_page' ) ) {
-			wp_enqueue_style( 'stackonet-designer-profile' );
-			wp_enqueue_script( 'stackonet-designer-profile' );
+			wp_enqueue_style( 'yousaidit-designer-dashboard' );
+			wp_enqueue_script( 'yousaidit-designer-dashboard' );
 		}
 	}
 
 	protected static function add_product_attributes( array &$data ) {
 		$attribute_taxonomies = wc_get_attribute_taxonomies();
 		$options              = (array) get_option( 'yousaiditcard_designers_settings' );
-		$attributes           = isset( $options['product_attribute_taxonomies'] ) ? $options['product_attribute_taxonomies'] : [];
+		$attributes           = $options['product_attribute_taxonomies'] ?? [];
 
 		foreach ( $attribute_taxonomies as $tax ) {
 			if ( ! in_array( $tax->attribute_name, $attributes ) ) {
@@ -220,15 +273,18 @@ class DesignerProfile {
 		/** @var WP_Term[] $cats */
 		$cats          = get_terms( [ 'taxonomy' => 'product_cat', 'hide_empty' => false, ] );
 		$approved_cats = Settings::product_categories_for_designer();
+		$mug_cats      = Settings::get_product_categories_for_mug();
 
 		foreach ( $cats as $cat ) {
 			if ( 'Uncategorized' == $cat->name ) {
 				continue;
 			}
-			if ( count( $approved_cats ) && ! in_array( $cat->term_id, $approved_cats ) ) {
-				continue;
+			if ( in_array( $cat->term_id, $approved_cats ) ) {
+				$data['categories'][] = [ 'id' => $cat->term_id, 'name' => $cat->name, 'parent' => $cat->parent, ];
 			}
-			$data['categories'][] = [ 'id' => $cat->term_id, 'name' => $cat->name, 'parent' => $cat->parent, ];
+			if ( in_array( $cat->term_id, $mug_cats ) ) {
+				$data['mug_categories'][] = [ 'id' => $cat->term_id, 'name' => $cat->name, 'parent' => $cat->parent, ];
+			}
 		}
 	}
 
@@ -282,14 +338,25 @@ class DesignerProfile {
 		add_action( 'wp_footer', [ $this, 'add_inline_scripts' ], 5 );
 
 		if ( ! $current_user->exists() ) {
-			$login_url = wp_login_url( get_permalink() );
-			$link      = '<a href="' . $login_url . '">You need to log-in to view this page.</a>';
-
-			return '<div id="designer_profile_page_need_login">' . $link . '</div>';
+			return '<div id="yousaidit-designer-signup"></div>';
 		}
 
 
 		return '<div id="designer_profile_page"></div>';
+	}
+
+	/**
+	 * Designer signup page
+	 * @return string
+	 */
+	public function signup_page(): string {
+		if ( current_user_can( 'read' ) ) {
+			$user = wp_get_current_user();
+			wp_safe_redirect( site_url( 'designer/' . $user->user_login ) );
+			exit();
+		}
+
+		return '<div id="yousaidit-designer-signup"></div>';
 	}
 
 	/**
@@ -308,8 +375,9 @@ class DesignerProfile {
 			'siteTitle'        => get_option( 'blogname' ),
 			'logoUrl'          => '',
 			'categories'       => [],
+			'mug_categories'   => [],
 			'tags'             => [],
-			'cards'            => [],
+			'card_sizes'       => [],
 			'attributes'       => [],
 			'privacyPolicyUrl' => get_privacy_policy_url(),
 		];
@@ -343,19 +411,26 @@ class DesignerProfile {
 				'author_posts_url' => $designer->get_products_url(),
 			];
 
-			self::add_card_sizes( $data );
-			self::add_product_categories( $data );
-			self::add_product_tags( $data );
-			self::add_product_attributes( $data );
-
 			$data['user_card_categories'] = ( new DesignerCard() )->get_user_cards_categories_ids( $current_user->ID );
 			$data['order_statuses']       = wc_get_order_statuses();
 			$data['marketPlaces']         = MarketPlace::all();
 			$data['fonts']                = Font::get_fonts_for_designer();
+			$data['enabled_card_types']   = Settings::get_enabled_card_types();
 			$data['templates']            = [
 				'ps' => Assets::get_assets_url( 'static-images/Square Template - You Said It Cards.psd' ),
 				'ai' => Assets::get_assets_url( 'static-images/Square Template - You Said It Cards.ai' ),
 			];
+			$data['sampleCards']          = [
+				'standardCardUrl' => Assets::get_assets_url( 'static-images/sample-standard-card.webp' ),
+				'photoCardUrl'    => Assets::get_assets_url( 'static-images/sample-personalized-photo-card.webp' ),
+				'textCardUrl'     => Assets::get_assets_url( 'static-images/sample-personalised-text-card.webp' ),
+				'mugUrl'          => Assets::get_assets_url( 'static-images/sample-mug.webp' ),
+			];
+
+			self::add_card_sizes( $data );
+			self::add_product_categories( $data );
+			self::add_product_tags( $data );
+			self::add_product_attributes( $data );
 		}
 
 		echo '<script type="text/javascript">window.DesignerProfile = ' . wp_json_encode( $data ) . '</script>' . PHP_EOL;

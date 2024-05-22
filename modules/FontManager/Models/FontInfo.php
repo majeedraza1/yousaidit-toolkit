@@ -10,7 +10,12 @@ use WP_Error;
  * FontInfo class
  */
 class FontInfo extends Data {
-	protected static $default = [
+	/**
+	 * Default data
+	 *
+	 * @var array
+	 */
+	protected static array $default = [
 		'slug'         => '',
 		'font_family'  => '',
 		'font_file'    => '',
@@ -18,6 +23,19 @@ class FontInfo extends Data {
 		'for_public'   => true,
 		'for_designer' => true,
 	];
+
+	public function to_array(): array {
+		return [
+			'slug'         => $this->get_slug(),
+			'font_family'  => $this->get_font_family(),
+			'font_file'    => $this->get_font_file(),
+			'group'        => $this->get_font_group(),
+			'for_public'   => $this->is_available_for_public(),
+			'for_designer' => $this->is_available_for_designer(),
+			'path'         => $this->get_font_path(),
+			'url'          => $this->get_font_url(),
+		];
+	}
 
 	/**
 	 * Get font unique slug

@@ -146,26 +146,7 @@ class DesignerCardAdminController extends ApiController {
 			return $this->respondNotFound();
 		}
 
-		$data = $item->to_array();
-
-		$data['default_commissions'] = [
-			'yousaidit'       => Settings::designer_default_commission_for_yousaidit(),
-			'yousaidit-trade' => Settings::designer_default_commission_for_yousaidit_trade(),
-		];
-
-		$sizes = $item->get( 'card_sizes' );
-		foreach ( $sizes as $size ) {
-			$sku = Settings::designer_card_sku_prefix();
-			$sku = str_replace( '{{card_type}}', $item->get( 'card_type' ) === 'dynamic' ? 'D' : 'S', $sku );
-			$sku = str_replace( '{{card_size}}', $size === 'square' ? 'S' : strtoupper( $size ), $sku );
-			$sku = str_replace( '{{card_id}}', $item->get_id(), $sku );
-
-			$data['default_price'][ $size ] = Settings::designer_card_price();
-			$data['default_sku'][ $size ]   = $sku;
-		}
-
-
-		return $this->respondOK( $data );
+		return $this->respondOK( $this->format_single_item_for_response( $item ) );
 	}
 
 	/**
@@ -249,7 +230,7 @@ class DesignerCardAdminController extends ApiController {
 		}
 
 		if ( $updated ) {
-			return $this->respondOK( $item );
+			return $this->respondOK( $this->format_single_item_for_response( $item ) );
 		}
 
 		return $this->respondInternalServerError();
@@ -288,7 +269,10 @@ class DesignerCardAdminController extends ApiController {
 		( new CommissionChangeEmail( new CardDesigner( $designer_id ), $id ) )
 			->send_email();
 
-		return $this->respondOK();
+
+		$item = ( new DesignerCard() )->find_by_id( $id );
+
+		return $this->respondOK( $this->format_single_item_for_response( $item ) );
 	}
 
 	/**
@@ -314,7 +298,9 @@ class DesignerCardAdminController extends ApiController {
 			return $product_id;
 		}
 
-		return $this->get_item( $request );
+		$item = ( new DesignerCard() )->find_by_id( $id );
+
+		return $this->respondOK( $this->format_single_item_for_response( $item ) );
 	}
 
 	/**
@@ -339,14 +325,19 @@ class DesignerCardAdminController extends ApiController {
 
 		if ( 'delete' == $action ) {
 			( new DesignerCard() )->delete( $id );
-		} elseif ( 'restore' == $action ) {
+
+			return $this->respondOK();
+		}
+
+		if ( 'restore' == $action ) {
 			( new DesignerCard() )->restore( $id );
 		} else {
 			( new DesignerCard() )->trash( $id );
 			( new CardTrashedEmail( $card ) )->send_email();
 		}
+		$card = ( new DesignerCard() )->find_by_id( $id );
 
-		return $this->respondOK();
+		return $this->respondOK( $this->format_single_item_for_response( $card ) );
 	}
 
 	/**
@@ -379,5 +370,55 @@ class DesignerCardAdminController extends ApiController {
 		}
 
 		return $statuses;
+	}
+
+	/**
+	 * @param  DesignerCard  $item
+	 *
+	 * @return array
+	 */
+	public function format_single_item_for_response( DesignerCard $item ): array {
+		$data = $item->to_array();
+
+		$data['default_commissions'] = [
+			'yousaidit'       => Settings::designer_default_commission_for_yousaidit(),
+			'yousaidit-trade' => Settings::designer_default_commission_for_yousaidit_trade(),
+		];
+
+		if ( $item->is_mug() ) {
+			$data['default_commissions'] = [
+				'yousaidit'       => Settings::designer_default_mug_commission_for_yousaidit(),
+				'yousaidit-trade' => Settings::designer_default_mug_commission_for_yousaidit(),
+			];
+		}
+
+		$sizes = $item->get_prop( 'card_sizes' );
+		foreach ( $sizes as $size ) {
+			if ( $item->is_mug() ) {
+				$sku = Settings::designer_mug_sku_prefix();
+				$sku = str_replace( '{{card_type}}', 'MUG', $sku );
+			} else {
+				$sku = Settings::designer_card_sku_prefix();
+				$sku = str_replace( '{{card_type}}', $item->get( 'card_type' ) === 'dynamic' ? 'D' : 'S', $sku );
+			}
+			$sku = str_replace( '{{card_size}}', $size === 'square' ? 'S' : strtoupper( $size ), $sku );
+			$sku = str_replace( '{{card_id}}', $item->get_id(), $sku );
+			$sku = str_replace( '{{designer_id}}', $item->get_designer_user_id(), $sku );
+
+			$data['default_price'][ $size ] = Settings::designer_card_price();
+			$data['default_sku'][ $size ]   = $sku;
+		}
+
+		if ( $item->is_dynamic_card() ) {
+			$data['dynamic_card_payload'] = $item->get_dynamic_card_payload();
+		}
+
+		$data['export_url'] = add_query_arg( [
+			'download'                   => 'true',
+			'content'                    => 'yousaidit-designer-card',
+			'yousaidit-designer-card-id' => $item->get_id()
+		], admin_url( 'export.php' ) );
+
+		return $data;
 	}
 }

@@ -6,10 +6,9 @@ use Exception;
 use Imagick;
 use ImagickException;
 use ImagickPixel;
-use Stackonet\WP\Framework\Media\Uploader;
 use Stackonet\WP\Framework\Supports\Logger;
-use WC_Product;
 use YouSaidItCards\Modules\Designers\DynamicCard;
+use YouSaidItCards\Modules\Designers\Helper;
 use YouSaidItCards\Modules\Designers\Models\DesignerCard;
 use YouSaidItCards\Modules\DynamicCard\EnvelopeColours;
 use YouSaidItCards\Modules\FontManager\Font;
@@ -50,6 +49,7 @@ class Ajax {
 			add_action( 'wp_ajax_yousaidit_dompdf_install_font', [ self::$instance, 'dompdf_install_font' ] );
 			add_action( 'wp_ajax_yousaidit_tfpdf_install_font', [ self::$instance, 'tfpdf_install_font' ] );
 			add_action( 'wp_ajax_yousaidit_clear_transient_cache', [ self::$instance, 'clear_transient_cache' ] );
+			add_action( 'wp_ajax_yousaidit_download_mug_asset', [ self::$instance, 'download_mug_asset' ] );
 		}
 
 		return self::$instance;
@@ -63,57 +63,11 @@ class Ajax {
 			wp_die( __( 'Sorry. This link only for developer to do some testing.', 'yousaidit-toolkit' ) );
 		}
 
-		$pdf = new FreePdfExtended();
-
-		$pdf->AddPage();
-		$pdf->SetFont( 'Arial', '', 16 );
-
-		$image_url = '/var/www/yousaidit.test/wp-content/plugins/yousaidit-toolkit/assets/static-images/logo-yousaidit@300ppi.jpg';
-		$image_url = 'http://yousaidit-main.yousaidit.co.uk/MD-SAYFUL-ISLAM.jpg';
-		list( $width, $height ) = getimagesize( $image_url );
-		$pdf->Text( 10, 10, 'Image 45 degree angle.' );
-		$pdf->RotatedImage( $image_url, 0, 15, min( $width, 30 ), 0, 45 );
-		$pdf->Text( 100, 10, 'Image 90 degree angle.' );
-		$pdf->RotatedImage( $image_url, 150, 15, min( $width, 30 ), 0, 90 );
-
-		$pdf->Text( 10, 70, 'Image 135 degree angle.' );
-		$pdf->RotatedImage( $image_url, 50, 85, min( $width, 30 ), 0, 135 );
-		$pdf->Text( 100, 70, 'Image 180 degree angle.' );
-		$pdf->RotatedImage( $image_url, 150, 85, min( $width, 30 ), 0, 180 );
-
-		$pdf->Text( 10, 120, 'Image 225 degree angle.' );
-		$pdf->RotatedImage( $image_url, 50, 150, min( $width, 30 ), 0, 225 );
-		$pdf->Text( 100, 120, 'Image 270 degree angle.' );
-		$pdf->RotatedImage( $image_url, 150, 150, min( $width, 30 ), 0, 270 );
-
-		$pdf->Text( 10, 170, 'Image 315 degree angle.' );
-		$pdf->RotatedImage( $image_url, 50, 190, min( $width, 30 ), 0, 315 );
-		$pdf->Text( 100, 170, 'Image 360 degree angle.' );
-		$pdf->RotatedImage( $image_url, 150, 190, min( $width, 30 ), 0, 360 );
-
-		$pdf->AddPage();
-		$background = '/home/sayful/Desktop/Yousaidit Card/Marina.jpg';
-		$frame      = '/home/sayful/Desktop/Yousaidit Card/frame.png';
-		list( $width, $height ) = getimagesize( $frame );
-		$pdf->Image( $background, - 20, 30, $pdf->GetPageWidth() );
-		$pdf->Image( $frame, 0, 0, $pdf->GetPageWidth() );
-
-		$pdf->AddPage();
-		$pdf->SetFont( 'Arial', '', 20 );
-
-		foreach ( [ 45, 90, 135, 180, 225, 270, 315, 360 ] as $degree ) {
-			$pdf->RotatedText( 100, 60, sprintf( 'Hello! %s degree', $degree ), $degree );
-		}
-
-		$pdf->AddPage();
-		$pdf->SetFont( 'Arial', '', 20 );
-		$pdf->Text( 10, 20, 'Hello! Font spacing normal' );
-		foreach ( range( 1, 12 ) as $spacing ) {
-			$pdf->SetFontSpacing( $spacing );
-			$pdf->Text( 10, ( 12 * $spacing ) + 20, sprintf( 'Hello! Font spacing %spt', $spacing ) );
-		}
-
-		$pdf->Output();
+		var_dump( [
+			'size'   => Utils::millimeter_to_pixels( 150 ),
+			'width'  => Utils::millimeter_to_pixels( 154 ),
+			'height' => Utils::millimeter_to_pixels( 156 ),
+		] );
 
 		die();
 	}
@@ -401,80 +355,25 @@ class Ajax {
 				header( 'Content-Type: image/jpeg' );
 				echo $imagick->getImageBlob();
 
-				$this->replace_product_image( $imagick, $card, true );
+				Helper::generate_product_image( $imagick, $card, true );
 			} catch ( ImagickException $e ) {
 				var_dump( $e );
 			}
 			die;
 		}
 
-		$pdf_id = DynamicCard::create_card_pdf( $card );
+		$pdf_id = DynamicCard::create_card_pdf( $card, true );
 		try {
 			$new_file_path = get_attached_file( $pdf_id );
 			DynamicCard::clone_pdf_to_jpg( $card, $new_file_path );
 			$im = DynamicCard::pdf_to_image( $new_file_path );
 			header( 'Content-Type: image/jpeg' );
 			echo $im->getImageBlob();
-			$this->replace_product_image( $im, $card, true );
+			Helper::generate_product_image( $im, $card, true );
 		} catch ( ImagickException $e ) {
 			var_dump( $e );
 		}
 		die;
-	}
-
-	/**
-	 * Replace product image.
-	 */
-	public function replace_product_image( Imagick $imagick, DesignerCard $card, $delete_current = false ) {
-		$upload_dir = Uploader::get_upload_dir();
-		if ( is_wp_error( $upload_dir ) ) {
-			return $upload_dir;
-		}
-
-		$product = wc_get_product( $card->get_product_id() );
-		if ( $product instanceof WC_Product ) {
-			$filename = sanitize_file_name( strtolower( $product->get_slug() ) . '-shop-image.webp' );
-		} else {
-			$filename = sanitize_file_name( strtolower( $card->get( 'card_title' ) ) . '-shop-image.webp' );
-		}
-		$filename      = wp_unique_filename( $upload_dir, $filename );
-		$directory     = rtrim( $upload_dir, DIRECTORY_SEPARATOR );
-		$new_file_path = $directory . DIRECTORY_SEPARATOR . $filename;
-
-		try {
-			$imagick->setImageFormat( "webp" );
-			$imagick->setOption( 'webp:method', '6' );
-			$imagick->writeImage( $new_file_path );
-
-			$upload_dir = wp_upload_dir();
-			$data       = array(
-				'guid'           => str_replace( $upload_dir['basedir'], $upload_dir['baseurl'], $new_file_path ),
-				'post_title'     => preg_replace( '/\.[^.]+$/', '', $filename ),
-				'post_status'    => 'inherit',
-				'post_mime_type' => 'image/webp',
-			);
-
-			$attachment_id = wp_insert_attachment( $data, $new_file_path );
-
-			if ( ! is_wp_error( $attachment_id ) ) {
-				// Make sure that this file is included, as wp_generate_attachment_metadata() depends on it.
-				require_once( ABSPATH . 'wp-admin/includes/image.php' );
-
-				// Generate the metadata for the attachment, and update the database record.
-				$attach_data = wp_generate_attachment_metadata( $attachment_id, $new_file_path );
-				wp_update_attachment_metadata( $attachment_id, $attach_data );
-
-				if ( $product instanceof WC_Product ) {
-					if ( $delete_current ) {
-						wp_delete_attachment( $product->get_image_id(), true );
-					}
-					set_post_thumbnail( $product->get_id(), $attachment_id );
-				}
-			}
-
-			return $attachment_id;
-		} catch ( ImagickException $e ) {
-		}
 	}
 
 	/**
@@ -504,6 +403,46 @@ class Ajax {
 			}
 		}
 		echo 'Process run successfully. You can close this window.';
+		die;
+	}
+
+	public function download_mug_asset() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( __( 'Sorry. This link only for admin.', 'yousaidit-toolkit' ) );
+		}
+
+		$card_id = $_REQUEST['card_id'] ?? 0;
+		$card    = ( new DesignerCard )->find_by_id( intval( $card_id ) );
+		if ( ! $card instanceof DesignerCard ) {
+			wp_die( 'No card available.' );
+		}
+
+		if ( ! $card->is_mug() ) {
+			wp_die( 'Card type is not a mug.' );
+		}
+		$image_id = $card->get_image_id();
+		$img      = wp_get_attachment_image_src( $image_id, 'full' );
+		if ( ! is_array( $img ) ) {
+			wp_die( 'Mug image not found.' );
+		}
+
+		$asset_type = $_REQUEST['asset_type'] ?? 'image';
+		$asset_type = in_array( $asset_type, [ 'image', 'pdf' ], true ) ? $asset_type : 'image';
+
+		if ( 'image' === $asset_type ) {
+			header( 'Content-Type: application/octet-stream' );
+			header( "Content-Transfer-Encoding: Binary" );
+			header( "Content-disposition: attachment; filename=\"" . basename( $img[0] ) . "\"" );
+			readfile( $img[0] );
+		}
+		if ( 'pdf' === $asset_type ) {
+			$fpd = new FreePdfExtended( 'landscape', 'mm', [ 210, 99 ] );
+			$fpd->AddPage();
+			$fpd->Image( $img[0], 0, 0, $fpd->GetPageWidth(), $fpd->GetPageHeight() );
+			$fpd->Output( 'D', sprintf( 'mug-image-%s.pdf', $card_id ) );
+		}
+
+
 		die;
 	}
 

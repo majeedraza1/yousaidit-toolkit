@@ -31,16 +31,6 @@ class DesignerCard extends DatabaseModel {
 	protected $cache_group = 'designer_cards';
 
 	/**
-	 * @var array
-	 */
-	protected $gallery_images = [];
-
-	/**
-	 * @var bool
-	 */
-	protected $gallery_images_read = false;
-
-	/**
 	 * Card categories
 	 *
 	 * @var array
@@ -127,17 +117,19 @@ class DesignerCard extends DatabaseModel {
 	 */
 	public function to_array(): array {
 		$data = [
-			'id'                     => intval( $this->get( 'id' ) ),
-			'card_type'              => $this->get( 'card_type' ),
-			'card_title'             => $this->get( 'card_title' ),
-			'description'            => $this->get( 'description' ),
-			'card_sizes'             => $this->get( 'card_sizes' ),
+			'id'                     => $this->get_id(),
+			'card_type'              => $this->get_card_type(),
+			'card_title'             => $this->get_title(),
+			'description'            => $this->get_prop( 'description' ),
+			'card_sizes'             => $this->get_prop( 'card_sizes' ),
 			'categories'             => $this->get_categories(),
 			'tags'                   => $this->get_tags(),
 			'sizes'                  => $this->get_sizes(),
 			'attributes'             => $this->get_attributes(),
+			'image_id'               => $this->get_image_id(),
+			'product_thumbnail_id'   => $this->get_product_thumbnail_id(),
 			'image'                  => $this->get_image(),
-			'gallery_images'         => $this->get_gallery_images(),
+			'product_thumbnail'      => $this->get_product_thumbnail_image(),
 			'pdf_data'               => $this->get_pdf_data(),
 			'total_sale'             => $this->get_all_sizes_total_sales(),
 			'commission'             => $this->get_commission_data(),
@@ -145,13 +137,13 @@ class DesignerCard extends DatabaseModel {
 			'product_id'             => $this->get_product_id(),
 			'designer_user_id'       => $this->get_designer_user_id(),
 			'rude_card'              => $this->is_rude_card(),
-			'status'                 => $this->get( 'status' ),
-			'card_sku'               => $this->get( 'card_sku' ),
-			'suggest_tags'           => $this->get( 'suggest_tags' ),
+			'status'                 => $this->get_prop( 'status' ),
+			'card_sku'               => $this->get_prop( 'card_sku' ),
+			'suggest_tags'           => $this->get_prop( 'suggest_tags' ),
 			'market_place'           => $this->get_market_places(),
 			'comments_count'         => $this->get_comments_count(),
-			'created_at'             => mysql_to_rfc3339( $this->get( 'created_at' ) ),
-			'updated_at'             => mysql_to_rfc3339( $this->get( 'updated_at' ) ),
+			'created_at'             => mysql_to_rfc3339( $this->get_prop( 'created_at' ) ),
+			'updated_at'             => mysql_to_rfc3339( $this->get_prop( 'updated_at' ) ),
 		];
 
 		if ( $this->get_product_id() ) {
@@ -159,7 +151,7 @@ class DesignerCard extends DatabaseModel {
 			$data['product_edit_url'] = $this->get_product_edit_url();
 		}
 
-		if ( ! empty( $this->get( 'deleted_at' ) ) ) {
+		if ( ! empty( $this->get_prop( 'deleted_at' ) ) ) {
 			$data['status'] = 'trash';
 		}
 
@@ -169,7 +161,7 @@ class DesignerCard extends DatabaseModel {
 	}
 
 	/**
-	 * Get market places
+	 * Get marketplaces
 	 *
 	 * @return array
 	 */
@@ -177,7 +169,7 @@ class DesignerCard extends DatabaseModel {
 		$market_places = $this->get( 'market_places' );
 		$market_places = is_array( $market_places ) ? $market_places : [];
 
-		if ( false === array_search( 'yousaidit', $market_places, true ) ) {
+		if ( ! in_array( 'yousaidit', $market_places, true ) ) {
 			$market_places[] = 'yousaidit';
 		}
 
@@ -190,11 +182,20 @@ class DesignerCard extends DatabaseModel {
 	 * @return int
 	 */
 	public function get_id(): int {
-		if ( $this->has( 'id' ) ) {
-			return intval( $this->get( 'id' ) );
+		if ( $this->has_prop( 'id' ) ) {
+			return intval( $this->get_prop( 'id' ) );
 		}
 
 		return parent::get_id();
+	}
+
+	/**
+	 * Get card title
+	 *
+	 * @return string
+	 */
+	public function get_title(): string {
+		return (string) $this->get_prop( 'card_title' );
 	}
 
 	/**
@@ -203,7 +204,7 @@ class DesignerCard extends DatabaseModel {
 	 * @return int
 	 */
 	public function get_designer_user_id(): int {
-		return intval( $this->get( $this->created_by ) );
+		return intval( $this->get_prop( $this->created_by ) );
 	}
 
 	/**
@@ -221,7 +222,7 @@ class DesignerCard extends DatabaseModel {
 	 * @return string
 	 */
 	public function get_card_type(): string {
-		return $this->get( 'card_type', 'static' );
+		return $this->get_prop( 'card_type', 'static' );
 	}
 
 	/**
@@ -241,16 +242,24 @@ class DesignerCard extends DatabaseModel {
 	}
 
 	/**
+	 * Check if card type static
+	 * @return bool
+	 */
+	public function is_mug(): bool {
+		return 'mug' == $this->get_card_type();
+	}
+
+	/**
 	 * Get dynamic card payload
 	 *
 	 * @return mixed|array
 	 */
 	public function get_dynamic_card_payload() {
-		return $this->get( 'dynamic_card_payload' );
+		return $this->get_prop( 'dynamic_card_payload' );
 	}
 
 	public function get_all_sizes_total_sales() {
-		$sales = (array) $this->get( 'total_sale' );
+		$sales = (array) $this->get_prop( 'total_sale' );
 		$count = 0;
 		foreach ( $sales as $sizeKey => $saleCount ) {
 			if ( is_numeric( $saleCount ) ) {
@@ -336,7 +345,7 @@ class DesignerCard extends DatabaseModel {
 	 * @return bool
 	 */
 	public function is_rude_card() {
-		return Validate::checked( $this->get( 'rude_card' ) );
+		return Validate::checked( $this->get_prop( 'rude_card' ) );
 	}
 
 	/**
@@ -345,7 +354,7 @@ class DesignerCard extends DatabaseModel {
 	 * @return array
 	 */
 	public function get_commission_data(): array {
-		$commission  = $this->get( 'commission_per_sale' );
+		$commission  = $this->get_prop( 'commission_per_sale' );
 		$_commission = $commission['commission'] ?? [];
 		$data        = [];
 		if ( isset( $commission['commission_type'] ) ) {
@@ -364,11 +373,11 @@ class DesignerCard extends DatabaseModel {
 	 * @return array
 	 */
 	public function get_marketplace_commission() {
-		$commissions = (array) $this->get( 'marketplace_commission' );
+		$commissions = (array) $this->get_prop( 'marketplace_commission' );
 
 		$default = [];
 		foreach ( $this->get_market_places() as $marketplace ) {
-			foreach ( $this->get( 'card_sizes' ) as $size ) {
+			foreach ( $this->get_prop( 'card_sizes' ) as $size ) {
 				$commission = isset( $commissions[ $marketplace ][ $size ] ) ?
 					floatval( $commissions[ $marketplace ][ $size ] ) : 0;
 
@@ -413,7 +422,7 @@ class DesignerCard extends DatabaseModel {
 		$terms = get_terms( array(
 			'taxonomy'   => 'product_cat',
 			'hide_empty' => false,
-			'include'    => $this->get( 'categories_ids' ),
+			'include'    => $this->get_prop( 'categories_ids' ),
 		) );
 		foreach ( $terms as $term ) {
 			$this->categories[] = [
@@ -431,7 +440,7 @@ class DesignerCard extends DatabaseModel {
 	 * @return array
 	 */
 	public function get_tags() {
-		$tags_ids = $this->get( 'tags_ids' );
+		$tags_ids = $this->get_prop( 'tags_ids' );
 		if ( count( $tags_ids ) < 1 ) {
 			return [];
 		}
@@ -439,7 +448,7 @@ class DesignerCard extends DatabaseModel {
 		$terms = get_terms( array(
 			'taxonomy'   => 'product_tag',
 			'hide_empty' => false,
-			'include'    => $this->get( 'tags_ids' ),
+			'include'    => $this->get_prop( 'tags_ids' ),
 		) );
 		foreach ( $terms as $term ) {
 			$this->tags[] = [
@@ -455,7 +464,7 @@ class DesignerCard extends DatabaseModel {
 	 * get sizes
 	 */
 	public function get_sizes() {
-		$card_sizes = $this->get( 'card_sizes' );
+		$card_sizes = $this->get_prop( 'card_sizes' );
 		$settings   = get_option( 'yousaiditcard_designers_settings' );
 		if ( empty( $settings['product_attribute_for_card_sizes'] ) ) {
 			return $card_sizes;
@@ -484,9 +493,9 @@ class DesignerCard extends DatabaseModel {
 	 *
 	 * @return array
 	 */
-	public function get_attributes() {
+	public function get_attributes(): array {
 		$_attributes = [];
-		$attributes  = $this->get( 'attributes' );
+		$attributes  = $this->get_prop( 'attributes' );
 
 
 		$attribute_taxonomies = wc_get_attribute_taxonomies();
@@ -509,7 +518,7 @@ class DesignerCard extends DatabaseModel {
 				}
 
 				$_attributes[] = [
-					'attribute_id'    => $tax->attribute_id,
+					'attribute_id'    => (int) $tax->attribute_id,
 					'attribute_name'  => $tax->attribute_name,
 					'attribute_label' => esc_html( $tax->attribute_label ),
 					'options'         => $options,
@@ -526,16 +535,7 @@ class DesignerCard extends DatabaseModel {
 	 * @return array
 	 */
 	public function get_attachment_ids(): array {
-		return (array) $this->get( 'attachment_ids' );
-	}
-
-	/**
-	 * Get gallery images ids
-	 *
-	 * @return int[]
-	 */
-	public function get_gallery_images_ids() {
-		return isset( $this->get_attachment_ids()['gallery_images_ids'] ) ? $this->get_attachment_ids()['gallery_images_ids'] : 0;
+		return (array) $this->get_prop( 'attachment_ids' );
 	}
 
 	/**
@@ -543,8 +543,33 @@ class DesignerCard extends DatabaseModel {
 	 *
 	 * @return array
 	 */
-	public function get_pdf_ids() {
-		return isset( $this->get_attachment_ids()['pdf_ids'] ) ? $this->get_attachment_ids()['pdf_ids'] : [];
+	public function get_pdf_ids(): array {
+		$attachment_ids = $this->get_attachment_ids();
+		if ( isset( $attachment_ids['pdf_ids'] ) && is_array( $attachment_ids['pdf_ids'] ) ) {
+			return $attachment_ids['pdf_ids'];
+		}
+
+		return [];
+	}
+
+	/**
+	 * Get card thumbnail id
+	 *
+	 * @return int
+	 */
+	public function get_product_thumbnail_id(): int {
+		$id = (int) $this->get_prop( 'product_thumbnail_id' );
+		if ( empty( $id ) && $this->is_dynamic_card() ) {
+			$image_id = $this->get_image_id();
+			if ( $image_id ) {
+				$this->set_prop( 'product_thumbnail_id', $image_id );
+				$this->update();
+
+				return $id;
+			}
+		}
+
+		return $id;
 	}
 
 	/**
@@ -553,7 +578,22 @@ class DesignerCard extends DatabaseModel {
 	 * @return int
 	 */
 	public function get_image_id(): int {
-		return isset( $this->get_attachment_ids()['image_id'] ) ? (int) $this->get_attachment_ids()['image_id'] : 0;
+		$image_id = (int) $this->get_prop( 'image_id' );
+		if ( $image_id ) {
+			return $image_id;
+		}
+
+		// Backward compatibility.
+		$attachment_ids = $this->get_attachment_ids();
+		if ( isset( $attachment_ids['image_id'] ) ) {
+			$image_id = (int) $attachment_ids['image_id'];
+			$this->set_prop( 'image_id', $image_id );
+			$this->update();
+
+			return $image_id;
+		}
+
+		return 0;
 	}
 
 	/**
@@ -561,7 +601,7 @@ class DesignerCard extends DatabaseModel {
 	 *
 	 * @return int
 	 */
-	public function get_product_image_id() {
+	public function get_product_image_id(): int {
 		if ( ! $this->get_product_id() ) {
 			return 0;
 		}
@@ -581,22 +621,8 @@ class DesignerCard extends DatabaseModel {
 		if ( empty( $id ) ) {
 			$id = $this->get_product_image_id();
 		}
-		$img = wp_get_attachment_image_src( $id, $size );
 
-		if ( $img === false ) {
-			return new ArrayObject();
-		}
-
-		$path = get_attached_file( $id );
-
-		return [
-			'id'     => $id,
-			'title'  => get_the_title( $id ),
-			'url'    => $img[0],
-			'path'   => $path,
-			'width'  => $img[1],
-			'height' => $img[2],
-		];
+		return $this->format_image_for_response( $id, $size );
 	}
 
 	/**
@@ -604,28 +630,15 @@ class DesignerCard extends DatabaseModel {
 	 *
 	 * @param  string  $size
 	 *
-	 * @return array
+	 * @return array|ArrayObject
 	 */
-	public function get_gallery_images( $size = 'full' ) {
-		if ( ! $this->gallery_images_read ) {
-			$ids = $this->get_gallery_images_ids();
-			foreach ( $ids as $id ) {
-				$img = wp_get_attachment_image_src( $id, $size );
-				if ( false === $img ) {
-					continue;
-				}
-				$this->gallery_images[] = [
-					'id'     => $id,
-					'title'  => get_the_title( $id ),
-					'url'    => $img[0],
-					'width'  => $img[1],
-					'height' => $img[2],
-				];
-			}
-			$this->gallery_images_read = true;
+	public function get_product_thumbnail_image( string $size = 'full' ) {
+		$id = $this->get_product_thumbnail_id();
+		if ( empty( $id ) ) {
+			$id = $this->get_product_image_id();
 		}
 
-		return $this->gallery_images;
+		return $this->format_image_for_response( $id, $size );
 	}
 
 	/**
@@ -633,7 +646,7 @@ class DesignerCard extends DatabaseModel {
 	 *
 	 * @return array
 	 */
-	public function get_pdf_data() {
+	public function get_pdf_data(): array {
 		$pdf_ids = $this->get_pdf_ids();
 		$data    = [];
 		foreach ( $pdf_ids as $size => $ids ) {
@@ -656,7 +669,7 @@ class DesignerCard extends DatabaseModel {
 	 *
 	 * @return int
 	 */
-	public function get_pdf_id_for_size( $size ) {
+	public function get_pdf_id_for_size( $size ): int {
 		$pdf_ids = $this->get_pdf_ids();
 
 		return isset( $pdf_ids[ $size ] ) && is_array( $pdf_ids[ $size ] ) ? intval( $pdf_ids[ $size ][0] ) : 0;
@@ -773,7 +786,7 @@ class DesignerCard extends DatabaseModel {
 			return;
 		}
 
-		$sales         = $this->get( 'total_sale' );
+		$sales         = $this->get_prop( 'total_sale' );
 		$sales         = is_array( $sales ) ? $sales : [];
 		$current_value = isset( $sales[ $size ] ) ? intval( $sales[ $size ] ) : 0;
 
@@ -853,9 +866,9 @@ class DesignerCard extends DatabaseModel {
 	/**
 	 * Get valid categories ids
 	 *
-	 * @return array
+	 * @return int[]
 	 */
-	public static function get_valid_categories_ids() {
+	public static function get_valid_categories_ids(): array {
 		$term_args  = array(
 			'taxonomy'   => 'product_cat',
 			'hide_empty' => false,
@@ -869,9 +882,9 @@ class DesignerCard extends DatabaseModel {
 	/**
 	 * Get valid tags ids
 	 *
-	 * @return array
+	 * @return int[]
 	 */
-	public static function get_valid_tags_ids() {
+	public static function get_valid_tags_ids(): array {
 		$term_args  = array(
 			'taxonomy'   => 'product_tag',
 			'hide_empty' => false,
@@ -939,9 +952,9 @@ class DesignerCard extends DatabaseModel {
 	/**
 	 * Create table
 	 */
-	public function create_table() {
+	public static function create_table() {
 		global $wpdb;
-		$table_name = $this->get_table_name( $this->table );
+		$table_name = static::get_table_name();
 		$collate    = $wpdb->get_charset_collate();
 
 		$tables = "CREATE TABLE IF NOT EXISTS {$table_name} (
@@ -964,33 +977,15 @@ class DesignerCard extends DatabaseModel {
 			created_at DATETIME NULL DEFAULT NULL,
 			updated_at DATETIME NULL DEFAULT NULL,
 			deleted_at DATETIME NULL DEFAULT NULL,
-			PRIMARY KEY  (id)
+			PRIMARY KEY  (id),
+    		INDEX `designer_user_id` (`designer_user_id`),
+    		INDEX `status` (`status`)
 		) $collate;";
 
 		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 		dbDelta( $tables );
 
-		$this->get_table_column();
-
 		$option = get_option( $table_name . '-version', '1.0.0' );
-		if ( version_compare( $option, '1.0.1', '<' ) ) {
-			$sql = "ALTER TABLE `{$table_name}` ADD INDEX `designer_user_id` (`designer_user_id`);";
-			$wpdb->query( $sql );
-
-			$sql = "ALTER TABLE `{$table_name}` ADD INDEX `status` (`status`);";
-			$wpdb->query( $sql );
-
-			update_option( 'designer_cards_table_version', '1.0.1' );
-		}
-	}
-
-	/**
-	 * Add table column
-	 */
-	public function get_table_column() {
-		global $wpdb;
-		$table_name = $this->get_table_name();
-		$option     = get_option( $table_name . '-version', '1.0.0' );
 		if ( version_compare( $option, '1.0.4', '<' ) ) {
 			$sql = "ALTER TABLE {$table_name} ADD `market_places` TEXT NULL DEFAULT NULL AFTER `suggest_tags`;";
 			$wpdb->query( $sql );
@@ -1015,5 +1010,39 @@ class DesignerCard extends DatabaseModel {
 			$wpdb->query( $sql );
 			update_option( $table_name . '-version', '1.2.2' );
 		}
+		if ( version_compare( $option, '1.2.4', '<' ) ) {
+			$sql = "ALTER TABLE `{$table_name}` ADD `product_thumbnail_id` bigint(20) UNSIGNED NOT NULL DEFAULT 0 AFTER `product_id`;";
+			$wpdb->query( $sql );
+			$sql = "ALTER TABLE `{$table_name}` ADD `image_id` bigint(20) UNSIGNED NOT NULL DEFAULT 0 AFTER `product_id`;";
+			$wpdb->query( $sql );
+			update_option( $table_name . '-version', '1.2.4' );
+		}
+	}
+
+	/**
+	 * Format image for response
+	 *
+	 * @param  int  $id
+	 * @param  string  $size
+	 *
+	 * @return array|ArrayObject
+	 */
+	public function format_image_for_response( int $id, string $size ) {
+		$img = wp_get_attachment_image_src( $id, $size );
+
+		if ( $img === false ) {
+			return new ArrayObject();
+		}
+
+		$path = get_attached_file( $id );
+
+		return [
+			'id'     => $id,
+			'title'  => get_the_title( $id ),
+			'url'    => $img[0],
+			'path'   => $path,
+			'width'  => $img[1],
+			'height' => $img[2],
+		];
 	}
 }

@@ -56,6 +56,7 @@ class Frontend {
 		$on_surface = static::find_color_invert( $surface );
 		list( $r, $g, $b ) = static::find_rgb_color( $on_surface );
 
+		$text_rgb   = sprintf( "%s, %s, %s", $r, $g, $b );
 		$text_primary   = sprintf( "rgba(%s, %s, %s, 0.87)", $r, $g, $b );
 		$text_secondary = sprintf( "rgba(%s, %s, %s, 0.54)", $r, $g, $b );
 		$text_hint      = sprintf( "rgba(%s, %s, %s, 0.38)", $r, $g, $b );
@@ -81,6 +82,7 @@ class Frontend {
 				--shapla-surface: <?php echo $surface; ?>;
 				--shapla-on-surface: <?php echo $on_surface; ?>;
 				--shapla-background: <?php echo $surface; ?>;
+				--shapla-text-rgb: <?php echo $text_rgb; ?>;
 				--shapla-text-primary: <?php echo $text_primary; ?>;
 				--shapla-text-secondary: <?php echo $text_secondary; ?>;
 				--shapla-text-hint: <?php echo $text_hint; ?>;

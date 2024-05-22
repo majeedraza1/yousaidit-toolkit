@@ -211,13 +211,6 @@ class Payment extends DatabaseModel {
 	/**
 	 * @inheritDoc
 	 */
-	public function count_records( array $args = [] ) {
-		return [];
-	}
-
-	/**
-	 * @inheritDoc
-	 */
 	public function create_table() {
 		global $wpdb;
 		$table_name = $this->get_table_name( $this->table );

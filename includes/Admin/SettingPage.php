@@ -36,7 +36,7 @@ class SettingPage {
 
 	public function load_script( $hook ) {
 		if ( "settings_page_stackonet-toolkit" == $hook ) {
-			wp_enqueue_script( 'stackonet-toolkit-admin' );
+			wp_enqueue_script( 'yousaidit-toolkit-admin' );
 			wp_enqueue_script( 'selectWoo' );
 			wp_enqueue_style( 'select2' );
 		}

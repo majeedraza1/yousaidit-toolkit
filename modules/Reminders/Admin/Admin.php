@@ -2,6 +2,8 @@
 
 namespace YouSaidItCards\Modules\Reminders\Admin;
 
+use YouSaidItCards\Assets;
+
 /**
  * Class Admin
  * @package YouSaidItCards\Modules\Reminders\Admin
@@ -27,6 +29,9 @@ class Admin {
 		return self::$instance;
 	}
 
+	/**
+	 * Admin menu
+	 */
 	public function admin_menu() {
 		global $submenu;
 		$capability = 'manage_options';
@@ -48,12 +53,18 @@ class Admin {
 		add_action( 'load-' . $hook, [ self::$instance, 'init_hooks' ] );
 	}
 
+	/**
+	 * Menu page callback
+	 */
 	public function reminders_page_callback() {
 		echo '<div id="yousaiditcard_admin_reminders"></div>';
 	}
 
+	/**
+	 * Initiate menu page hook
+	 */
 	public function init_hooks() {
-		wp_enqueue_style( 'stackonet-toolkit-admin' );
-		wp_enqueue_script( 'stackonet-toolkit-admin' );
+		wp_enqueue_style( 'yousaidit-toolkit-admin' );
+		wp_enqueue_script( 'yousaidit-toolkit-admin' );
 	}
 }

@@ -1,6 +1,5 @@
 {
   "name": "yousaidit-toolkit",
-  "version": "2023.05.20",
   "description": "A powerful WordPress plugin to extend functionality to your WordPress site.",
   "keywords": [
     "wordpress",
@@ -70,7 +69,8 @@
     "vue-loader": "15.10.2",
     "vue-template-compiler": "^2.7.14",
     "webpack": "^5.88.2",
-    "webpack-cli": "^5.1.4"
+    "webpack-cli": "^5.1.4",
+    "replace-in-files-cli": "^2.2.0"
   },
   "dependencies": {
     "@popperjs/core": "^2.11.8",

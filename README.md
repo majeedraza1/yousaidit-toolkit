@@ -1,5 +1,27 @@
 # Yousaidit Toolkit
 
+# Upgrade to Vue 3
+
+| Module                                                  | Status  | Re-test |
+|---------------------------------------------------------|---------|---------|
+| Admin Art Work                                          | &check; |         |
+| Admin Designer                                          | &check; |         |
+| Admin Font Manager                                      | &check; |         |
+| Admin Inner message editor                              | &check; |         |
+| Admin Order Dispatcher                                  | &check; |         |
+| Admin Reminder                                          | &check; |         |
+| Admin Settings: Dispatch Timer                          | &check; |         |
+| Admin Settings: Inner Message AI content writer         | &check; |         |
+| Admin Tree Planting                                     | &check; |         |
+| Frontend Designer Dashboard                             | &check; |         |
+| Frontend MyAccount Reminder                             | &check; |         |
+| Frontend Single Product: variation swatches             | &check; |         |
+| Frontend Single Product: Inner Message (& Dynamic card) | &check; |         |
+| Frontend Shop: Inner Message (& Dynamic card) Popup     | &check; |         |
+| Frontend Cart: Inner Message (& Dynamic card) Popup     | &check; |         |
+| Frontend Shop: Rude Card                                | &check; | &check; |
+| Frontend Multi-step checkout                            | &check; | &check; |
+
 # Dependencies
 
 * `WooCommerce Extra Product Options Pro` is required to work inner message system. Create a checkbox field with
@@ -55,18 +77,18 @@ order_id=37789
 
 * Reminders: All reminders created by users are viewable here.
 * Reminders Groups: All reminder groups viewable here.
-	* Create/Edit: Create or edit reminder group.
-		* Title: Title of the reminder group. It will show to user to create reminder.
-		* Product categories: WooCommerce product categories. It will be used when sending email to user for reminder.
-		* Date: Default date of occasion. Only set when date is fixed. e.g. Valentine's Day is always on 14th February.
-		* Call to Action: Custom url to redirect user when clicking on 'Shop cards' button on reminder.
-		* Menu Order: Order of the reminder group.
+    * Create/Edit: Create or edit reminder group.
+        * Title: Title of the reminder group. It will show to user to create reminder.
+        * Product categories: WooCommerce product categories. It will be used when sending email to user for reminder.
+        * Date: Default date of occasion. Only set when date is fixed. e.g. Valentine's Day is always on 14th February.
+        * Call to Action: Custom url to redirect user when clicking on 'Shop cards' button on reminder.
+        * Menu Order: Order of the reminder group.
 * Reminders Queue: All reminders queue viewable here.
 
 **My-Account Menu**
 
 * Reminders: All reminders created by the user are viewable here.
-	* Create/Edit: Create or edit reminder.
+    * Create/Edit: Create or edit reminder.
 
 **How does it work?**
 

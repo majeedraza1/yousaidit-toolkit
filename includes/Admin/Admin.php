@@ -22,12 +22,16 @@ class Admin {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self;
 
-			add_action( 'admin_menu', [ self::$instance, 'add_menu' ] );
 			add_action( 'admin_enqueue_scripts', [ self::$instance, 'admin_scripts' ] );
 			add_action( 'admin_notices', [ self::$instance, 'admin_notices' ] );
+			add_action( 'admin_head', [ self::$instance, 'admin_head' ] );
 		}
 
 		return self::$instance;
+	}
+
+	public function admin_head() {
+		echo '<style>table.fixed{position:static !important;}</style>';
 	}
 
 	/**
@@ -63,14 +67,14 @@ class Admin {
 			'nonce'   => wp_create_nonce( 'wp_rest' ),
 			'ajaxurl' => admin_url( 'admin-ajax.php' ),
 		);
-		wp_localize_script( 'stackonet-toolkit-admin', 'Stackonet', $data );
+		wp_localize_script( 'yousaidit-toolkit-admin', 'Stackonet', $data );
 		if ( 'settings_page_stackonet-toolkit' === $hook_suffix ) {
-			wp_enqueue_style( 'stackonet-toolkit-admin' );
+			wp_enqueue_style( 'yousaidit-toolkit-admin' );
 		}
 		if ( 'post.php' === $hook_suffix && $post instanceof \WP_Post ) {
 			if ( 'shop_order' === $post->post_type ) {
-				wp_enqueue_script( 'stackonet-toolkit-admin' );
-				wp_enqueue_style( 'stackonet-toolkit-admin' );
+				wp_enqueue_style( 'yousaidit-toolkit-admin' );
+				wp_enqueue_script( 'yousaidit-toolkit-admin' );
 			}
 		}
 	}
@@ -94,7 +98,7 @@ class Admin {
 			}
 		}
 
-		add_action( 'load-' . $hook, [ self::$instance, 'init_hooks' ] );
+		add_action( 'load-' . $hook, [ $this, 'init_hooks' ] );
 	}
 
 	/**
@@ -109,7 +113,7 @@ class Admin {
 	 */
 	public function init_hooks() {
 		wp_enqueue_media();
-		wp_enqueue_style( 'stackonet-toolkit-admin' );
-		wp_enqueue_script( 'stackonet-toolkit-admin' );
+		wp_enqueue_style( 'yousaidit-toolkit-admin' );
+		wp_enqueue_script( 'yousaidit-toolkit-admin' );
 	}
 }

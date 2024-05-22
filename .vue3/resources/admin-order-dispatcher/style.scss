@@ -1,0 +1,148 @@
+.yousaidit_admin_order_dispatcher {
+  position: relative;
+  box-sizing: border-box;
+
+  * {
+    box-sizing: border-box;
+  }
+}
+
+
+.yousaidit_admin_order_dispatcher--dispatcher {
+  .button-container {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+}
+
+// DispatchOrders.vue
+.shapla-modal-box-content {
+  background-color: #fff;
+  padding: 1rem;
+  border-radius: 4px;
+  min-height: 300px;
+}
+
+.field--input-container {
+  display: flex;
+  justify-content: center;
+  border-bottom: 1px dashed rgba(#000, .12);
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+
+  .input--search {
+    height: 2.8em;
+    margin-right: .5em;
+    min-width: 230px;
+  }
+}
+
+.search-results-error {
+  text-align: center;
+  font-size: 16px;
+  color: var(--shapla-error, red);
+}
+
+.shipping-address,
+.customer_notes {
+  background: #f1f1f1;
+  padding: .5rem;
+  margin: .5rem 0;
+  flex-direction: column;
+
+  span:first-child {
+    color: var(--shapla-primary);
+    font-weight: bold;
+  }
+}
+
+.actions {
+  margin-top: 2rem;
+}
+
+.shipping_service {
+  text-align: center;
+
+  div:first-child {
+    color: var(--shapla-primary);
+    font-weight: bold;
+  }
+}
+
+.button--clear {
+  margin-left: 5px;
+  visibility: hidden;
+
+  &.is-active {
+    visibility: visible;
+  }
+}
+
+// OrderInfo.vue
+.order-information {
+  .section {
+    &:not(:first-child) {
+      margin-top: 15px;
+    }
+  }
+
+  &__product {
+    margin-top: 18px;
+    margin-bottom: 18px;
+  }
+
+  .shapla-image-container {
+    background-color: #f1f1f1;
+    display: inline-block;
+
+    + div {
+      margin-left: 18px;
+    }
+  }
+}
+
+.door_delivery {
+  text-align: center;
+}
+
+// Orders.vue
+
+.stackonet-orders-list-table {
+  .row-actions {
+    display: none !important;
+  }
+
+  .select--pdf-size {
+    height: 2.8em;
+  }
+
+  .yousaidit-loop-product {
+    align-items: center;
+    display: flex;
+    justify-content: flex-start;
+
+    svg {
+      width: 1.5em;
+      height: 1.5em;
+      fill: currentColor;
+    }
+  }
+}
+
+.yousaidit-loop-product {
+  a {
+    max-width: 250px;
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.flex {
+  display: flex;
+}
+
+.spacer {
+  flex-grow: 1;
+}

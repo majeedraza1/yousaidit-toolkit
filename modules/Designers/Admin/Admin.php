@@ -70,8 +70,8 @@ class Admin {
 	 * Menu page scripts
 	 */
 	public function init_hooks() {
-		wp_enqueue_style( 'stackonet-toolkit-admin' );
-		wp_enqueue_script( 'stackonet-toolkit-admin' );
+		wp_enqueue_style( 'yousaidit-toolkit-admin' );
+		wp_enqueue_script( 'yousaidit-toolkit-admin' );
 	}
 
 	/**

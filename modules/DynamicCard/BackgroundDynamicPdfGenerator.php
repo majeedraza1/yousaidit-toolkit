@@ -223,7 +223,7 @@ class BackgroundDynamicPdfGenerator extends BackgroundProcess {
 				);
 			}
 		}
-		$item->pdf( [ 'dest' => 'F', 'name' => $filename ] );
+		$item->pdf( $filename, 'F' );
 
 		self::update_card_to_generate_list( $order_id, $order_item_id );
 

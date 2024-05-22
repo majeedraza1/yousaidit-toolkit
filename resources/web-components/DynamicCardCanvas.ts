@@ -3,35 +3,38 @@ import {DynamicCardPayloadInterface} from "./interfaces";
 
 export class DynamicCardCanvas extends LitElement {
   // Styles are applied to the shadow root and scoped to this element
-  static styles = css`
-    :host, .canvas, .canvas *, .canvas *:before, .canvas *:after {
-      box-sizing: border-box
-    }
+  static get styles() {
+    return css`
+        :host, .canvas, .canvas *, .canvas *:before, .canvas *:after {
+            box-sizing: border-box
+        }
 
-    .canvas {
-      background-color: white;
-      border: 1px dotted rgba(0, 0, 0, 0.12);
-      display: flex;
-      position: relative;
-      height: var(--item-height, 100%);
-      width: var(--item-width, 100%);
-      flex-shrink: 0;
-      overflow: hidden;
-    }
-  `
+        .canvas {
+            background-color: white;
+            border: 1px dotted rgba(0, 0, 0, 0.12);
+            display: flex;
+            position: relative;
+            height: var(--item-height, 100%);
+            width: var(--item-width, 100%);
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+    `
+  }
 
   // Creates a reactive property that triggers rendering
-  static properties = {
-    options: {type: Object},
-    height: {type: String},
-    width: {type: String},
-    showEditIcon: {type: Boolean, attribute: 'show-edit-icon'},
-    activeSectionIndex: {type: Number, attribute: 'active-section-index'},
-    cardWidthMM: {type: Number, attribute: 'card-width-mm'},
-    cardHeightMM: {type: Number, attribute: 'card-height-mm'},
-    elementWidthMM: {type: Number, attribute: 'element-width-mm'},
-    elementHeightMM: {type: Number, attribute: 'element-height-mm'},
-    fontFamilies: {type: Array, attribute: 'font-families'},
+  static get properties() {
+    return {
+      options: {type: Object, attribute: 'data-options'},
+      height: {type: String},
+      width: {type: String},
+      showEditIcon: {type: Boolean, attribute: 'show-edit-icon'},
+      activeSectionIndex: {type: Number, attribute: 'active-section-index'},
+      cardWidthMM: {type: Number, attribute: 'card-width-mm'},
+      cardHeightMM: {type: Number, attribute: 'card-height-mm'},
+      elementWidthMM: {type: Number, attribute: 'element-width-mm'},
+      elementHeightMM: {type: Number, attribute: 'element-height-mm'},
+    }
   }
 
   constructor() {

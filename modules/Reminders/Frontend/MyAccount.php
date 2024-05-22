@@ -3,6 +3,7 @@
 namespace YouSaidItCards\Modules\Reminders\Frontend;
 
 use Stackonet\WP\Framework\Supports\ArrayHelper;
+use YouSaidItCards\Assets;
 use YouSaidItCards\Modules\Reminders\Models\Reminder;
 use YouSaidItCards\Modules\Reminders\Models\ReminderGroup;
 
@@ -70,7 +71,7 @@ class MyAccount {
 	/**
 	 * Add new query var.
 	 *
-	 * @param array $vars
+	 * @param  array  $vars
 	 *
 	 * @return array
 	 */
@@ -83,7 +84,7 @@ class MyAccount {
 	/**
 	 * Insert the new endpoint into the My Account menu.
 	 *
-	 * @param array $items
+	 * @param  array  $items
 	 *
 	 * @return array
 	 */
@@ -96,7 +97,7 @@ class MyAccount {
 	/**
 	 * Change endpoint title.
 	 *
-	 * @param string $title
+	 * @param  string  $title
 	 *
 	 * @return string
 	 */
@@ -119,8 +120,17 @@ class MyAccount {
 	 * Endpoint HTML content.
 	 */
 	public function content() {
-		echo '<div id="yousaiditcard_my_account_reminders"></div>';
+		echo '<div id="yousaidit_my_account_reminders"></div>';
 		add_action( 'wp_footer', [ $this, 'my_account_reminders' ] );
+		$file_url  = Assets::get_assets_url( 'js/reminders-frontend.js' );
+		$file_path = str_replace( WP_CONTENT_URL, WP_CONTENT_DIR, $file_url );
+		if ( file_exists( $file_path ) ) {
+			wp_enqueue_script( 'yousaidit-reminders-frontend',
+				$file_url, [],
+				gmdate( 'Y.m.d.Gi', filemtime( $file_path ) ),
+				true
+			);
+		}
 	}
 
 	/**

@@ -1,0 +1,97 @@
+@use 'shapla-css/src/index.scss' as shapla;
+
+.menu--social-share {
+  display: flex;
+  justify-content: center;
+  padding: 1rem;
+
+  > a {
+    margin-right: 1rem;
+  }
+}
+
+.yousaidit-designer-profile-header {
+  margin: 0 auto;
+  text-align: center;
+  position: relative;
+  box-sizing: border-box;
+  overflow: hidden;
+
+  &__info {
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-color: shapla.$primary;
+    color: shapla.$on-primary;
+    padding: 40px 16px 16px;
+    margin-bottom: 40px;
+  }
+
+  &__name {
+    font-weight: 600;
+    font-size: 1.25rem;
+  }
+
+  &__location {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    svg {
+      fill: currentColor;
+    }
+  }
+
+  &__bio {
+    margin: 1rem 0;
+  }
+
+  &__cover {
+    height: 250px;
+    width: 100%;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-color: #f1f1f1;
+    padding: 20px;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 2;
+  }
+
+  &__cover-upload-icon {
+    position: absolute;
+    top: 30px;
+    right: 30px;
+
+    .shapla-icon {
+      background: shapla.$on-primary;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    svg {
+      fill: shapla.$primary;
+    }
+  }
+
+  &__profile {
+    position: absolute;
+    bottom: -64px;
+    left: calc(50% - 64px);
+
+    img {
+      box-shadow: 0 0 0 6px #bcbcbc;
+    }
+
+    &-upload-icon {
+      .shapla-icon {
+        background: shapla.$primary;
+        fill: shapla.$on-primary;
+        border-radius: 50%;
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        cursor: pointer;
+      }
+    }
+  }
+}

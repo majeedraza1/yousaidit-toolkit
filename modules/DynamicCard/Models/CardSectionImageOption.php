@@ -2,6 +2,8 @@
 
 namespace YouSaidItCards\Modules\DynamicCard\Models;
 
+use YouSaidItCards\Utilities\ImagickUtils;
+
 class CardSectionImageOption extends CardSectionBase {
 
 	/**
@@ -14,10 +16,68 @@ class CardSectionImageOption extends CardSectionBase {
 	}
 
 	/**
+	 * Get image url
+	 *
+	 * @return string
+	 */
+	public function get_image_url(): string {
+		$src = wp_get_attachment_image_src( $this->get_image_id(), 'full' );
+		if ( ! is_array( $src ) ) {
+			return '';
+		}
+
+		return $src[0];
+	}
+
+	/**
 	 * @return array|false
 	 */
 	public function get_image() {
 		return self::get_image_data( $this->get_image_id() );
+	}
+
+	/**
+	 * Get image width in pixels
+	 *
+	 * @return int
+	 */
+	public function get_image_width_px(): int {
+		$image = static::get_image();
+		if ( is_array( $image ) ) {
+			return intval( $image['width'] );
+		}
+
+		return 0;
+	}
+
+	/**
+	 * Get image width in mm
+	 * @return float
+	 */
+	public function get_image_width_mm(): float {
+		return ImagickUtils::px_to_mm( $this->get_image_width_px(), 300 );
+	}
+
+	/**
+	 * Get image height in pixels
+	 *
+	 * @return int
+	 */
+	public function get_image_height_px(): int {
+		$image = static::get_image();
+		if ( is_array( $image ) ) {
+			return intval( $image['height'] );
+		}
+
+		return 0;
+	}
+
+	/**
+	 * Get image width in mm
+	 * @return float
+	 */
+	public function get_image_height_mm(): float {
+		return ImagickUtils::px_to_mm( $this->get_image_height_px(), 300 );
 	}
 
 	/**
@@ -35,6 +95,49 @@ class CardSectionImageOption extends CardSectionBase {
 		}
 
 		return $options[ $key ] ?? '';
+	}
+
+	/**
+	 * Get image width in millimeters
+	 * @return int
+	 */
+	public function get_image_area_width_mm(): int {
+		$width = $this->get_image_option( 'width' );
+
+		return intval( $width );
+	}
+
+	/**
+	 * Get image height in millimeters
+	 * @return int
+	 */
+	public function get_image_area_height_mm(): int {
+		$height = $this->get_image_option( 'height' );
+
+		if ( 'auto' === $height ) {
+			$height = $this->get_image_area_width_mm() * ( $this->get_image_height_px() / $this->get_image_width_px() );
+		}
+
+		return intval( $height );
+	}
+
+	/**
+	 * Get image alignment
+	 *
+	 * @return string
+	 */
+	public function get_image_alignment(): string {
+		$align = $this->get_image_option( 'align' );
+
+		return in_array( $align, [ 'left', 'center', 'right' ] ) ? $align : 'left';
+	}
+
+	public function is_image_alignment_center(): bool {
+		return 'center' === $this->get_image_alignment();
+	}
+
+	public function is_image_alignment_right(): bool {
+		return 'right' === $this->get_image_alignment();
 	}
 
 	/**
@@ -67,24 +170,30 @@ class CardSectionImageOption extends CardSectionBase {
 		return $rotate;
 	}
 
-	public function get_user_position_from_top(): int {
+	public function get_user_position_from_top_mm(): int {
 		$options = $this->get_user_options();
-		$top     = isset( $options['position']['top'] ) ? intval( $options['position']['top'] ) : 0;
 
-		return $top;
+		return isset( $options['position']['top'] ) ? intval( $options['position']['top'] ) : 0;
 	}
 
-	public function get_user_position_from_left(): int {
+	public function get_user_position_from_left_mm(): int {
 		$options = $this->get_user_options();
-		$top     = isset( $options['position']['left'] ) ? intval( $options['position']['left'] ) : 0;
 
-		return $top;
+		return isset( $options['position']['left'] ) ? intval( $options['position']['left'] ) : 0;
 	}
 
 	public function get_user_zoom(): float {
 		$options = $this->get_user_options();
 		$zoom    = isset( $options['zoom'] ) ? intval( $options['zoom'] ) : 0;
 
-		return $zoom;
+		return min( 100, max( - 50, $zoom ) );
+	}
+
+	public function get_computed_position_from_top_mm(): int {
+		return $this->get_position_from_top_mm() + $this->get_user_position_from_top_mm();
+	}
+
+	public function get_computed_position_from_left_mm(): int {
+		return $this->get_position_from_left_mm() + $this->get_user_position_from_left_mm();
 	}
 }

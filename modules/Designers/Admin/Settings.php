@@ -37,6 +37,34 @@ class Settings {
 		return isset( $options['designer_commission'] ) ? floatval( $options['designer_commission'] ) : 0;
 	}
 
+	public static function designer_default_mug_commission_for_yousaidit() {
+		$options = (array) get_option( 'yousaiditcard_designers_settings' );
+
+		return isset( $options['designer_commission_for_mug'] ) ? floatval( $options['designer_commission_for_mug'] ) : 0;
+	}
+
+	public static function designer_mug_sku_prefix(): string {
+		$options = (array) get_option( 'yousaiditcard_designers_settings' );
+
+		return isset( $options['designer_mug_sku_prefix'] ) ?
+			sanitize_text_field( $options['designer_mug_sku_prefix'] ) : '';
+	}
+
+	public static function get_designer_role() {
+		$options = (array) get_option( 'yousaiditcard_designers_settings' );
+
+		return $options['designer_role'] ?? 'customer';
+	}
+
+	public static function get_enabled_card_types(): array {
+		$options = (array) get_option( 'yousaiditcard_designers_settings' );
+		if ( is_array( $options['enabled_card_types'] ) ) {
+			return $options['enabled_card_types'];
+		}
+
+		return [ 'standard' ];
+	}
+
 	public static function designer_default_commission_for_yousaidit_trade() {
 		$options = (array) get_option( 'yousaiditcard_designers_settings' );
 
@@ -101,6 +129,21 @@ class Settings {
 	}
 
 	/**
+	 * Get product categories ids for mug uploader
+	 *
+	 * @return int[]
+	 */
+	public static function get_product_categories_for_mug(): array {
+		$options = (array) get_option( 'yousaiditcard_designers_settings' );
+		$ids     = $options['mug_uploader_categories'] ?? [];
+		if ( ! is_array( $ids ) ) {
+			return [];
+		}
+
+		return array_map( 'intval', $ids );
+	}
+
+	/**
 	 * Plugin settings
 	 */
 	public static function settings() {
@@ -133,6 +176,13 @@ class Settings {
 				'description' => __( 'Plugin product options.', 'stackonet-yousaidit-toolkit' ),
 				'panel'       => 'general_settings_panel',
 				'priority'    => 20,
+			],
+			[
+				'id'          => 'section_mug',
+				'title'       => __( 'Mug Settings', 'stackonet-yousaidit-toolkit' ),
+				'description' => __( 'Mug product options.', 'stackonet-yousaidit-toolkit' ),
+				'panel'       => 'general_settings_panel',
+				'priority'    => 30,
 			]
 		];
 
@@ -154,7 +204,8 @@ class Settings {
 				'id'                => 'terms_page_id',
 				'type'              => 'select',
 				'title'             => __( 'Terms and Condition Page', 'stackonet-yousaidit-toolkit' ),
-				'description'       => __( 'Choose a page to act as your terms and condition page for designers.', 'stackonet-yousaidit-toolkit' ),
+				'description'       => __( 'Choose a page to act as your terms and condition page for designers.',
+					'stackonet-yousaidit-toolkit' ),
 				'priority'          => 20,
 				'sanitize_callback' => 'intval',
 				'options'           => static::get_pages_for_options(),
@@ -164,7 +215,8 @@ class Settings {
 				'id'                => 'product_attribute_for_card_sizes',
 				'type'              => 'select',
 				'title'             => __( 'Product Attribute for card sizes', 'stackonet-yousaidit-toolkit' ),
-				'description'       => __( 'Choose product attribute that will be used for card sizes.', 'stackonet-yousaidit-toolkit' ),
+				'description'       => __( 'Choose product attribute that will be used for card sizes.',
+					'stackonet-yousaidit-toolkit' ),
 				'priority'          => 30,
 				'sanitize_callback' => 'sanitize_text_field',
 				'options'           => static::get_product_attribute_taxonomies(),
@@ -175,7 +227,8 @@ class Settings {
 				'type'              => 'select',
 				'multiple'          => true,
 				'title'             => __( 'Product Attributes', 'stackonet-yousaidit-toolkit' ),
-				'description'       => __( 'Choose additional product attributes for designer for submit with new card request.', 'stackonet-yousaidit-toolkit' ),
+				'description'       => __( 'Choose additional product attributes for designer for submit with new card request.',
+					'stackonet-yousaidit-toolkit' ),
 				'priority'          => 40,
 				'sanitize_callback' => function ( $value ) {
 					return array_map( 'sanitize_text_field', $value );
@@ -197,10 +250,25 @@ class Settings {
 			],
 			[
 				'section'           => 'general_settings_section',
+				'id'                => 'mug_uploader_categories',
+				'type'              => 'select',
+				'multiple'          => true,
+				'title'             => __( 'Product categories for Mug', 'stackonet-yousaidit-toolkit' ),
+				'description'       => __( 'Product categories for designer mug uploader.',
+					'stackonet-yousaidit-toolkit' ),
+				'priority'          => 42,
+				'sanitize_callback' => function ( $value ) {
+					return array_map( 'sanitize_text_field', $value );
+				},
+				'options'           => static::get_product_categories(),
+			],
+			[
+				'section'           => 'general_settings_section',
 				'id'                => 'designer_minimum_amount_to_pay',
 				'type'              => 'number',
 				'title'             => __( 'Min amount to pay', 'stackonet-yousaidit-toolkit' ),
-				'description'       => __( 'Enter minimum commission amount required to be payable. Value must be 1 or more.', 'stackonet-yousaidit-toolkit' ),
+				'description'       => __( 'Enter minimum commission amount required to be payable. Value must be 1 or more.',
+					'stackonet-yousaidit-toolkit' ),
 				'priority'          => 50,
 				'sanitize_callback' => 'floatval',
 			],
@@ -209,7 +277,8 @@ class Settings {
 				'id'                => 'designer_maximum_allowed_card',
 				'type'              => 'number',
 				'title'             => __( 'Max allowed card', 'stackonet-yousaidit-toolkit' ),
-				'description'       => __( 'Designer maximum allowed card. Admin can allow more for individual designer.', 'stackonet-yousaidit-toolkit' ),
+				'description'       => __( 'Designer maximum allowed card. Admin can allow more for individual designer.',
+					'stackonet-yousaidit-toolkit' ),
 				'priority'          => 55,
 				'sanitize_callback' => 'floatval',
 			],
@@ -218,7 +287,8 @@ class Settings {
 				'id'                => 'email_for_card_limit_extension',
 				'type'              => 'text',
 				'title'             => __( 'Admin email address', 'stackonet-yousaidit-toolkit' ),
-				'description'       => __( 'Admin email address for receiving card limit extension request.', 'stackonet-yousaidit-toolkit' ),
+				'description'       => __( 'Admin email address for receiving card limit extension request.',
+					'stackonet-yousaidit-toolkit' ),
 				'priority'          => 56,
 				'default'           => get_option( 'admin_email' ),
 				'sanitize_callback' => 'sanitize_text_field',
@@ -237,8 +307,10 @@ class Settings {
 				'section'           => 'general_settings_section',
 				'id'                => 'designer_trade_site_commission',
 				'type'              => 'text',
-				'title'             => __( 'Designer Commission for trade site (Fix amount)', 'stackonet-yousaidit-toolkit' ),
-				'description'       => __( 'Designer commission per sale for trade site.', 'stackonet-yousaidit-toolkit' ),
+				'title'             => __( 'Designer Commission for trade site (Fix amount)',
+					'stackonet-yousaidit-toolkit' ),
+				'description'       => __( 'Designer commission per sale for trade site.',
+					'stackonet-yousaidit-toolkit' ),
 				'priority'          => 65,
 				'default'           => 0.10,
 				'sanitize_callback' => 'floatval',
@@ -248,7 +320,8 @@ class Settings {
 				'id'                => 'designer_card_sku_prefix',
 				'type'              => 'text',
 				'title'             => __( 'Product SKU', 'stackonet-yousaidit-toolkit' ),
-				'description'       => __( "{{card_type}} will be replaced with 'S' for static or 'D' for dynamic. {{card_size}} will be replaced with 'S' for square, 'A4', 'A5' or 'A6'. {{card_id}} will be replaced with card id.", 'stackonet-yousaidit-toolkit' ),
+				'description'       => __( "{{card_type}} will be replaced with 'S' for static or 'D' for dynamic. {{card_size}} will be replaced with 'S' for square, 'A4', 'A5' or 'A6'. {{card_id}} will be replaced with card id.",
+					'stackonet-yousaidit-toolkit' ),
 				'priority'          => 70,
 				'default'           => 'DC-{{card_type}}-{{card_size}}-{{card_id}}',
 				'sanitize_callback' => 'sanitize_text_field',
@@ -268,7 +341,8 @@ class Settings {
 				'id'                => 'default_product_title',
 				'type'              => 'text',
 				'title'             => __( 'Default Product Title', 'stackonet-yousaidit-toolkit' ),
-				'description'       => __( 'Default product title when generating product from card. Add placeholder {{card_title}} to get dynamic card title.', 'stackonet-yousaidit-toolkit' ),
+				'description'       => __( 'Default product title when generating product from card. Add placeholder {{card_title}} to get dynamic card title.',
+					'stackonet-yousaidit-toolkit' ),
 				'priority'          => 50,
 				'sanitize_callback' => 'sanitize_text_field',
 			],
@@ -277,13 +351,68 @@ class Settings {
 				'id'                => 'default_product_content',
 				'type'              => 'textarea',
 				'title'             => __( 'Default Product Content', 'stackonet-yousaidit-toolkit' ),
-				'description'       => __( 'Default product content when generating product from card. Add placeholder {{card_title}} to get dynamic card title. Add placeholder {{card_description}} to get dynamic card description.', 'stackonet-yousaidit-toolkit' ),
+				'description'       => __( 'Default product content when generating product from card. Add placeholder {{card_title}} to get dynamic card title. Add placeholder {{card_description}} to get dynamic card description.',
+					'stackonet-yousaidit-toolkit' ),
 				'priority'          => 50,
 				'sanitize_callback' => 'wp_filter_post_kses',
+			],
+			[
+				'section'           => 'general_settings_section',
+				'id'                => 'designer_role',
+				'type'              => 'select',
+				'title'             => __( 'Designer Role', 'stackonet-yousaidit-toolkit' ),
+				'description'       => __( 'Set designer role for new designer.', 'stackonet-yousaidit-toolkit' ),
+				'priority'          => 60,
+				'sanitize_callback' => 'sanitize_text_field',
+				'options'           => static::get_roles(),
+			],
+			[
+				'section'           => 'general_settings_section',
+				'id'                => 'enabled_card_types',
+				'type'              => 'select',
+				'multiple'          => true,
+				'title'             => __( 'Enabled Card', 'stackonet-yousaidit-toolkit' ),
+				'description'       => __( 'Choose card types to enable it', 'stackonet-yousaidit-toolkit' ),
+				'priority'          => 65,
+				'sanitize_callback' => function ( $value ) {
+					return array_map( 'sanitize_text_field', ( is_array( $value ) ? $value : [] ) );
+				},
+				'options'           => [
+					[ 'label' => 'Standard Card', 'value' => 'standard' ],
+					[ 'label' => 'Photo Card', 'value' => 'photo-card' ],
+					[ 'label' => 'Text Card', 'value' => 'text-card' ],
+					[ 'label' => 'Mug', 'value' => 'mug' ],
+				],
 			],
 		];
 
 		$option_page->add_fields( $fields );
+
+		$mug_fields = [
+			[
+				'section'           => 'section_mug',
+				'id'                => 'designer_commission_for_mug',
+				'type'              => 'text',
+				'title'             => __( 'Designer Commission (Fix amount)', 'stackonet-yousaidit-toolkit' ),
+				'description'       => __( 'Designer commission per sale for mug product.',
+					'stackonet-yousaidit-toolkit' ),
+				'priority'          => 10,
+				'default'           => 0.30,
+				'sanitize_callback' => 'floatval',
+			],
+			[
+				'section'           => 'section_mug',
+				'id'                => 'designer_mug_sku_prefix',
+				'type'              => 'text',
+				'title'             => __( 'Product SKU for Mug', 'stackonet-yousaidit-toolkit' ),
+				'description'       => __( "{{designer_id}} will be replaced with card designer user id. {{card_id}} will be replaced with card id.",
+					'stackonet-yousaidit-toolkit' ),
+				'priority'          => 20,
+				'default'           => 'MUG-{{designer_id}}-{{card_id}}',
+				'sanitize_callback' => 'sanitize_text_field',
+			],
+		];
+		$option_page->add_fields( $mug_fields );
 	}
 
 	/**
@@ -329,5 +458,15 @@ class Settings {
 		}
 
 		return $cats;
+	}
+
+	public static function get_roles(): array {
+		$roles = [];
+
+		foreach ( wp_roles()->get_names() as $slug => $label ) {
+			$roles[] = [ 'label' => esc_html( $label ), 'value' => $slug ];
+		}
+
+		return $roles;
 	}
 }

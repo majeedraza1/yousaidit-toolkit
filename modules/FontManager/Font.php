@@ -2,8 +2,15 @@
 
 namespace YouSaidItCards\Modules\FontManager;
 
+use Imagick;
+use ImagickDraw;
+use ImagickDrawException;
+use ImagickException;
+use Stackonet\WP\Framework\Supports\Logger;
+use YouSaidItCards\Modules\FontManager\Models\DesignerFont;
 use YouSaidItCards\Modules\FontManager\Models\FontInfo;
 use YouSaidItCards\Utilities\Filesystem;
+use YouSaidItCards\Utils;
 
 class Font {
 	/**
@@ -261,7 +268,16 @@ class Font {
 		$pre_installed = static::get_pre_installed_fonts_with_permissions();
 		$extra_fonts   = static::get_extra_fonts_with_path_and_url();
 
-		return array_merge( $pre_installed, $extra_fonts );
+		$designer_fonts = [];
+		$user_id        = get_current_user_id();
+		if ( $user_id ) {
+			$designer_font_object = DesignerFont::get_fonts( $user_id );
+			foreach ( $designer_font_object as $font ) {
+				$designer_fonts[] = $font->to_array();
+			}
+		}
+
+		return array_merge( $pre_installed, $extra_fonts, $designer_fonts );
 	}
 
 	public static function get_fonts_for_designer(): array {
@@ -350,6 +366,9 @@ class Font {
 	 * @return false|FontInfo
 	 */
 	public static function find_font( string $font_family_or_slug ) {
+		if ( 'arial' === $font_family_or_slug ) {
+			$font_family_or_slug = 'OpenSans';
+		}
 		$toArray             = explode( ",", $font_family_or_slug );
 		$font_family_or_slug = trim( str_replace( [ "'", '"' ], '', $toArray[0] ) );
 		$_fonts              = static::get_fonts_info();
@@ -373,5 +392,49 @@ class Font {
 	 */
 	public static function find_font_info( string $font_family_or_slug ) {
 		return static::find_font( $font_family_or_slug );
+	}
+
+
+	/**
+	 * Get font metrics
+	 *
+	 * @param  string  $font_family_or_slug  The font family.
+	 * @param  int  $font_size  The font size.
+	 * @param  string  $text  The string to test for font metrics.
+	 *
+	 * @return array|false {
+	 * Array of font metrics info
+	 *
+	 * @type float $characterWidth maximum character ("em") width
+	 * @type float $characterHeight maximum character height
+	 * @type float $ascender the height of character ascensions (i.e. the straight bit on a 'b')
+	 * @type float $descender the height of character descensions (i.e. the straight bit on a 'p')
+	 * @type float $textWidth width of drawn text in pixels
+	 * @type float $textHeight height of drawn text in pixels
+	 * }
+	 */
+	public static function get_font_metrics(
+		string $font_family_or_slug,
+		int $font_size,
+		string $text = '',
+		int $resolution = 300
+	) {
+		if ( empty( $text ) ) {
+			$text = 'A quick brown fox jumps over the lazy dogs.';
+		}
+		$font_info = static::find_font_info( $font_family_or_slug );
+		try {
+			$im = new Imagick();
+			$im->setResolution( $resolution, $resolution );
+			$draw = new ImagickDraw();
+			$draw->setFont( $font_info->get_font_path() );
+			$draw->setFontSize( Utils::font_size_pt_to_px( $font_size, $resolution ) );
+
+			return $im->queryFontMetrics( $draw, $text );
+		} catch ( ImagickDrawException|ImagickException $e ) {
+			Logger::log( $e );
+
+			return false;
+		}
 	}
 }

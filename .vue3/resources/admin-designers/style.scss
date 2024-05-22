@@ -1,0 +1,192 @@
+@use "shapla-css/src/index.scss" as shapla;
+
+.yousaidit_admin_designer_app {
+  position: relative;
+  box-sizing: border-box;
+
+  * {
+    box-sizing: border-box;
+  }
+
+  .shapla-search-form__input {
+    padding: .5em 2.5em .5em .5em !important;
+  }
+}
+
+// Card.vue
+.yousaiditcard_designer_card {
+  font-size: 16px;
+
+  &__content {
+    background-color: #fff;
+    border: rgba(#000, 0.12);
+    border-radius: 4px;
+    padding: 10px;
+  }
+
+  .shapla-chip:not(:last-child) {
+    margin-right: 5px;
+  }
+
+  &__actions-top {
+    display: flex;
+    justify-content: flex-end;
+
+    > * {
+      margin-left: 5px;
+    }
+  }
+}
+
+// Settings.vue
+.yousaidit-admin-designers--settings {
+  .button-save-settings-container {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+
+    svg {
+      fill: currentColor;
+    }
+  }
+
+  .shapla-text-field__input {
+    width: 100% !important;
+  }
+}
+
+// Commissions.vue
+
+
+.yousaidit-admin-commissions {
+  .shapla-sidenav__background,
+  .shapla-sidenav__body {
+    position: fixed;
+    top: 32px;
+  }
+
+  .yousaidit-designer-revenue__filter {
+    margin-bottom: 30px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+
+    > *,
+    .shapla-text-field {
+      margin-bottom: 1rem;
+    }
+  }
+
+  .sidenav-section-title {
+    font-size: 20px;
+    border-bottom: 1px solid rgba(#000, 0.12);
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+  }
+}
+
+.payment-status--unpaid,
+.payment-status--paid {
+  border-radius: 3px;
+  font-weight: bold;
+  padding: 5px;
+}
+
+.payment-status--paid {
+  background: shapla.$success;
+  color: shapla.$on-success;
+}
+
+.payment-status--unpaid {
+  background: shapla.$error;
+  color: shapla.$on-error;
+}
+
+// PdfCardItem.vue
+.pdf-card-item {
+  border: 1px solid rgba(#000, 0.12);
+  border-radius: 4px;
+  margin-bottom: 10px;
+
+
+  &__header {
+    background-color: rgba(#000, 0.04);
+    padding: 8px;
+  }
+
+  &__content {
+    padding: 8px;
+    color: shapla.$text-secondary;
+
+    svg {
+      fill: currentColor;
+    }
+  }
+
+  &__item:not(:last-child) {
+    border-bottom: 1px solid rgba(#000, 0.12);
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+  }
+
+  &__link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+// PdfImageItem.vue
+.pdf-image-item {
+
+  &__items {
+    display: flex;
+    flex-wrap: wrap;
+    margin: -5px;
+  }
+
+  &__item {
+    padding: 5px;
+    width: 150px;
+    display: block;
+    float: left
+  }
+
+  &:not(.is-multiple) {
+    .pdf-image-item__item {
+      width: 300px;
+    }
+  }
+}
+
+
+.col-marketplace {
+  min-width: 120px;
+}
+
+// ReportCard.vue
+.yousaidit-report-card {
+  border-radius: 4px;
+
+  &:not(.has-custom-color) {
+    background: shapla.$primary;
+    color: shapla.$on-primary;
+  }
+
+  &.has-custom-color {
+    background: var(--card-background-color, shapla.$primary);
+  }
+
+  &__content {
+    font-size: 2.5em;
+    padding: 20px;
+    text-align: center;
+    font-weight: 500;
+  }
+
+  &__actions {
+    background: rgba(#fff, 0.6);
+    padding: 15px;
+    text-align: center;
+  }
+}

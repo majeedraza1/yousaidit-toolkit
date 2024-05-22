@@ -134,9 +134,9 @@ class DynamicCardManager {
 			} );
 			/* @TODO change card size for dynamic value */
 			$image_string = "<div style='width: 150px;height:150px'><dynamic-card-canvas
-			options='" . wp_json_encode( $options ) . "'
-			card-width-mm='150'
-			card-height-mm='150'
+			data-options='" . wp_json_encode( $options ) . "'
+			card-width-mm='154'
+			card-height-mm='156'
 			element-width-mm='40'
 			element-height-mm='40'
 			></dynamic-card-canvas></div>";

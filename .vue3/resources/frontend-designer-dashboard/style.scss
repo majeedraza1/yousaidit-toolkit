@@ -1,0 +1,359 @@
+@use "shapla-css/src/index" as shapla;
+/*! @import */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+.shapla-dashboard-header__burger {
+  @apply lg:hidden;
+}
+
+body.designer-profile-page {
+  header.site-header {
+    z-index: -1;
+  }
+
+  .shapla-dashboard-content__inner {
+    overflow-x: visible;
+  }
+}
+
+.yousaidit-designer-profile {
+  .sidenav-list__item {
+    margin: 0;
+  }
+
+  .shapla-dashboard-sidenav-menu {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidenav-spacer {
+    flex-grow: 1;
+  }
+
+  .shapla-text-field__help-text {
+    color: var(--shapla-text-secondary, rgba(0, 0, 0, 0.54));
+  }
+}
+
+.nav-menu {
+  list-style-type: none;
+
+  a {
+    font-size: 16px;
+    font-weight: 500;
+    padding-right: 1rem;
+  }
+
+  li {
+    margin-bottom: 5px;
+    margin-top: 5px;
+    line-height: 1;
+  }
+}
+
+.dashboard-logo {
+  img {
+    max-height: 40px;
+  }
+}
+
+.yousaidit-designer-card {
+  //box-shadow: 0 2px 2px 0 rgba(#000, .14), 0 3px 1px -2px rgba(#000, .2), 0 1px 5px 0 rgba(#000, .12);
+  //display: flex;
+  //flex-direction: column;
+  //height: 100%;
+  //position: relative;
+
+  &__actions-top {
+    display: flex;
+    left: .5rem;
+    position: absolute;
+    top: .5rem;
+
+    > * {
+      margin-right: 5px;
+      width: 2em;
+      height: 2em;
+      background: #f1f1f1;
+      padding: 5px;
+      border-radius: 999px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 2;
+
+      svg {
+        fill: shapla.$text-tertiary;
+      }
+
+      &:hover {
+        background: #ddd;
+        cursor: pointer;
+      }
+    }
+  }
+
+  &__comments,
+  &__settings,
+  &__delete {
+  }
+
+  &__delete {
+    background: shapla.$error;
+    color: shapla.$on-error;
+
+    &:hover {
+      background: shapla.$error;
+      color: shapla.$on-error;
+    }
+
+    svg {
+      fill: currentColor;
+    }
+  }
+
+  &__status {
+    //border-radius: 4px;
+    background: shapla.$primary;
+    color: shapla.$on-primary;
+    display: inline-flex;
+    padding: 0.25rem;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    //z-index: 1;
+
+    &.status-accepted {
+      background: shapla.$success;
+      color: shapla.$on-success;
+    }
+
+    &.status-rejected {
+      background: shapla.$error;
+      color: shapla.$on-error;
+    }
+  }
+
+  &__spacer {
+    flex-grow: 1;
+  }
+
+  &__actions {
+    width: 100%;
+    background-color: transparent;
+    padding: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+  }
+
+  .shapla-dropdown[aria-expanded="true"] {
+    path.icon-down {
+      display: none;
+    }
+  }
+
+  .shapla-dropdown-menu {
+    width: 100%;
+  }
+
+  .shapla-dropdown-item {
+    display: flex;
+    font-size: 1rem;
+
+    > * {
+      margin-right: 5px;
+    }
+  }
+}
+
+.yousaidit-designer-profile-card-modal {
+  .shapla-chip:not(:last-child) {
+    margin-right: 5px;
+  }
+
+  h3.section-title {
+    color: var(--shapla-primary);
+    font-size: 1.25rem;
+    font-weight: 400;
+    text-transform: uppercase;
+  }
+
+  h4.section-subtitle {
+    font-size: .75rem;
+    font-weight: 400;
+  }
+}
+
+.yousaidit-designer-profile {
+  // Field
+  &__field {
+    display: flex;
+
+    &:not(:last-child) {
+      border-bottom: 1px solid rgba(#000, 0.04);
+      margin-bottom: 15px;
+      padding-bottom: 15px;
+    }
+  }
+
+  &__label {
+    flex-shrink: 0;
+    font-weight: 500;
+    max-width: 200px;
+    width: 30%;
+  }
+
+  &__value {
+    flex-grow: 1;
+  }
+
+  &__action {
+    width: 50px;
+    text-align: right;
+  }
+
+  &__input-fields {
+    > * {
+      margin-bottom: 15px;
+    }
+  }
+
+  &__actions {
+    display: flex;
+
+    > * {
+      flex-grow: 1;
+
+      &:not(:last-child) {
+        margin-right: 10px;
+      }
+    }
+  }
+
+  @media screen and (max-width: 782px) {
+    &__field {
+      flex-wrap: wrap;
+    }
+    &__label {
+      max-width: 100%;
+      width: auto;
+      flex-grow: 1;
+    }
+    &__value {
+      order: 1;
+      width: 100%;
+    }
+  }
+}
+
+.yousaidit-report-card {
+  border-radius: 4px;
+
+  &:not(.has-custom-color) {
+    background: shapla.$primary;
+    color: shapla.$on-primary;
+  }
+
+  &.has-custom-color {
+    background: var(--card-background-color, shapla.$primary);
+  }
+
+  &__content {
+    font-size: 2.5em;
+    padding: 20px;
+    text-align: center;
+    font-weight: 500;
+  }
+
+  &__actions {
+    background: rgba(#fff, 0.6);
+    padding: 15px;
+    text-align: center;
+  }
+}
+
+.yousaidit-designer-cards {
+  &__fab {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+  }
+
+  .card-not-found {
+    font-size: 3rem;
+    text-align: center;
+  }
+
+  .box--settings {
+    background: white;
+    padding: 1rem;
+    border-radius: 4px;
+  }
+
+  &__statuses {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1.5rem;
+
+    > * {
+      margin-right: .5rem;
+    }
+  }
+
+  &__comment {
+    background: shapla.$primary-alpha;
+    border-radius: 4px;
+    padding: 1rem;
+  }
+}
+
+
+.designer-contact-us {
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.yousaidit-designer-dashboard {
+  &__section-title {
+    text-transform: uppercase;
+    font-weight: normal;
+    font-size: 1.5em;
+  }
+
+  .section--revenue {
+    margin-top: 50px;
+  }
+}
+
+.yousaidit-designer-revenue {
+  &__filter {
+    > * {
+      &:not(:last-child) {
+        margin-right: 10px;
+      }
+    }
+  }
+
+  .shapla-pagination-current-page {
+    width: 4em !important;
+    margin-bottom: 0 !important;
+  }
+
+  &__filter-custom {
+    display: inline-flex;
+    align-items: center;
+
+    .shapla-button {
+      margin-left: 10px;
+    }
+  }
+}

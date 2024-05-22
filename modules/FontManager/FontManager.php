@@ -2,6 +2,9 @@
 
 namespace YouSaidItCards\Modules\FontManager;
 
+use YouSaidItCards\Assets;
+use YouSaidItCards\Modules\FontManager\Models\DesignerFont;
+
 class FontManager {
 
 	/**
@@ -21,6 +24,7 @@ class FontManager {
 			self::$instance = new self();
 
 			add_action( 'admin_menu', [ self::$instance, 'admin_menu' ] );
+			add_action( 'admin_init', [ DesignerFont::class, 'create_table' ] );
 			AdminFontController::init();
 		}
 
@@ -57,7 +61,7 @@ class FontManager {
 	}
 
 	public function init_hooks() {
-		wp_enqueue_style( 'stackonet-toolkit-admin' );
-		wp_enqueue_script( 'stackonet-toolkit-admin' );
+		wp_enqueue_style( 'yousaidit-toolkit-admin' );
+		wp_enqueue_script( 'yousaidit-toolkit-admin' );
 	}
 }

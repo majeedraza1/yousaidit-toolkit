@@ -3,6 +3,8 @@
 namespace YouSaidItCards\Modules\Designers;
 
 use YouSaidItCards\Modules\Designers\Admin\Admin;
+use YouSaidItCards\Modules\Designers\Admin\ExportCard;
+use YouSaidItCards\Modules\Designers\Admin\ImportCard;
 use YouSaidItCards\Modules\Designers\Admin\Settings;
 use YouSaidItCards\Modules\Designers\Frontend\DesignerCustomerProfile;
 use YouSaidItCards\Modules\Designers\Frontend\DesignerProfile;
@@ -25,6 +27,7 @@ use YouSaidItCards\Modules\Designers\REST\PayPalPayoutController;
 use YouSaidItCards\Modules\Designers\REST\SettingController;
 use YouSaidItCards\Modules\Designers\REST\UserRegistrationController;
 use YouSaidItCards\Modules\Designers\REST\WebLoginController;
+use YouSaidItCards\Modules\FontManager\REST\DesignerFontController;
 use YouSaidItCards\ShipStation\Order;
 use YouSaidItCards\ShipStation\ShipStationApi;
 use YouSaidItCards\Utils;
@@ -68,6 +71,7 @@ class DesignersManager {
 				UserRegistrationController::init();
 				DesignerController::init();
 				DesignerCardController::init();
+				DesignerFontController::init();
 				DesignerCardAttachmentController::init();
 				DesignerCardAdminController::init();
 				SettingController::init();
@@ -83,6 +87,9 @@ class DesignersManager {
 
 			if ( Utils::is_request( 'admin' ) ) {
 				Admin::init();
+				ExportCard::init();
+				ImportCard::init();
+				add_action( 'admin_init', [ DesignerCard::class, 'create_table' ] );
 			}
 		}
 
@@ -93,7 +100,7 @@ class DesignersManager {
 	 * Initial plugin activation functionality
 	 */
 	public static function activation() {
-		( new DesignerCard() )->create_table();
+		DesignerCard::create_table();
 		( new DesignerCommission() )->create_table();
 		( new Payment() )->create_table();
 		( new PaymentItem() )->create_table();

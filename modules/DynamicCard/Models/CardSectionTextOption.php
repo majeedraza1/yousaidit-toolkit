@@ -55,4 +55,22 @@ class CardSectionTextOption extends CardSectionBase {
 	public function get_text_spacing(): int {
 		return (int) $this->get_text_option( 'spacing' );
 	}
+
+	/**
+	 * Get font family
+	 *
+	 * @return string
+	 */
+	public function get_font_family(): string {
+		return (string) $this->get_text_option( 'fontFamily' );
+	}
+
+	/**
+	 * Get font size
+	 *
+	 * @return int
+	 */
+	public function get_font_size(): int {
+		return (int) $this->get_text_option( 'size' );
+	}
 }

@@ -3,6 +3,7 @@
 namespace YouSaidItCards\Modules\CardMerger\PDFMergers;
 
 use Exception;
+use Stackonet\WP\Framework\Supports\Logger;
 use YouSaidItCards\ShipStation\Order;
 use YouSaidItCards\ShipStation\OrderItem;
 
@@ -11,8 +12,8 @@ class DynamicSizePdfMerger extends PDFMerger {
 	/**
 	 * Get orientation from card size
 	 *
-	 * @param int $card_width
-	 * @param int $card_height
+	 * @param  int  $card_width
+	 * @param  int  $card_height
 	 *
 	 * @return string
 	 */
@@ -25,13 +26,19 @@ class DynamicSizePdfMerger extends PDFMerger {
 	}
 
 	/**
-	 * @param OrderItem[] $order_items
-	 * @param int $card_width Card width in mm
-	 * @param int $card_height Card height in mm
-	 * @param bool $inner_message Should show inner message
-	 * @param string $type Card type 'inner message', 'card' or both
+	 * @param  OrderItem[]  $order_items
+	 * @param  int  $card_width  Card width in mm
+	 * @param  int  $card_height  Card height in mm
+	 * @param  bool  $inner_message  Should show inner message
+	 * @param  string  $type  Card type 'inner message', 'card' or both
 	 */
-	public static function combinePDFs( array $order_items, int $card_width, int $card_height, bool $inner_message, $type = 'both' ) {
+	public static function combinePDFs(
+		array $order_items,
+		int $card_width,
+		int $card_height,
+		bool $inner_message,
+		$type = 'both'
+	) {
 		static::$print_inner_message = $inner_message;
 
 		$pdf_merger = new PDFMerger();
@@ -53,6 +60,7 @@ class DynamicSizePdfMerger extends PDFMerger {
 		try {
 			static::add_page_to_pdf( $order_items, $pdf, $args );
 		} catch ( Exception $e ) {
+			Logger::log( $e );
 		}
 
 		if ( empty( $output_file_name ) ) {
@@ -65,7 +73,7 @@ class DynamicSizePdfMerger extends PDFMerger {
 	/**
 	 * Get order pdf
 	 *
-	 * @param Order $order
+	 * @param  Order  $order
 	 */
 	public static function get_order_pdf( Order $order ) {
 		$order_item = $order->get_order_items();

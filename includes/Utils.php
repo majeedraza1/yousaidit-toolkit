@@ -3,9 +3,13 @@
 namespace YouSaidItCards;
 
 use Stackonet\WP\Framework\Supports\Validate;
+use YouSaidItCards\Modules\Designers\Admin\Settings;
 use YouSaidItCards\Providers\AWSElementalMediaConvert;
 
 class Utils {
+	const SQUARE_CARD_WIDTH_MM = 154;
+	const SQUARE_CARD_HEIGHT_MM = 156;
+
 	/**
 	 * What type of request is this?
 	 *
@@ -63,6 +67,78 @@ class Utils {
 		}
 
 		return $password;
+	}
+
+	/**
+	 * @param  float  $millimeters  Centimeter to calculate.
+	 * @param  int  $dpi  dots/pixels per inch.
+	 *
+	 * @return int
+	 */
+	public static function millimeter_to_pixels( float $millimeters, int $dpi = 300 ): int {
+		$dpi = max( 72, min( 300, $dpi ) );
+
+		// 1 inch is equal to 25.4 millimeters.
+		return round( $millimeters * ( $dpi / 25.4 ) );
+	}
+
+	/**
+	 * @param  float  $pixels  Centimeter to calculate.
+	 * @param  int  $dpi  dots/pixels per inch.
+	 *
+	 * @return int
+	 */
+	public static function pixels_to_millimeter( float $pixels, int $dpi = 300 ): int {
+		$dpi = max( 72, min( 300, $dpi ) );
+
+		// 1 inch is equal to 25.4 millimeters.
+		return round( $pixels * ( 25.4 / $dpi ) );
+	}
+
+	/**
+	 * @param  int  $font_size
+	 * @param  int  $ppi
+	 *
+	 * @return float
+	 */
+	public static function font_size_pt_to_px( int $font_size, int $ppi = 300 ): float {
+		return round( $font_size * $ppi / 72 );
+	}
+
+
+	/**
+	 * Prepares the item for the REST response.
+	 *
+	 * @param  int  $image_id  Media image id.
+	 *
+	 * @return array
+	 */
+	public static function prepare_media_item_for_response( int $image_id ): array {
+		$title          = get_the_title( $image_id );
+		$token          = get_post_meta( $image_id, '_delete_token', true );
+		$attachment_url = wp_get_attachment_url( $image_id );
+
+		$is_image = wp_attachment_is_image( $image_id );
+
+		$response = [
+			'id'             => $image_id,
+			'title'          => $title,
+			'attachment_url' => $attachment_url,
+			'token'          => $token,
+			'thumbnail'      => new \ArrayObject(),
+			'full'           => new \ArrayObject(),
+		];
+
+		if ( $is_image ) {
+			$image      = wp_get_attachment_image_src( $image_id, 'thumbnail' );
+			$full_image = wp_get_attachment_image_src( $image_id, 'full' );
+
+			$response['thumbnail'] = [ 'src' => $image[0], 'width' => $image[1], 'height' => $image[2], ];
+
+			$response['full'] = [ 'src' => $full_image[0], 'width' => $full_image[1], 'height' => $full_image[2] ];
+		}
+
+		return $response;
 	}
 
 	/**
@@ -209,7 +285,7 @@ class Utils {
 					$args['meta_key'] = '_video_inner_message';
 					$args['im']       = rawurlencode( wp_json_encode( $meta ) );
 					$url2             = add_query_arg( $args, admin_url( 'admin-ajax.php' ) );
-					$display .= " <a class='button edit-im' href='" . esc_url( $url2 ) . "'>Edit</a>";
+					$display          .= " <a class='button edit-im' href='" . esc_url( $url2 ) . "'>Edit</a>";
 				}
 
 				$message = '<div>' . $message . '</div>' . $display;
@@ -267,5 +343,43 @@ class Utils {
 		}
 
 		return $formatted_meta;
+	}
+
+	public static function is_current_user_designer(): bool {
+		$user = wp_get_current_user();
+		if ( ! $user->exists() ) {
+			return false;
+		}
+		if ( in_array( Settings::get_designer_role(), $user->roles, true ) ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Get user IP address
+	 *
+	 * @return string
+	 */
+	public static function get_remote_ip(): string {
+		$server_ip_keys = array(
+			'HTTP_CLIENT_IP',
+			'HTTP_X_FORWARDED_FOR',
+			'HTTP_X_FORWARDED',
+			'HTTP_X_CLUSTER_CLIENT_IP',
+			'HTTP_FORWARDED_FOR',
+			'HTTP_FORWARDED',
+			'REMOTE_ADDR',
+		);
+
+		foreach ( $server_ip_keys as $key ) {
+			if ( isset( $_SERVER[ $key ] ) && filter_var( $_SERVER[ $key ], FILTER_VALIDATE_IP ) ) {
+				return $_SERVER[ $key ];
+			}
+		}
+
+		// Fallback local ip.
+		return '127.0.0.1';
 	}
 }

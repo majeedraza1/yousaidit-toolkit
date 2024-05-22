@@ -12,6 +12,7 @@ use YouSaidItCards\Modules\FontManager\Models\FontInfo;
 use YouSaidItCards\Modules\OrderDispatcher\QrCode;
 use YouSaidItCards\ShipStation\Order;
 use YouSaidItCards\Utilities\FreePdfBase;
+use YouSaidItCards\Utils;
 
 class OrderItemDynamicCard {
 	protected $card_id = 0;
@@ -26,6 +27,9 @@ class OrderItemDynamicCard {
 	protected $background_type = 'color';
 	protected $background_color = '#ffffff';
 	protected $background_image = 0;
+	/**
+	 * @var CardSectionTextOption[]|CardSectionImageOption[]
+	 */
 	protected $card_sections = [];
 	protected $order;
 	protected $order_item;
@@ -162,7 +166,7 @@ class OrderItemDynamicCard {
 		return false;
 	}
 
-	public function pdf( array $args = [] ) {
+	public function pdf( string $filename = '', string $dest = 'I', array $args = [] ) {
 		$fpd = new FreePdfExtended( 'L', 'mm', [ $this->card_width, $this->card_height ] );
 
 		// Add custom fonts
@@ -186,19 +190,26 @@ class OrderItemDynamicCard {
 		// Add qr code
 		$this->addQrCode( $fpd );
 
-		// Test to mark section
-//		$this->addColorToBackground( $fpd );
-
 		// Add background
 		$this->addBackground( $fpd );
 
 		// Add sections
 		$this->addSections( $fpd );
 
-		$fpd->Output( $args['dest'] ?? '', $args['name'] ?? '' );
-//		header( "Content-Type: application/pdf" );
-//		$fpd->Output();
-//		die;
+		if ( 'production' === wp_get_environment_type() ) {
+			$fpd->Output( $dest, $filename );
+		} else {
+			// Draw rect on back side
+			$fpd->SetAlpha( .05 );
+			$fpd->SetLineWidth( 0 );
+			$fpd->SetFillColor( 255, 0, 0 );
+			$fpd->Rect( 0, 0, $fpd->GetPageWidth() - 154, $fpd->GetPageHeight(), 'DF' );
+			$fpd->SetAlpha( 1 );
+
+			// Output to browser
+			$fpd->Output();
+			die;
+		}
 	}
 
 	/**
@@ -285,8 +296,8 @@ class OrderItemDynamicCard {
 			return;
 		}
 
-		$width     = 154;
-		$height    = 156;
+		$width     = Utils::SQUARE_CARD_WIDTH_MM;
+		$height    = Utils::SQUARE_CARD_HEIGHT_MM;
 		$x_pos     = $fpd->GetPageWidth() - $width;
 		$y_pos     = 0;
 		$image_src = $this->background->get_image_src();
@@ -311,14 +322,18 @@ class OrderItemDynamicCard {
 	private function addTextSection( FreePdfExtended &$fpd, CardSectionTextOption $section ) {
 		list( $red, $green, $blue ) = FreePdfBase::find_rgb_color( $section->get_text_option( 'color' ) );
 		$fpd->SetTextColor( $red, $green, $blue );
-		$fpd->SetFont( $section->get_text_option( 'fontFamily' ), '', $section->get_text_option( 'size' ) );
+		$font = Font::find_font_info( $section->get_font_family() );
+		$fpd->SetFont( $font->get_font_family_for_dompdf(), '', $section->get_text_option( 'size' ) );
 
 		$text_width = $fpd->GetStringWidth( $section->get_text() );
-		$y_pos      = + $section->get_position_from_top() + FreePdfBase::points_to_mm( $section->get_text_option( 'size' ) * 0.75 );
+		$y_pos      = $section->get_position_from_top_mm() + FreePdfBase::points_to_mm( $section->get_text_option( 'size' ) );
 
-		$x_pos = ( $fpd->GetPageWidth() / 2 ) + $section->get_position_from_left();
+
+		$back_width = $fpd->GetPageWidth() - Utils::SQUARE_CARD_WIDTH_MM;
+
+		$x_pos = $back_width + $section->get_position_from_left_mm();
 		if ( 'center' == $section->get_text_option( 'align' ) ) {
-			$x_pos = ( $fpd->GetPageWidth() / 4 * 3 ) - ( $text_width / 2 );
+			$x_pos = ( $back_width + ( Utils::SQUARE_CARD_WIDTH_MM / 2 ) ) - ( $text_width / 2 );
 		}
 		if ( 'right' == $section->get_text_option( 'align' ) ) {
 			$x_pos = $fpd->GetPageWidth() - ( $text_width + $section->get_text_option( 'marginRight' ) );
@@ -336,42 +351,66 @@ class OrderItemDynamicCard {
 			return;
 		}
 
-		$width        = $section->get_image_option( 'width' );
-		$actual_width = FreePdfBase::px_to_mm( $image['width'] );
-		if ( $actual_width < $width ) {
-			$width = $actual_width;
+		$image_area_width  = $section->get_image_area_width_mm();
+		$image_area_height = $section->get_image_area_height_mm();
+		$image_width       = $section->get_image_width_mm();
+		$image_height      = $section->get_image_height_mm();
+
+		$back_width = $fpd->GetPageWidth() - Utils::SQUARE_CARD_WIDTH_MM;
+
+
+		$x_pos = $back_width + $section->get_position_from_left_mm();
+		if ( $section->is_image_alignment_center() ) {
+			$x_pos = ( $back_width + ( Utils::SQUARE_CARD_WIDTH_MM / 2 ) ) - ( $image_area_width / 2 );
+		}
+		if ( $section->is_image_alignment_right() ) {
+			$x_pos = $fpd->GetPageWidth() - ( $image_area_width + $section->get_image_option( 'marginRight' ) );
 		}
 
-		$actual_height = FreePdfBase::px_to_mm( $image['height'] );
-		$height        = $width * ( $actual_height / $actual_width );
+		$y_pos = $section->get_position_from_top_mm();
 
-		$x_pos = ( $fpd->GetPageWidth() / 2 ) + $section->get_position_from_left();
-		if ( 'center' == $section->get_image_option( 'align' ) ) {
-			$x_pos = ( $fpd->GetPageWidth() / 4 * 3 ) - ( $width / 2 );
-		}
-		if ( 'right' == $section->get_image_option( 'align' ) ) {
-			$x_pos = $fpd->GetPageWidth() - ( $width + $section->get_image_option( 'marginRight' ) );
+		$user_x_pos = $section->get_user_position_from_left_mm();
+		if ( $user_x_pos ) {
+			$x_pos            += $user_x_pos;
+			$image_area_width -= $user_x_pos;
 		}
 
-		$y_pos = $section->get_position_from_top();
+		$user_y_pos = $section->get_user_position_from_top_mm();
+		if ( $user_y_pos ) {
+			$y_pos             += $user_y_pos;
+			$image_area_height -= $user_y_pos;
+		}
 
-		$x_pos += $section->get_user_position_from_left();
-		$y_pos += $section->get_user_position_from_top();
-
-		$zoom = $section->get_user_zoom();
+		$zoom        = $section->get_user_zoom();
+		$zoom_width  = ( $image_area_width * absint( $zoom ) / 100 );
+		$zoom_height = ( $image_area_height * absint( $zoom ) / 100 );
 		if ( $zoom > 0 ) {
-			$width  = $width + ( $width * $zoom / 100 );
-			$height = $height + ( $height * $zoom / 100 );
+			$image_area_width  += $zoom_width;
+			$image_area_height += $zoom_height;
+		} elseif ( $zoom < 0 ) {
+			$image_area_width  -= $zoom_width;
+			$image_area_height -= $zoom_height;
 		}
 
-		$fpd->RotatedImage(
-			$image['url'],
-			$x_pos,
-			$y_pos,
-			min( $width, 154 ),
-			min( $height, 156 ),
-			$section->get_user_rotation()
-		);
+		$rotation = $section->get_user_rotation();
+		if ( $rotation ) {
+			$fpd->RotatedImage(
+				$section->get_image_url(),
+				$x_pos,
+				$y_pos,
+				min( $image_area_width, 154 ),
+				min( $image_area_height, 156 ),
+				$section->get_user_rotation()
+			);
+		} else {
+			$fpd->Image(
+				$section->get_image_url(),
+				$x_pos,
+				$y_pos,
+				min( $image_area_width, 154 ),
+				min( $image_area_height, 156 )
+			);
+		}
 	}
 
 	/**
@@ -380,10 +419,11 @@ class OrderItemDynamicCard {
 	private function addCustomFonts( tFPDF &$fpd ) {
 		$added_fonts = [];
 		foreach ( $this->card_sections as $item ) {
-			if ( ! in_array( $item['section_type'], [ 'static-text', 'input-text' ] ) ) {
+			if ( ! $item instanceof CardSectionTextOption ) {
 				continue;
 			}
-			$font = Font::find_font_info( $item['textOptions']['fontFamily'] );
+
+			$font = Font::find_font_info( $item->get_font_family() );
 			if ( ! $font instanceof FontInfo ) {
 				continue;
 			}
@@ -395,23 +435,14 @@ class OrderItemDynamicCard {
 		}
 	}
 
+	public function get_background(): CardBackgroundOption {
+		return $this->background;
+	}
+
 	/**
-	 * Add color to background for testing purpose
-	 *
-	 * @param  tFPDF  $fpd
-	 *
-	 * @return void
+	 * @return CardSectionBase[]
 	 */
-	private function addColorToBackground( tFPDF &$fpd ) {
-		$width          = 154;
-		$height         = 156;
-		$args           = [
-			'action' => 'yousaidit_color_image',
-			'w'      => $width,
-			'h'      => $height,
-			'c'      => rawurlencode( '#ff0000' )
-		];
-		$bg_color_image = add_query_arg( $args, admin_url( 'admin-ajax.php' ) );
-		$fpd->Image( $bg_color_image, $fpd->GetPageWidth() - $width, 0, $width, $height, 'png' );
+	public function get_card_sections(): array {
+		return $this->card_sections;
 	}
 }

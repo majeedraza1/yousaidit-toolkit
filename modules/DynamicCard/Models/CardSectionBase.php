@@ -5,11 +5,11 @@ namespace YouSaidItCards\Modules\DynamicCard\Models;
 use Stackonet\WP\Framework\Abstracts\Data;
 
 class CardSectionBase extends Data {
-	public function get_position_from_top(): int {
+	public function get_position_from_top_mm(): int {
 		return (int) $this->get_prop( 'position' )['top'];
 	}
 
-	public function get_position_from_left(): int {
+	public function get_position_from_left_mm(): int {
 		return (int) $this->get_prop( 'position' )['left'];
 	}
 

@@ -7,6 +7,7 @@ use Stackonet\WP\Framework\Supports\Validate;
 use YouSaidItCards\Admin\SettingPage;
 use YouSaidItCards\Modules\DispatchTimer\Settings;
 use YouSaidItCards\Modules\InnerMessage\Fonts;
+use YouSaidItCards\Modules\StabilityAi\Settings as StabilityAiSettings;
 use YouSaidItCards\OpenAI\Setting;
 use YouSaidItCards\Utilities\FreePdfBase;
 
@@ -191,33 +192,22 @@ class Assets {
 	 */
 	public function get_scripts(): array {
 		return [
-			'yousaidit-toolkit-vendors'        => [
-				'src'       => static::get_assets_url() . '/js/vendors.js',
-				'in_footer' => true
-			],
 			'yousaidit-toolkit-web-components' => [
 				'src'       => static::get_assets_url() . '/js/web-components.js',
-				'deps'      => [ 'yousaidit-toolkit-vendors' ],
 				'in_footer' => true
 			],
-			'stackonet-inner-message'          => [
-				'src'       => static::get_assets_url() . '/js/inner-message.js',
-				'deps'      => [ 'wp-tinymce', 'yousaidit-toolkit-vendors', 'yousaidit-toolkit-web-components' ],
-				'in_footer' => true
-			],
-			'stackonet-toolkit-frontend'       => [
+			'yousaidit-toolkit-frontend'       => [
 				'src'       => static::get_assets_url() . '/js/frontend.js',
-				'deps'      => [ 'jquery', 'yousaidit-toolkit-vendors', 'yousaidit-toolkit-web-components' ],
+				'deps'      => [ 'jquery', 'yousaidit-toolkit-web-components' ],
 				'in_footer' => true
 			],
-			'stackonet-designer-profile'       => [
-				'src'       => static::get_assets_url() . '/js/designer-profile.js',
-				'deps'      => [ 'yousaidit-toolkit-vendors' ],
+			'yousaidit-designer-dashboard'     => [
+				'src'       => static::get_assets_url() . '/js/designer-dashboard.js',
 				'in_footer' => true
 			],
-			'stackonet-toolkit-admin'          => [
+			'yousaidit-toolkit-admin'          => [
 				'src'       => static::get_assets_url() . '/js/admin.js',
-				'deps'      => [ 'jquery', 'react', 'react-dom', 'yousaidit-toolkit-vendors' ],
+				'deps'      => [ 'jquery', 'yousaidit-toolkit-web-components' ],
 				'in_footer' => true
 			],
 		];
@@ -230,16 +220,13 @@ class Assets {
 	 */
 	public function get_styles(): array {
 		return [
-			'stackonet-inner-message'    => [
-				'src' => static::get_assets_url() . '/css/inner-message.css'
-			],
-			'stackonet-toolkit-frontend' => [
+			'yousaidit-toolkit-frontend'   => [
 				'src' => static::get_assets_url() . '/css/frontend.css'
 			],
-			'stackonet-designer-profile' => [
-				'src' => static::get_assets_url() . '/css/designer-profile.css'
+			'yousaidit-designer-dashboard' => [
+				'src' => static::get_assets_url() . '/css/designer-dashboard.css'
 			],
-			'stackonet-toolkit-admin'    => [
+			'yousaidit-toolkit-admin'      => [
 				'src'  => static::get_assets_url() . '/css/admin.css',
 				'deps' => [ 'wp-color-picker' ],
 			],
@@ -254,21 +241,30 @@ class Assets {
 		$is_user_logged_in = $user->exists();
 
 		$data = [
-			'homeUrl'               => home_url(),
-			'ajaxUrl'               => admin_url( 'admin-ajax.php' ),
-			'restRoot'              => esc_url_raw( rest_url( 'yousaidit/v1' ) ),
-			'isUserLoggedIn'        => $is_user_logged_in,
-			'privacyPolicyUrl'      => get_privacy_policy_url(),
-			'placeholderUrlIM'      => self::get_assets_url( 'static-images/placeholder--inner-message.jpg' ),
-			'placeholderUrlIML'     => self::get_assets_url( 'static-images/inside-left.svg' ),
-			'placeholderUrlIMR'     => self::get_assets_url( 'static-images/inside-right.svg' ),
-			'videoMessagePrice'     => (float) SettingPage::get_option( 'video_inner_message_price' ),
-			'videoMessagePriceHTML' => wc_price( (float) SettingPage::get_option( 'video_inner_message_price' ) ),
-			'maxUploadLimitText'    => SettingPage::get_option( 'max_upload_limit_text' ),
-			'fileUploaderTermsHTML' => SettingPage::get_option( 'file_uploader_terms_and_condition' ),
-			'qrCodePlayInfo'        => SettingPage::get_option( 'video_message_qr_code_info_for_customer' ),
-			'isRecordingEnabled'    => Validate::checked( SettingPage::get_option( 'show_recording_option_for_video_message' ) ),
+			'homeUrl'                => home_url(),
+			'designerProfileBaseUrl' => site_url( 'designer' ),
+			'ajaxUrl'                => admin_url( 'admin-ajax.php' ),
+			'restRoot'               => esc_url_raw( rest_url( 'yousaidit/v1' ) ),
+			'isUserLoggedIn'         => $is_user_logged_in,
+			'privacyPolicyUrl'       => get_privacy_policy_url(),
+			'termsAndConditionsUrl'  => get_privacy_policy_url(),
+			'lostPasswordUrl'        => wp_lostpassword_url(),
+			'signupUrl'              => wp_registration_url(),
+			'logOutUrl'              => wp_logout_url( get_permalink() ),
+			'placeholderUrlIM'       => self::get_assets_url( 'static-images/placeholder--inner-message.jpg' ),
+			'placeholderUrlIML'      => self::get_assets_url( 'static-images/inside-left.svg' ),
+			'placeholderUrlIMR'      => self::get_assets_url( 'static-images/inside-right.svg' ),
+			'videoMessagePrice'      => (float) SettingPage::get_option( 'video_inner_message_price' ),
+			'videoMessagePriceHTML'  => wc_price( (float) SettingPage::get_option( 'video_inner_message_price' ) ),
+			'maxUploadLimitText'     => SettingPage::get_option( 'max_upload_limit_text' ),
+			'fileUploaderTermsHTML'  => SettingPage::get_option( 'file_uploader_terms_and_condition' ),
+			'qrCodePlayInfo'         => SettingPage::get_option( 'video_message_qr_code_info_for_customer' ),
+			'isRecordingEnabled'     => Validate::checked( SettingPage::get_option( 'show_recording_option_for_video_message' ) ),
 		];
+
+		if ( function_exists( 'wc_terms_and_conditions_page_id' ) ) {
+			$data['termsAndConditionsUrl'] = get_permalink( wc_terms_and_conditions_page_id() );
+		}
 
 		$data['pdfSizes'] = FreePdfBase::get_sizes();
 		$data['fonts']    = Fonts::get_list_for_web();
@@ -295,6 +291,18 @@ class Assets {
 
 		$data['common_holidays']  = Settings::get_common_public_holidays();
 		$data['special_holidays'] = Settings::get_special_holidays();
+
+		if ( StabilityAiSettings::is_module_enabled() ) {
+			$data['stability_ai_enabled'] = true;
+			$data['stability_ai']         = [
+				'occasions'     => StabilityAiSettings::get_occasions(),
+				'recipients'    => StabilityAiSettings::get_recipients(),
+				'moods'         => StabilityAiSettings::get_moods(),
+				'style_presets' => StabilityAiSettings::get_style_presets(),
+			];
+		} else {
+			$data['stability_ai_enabled'] = false;
+		}
 
 		echo '<script>window.StackonetToolkit = ' . wp_json_encode( $data ) . '</script>' . PHP_EOL;
 	}

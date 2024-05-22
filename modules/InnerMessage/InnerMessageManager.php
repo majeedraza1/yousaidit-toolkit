@@ -212,7 +212,7 @@ class InnerMessageManager {
 	}
 
 	public function manage_media_columns( $columns ) {
-		$columns['video_message'] = _x( 'Video Message', 'column name', 'yousaidit-toolkit' );
+		$columns['video_message'] = _x( 'Extra info', 'column name', 'yousaidit-toolkit' );
 
 		return $columns;
 	}
@@ -461,8 +461,8 @@ class InnerMessageManager {
 
 	public function load_scripts() {
 		if ( is_single() || is_cart() || is_shop() || is_product_category() ) {
-			wp_enqueue_script( 'stackonet-inner-message' );
-			wp_enqueue_style( 'stackonet-inner-message' );
+			wp_enqueue_script( 'yousaidit-toolkit-frontend' );
+			wp_enqueue_style( 'yousaidit-toolkit-frontend' );
 		}
 	}
 
