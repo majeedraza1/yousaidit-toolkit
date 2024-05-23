@@ -57,6 +57,23 @@ class Admin {
 			echo '<ul>' . $message . '</ul>';
 			echo '</div>';
 		}
+
+		$required_extensions = [ 'fileinfo', 'iconv', 'imagick', 'gd', 'json' ];
+		$missing_extensions  = [];
+		foreach ( $required_extensions as $extension ) {
+			if ( ! extension_loaded( $extension ) ) {
+				$missing_extensions[] = $extension;
+			}
+		}
+
+		if ( count( $missing_extensions ) ) {
+			echo '<div class="notice notice-error is-dismissible">';
+			echo '<p>';
+			echo 'The PHP extensions <strong>('.implode(', ',$required_extensions).')</strong> are required to work Yousaidit Toolkit properly.';
+			echo 'But extensions <strong>('.implode(', ',$missing_extensions).')</strong> are missing.';
+			echo '</p>';
+			echo '</div>';
+		}
 	}
 
 	public function admin_scripts() {

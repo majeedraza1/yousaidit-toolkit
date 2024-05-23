@@ -2,13 +2,14 @@
 /**
  * Plugin Name: Yousaidit Toolkit
  * Description: A powerful WordPress plugin to extend functionality to your WordPress site.
- * Version: 2024.5.16
+ * Version: 2024.5.23
  * Author: Stackonet Services (Pvt.) Ltd.
  * Author URI: https://stackonet.com
  * Requires at least: 5.5
  * Requires PHP: 7.2
  * Text Domain: yousaidit-toolkit
  * Domain Path: /languages
+ *
  * WC requires at least: 4.0
  * WC tested up to: 6.7
  */
@@ -36,7 +37,7 @@ final class YousaiditToolkit {
 	 *
 	 * @var string
 	 */
-	private $version = '2024.5.16';
+	private $version = '2024.5.23';
 
 	/**
 	 * Minimum PHP version required
@@ -158,9 +159,9 @@ final class YousaiditToolkit {
 			'Yousaidit Toolkit', $this->min_php
 		);
 		?>
-		<div class="error">
-			<p><?php printf( $error ); ?></p>
-		</div>
+        <div class="error">
+            <p><?php printf( $error ); ?></p>
+        </div>
 		<?php
 	}
 
@@ -227,9 +228,9 @@ final class YousaiditToolkit {
 		$error .= __( 'The following required plugins are currently inactive or not installed: ', 'yousaidit-toolkit' );
 		$error .= '<strong>' . implode( '</strong>, <strong>', $missing ) . '</strong>';
 		?>
-		<div class="error">
-			<p><?php printf( $error ); ?></p>
-		</div>
+        <div class="error">
+            <p><?php printf( $error ); ?></p>
+        </div>
 		<?php
 	}
 

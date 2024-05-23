@@ -395,17 +395,19 @@ class DesignerCardAdminController extends ApiController {
 		$sizes = $item->get_prop( 'card_sizes' );
 		foreach ( $sizes as $size ) {
 			if ( $item->is_mug() ) {
-				$sku = Settings::designer_mug_sku_prefix();
-				$sku = str_replace( '{{card_type}}', 'MUG', $sku );
+				$default_price = Settings::get_mug_default_price();
+				$sku           = Settings::designer_mug_sku_prefix();
+				$sku           = str_replace( '{{card_type}}', 'MUG', $sku );
 			} else {
-				$sku = Settings::designer_card_sku_prefix();
-				$sku = str_replace( '{{card_type}}', $item->get( 'card_type' ) === 'dynamic' ? 'D' : 'S', $sku );
+				$default_price = Settings::designer_card_price();
+				$sku           = Settings::designer_card_sku_prefix();
+				$sku           = str_replace( '{{card_type}}', $item->is_dynamic_card() ? 'D' : 'S', $sku );
 			}
 			$sku = str_replace( '{{card_size}}', $size === 'square' ? 'S' : strtoupper( $size ), $sku );
 			$sku = str_replace( '{{card_id}}', $item->get_id(), $sku );
 			$sku = str_replace( '{{designer_id}}', $item->get_designer_user_id(), $sku );
 
-			$data['default_price'][ $size ] = Settings::designer_card_price();
+			$data['default_price'][ $size ] = $default_price;
 			$data['default_sku'][ $size ]   = $sku;
 		}
 

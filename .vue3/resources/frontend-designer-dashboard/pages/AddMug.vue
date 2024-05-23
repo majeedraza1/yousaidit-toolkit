@@ -61,7 +61,6 @@ const handleImageUpload = (fileObject, serverResponse) => {
   const attachment = serverResponse.data.attachment as UploadedAttachmentInterface;
   state.card.image_id = attachment.id;
   state.card.image = attachment;
-  state.stepDone = 2;
 }
 const handleImageUploadFailed = (fileObject, serverResponse) => {
   if (serverResponse.message) {
@@ -153,13 +152,13 @@ onMounted(() => {
         </div>
       </div>
     </div>
-    <div v-if="3 === state.stepDone" class="flex flex-col items-center">
+    <div v-if="1 === state.stepDone" class="flex flex-col items-center">
       <CardOptions v-model="state.card" :is-mug="true"/>
       <div class="flex justify-center mt-4">
-        <ShaplaButton theme="primary" @click="state.stepDone = 4">Next</ShaplaButton>
+        <ShaplaButton theme="primary" @click="state.stepDone = 2">Next</ShaplaButton>
       </div>
     </div>
-    <div v-if="1 === state.stepDone" class="flex flex-col items-center">
+    <div v-if="2 === state.stepDone" class="flex flex-col items-center">
       <CardOptionsPreview :card="state.card" :is-mug="true">
         <template v-slot:before-column-end>
           <template v-if="state.card.image">

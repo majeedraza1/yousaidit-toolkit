@@ -50,6 +50,12 @@ class Settings {
 			sanitize_text_field( $options['designer_mug_sku_prefix'] ) : '';
 	}
 
+	public static function get_mug_default_price(): string {
+		$options = (array) get_option( 'yousaiditcard_designers_settings' );
+
+		return isset( $options['mug_default_price'] ) ? floatval( $options['mug_default_price'] ) : 0;
+	}
+
 	public static function get_designer_role() {
 		$options = (array) get_option( 'yousaiditcard_designers_settings' );
 
@@ -410,6 +416,16 @@ class Settings {
 				'priority'          => 20,
 				'default'           => 'MUG-{{designer_id}}-{{card_id}}',
 				'sanitize_callback' => 'sanitize_text_field',
+			],
+			[
+				'section'           => 'section_mug',
+				'id'                => 'mug_default_price',
+				'type'              => 'text',
+				'title'             => __( 'Mug Product price', 'stackonet-yousaidit-toolkit' ),
+				'description'       => __( 'Default product price for mug', 'stackonet-yousaidit-toolkit' ),
+				'priority'          => 30,
+				'default'           => 2.99,
+				'sanitize_callback' => 'floatval',
 			],
 		];
 		$option_page->add_fields( $mug_fields );
