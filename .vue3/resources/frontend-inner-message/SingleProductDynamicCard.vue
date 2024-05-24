@@ -23,6 +23,8 @@
                   :card-height-mm="156"
                   :element-width-mm="`${pxToMm(slotProps.sizes.width)}`"
                   :element-height-mm="`${pxToMm(slotProps.sizes.height)}`"
+                  :element-width-px="`${slotProps.sizes.width}`"
+                  :element-height-px="`${slotProps.sizes.height}`"
                   @edit:layer="(event) => handleEditSection(event.detail.section,event.detail.index)"
               ></dynamic-card-canvas>
             </template>

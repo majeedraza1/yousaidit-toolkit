@@ -214,6 +214,8 @@ onMounted(() => {
                 :card-height-mm="156"
                 :element-width-mm="convertPXtoMM(state.previewWidth)"
                 :element-height-mm="convertPXtoMM(state.previewHeight)"
+                :element-width-px="state.previewWidth"
+                :element-height-px="state.previewHeight"
             ></dynamic-card-canvas>
           </div>
         </ShaplaImage>

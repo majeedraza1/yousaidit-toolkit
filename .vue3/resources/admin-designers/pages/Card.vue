@@ -284,6 +284,8 @@
                   :card-height-mm="156"
                   :element-width-mm="`${convertPXtoMM(600)}`"
                   :element-height-mm="`${convertPXtoMM(608)}`"
+                  :element-width-px="600"
+                  :element-height-px="608"
               ></dynamic-card-canvas>
             </ShaplaImage>
           </div>

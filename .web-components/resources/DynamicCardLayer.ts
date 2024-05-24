@@ -31,6 +31,12 @@ export class DynamicCardLayer extends LitElement {
   @property({type: Number, attribute: 'element-height-mm'})
   elementHeightMM = 0;
 
+  @property({type: Number, attribute: 'element-width-px'})
+  elementWidthPX = 0;
+
+  @property({type: Number, attribute: 'element-height-px'})
+  elementHeightPX = 0;
+
   private fontFamilies: { fontUrl: string; key: string; label: string }[] = [];
 
   constructor() {
@@ -51,13 +57,17 @@ export class DynamicCardLayer extends LitElement {
       left += parseFloat(userOptions.position.left.toString());
     }
     let styles = [];
-      // _top = Math.round(100 / this.elementHeightMM * this.section.position.top),
-      // _left = Math.round(100 / this.elementWidthMM * this.section.position.left);
-      // _top = Math.round(100 * (top / this.cardHeightMM)),
-      // _left = Math.round(100 * (left / this.cardWidthMM));
+    // _top = Math.round(100 / this.elementHeightMM * this.section.position.top),
+    // _left = Math.round(100 / this.elementWidthMM * this.section.position.left);
+    // _top = Math.round(100 * (top / this.cardHeightMM)),
+    // _left = Math.round(100 * (left / this.cardWidthMM));
 
     styles.push(`--card-width-mm: ${this.cardWidthMM}`);
     styles.push(`--card-height-mm: ${this.cardHeightMM}`);
+    styles.push(`--element-width-mm: ${this.elementWidthMM}`);
+    styles.push(`--element-height-mm: ${this.elementHeightMM}`);
+    styles.push(`--element-width-px: ${this.elementWidthPX}`);
+    styles.push(`--element-height-px: ${this.elementHeightPX}`);
     styles.push(`--from-left-mm: ${left}`);
     styles.push(`--from-top-mm: ${top}`);
     styles.push(`--scaling-factor: ${(this.elementWidthMM / this.cardWidthMM).toFixed(3)}`);
@@ -74,18 +84,18 @@ export class DynamicCardLayer extends LitElement {
     }
 
     if (-1 !== ['static-text', 'input-text'].indexOf(this.section.section_type) && this.section.textOptions) {
-      let fontSize = Math.round((parseFloat(this.section.textOptions.size.toString()) / this.cardWidthMM) * this.elementWidthMM),
-        fontFamily = this.fontFamilies.find(_font => {
-          if (this.section.textOptions) {
-            return _font.key === this.section.textOptions.fontFamily
-          }
-          return false;
-        });
+      const fontFamily = this.fontFamilies.find(_font => {
+        if (this.section.textOptions) {
+          return _font.key === this.section.textOptions.fontFamily
+        }
+        return false;
+      });
 
       if (fontFamily) {
         styles.push(`font-family: ${fontFamily.label}`);
       }
-      styles.push(`font-size: ${fontSize}pt`);
+      let fontSize = parseFloat(this.section.textOptions.size.toString());
+      styles.push(`font-size: calc(${fontSize}px * var(--scaling-factor))`);
       styles.push(`text-align: ${this.section.textOptions.align}`);
       styles.push(`color: ${this.section.textOptions.color}`);
 

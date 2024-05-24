@@ -27,6 +27,12 @@ export class DynamicCardCanvas extends LitElement {
   @property({type: Number, attribute: 'element-height-mm'})
   elementHeightMM = 0;
 
+  @property({type: Number, attribute: 'element-width-px'})
+  elementWidthPX = 0;
+
+  @property({type: Number, attribute: 'element-height-px'})
+  elementHeightPX = 0;
+
   constructor() {
     super();
     this.options = {card_size: '', card_bg_type: '', card_bg_color: '', card_background: {}, card_items: []};
@@ -58,6 +64,8 @@ export class DynamicCardCanvas extends LitElement {
                                 card-height-mm="${this.cardHeightMM}"
                                 element-width-mm="${this.elementWidthMM}"
                                 element-height-mm="${this.elementHeightMM}"
+                                element-width-px="${this.elementWidthPX}"
+                                element-height-px="${this.elementHeightPX}"
                                 @edit="${this.onClickCardLayer}"
                         ></dynamic-card-layer>`
             )}
