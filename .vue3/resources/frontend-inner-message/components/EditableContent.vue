@@ -64,7 +64,7 @@ const editorStyle = computed<Record<string, string>[]>(() => {
   }
   if (props.fontSize) {
     let fontSize = calculateFontSizeScale(state.cardSizes[0] / 2, state.canvas_width, props.fontSize);
-    styles.push({'--font-size': `${fontSize}pt`});
+    styles.push({'--font-size': `${fontSize}px`});
   }
   if (props.textAlign) {
     styles.push({'--text-align': props.textAlign});
