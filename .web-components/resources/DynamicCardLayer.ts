@@ -115,6 +115,10 @@ export class DynamicCardLayer extends LitElement {
 
     if (-1 !== ['static-image', 'input-image'].indexOf(this.section.section_type)) {
       styles = styles.concat(this.sectionImageStyle())
+      if (left > 0) {
+        styles.push('right: calc(-1 * 100% * (var(--from-left-mm) / var(--card-width-mm)))');
+        styles.push('left: auto')
+      }
     }
 
     return styles.join(';');
@@ -122,6 +126,8 @@ export class DynamicCardLayer extends LitElement {
 
   sectionImageStyle() {
     let styles = []
+    styles.push('max-width: calc(100% * var(--zoom, 1))');
+    styles.push('max-height: calc(100% * var(--zoom, 1))');
     if (this.section.imageOptions) {
       if (['center', 'right'].indexOf(this.section.imageOptions.align) !== -1) {
         styles.push('width: 100%');
@@ -257,8 +263,8 @@ export class DynamicCardLayer extends LitElement {
       .section {
           position: absolute;
           line-height: 1;
-          left: calc(100% * (var(--from-left-mm) / var(--card-width-mm)));
           top: calc(100% * (var(--from-top-mm) / var(--card-height-mm)));
+          left: calc(100% * (var(--from-left-mm) / var(--card-width-mm)));
       }
 
       .section-edit.is-image-edit {

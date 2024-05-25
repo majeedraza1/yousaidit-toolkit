@@ -139,7 +139,7 @@ class StabilityAiClient extends RestClient {
 		}
 		$image_base64_string = $response['artifacts'][0]['base64'];
 
-		$filename     = md5( $prompt ) . '-ai-image.webp';
+		$filename     = md5( $prompt ) . '-ai-image.png';
 		$image_string = base64_decode( $image_base64_string );
 		$image_id     = static::create_image_from_string( $image_string, $filename );
 		if ( ! is_numeric( $image_id ) ) {
@@ -156,7 +156,7 @@ class StabilityAiClient extends RestClient {
 				'Prompts characters length cannot be more than 2000.'
 			);
 		}
-		$filename = md5( $prompt ) . '-ai-image.webp';
+		$filename = md5( $prompt ) . '-ai-image.png';
 		$boundary = wp_generate_password( 24, false, false );
 
 		$self = new static();
@@ -166,7 +166,7 @@ class StabilityAiClient extends RestClient {
 		$data = [
 			'prompt'        => $prompt,
 			'aspect_ratio'  => '1:1',
-			'output_format' => 'webp'
+			'output_format' => 'png'
 		];
 		if ( in_array( $style_preset, static::get_style_presets_slug(), true ) ) {
 			$data['style_preset'] = $style_preset;
@@ -200,7 +200,7 @@ class StabilityAiClient extends RestClient {
 			'output_format' => 'png',
 			'mode'          => 'text-to-image',
 		];
-		$filename = md5( $prompt ) . '-ai-image.webp';
+		$filename = md5( $prompt ) . '-ai-image.png';
 		$boundary = wp_generate_password( 24, false, false );
 
 		$self = new static();
@@ -284,7 +284,7 @@ class StabilityAiClient extends RestClient {
 	 */
 	public static function create_image_from_string( string $image_string, ?string $filename = null ) {
 		if ( empty( $filename ) ) {
-			$filename = wp_generate_uuid4() . '.webp';
+			$filename = wp_generate_uuid4() . '.png';
 		}
 		$directory     = rtrim( Uploader::get_upload_dir(), DIRECTORY_SEPARATOR );
 		$new_file_path = $directory . DIRECTORY_SEPARATOR . $filename;
@@ -292,7 +292,7 @@ class StabilityAiClient extends RestClient {
 		try {
 			$imagick = new \Imagick();
 			$imagick->readImageBlob( $image_string );
-			$imagick->setImageFormat( 'webp' );
+			$imagick->setImageFormat( 'png' );
 			$imagick->setImageCompressionQuality( 83 );
 			$imagick->writeImage( $new_file_path );
 
@@ -313,7 +313,7 @@ class StabilityAiClient extends RestClient {
 			'guid'           => str_replace( $upload_dir['basedir'], $upload_dir['baseurl'], $new_file_path ),
 			'post_title'     => preg_replace( '/\.[^.]+$/', '', basename( $new_file_path ) ),
 			'post_status'    => 'inherit',
-			'post_mime_type' => 'image/webp',
+			'post_mime_type' => 'image/png',
 			'post_author'    => get_current_user_id(),
 		];
 

@@ -299,7 +299,6 @@ const loadCardInfo = () => {
 }
 
 const onChangeUserOptions = (newValue) => {
-  window.console.log(newValue)
   if (state.activeSectionIndex >= 0) {
     state.payload.card_items[state.activeSectionIndex] = state.activeSection;
   }
@@ -343,12 +342,7 @@ const onLengthError = (error) => {
 const isImageSelected = (image) => {
   return state.activeSection.image && image.id === state.activeSection.image.id;
 }
-const removeImage = () => {
-  if (state.activeSection.image) {
-    state.activeSection.image = {};
-  }
-  closeSection();
-}
+
 const onChangeEditorControls = (args) => {
   if ('emoji' === args.key) {
     document.execCommand("insertHtml", false, args.payload);
@@ -361,15 +355,11 @@ const onSlideChange = (activeIndex) => {
 }
 const handleEditSection = (section, index) => {
   state.activeSectionIndex = index;
-  state.activeSection = section;
   if ('input-image' === section['section_type']) {
-    state.activeSection['userOptions'] = {
-      rotate: 0,
-      zoom: 0,
-      position: {
-        top: 0, left: 0
-      },
-    };
+    section.userOptions = {rotate: 0, zoom: 0, position: {top: 0, left: 0}};
+    state.activeSection = section;
+  } else {
+    state.activeSection = section;
   }
 }
 const handleSubmit = () => {
@@ -457,7 +447,9 @@ const handleFileUploadFailed = (fileObject, response) => {
   }
 }
 const handleImageSelect = (image) => {
-  state.activeSection.image = {id: image.id, ...image.full}
+  const activeSection = JSON.parse(JSON.stringify(state.activeSection));
+  activeSection.image = {id: image.id, ...image.full}
+  state.activeSection = activeSection
 }
 
 onMounted(() => {
