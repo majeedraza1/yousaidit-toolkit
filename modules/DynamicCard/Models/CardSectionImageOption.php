@@ -2,6 +2,7 @@
 
 namespace YouSaidItCards\Modules\DynamicCard\Models;
 
+use Stackonet\WP\Framework\Media\Uploader;
 use YouSaidItCards\Utilities\ImagickUtils;
 
 class CardSectionImageOption extends CardSectionBase {
@@ -182,7 +183,7 @@ class CardSectionImageOption extends CardSectionBase {
 		return isset( $options['position']['left'] ) ? intval( $options['position']['left'] ) : 0;
 	}
 
-	public function get_user_zoom(): float {
+	public function get_user_zoom(): int {
 		$options = $this->get_user_options();
 		$zoom    = isset( $options['zoom'] ) ? intval( $options['zoom'] ) : 0;
 
@@ -195,5 +196,47 @@ class CardSectionImageOption extends CardSectionBase {
 
 	public function get_computed_position_from_left_mm(): int {
 		return $this->get_position_from_left_mm() + $this->get_user_position_from_left_mm();
+	}
+
+	public function is_dynamic_image(): bool {
+		if ( 0 !== $this->get_user_zoom() ) {
+			return true;
+		}
+		if ( 0 !== $this->get_computed_position_from_top_mm() ) {
+			return true;
+		}
+		if ( 0 !== $this->get_computed_position_from_left_mm() ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Get dynamic image url
+	 *
+	 * @return string
+	 */
+	public function get_dynamic_image_url(): string {
+		if ( $this->is_dynamic_image() ) {
+			return $this->get_image_url();
+		}
+		$args = [
+			'action'    => 'yousaidit_edit_image',
+			'image_id'  => $this->get_image_id(),
+			'zoom'      => $this->get_user_zoom(),
+			'from-top'  => $this->get_computed_position_from_top_mm(),
+			'from-left' => $this->get_computed_position_from_left_mm(),
+		];
+
+		$filename  = md5( wp_json_encode( $args ) ) . '.png';
+		$image_dir = Uploader::get_upload_dir( 'dynamic-images' );
+		$file      = join( DIRECTORY_SEPARATOR, [ $image_dir, $filename ] );
+		$file_url  = str_replace( WP_CONTENT_DIR, WP_CONTENT_URL, $file );
+		if ( file_exists( $file ) ) {
+			return $file_url;
+		}
+
+		return add_query_arg( $args, admin_url( 'admin-ajax.php' ) );
 	}
 }

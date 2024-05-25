@@ -403,12 +403,19 @@ class OrderItemDynamicCard {
 				$section->get_user_rotation()
 			);
 		} else {
+			$image_type = '';
+			if ( $section->is_dynamic_image() ) {
+				$x_pos      = $back_width;
+				$y_pos      = 0;
+				$image_type = 'png';
+			}
 			$fpd->Image(
-				$section->get_image_url(),
+				$section->get_dynamic_image_url(),
 				$x_pos,
 				$y_pos,
 				min( $image_area_width, 154 ),
-				min( $image_area_height, 156 )
+				min( $image_area_height, 156 ),
+				$image_type
 			);
 		}
 	}

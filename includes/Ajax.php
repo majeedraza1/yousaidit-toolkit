@@ -6,6 +6,7 @@ use Exception;
 use Imagick;
 use ImagickException;
 use ImagickPixel;
+use Stackonet\WP\Framework\Media\Uploader;
 use Stackonet\WP\Framework\Supports\Logger;
 use YouSaidItCards\Modules\Designers\DynamicCard;
 use YouSaidItCards\Modules\Designers\Helper;
@@ -37,7 +38,6 @@ class Ajax {
 			add_action( 'wp_ajax_yousaidit_test', [ self::$instance, 'stackonet_test' ] );
 			add_action( 'wp_ajax_yousaidit_generate_preview_card', [ self::$instance, 'generate_preview_card' ] );
 			add_action( 'wp_ajax_yousaidit_preview_card', [ self::$instance, 'yousaidit_preview_card' ] );
-			// add_action( 'wp_ajax_generate_dynamic_card_pdf', [ self::$instance, 'generate_dynamic_card_pdf' ] );
 			add_action( 'wp_ajax_yousaidit_font_image', [ self::$instance, 'yousaidit_font_image' ] );
 			add_action( 'wp_ajax_nopriv_yousaidit_font_image', [ self::$instance, 'yousaidit_font_image' ] );
 			add_action( 'wp_ajax_yousaidit_color_image', [ self::$instance, 'yousaidit_color_image' ] );
@@ -50,6 +50,7 @@ class Ajax {
 			add_action( 'wp_ajax_yousaidit_tfpdf_install_font', [ self::$instance, 'tfpdf_install_font' ] );
 			add_action( 'wp_ajax_yousaidit_clear_transient_cache', [ self::$instance, 'clear_transient_cache' ] );
 			add_action( 'wp_ajax_yousaidit_download_mug_asset', [ self::$instance, 'download_mug_asset' ] );
+			add_action( 'wp_ajax_yousaidit_edit_image', [ self::$instance, 'edit_image' ] );
 		}
 
 		return self::$instance;
@@ -297,39 +298,152 @@ class Ajax {
 		die;
 	}
 
-	public function generate_dynamic_card_pdf() {
+	/**
+	 * @link http://yousaidit.test/wp-admin/admin-ajax.php?action=yousaidit_edit_image&image_id=77332&zoom=25&from-top=-30&from-left=-30
+	 * @return void
+	 */
+	public function edit_image() {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( 'You cannot perform this action.' );
 		}
 
-		$order_id      = isset( $_REQUEST['order_id'] ) ? intval( $_REQUEST['order_id'] ) : 0;
-		$order_item_id = isset( $_REQUEST['order_item_id'] ) ? intval( $_REQUEST['order_item_id'] ) : 0;
-		$card_id       = $_REQUEST['card_id'] ?? 0;
-		$card          = ( new DesignerCard )->find_by_id( intval( $card_id ) );
-		if ( ! $card instanceof DesignerCard ) {
-			wp_die( 'No card available.' );
+		$image_id = isset( $_REQUEST['image_id'] ) ? intval( $_REQUEST['image_id'] ) : 0;
+		$src      = wp_get_attachment_image_src( $image_id, 'full' );
+		if ( ! is_array( $src ) ) {
+			wp_die( 'No image found for that id.' );
 		}
 
-		$pdf_id        = DynamicCard::create_card_pdf( $card );
-		$pdf_file_path = wp_get_attachment_url( $pdf_id );
+		$zoom = isset( $_REQUEST['zoom'] ) ? intval( $_REQUEST['zoom'] ) : 0;
+		$zoom = min( 100, max( - 50, $zoom ) );
+
+		$from_top = isset( $_REQUEST['from-top'] ) ? intval( $_REQUEST['from-top'] ) : 0;
+		$from_top = max( - 156, min( 156, $from_top ) );
+
+		$from_left = isset( $_REQUEST['from-left'] ) ? intval( $_REQUEST['from-left'] ) : 0;
+		$from_left = max( - 154, min( 154, $from_left ) );
+
+		$filename  = md5( wp_json_encode( [
+				'action'    => 'yousaidit_edit_image',
+				'image_id'  => $image_id,
+				'zoom'      => $zoom,
+				'from-top'  => $from_top,
+				'from-left' => $from_left,
+			] ) ) . '.png';
+		$image_dir = Uploader::get_upload_dir( 'dynamic-images' );
+		$file      = join( DIRECTORY_SEPARATOR, [ $image_dir, $filename ] );
+		$file_url  = str_replace( WP_CONTENT_DIR, WP_CONTENT_URL, $file );
+		if ( file_exists( $file ) ) {
+			header( 'Location: ' . $file_url );
+			exit();
+		}
+
+		$url       = $src[0];
+		$width_px  = $src[1];
+		$height_px = $src[2];
+		$width_mm  = Utils::pixels_to_millimeter( $width_px );
+		$height_mm = Utils::pixels_to_millimeter( $height_px );
+
+		$card_width  = isset( $_REQUEST['card_width'] ) ? intval( $_REQUEST['card_width'] ) : 154;
+		$card_height = isset( $_REQUEST['card_height'] ) ? intval( $_REQUEST['card_height'] ) : 156;
+
+		// width: 736; 920 on 25% zoom
+
+		$layer_width     = isset( $_REQUEST['width'] ) ? intval( $_REQUEST['width'] ) : $card_width;
+		$layer_width_px  = Utils::millimeter_to_pixels( $layer_width );
+		$layer_height    = isset( $_REQUEST['height'] ) ? intval( $_REQUEST['height'] ) : $card_height;
+		$layer_height_px = Utils::millimeter_to_pixels( $layer_height );
+
+		$zoom_percentage = 1 + ( $zoom / 100 );
+		// @TODO calculate scaling ratio based on zoom
+
+		if ( $zoom > 0 ) {
+			$new_width  = $width_px - ( $width_px * abs( $zoom ) / 100 );
+			$new_height = $height_px - ( $height_px * abs( $zoom ) / 100 );
+		} elseif ( $zoom < 0 ) {
+			$new_width  = $width_px + ( $width_px * abs( $zoom ) / 100 );
+			$new_height = $height_px + ( $height_px * abs( $zoom ) / 100 );
+		} else {
+			$new_width  = $width_px;
+			$new_height = $height_px;
+		}
+
+		if ( $from_top > 0 ) {
+			$top = Utils::millimeter_to_pixels( abs( $from_top ) ) * - 1;
+		} elseif ( $from_top < 0 ) {
+			$top = Utils::millimeter_to_pixels( abs( $from_top ) );
+		} else {
+			$top = 0;
+		}
+
+		if ( $from_left > 0 ) {
+			$left = Utils::millimeter_to_pixels( abs( $from_left ) ) * - 1;
+		} elseif ( $from_left < 0 ) {
+			$left = Utils::millimeter_to_pixels( abs( $from_left ) );
+		} else {
+			$left = 0;
+		}
 
 		try {
-			$content = file_get_contents( $pdf_file_path );
-			$im      = new Imagick();
-			$im->setResolution( 72, 72 );
-			$im->readImageBlob( $content . '[0]' );    //[0] for the first page
-			$im->setImageFormat( 'jpg' );
+			// The Imagick constructor
+			$imagick = new Imagick();
+			$imagick->newImage(
+				Utils::millimeter_to_pixels( $card_width ),
+				Utils::millimeter_to_pixels( $card_height ),
+				new ImagickPixel( 'transparent' )
+			);
 
-			$envelopImage = EnvelopeColours::generate_thumb( $im, 72 );
+			$layer = new Imagick();
+			$layer->readImage( $url );
+			if ( $zoom_percentage > 1 ) {
+				$layer_image_width  = $layer->getImageWidth() * $zoom_percentage;
+				$layer_image_height = $layer->getImageHeight() * $zoom_percentage;
 
-			header( "Content-Type: image/jpeg" );
-			echo $envelopImage->getImageBlob();
-		} catch ( ImagickException $e ) {
-			Logger::log( $e );
-			echo 'Sorry, Could not generate dynamic pdf card.';
+				$layer->resizeImage(
+					$layer_image_width,
+					$layer_image_height,
+					\Imagick::FILTER_LANCZOS,
+					1,
+					true
+				);
+
+				$left = $left / $layer_image_width * $layer_width_px;
+				$top  = $top / $layer_image_height * $layer_height_px;
+
+				$layer->cropImage( $layer_width_px - $left, $layer_height_px - $top, $left, $top );
+				$layer->resizeImage(
+					$layer_width_px,
+					$layer_height_px,
+					\Imagick::FILTER_LANCZOS,
+					1,
+					false
+				);
+			}
+
+			$imagick->compositeImage( $layer, Imagick::COMPOSITE_DEFAULT, 0, 0 );
+
+			// Sets the format of this particular image
+			$imagick->setImageFormat( 'png' );
+
+
+			$imagick->writeImage( $file );
+			// Set correct file permissions.
+			$stat  = stat( dirname( $file ) );
+			$perms = $stat['mode'] & 0000666;
+			chmod( $file, $perms );
+
+			header( 'Location: ' . $file_url );
+			exit();
+
+			header( "Content-Type: image/png" );
+			// Returns the image sequence as a blob
+			echo $imagick->getimageblob();
+			$imagick->destroy();
+			die;
+		} catch ( Exception $e ) {
 		}
-		die();
+		wp_die();
 	}
+
 
 	public function save_dynamic_card() {
 		if ( ! current_user_can( 'manage_options' ) ) {
