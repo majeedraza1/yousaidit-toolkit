@@ -269,7 +269,10 @@ class ImageGenerator {
 		$layer = new Imagick();
 		$layer->readImage( $this->get_image_url() );
 		if ( $zoom_percentage > 1 ) {
-			$this->zoom_in( $layer, $zoom_percentage, $left, $top );
+			$this->zoom_in( $layer, $zoom_percentage, $from_left, $from_top );
+		}
+		if ( $zoom_percentage < 1 ) {
+			$layer = $this->zoom_out( $layer, $zoom_percentage, $from_left, $from_top );
 		}
 		$layer->setImageFormat( 'png' );
 
@@ -285,11 +288,27 @@ class ImageGenerator {
 	 * @return void
 	 * @throws ImagickException
 	 */
-	public function zoom_in( Imagick $layer, float $zoom_percentage, int $left, int $top ): void {
+	public function zoom_in( Imagick $layer, float $zoom_percentage, int $from_left, int $from_top ): void {
 		$layer_width_px     = Utils::millimeter_to_pixels( $this->image_option->get_image_area_width_mm() );
 		$layer_height_px    = Utils::millimeter_to_pixels( $this->image_option->get_image_area_height_mm() );
 		$layer_image_width  = $layer->getImageWidth() * $zoom_percentage;
 		$layer_image_height = $layer->getImageHeight() * $zoom_percentage;
+
+		if ( $from_top > 0 ) {
+			$top = Utils::millimeter_to_pixels( abs( $from_top ) ) * - 1;
+		} elseif ( $from_top < 0 ) {
+			$top = Utils::millimeter_to_pixels( abs( $from_top ) );
+		} else {
+			$top = 0;
+		}
+
+		if ( $from_left > 0 ) {
+			$left = Utils::millimeter_to_pixels( abs( $from_left ) ) * - 1;
+		} elseif ( $from_left < 0 ) {
+			$left = Utils::millimeter_to_pixels( abs( $from_left ) );
+		} else {
+			$left = 0;
+		}
 
 		$layer->resizeImage(
 			$layer_image_width,
@@ -310,5 +329,46 @@ class ImageGenerator {
 			1,
 			false
 		);
+	}
+
+	/**
+	 * @param  Imagick  $layer
+	 * @param  float  $zoom_percentage
+	 * @param  float  $left
+	 * @param  float  $top
+	 *
+	 * @return Imagick
+	 * @throws ImagickException
+	 */
+	private function zoom_out( Imagick $layer, float $zoom_percentage, float $from_left, float $from_top ): Imagick {
+		$canvas = $this->get_canvas();
+
+		if ( $from_top > 0 ) {
+			$top = Utils::millimeter_to_pixels( abs( $from_top ) ) * $zoom_percentage;
+		} elseif ( $from_top < 0 ) {
+			$top = Utils::millimeter_to_pixels( abs( $from_top ) ) * - 1 * $zoom_percentage;
+		} else {
+			$top = 0;
+		}
+
+		if ( $from_left > 0 ) {
+			$left = Utils::millimeter_to_pixels( abs( $from_left ) ) * $zoom_percentage;
+		} elseif ( $from_left < 0 ) {
+			$left = Utils::millimeter_to_pixels( abs( $from_left ) ) * - 1 * $zoom_percentage;
+		} else {
+			$left = 0;
+		}
+
+		$layer->resizeImage(
+			$layer->getImageWidth() * $zoom_percentage,
+			$layer->getImageHeight() * $zoom_percentage,
+			\Imagick::FILTER_LANCZOS,
+			1,
+			true
+		);
+
+		$canvas->compositeImage( $layer, Imagick::COMPOSITE_BLEND, $left, $top );
+
+		return $canvas;
 	}
 }

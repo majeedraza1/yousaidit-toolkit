@@ -126,8 +126,8 @@ export class DynamicCardLayer extends LitElement {
 
   sectionImageStyle() {
     let styles = []
-    styles.push('max-width: calc(100% * var(--zoom, 1))');
-    styles.push('max-height: calc(100% * var(--zoom, 1))');
+    // styles.push('max-width: calc(100% * var(--zoom, 1))');
+    // styles.push('max-height: calc(100% * var(--zoom, 1))');
     if (this.section.imageOptions) {
       if (['center', 'right'].indexOf(this.section.imageOptions.align) !== -1) {
         styles.push('width: 100%');

@@ -6,7 +6,6 @@ use Exception;
 use Imagick;
 use ImagickException;
 use ImagickPixel;
-use Stackonet\WP\Framework\Media\Uploader;
 use Stackonet\WP\Framework\Supports\Logger;
 use YouSaidItCards\Modules\Designers\DynamicCard;
 use YouSaidItCards\Modules\Designers\Helper;
@@ -302,6 +301,7 @@ class Ajax {
 
 	/**
 	 * @link http://yousaidit.test/wp-admin/admin-ajax.php?action=yousaidit_edit_image&image_id=77332&zoom=25&from-top=-30&from-left=-30
+	 *
 	 * @return void
 	 */
 	public function edit_image() {
