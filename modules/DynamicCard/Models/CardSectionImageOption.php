@@ -3,9 +3,23 @@
 namespace YouSaidItCards\Modules\DynamicCard\Models;
 
 use Stackonet\WP\Framework\Media\Uploader;
+use YouSaidItCards\Modules\DynamicCard\ImageGenerator;
 use YouSaidItCards\Utilities\ImagickUtils;
 
 class CardSectionImageOption extends CardSectionBase {
+
+	protected static array $default_data = [
+		'section_type' => '',
+		'label'        => '',
+		'position'     => [ 'top' => 0, 'left' => 0 ],
+		'imageOptions' => [ 'align' => 'left', 'width' => 0, 'height' => 0, 'img' => [ 'id' => 0, ] ],
+		'userOptions'  => [ 'rotate' => 0, 'zoom' => 0, 'position' => [ 'top' => 0, 'left' => 0 ], ],
+	];
+
+	public function __construct( array $data = [] ) {
+		$data = wp_parse_args( $data, static::$default_data );
+		parent::__construct( $data );
+	}
 
 	/**
 	 * Get image id
@@ -218,7 +232,7 @@ class CardSectionImageOption extends CardSectionBase {
 	 * @return string
 	 */
 	public function get_dynamic_image_url(): string {
-		if ( $this->is_dynamic_image() ) {
+		if ( ! $this->is_dynamic_image() ) {
 			return $this->get_image_url();
 		}
 		$args = [
@@ -233,10 +247,10 @@ class CardSectionImageOption extends CardSectionBase {
 		$image_dir = Uploader::get_upload_dir( 'dynamic-images' );
 		$file      = join( DIRECTORY_SEPARATOR, [ $image_dir, $filename ] );
 		$file_url  = str_replace( WP_CONTENT_DIR, WP_CONTENT_URL, $file );
-		if ( file_exists( $file ) ) {
-			return $file_url;
+		if ( ! file_exists( $file ) ) {
+			( new ImageGenerator( $this ) )->generate_image();
 		}
 
-		return add_query_arg( $args, admin_url( 'admin-ajax.php' ) );
+		return $file_url;
 	}
 }

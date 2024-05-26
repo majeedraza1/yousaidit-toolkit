@@ -12,6 +12,8 @@ use YouSaidItCards\Modules\Designers\DynamicCard;
 use YouSaidItCards\Modules\Designers\Helper;
 use YouSaidItCards\Modules\Designers\Models\DesignerCard;
 use YouSaidItCards\Modules\DynamicCard\EnvelopeColours;
+use YouSaidItCards\Modules\DynamicCard\ImageGenerator;
+use YouSaidItCards\Modules\DynamicCard\Models\CardSectionImageOption;
 use YouSaidItCards\Modules\FontManager\Font;
 use YouSaidItCards\Modules\InnerMessage\Fonts;
 
@@ -322,125 +324,28 @@ class Ajax {
 		$from_left = isset( $_REQUEST['from-left'] ) ? intval( $_REQUEST['from-left'] ) : 0;
 		$from_left = max( - 154, min( 154, $from_left ) );
 
-		$filename  = md5( wp_json_encode( [
-				'action'    => 'yousaidit_edit_image',
-				'image_id'  => $image_id,
-				'zoom'      => $zoom,
-				'from-top'  => $from_top,
-				'from-left' => $from_left,
-			] ) ) . '.png';
-		$image_dir = Uploader::get_upload_dir( 'dynamic-images' );
-		$file      = join( DIRECTORY_SEPARATOR, [ $image_dir, $filename ] );
-		$file_url  = str_replace( WP_CONTENT_DIR, WP_CONTENT_URL, $file );
-		if ( file_exists( $file ) ) {
-			header( 'Location: ' . $file_url );
-			exit();
-		}
+		$card_width   = isset( $_REQUEST['card_width'] ) ? intval( $_REQUEST['card_width'] ) : 154;
+		$card_height  = isset( $_REQUEST['card_height'] ) ? intval( $_REQUEST['card_height'] ) : 156;
+		$layer_width  = isset( $_REQUEST['width'] ) ? intval( $_REQUEST['width'] ) : $card_width;
+		$layer_height = isset( $_REQUEST['height'] ) ? intval( $_REQUEST['height'] ) : $card_height;
 
-		$url       = $src[0];
-		$width_px  = $src[1];
-		$height_px = $src[2];
-		$width_mm  = Utils::pixels_to_millimeter( $width_px );
-		$height_mm = Utils::pixels_to_millimeter( $height_px );
+		$image_option = new CardSectionImageOption( [
+			'section_type' => 'input-image',
+			'position'     => [ 'top' => 0, 'left' => 0 ],
+			'imageOptions' => [
+				'align'  => 'left',
+				'width'  => $layer_width,
+				'height' => $layer_height,
+				'img'    => [ 'id' => $image_id ]
+			],
+			'userOptions'  => [
+				'rotate'   => 0,
+				'zoom'     => $zoom,
+				'position' => [ 'top' => $from_top, 'left' => $from_left ],
+			],
+		] );
 
-		$card_width  = isset( $_REQUEST['card_width'] ) ? intval( $_REQUEST['card_width'] ) : 154;
-		$card_height = isset( $_REQUEST['card_height'] ) ? intval( $_REQUEST['card_height'] ) : 156;
-
-		// width: 736; 920 on 25% zoom
-
-		$layer_width     = isset( $_REQUEST['width'] ) ? intval( $_REQUEST['width'] ) : $card_width;
-		$layer_width_px  = Utils::millimeter_to_pixels( $layer_width );
-		$layer_height    = isset( $_REQUEST['height'] ) ? intval( $_REQUEST['height'] ) : $card_height;
-		$layer_height_px = Utils::millimeter_to_pixels( $layer_height );
-
-		$zoom_percentage = 1 + ( $zoom / 100 );
-		// @TODO calculate scaling ratio based on zoom
-
-		if ( $zoom > 0 ) {
-			$new_width  = $width_px - ( $width_px * abs( $zoom ) / 100 );
-			$new_height = $height_px - ( $height_px * abs( $zoom ) / 100 );
-		} elseif ( $zoom < 0 ) {
-			$new_width  = $width_px + ( $width_px * abs( $zoom ) / 100 );
-			$new_height = $height_px + ( $height_px * abs( $zoom ) / 100 );
-		} else {
-			$new_width  = $width_px;
-			$new_height = $height_px;
-		}
-
-		if ( $from_top > 0 ) {
-			$top = Utils::millimeter_to_pixels( abs( $from_top ) ) * - 1;
-		} elseif ( $from_top < 0 ) {
-			$top = Utils::millimeter_to_pixels( abs( $from_top ) );
-		} else {
-			$top = 0;
-		}
-
-		if ( $from_left > 0 ) {
-			$left = Utils::millimeter_to_pixels( abs( $from_left ) ) * - 1;
-		} elseif ( $from_left < 0 ) {
-			$left = Utils::millimeter_to_pixels( abs( $from_left ) );
-		} else {
-			$left = 0;
-		}
-
-		try {
-			// The Imagick constructor
-			$imagick = new Imagick();
-			$imagick->newImage(
-				Utils::millimeter_to_pixels( $card_width ),
-				Utils::millimeter_to_pixels( $card_height ),
-				new ImagickPixel( 'transparent' )
-			);
-
-			$layer = new Imagick();
-			$layer->readImage( $url );
-			if ( $zoom_percentage > 1 ) {
-				$layer_image_width  = $layer->getImageWidth() * $zoom_percentage;
-				$layer_image_height = $layer->getImageHeight() * $zoom_percentage;
-
-				$layer->resizeImage(
-					$layer_image_width,
-					$layer_image_height,
-					\Imagick::FILTER_LANCZOS,
-					1,
-					true
-				);
-
-				$left = $left / $layer_image_width * $layer_width_px;
-				$top  = $top / $layer_image_height * $layer_height_px;
-
-				$layer->cropImage( $layer_width_px - $left, $layer_height_px - $top, $left, $top );
-				$layer->resizeImage(
-					$layer_width_px,
-					$layer_height_px,
-					\Imagick::FILTER_LANCZOS,
-					1,
-					false
-				);
-			}
-
-			$imagick->compositeImage( $layer, Imagick::COMPOSITE_DEFAULT, 0, 0 );
-
-			// Sets the format of this particular image
-			$imagick->setImageFormat( 'png' );
-
-
-			$imagick->writeImage( $file );
-			// Set correct file permissions.
-			$stat  = stat( dirname( $file ) );
-			$perms = $stat['mode'] & 0000666;
-			chmod( $file, $perms );
-
-			header( 'Location: ' . $file_url );
-			exit();
-
-			header( "Content-Type: image/png" );
-			// Returns the image sequence as a blob
-			echo $imagick->getimageblob();
-			$imagick->destroy();
-			die;
-		} catch ( Exception $e ) {
-		}
+		( new ImageGenerator( $image_option ) )->preview_image();
 		wp_die();
 	}
 
