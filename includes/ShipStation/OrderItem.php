@@ -139,18 +139,20 @@ class OrderItem implements JsonSerializable {
 			$this->product = wc_get_product( $this->product_id );
 
 			$card_type       = $this->product->get_meta( '_card_type', true );
-			$this->card_type = in_array( $card_type, [ 'static', 'dynamic' ] ) ? $card_type : 'static';
-			$is_dynamic      = 'dynamic' == $card_type;
+			$this->card_type = in_array( $card_type, [ 'static', 'dynamic', 'mug' ] ) ? $card_type : 'static';
 
 			$pdf_id       = $this->product->get_meta( '_pdf_id', true );
 			$this->pdf_id = is_numeric( $pdf_id ) ? intval( $pdf_id ) : 0;
-			if ( $is_dynamic ) {
+			if ( 'dynamic' == $card_type ) {
 				$payload          = (array) $this->product->get_meta( '_dynamic_card_payload', true );
 				$card_size        = $payload['card_size'] ?? '';
 				$sizes            = FreePdfBase::get_sizes();
 				$pdf_size         = array_key_exists( $card_size, $sizes ) ? $sizes[ $card_size ] : [ 0, 0 ];
 				$this->pdf_width  = $pdf_size[0];
 				$this->pdf_height = $pdf_size[1];
+			} elseif ( 'mug' === $card_type ) {
+				$this->pdf_width  = 210;
+				$this->pdf_height = 99;
 			} else {
 				$this->pdf_width  = (int) get_post_meta( $this->pdf_id, '_pdf_width_millimeter', true );
 				$this->pdf_height = (int) get_post_meta( $this->pdf_id, '_pdf_height_millimeter', true );
@@ -728,6 +730,15 @@ class OrderItem implements JsonSerializable {
 	 */
 	public function is_dynamic_card_type(): bool {
 		return 'dynamic' == $this->get_card_type();
+	}
+
+	/**
+	 * Is dynamic card type
+	 *
+	 * @return bool
+	 */
+	public function is_mug(): bool {
+		return 'mug' == $this->get_card_type();
 	}
 
 	/**

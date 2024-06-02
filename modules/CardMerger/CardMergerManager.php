@@ -5,6 +5,7 @@ namespace YouSaidItCards\Modules\CardMerger;
 use Stackonet\WP\Framework\Supports\Validate;
 use WC_Order;
 use YouSaidItCards\Modules\CardMerger\PDFMergers\DynamicSizePdfMerger;
+use YouSaidItCards\Modules\CardMerger\PDFMergers\MugMerger;
 use YouSaidItCards\Modules\DynamicCard\BackgroundDynamicPdfGenerator;
 use YouSaidItCards\Modules\InnerMessage\PdfGenerator;
 use YouSaidItCards\Modules\OrderDispatcher\QtyCode;
@@ -74,7 +75,7 @@ class CardMergerManager {
 		$card_width    = isset( $_GET['card_width'] ) ? intval( $_GET['card_width'] ) : 0;
 		$card_height   = isset( $_GET['card_height'] ) ? intval( $_GET['card_height'] ) : 0;
 		$inner_message = isset( $_GET['inner_message'] ) && Validate::checked( $_GET['inner_message'] );
-		$card_type     = isset( $_GET['card_type'] ) && in_array( $_GET['card_type'], [ 'static', 'dynamic' ] ) ?
+		$card_type     = isset( $_GET['card_type'] ) && in_array( $_GET['card_type'], [ 'static', 'dynamic', 'mug' ] ) ?
 			$_GET['card_type'] : 'static';
 		$ids           = $_GET['ids'] ?? '';
 		$ids           = is_string( $ids ) ? explode( ',', $ids ) : [];
@@ -94,7 +95,11 @@ class CardMergerManager {
 				}
 			}
 		}
-		DynamicSizePdfMerger::combinePDFs( $items, $card_width, $card_height, $inner_message, $type );
+		if ( 'mug' === $card_type ) {
+			MugMerger::combinePDFs( $items );
+		} else {
+			DynamicSizePdfMerger::combinePDFs( $items, $card_width, $card_height, $inner_message, $type );
+		}
 		die();
 	}
 

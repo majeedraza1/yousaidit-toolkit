@@ -344,6 +344,7 @@ class DesignerCardAttachmentController extends ApiController {
 		$token = wp_generate_password( 20, false, false );
 		update_post_meta( $image_id, '_delete_token', $token );
 
+
 		$attachment = Utils::prepare_media_item_for_response( $image_id );
 
 		return $this->respondCreated( [ 'attachment' => $attachment ] );

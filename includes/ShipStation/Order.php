@@ -391,11 +391,17 @@ class Order implements JsonSerializable {
 					if ( ! $order_item->get_pdf_width() || ! $order_item->get_pdf_height() ) {
 						continue;
 					}
+					$type_code = 's';
+					if ( $order_item->is_mug() ) {
+						$type_code = 'm';
+					} elseif ( $order_item->is_dynamic_card_type() ) {
+						$type_code = 'd';
+					}
 					$key = sprintf( "%sx%sx%sx%sx%s",
 						$order_item->get_pdf_width(),
 						$order_item->get_pdf_height(),
 						$order_item->has_inner_message() ? 'i' : 'b',
-						$order_item->is_dynamic_card_type() ? 'd' : 's',
+						$type_code,
 						$order_item->is_custom_card() ? 'c' : 'd'
 					);
 					$qty = isset( $items[ $key ]['quantity'] ) ? intval( $items[ $key ]['quantity'] ) : 0;
@@ -438,7 +444,7 @@ class Order implements JsonSerializable {
 			foreach ( $items as $key => $item ) {
 				$data[ $key ]                = $item;
 				$data[ $key ]['to_generate'] = [];
-				if ( 'dynamic' == $item['card_type'] ) {
+				if ( in_array( $item['card_type'], [ 'dynamic', 'mug' ], true ) ) {
 					foreach ( $item['items'] as $order_item ) {
 						if ( $order_item['is_pdf_generated'] === false ) {
 							$data[ $key ]['to_generate'][] = [
