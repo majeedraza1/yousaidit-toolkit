@@ -3,7 +3,7 @@ import {ShaplaButton, ShaplaColumn, ShaplaColumns, ShaplaFileUploader, ShaplaIma
 import useDesignerCardStore from "../stores/store-cards.ts";
 import {computed, onMounted, reactive, ref} from "vue";
 import {
-  DynamicCardItemInterface,
+  DynamicCardImageSectionInterface,
   DynamicCardPayloadInterface,
   PhotoCardBaseInterface,
   UploadedAttachmentInterface,
@@ -59,10 +59,10 @@ const hasMainImage = computed<boolean>(() => state.card && state.card.main_image
 const hasDemoImage = computed<boolean>(() => state.card && state.card.demo_image_id > 0);
 
 const dynamicCardPayload = computed<DynamicCardPayloadInterface>(() => {
-  const card_items: DynamicCardItemInterface[] = [];
+  const card_items: DynamicCardImageSectionInterface[] = [];
   if (state.card) {
     if (state.card.demo_image_id > 0) {
-      const demoImage: DynamicCardItemInterface = {
+      const demoImage: DynamicCardImageSectionInterface = {
         label: 'Demo Image',
         section_type: 'input-image',
         position: {left: 0, top: 0},
@@ -74,14 +74,14 @@ const dynamicCardPayload = computed<DynamicCardPayloadInterface>(() => {
             height: state.card.demo_image.full.height,
           },
           width: 154,
-          height: 155,
+          height: 156,
           align: 'left'
         }
       }
       card_items.push(demoImage)
     }
     if (state.card.main_image_id > 0) {
-      const mainImage: DynamicCardItemInterface = {
+      const mainImage: DynamicCardImageSectionInterface = {
         label: 'Main Image',
         section_type: 'static-image',
         position: {left: 0, top: 0},

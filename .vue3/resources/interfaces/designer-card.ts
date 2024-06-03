@@ -105,7 +105,7 @@ interface DynamicCardPayloadInterface {
   card_bg_type: 'color' | 'image';
   card_bg_color: string;
   card_background: [] | DynamicCardBackgroundImageInterface;
-  card_items: DynamicCardItemInterface[];
+  card_items: (DynamicCardItemInterface | DynamicCardImageSectionInterface)[];
 }
 
 interface PhotoCardBaseInterface extends CardOptionInterface {

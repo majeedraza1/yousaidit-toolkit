@@ -154,6 +154,10 @@ export class DynamicCardLayer extends LitElement {
     if (this.section.imageOptions) {
       let width = Math.round((parseInt(this.section.imageOptions.width.toString()) / this.cardWidthMM) * 100);
       styles.push(`width: ${width}%`);
+      let height = Math.round((parseInt(this.section.imageOptions.height.toString()) / this.cardHeightMM) * 100);
+      if (height) {
+        styles.push(`height: ${height}%`);
+      }
     }
     return styles.join(';');
   }
@@ -265,6 +269,7 @@ export class DynamicCardLayer extends LitElement {
           line-height: 1;
           top: calc(100% * (var(--from-top-mm) / var(--card-height-mm)));
           left: calc(100% * (var(--from-left-mm) / var(--card-width-mm)));
+          height: 100%;
       }
 
       .section-edit.is-image-edit {

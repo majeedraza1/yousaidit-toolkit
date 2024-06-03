@@ -141,7 +141,11 @@ const submitFormToServer = (data: DynamicCardPropsInterface) => {
         fieldsContainer.querySelector<HTMLInputElement>(inputId).value = item.text;
       }
       if (['static-image', 'input-image'].indexOf(item.section_type) !== -1) {
-        fieldsContainer.querySelector<HTMLInputElement>(inputId).value = item.image.id.toString() || item.imageOptions.img.id.toString();
+        if (item.image && item.image.id) {
+          fieldsContainer.querySelector<HTMLInputElement>(inputId).value = item.image.id.toString();
+        } else if (item.imageOptions.img && item.imageOptions.img.id) {
+          fieldsContainer.querySelector<HTMLInputElement>(inputId).value = item.imageOptions.img.id.toString();
+        }
       }
     });
   }
