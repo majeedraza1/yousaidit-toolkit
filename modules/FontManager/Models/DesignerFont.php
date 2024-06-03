@@ -7,6 +7,39 @@ use Stackonet\WP\Framework\Abstracts\DatabaseModel;
 class DesignerFont extends DatabaseModel {
 	protected $table = 'designer_fonts';
 
+	public function to_array(): array {
+		$data                = $this->get_font_info()->to_array();
+		$data['id']          = $this->get_id();
+		$data['designer_id'] = $this->get_designer_id();
+
+		return $data;
+	}
+
+	/**
+	 * Get font info object
+	 *
+	 * @return FontInfo
+	 */
+	public function get_font_info(): FontInfo {
+		return new FontInfo( [
+			'slug'         => $this->get_prop( 'slug' ),
+			'font_family'  => $this->get_prop( 'font_family' ),
+			'font_file'    => $this->get_prop( 'font_file' ),
+			'group'        => $this->get_prop( 'group' ),
+			'for_public'   => true,
+			'for_designer' => true,
+		] );
+	}
+
+	/**
+	 * Get designer id
+	 *
+	 * @return int
+	 */
+	public function get_designer_id(): int {
+		return (int) $this->get_prop( 'designer_id' );
+	}
+
 	/**
 	 * Get fonts for designer
 	 *

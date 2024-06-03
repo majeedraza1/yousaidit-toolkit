@@ -265,16 +265,13 @@ class Font {
 	}
 
 	public static function get_fonts_with_permissions(): array {
-		$pre_installed = static::get_pre_installed_fonts_with_permissions();
-		$extra_fonts   = static::get_extra_fonts_with_path_and_url();
-
+		$pre_installed  = static::get_pre_installed_fonts_with_permissions();
+		$extra_fonts    = static::get_extra_fonts_with_path_and_url();
 		$designer_fonts = [];
-		$user_id        = get_current_user_id();
-		if ( $user_id ) {
-			$designer_font_object = DesignerFont::get_fonts( $user_id );
-			foreach ( $designer_font_object as $font ) {
-				$designer_fonts[] = $font->to_array();
-			}
+
+		$designer_font_objects = DesignerFont::find_multiple( [ 'per_page' => - 1 ] );
+		foreach ( $designer_font_objects as $font ) {
+			$designer_fonts[] = $font->to_array();
 		}
 
 		return array_merge( $pre_installed, $extra_fonts, $designer_fonts );

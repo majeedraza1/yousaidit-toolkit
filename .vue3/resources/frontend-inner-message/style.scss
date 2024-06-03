@@ -196,8 +196,8 @@ body.is-dynamic-card-product {
 
   .modal-dynamic-card-content {
     border-radius: 0;
-    height: 100vh;
-    max-height: 100vh;
+    height: 100vh !important;
+    max-height: 100vh !important;
     padding: 0 !important;
     width: 100vw !important;
 

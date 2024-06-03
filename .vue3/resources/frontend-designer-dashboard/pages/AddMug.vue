@@ -123,7 +123,7 @@ onMounted(() => {
       </div>
       <div class="w-full md:w-1/2 p-2">
         <div>
-          <h2 class="text-2xl leading-none mb-4">Card Size</h2>
+          <h2 class="text-2xl leading-none mb-4">Mug Size</h2>
           <p>The size we're printing is square (21cm x 9.9cm), please upload the image in JPEG format with a minimum
             resolution of <strong>2480 x 1169 px</strong>.</p>
         </div>

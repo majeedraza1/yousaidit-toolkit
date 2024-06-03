@@ -17,8 +17,14 @@ interface ExtraFontInterface extends FontInfoInterface {
 
 }
 
+interface DesignerFontInfoInterface extends FontInfoInterface {
+  id: number;
+  designer_id: number;
+}
+
 export type {
   FontInfoInterface,
   PreInstalledFontInterface,
-  ExtraFontInterface
+  ExtraFontInterface,
+  DesignerFontInfoInterface,
 }

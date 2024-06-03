@@ -20,7 +20,6 @@ import ModalAddFont from "../components/ModalAddFont.vue";
 import {FontInfoInterface} from "../../interfaces/custom-font.ts";
 import {DesignerProfileFontInterface} from "../../interfaces/designer.ts";
 import {useRouter} from "vue-router";
-import cardTestData from '../sample-data/text-card-sample.ts'
 import {convertPXtoMM} from "../../utils/helper.ts";
 
 const store = useDesignerCardStore();
@@ -169,13 +168,15 @@ const updateSection = () => {
 }
 
 const onFontAdded = (font: FontInfoInterface) => {
-  state.fonts.push({
+  const fontInfo = {
     label: font.font_family,
     key: font.slug,
     fontUrl: font.url,
     for_public: font.for_public,
     for_designer: font.for_designer
-  });
+  };
+  state.fonts.push(fontInfo);
+  window.DesignerProfile.fonts.push(fontInfo);
   state.show_add_font_modal = false;
 }
 

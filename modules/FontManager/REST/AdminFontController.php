@@ -1,12 +1,14 @@
 <?php
 
-namespace YouSaidItCards\Modules\FontManager;
+namespace YouSaidItCards\Modules\FontManager\REST;
 
 use Stackonet\WP\Framework\Media\UploadedFile;
 use Stackonet\WP\Framework\Supports\Validate;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
+use YouSaidItCards\Modules\FontManager\Font;
+use YouSaidItCards\Modules\FontManager\Models\DesignerFont;
 use YouSaidItCards\REST\ApiController;
 
 /**
@@ -64,6 +66,24 @@ class AdminFontController extends ApiController {
 				'permission_callback' => [ $this, 'delete_item_permissions_check' ],
 			],
 		] );
+
+		register_rest_route( $this->namespace, '/fonts/designers', [
+			[
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'get_designers_fonts' ],
+				'permission_callback' => [ $this, 'create_item_permissions_check' ],
+			],
+			[
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'update_designers_font' ],
+				'permission_callback' => [ $this, 'create_item_permissions_check' ],
+			],
+			[
+				'methods'             => WP_REST_Server::DELETABLE,
+				'callback'            => [ $this, 'delete_designers_font' ],
+				'permission_callback' => [ $this, 'delete_item_permissions_check' ],
+			],
+		] );
 	}
 
 	/**
@@ -117,12 +137,6 @@ class AdminFontController extends ApiController {
 			return $this->respondUnprocessableEntity();
 		}
 
-		$filename = sanitize_file_name( $font_file->get_client_filename() );
-		$target   = join( DIRECTORY_SEPARATOR, [ Font::get_base_directory(), $filename ] );
-		if ( file_exists( $target ) ) {
-			return $this->respondUnprocessableEntity( null, 'Font file already exists.' );
-		}
-
 		$font_family = $request->get_param( 'font_family' );
 		if ( empty( $font_family ) ) {
 			return $this->respondUnprocessableEntity( null, 'Font family cannot be empty.' );
@@ -139,14 +153,18 @@ class AdminFontController extends ApiController {
 			return $this->respondUnprocessableEntity( null, 'Font group cannot be empty.' );
 		}
 
+		$filename = sanitize_file_name( $font_file->get_client_filename() );
+		$target   = join( DIRECTORY_SEPARATOR, [ Font::get_base_directory(), $filename ] );
+		if ( ! file_exists( $target ) ) {
+			$font_file->move_to( $target );
+			// Set correct file permissions.
+			$stat  = stat( dirname( $target ) );
+			$perms = $stat['mode'] & 0000666;
+			@chmod( $target, $perms );
+		}
+
 		$for_public   = Validate::checked( $request->get_param( 'for_public' ) );
 		$for_designer = Validate::checked( $request->get_param( 'for_designer' ) );
-
-		$font_file->move_to( $target );
-		// Set correct file permissions.
-		$stat  = stat( dirname( $target ) );
-		$perms = $stat['mode'] & 0000666;
-		@chmod( $target, $perms );
 
 		$data = [
 			'slug'         => sanitize_title_with_dashes( $font_family, '', 'save' ),
@@ -177,5 +195,23 @@ class AdminFontController extends ApiController {
 		return $this->respondOK( [
 			'extra_fonts' => array_values( $fonts ),
 		] );
+	}
+
+	public function get_designers_fonts( WP_REST_Request $request ) {
+		$per_page = (int) $request->get_param( 'per_page' );
+		$page     = (int) $request->get_param( 'page' );
+		$status   = (string) $request->get_param( 'status' );
+
+		$items      = DesignerFont::find_multiple( $request->get_params() );
+		$counts     = DesignerFont::count_records( $request->get_params() );
+		$count      = $counts[ $status ] ?? $counts['all'];
+		$pagination = static::get_pagination_data( $count, $per_page, $page );
+
+		return $this->respondOK(
+			[
+				'items'      => $items,
+				'pagination' => $pagination,
+			]
+		);
 	}
 }

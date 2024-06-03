@@ -1,5 +1,6 @@
 import axios from "../utils/axios";
 import {Dialog, Notify, Spinner} from "@shapla/vanilla-components";
+import {ServerCollectionResponseDataInterface} from "../utils/CrudOperation.ts";
 
 const getItems = () => {
   return new Promise(resolve => {
@@ -23,6 +24,24 @@ const getExtraFonts = () => {
   return new Promise(resolve => {
     Spinner.show();
     axios.get('fonts/custom')
+      .then(response => {
+        resolve(response.data.data);
+      })
+      .catch(error => {
+        const responseData = error.response.data;
+        if (responseData.message) {
+          Notify.error(responseData.message, 'Error!');
+        }
+      })
+      .finally(() => {
+        Spinner.hide();
+      })
+  })
+}
+const getDesignerFonts = (page: number = 1, per_page: number = 20): Promise<ServerCollectionResponseDataInterface> => {
+  return new Promise(resolve => {
+    Spinner.show();
+    axios.get('fonts/designers', {params: {page, per_page}})
       .then(response => {
         resolve(response.data.data);
       })
@@ -111,5 +130,6 @@ export {
   updatePreInstalledFont,
   getExtraFonts,
   createNewFont,
-  deleteExtraFont
+  deleteExtraFont,
+  getDesignerFonts
 }

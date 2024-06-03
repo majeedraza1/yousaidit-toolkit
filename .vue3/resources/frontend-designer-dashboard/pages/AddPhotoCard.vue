@@ -13,8 +13,6 @@ import CardOptions from "../components/CardOptions.vue";
 import {useRouter} from "vue-router";
 import {convertPXtoMM} from "../../utils/helper.ts";
 
-import cardTestData from '../sample-data/photo-card-sample.ts'
-
 const store = useDesignerCardStore();
 const router = useRouter();
 
@@ -138,10 +136,8 @@ const handleDemoImageUploadFail = (fileObject, serverResponse) => {
 const canGoOnStepTwo = computed(() => (state.card.main_image_id > 0 && state.card.demo_image_id > 0))
 const canGoOnStepThree = computed(() => {
   return (
-      state.card.title.length > 10 &&
-      state.card.description.length > 10 &&
-      state.card.categories_ids.length > 0 &&
-      state.card.tags_ids.length > 0
+      state.card.title.length > 1 &&
+      state.card.categories_ids.length > 0
   )
 })
 

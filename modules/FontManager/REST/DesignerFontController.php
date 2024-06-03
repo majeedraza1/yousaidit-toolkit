@@ -77,16 +77,6 @@ class DesignerFontController extends ApiController {
 			return $this->respondUnprocessableEntity( null, 'Unsupported file format. Only TTF file is allowed.' );
 		}
 
-		$designer_id = get_current_user_id();
-		$filename    = sprintf( 'designer-%s-%s',
-			$designer_id,
-			sanitize_file_name( $font_file->get_client_filename() )
-		);
-		$target      = join( DIRECTORY_SEPARATOR, [ Font::get_base_directory(), $filename ] );
-		if ( file_exists( $target ) ) {
-			return $this->respondUnprocessableEntity( null, 'Font file already exists.' );
-		}
-
 		$font_family = $request->get_param( 'font_family' );
 		if ( empty( $font_family ) ) {
 			return $this->respondUnprocessableEntity( null, 'Font family cannot be empty.' );
@@ -97,11 +87,19 @@ class DesignerFontController extends ApiController {
 			return $this->respondUnprocessableEntity( null, 'Font group cannot be empty.' );
 		}
 
-		$font_file->move_to( $target );
-		// Set correct file permissions.
-		$stat  = stat( dirname( $target ) );
-		$perms = $stat['mode'] & 0000666;
-		@chmod( $target, $perms );
+		$designer_id = get_current_user_id();
+		$filename    = sprintf( 'designer-%s-%s',
+			$designer_id,
+			sanitize_file_name( $font_file->get_client_filename() )
+		);
+		$target      = join( DIRECTORY_SEPARATOR, [ Font::get_base_directory(), $filename ] );
+		if ( ! file_exists( $target ) ) {
+			$font_file->move_to( $target );
+			// Set correct file permissions.
+			$stat  = stat( dirname( $target ) );
+			$perms = $stat['mode'] & 0000666;
+			@chmod( $target, $perms );
+		}
 
 		$data = [
 			'slug'        => sanitize_title_with_dashes( $font_family, '', 'save' ),
@@ -109,6 +107,7 @@ class DesignerFontController extends ApiController {
 			'font_file'   => $filename,
 			'group'       => $font_group,
 			'designer_id' => get_current_user_id(),
+			'for_public'  => true,
 		];
 
 		$font_id = DesignerFont::create( $data );

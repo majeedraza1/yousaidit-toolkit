@@ -2,8 +2,8 @@
 
 namespace YouSaidItCards\Modules\FontManager;
 
-use YouSaidItCards\Assets;
 use YouSaidItCards\Modules\FontManager\Models\DesignerFont;
+use YouSaidItCards\Modules\FontManager\REST\AdminFontController;
 
 class FontManager {
 
@@ -46,6 +46,7 @@ class FontManager {
 		$menus      = [
 			[ 'title' => __( 'Pre-installed', 'yousaidit-toolkit' ), 'slug' => '#/' ],
 			[ 'title' => __( 'Extra fonts', 'yousaidit-toolkit' ), 'slug' => '#/extra' ],
+			[ 'title' => __( 'Designer fonts', 'yousaidit-toolkit' ), 'slug' => '#/designer-fonts' ],
 		];
 		if ( current_user_can( $capability ) ) {
 			foreach ( $menus as $menu ) {
