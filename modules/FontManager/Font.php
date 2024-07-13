@@ -331,8 +331,14 @@ class Font {
 		}
 		$css .= '</style>' . PHP_EOL;
 
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			$fonts_list = wp_json_encode( $js_fonts_list, \JSON_PRETTY_PRINT );
+		} else {
+			$fonts_list = wp_json_encode( $js_fonts_list );
+		}
+
 		$css .= "<script id='yousaidit-inline-font-face-js' type='text/javascript'>" . PHP_EOL;
-		$css .= 'window.YousaiditFontsList = ' . wp_json_encode( $js_fonts_list ) . PHP_EOL;
+		$css .= 'window.YousaiditFontsList = ' . $fonts_list . PHP_EOL;
 		$css .= '</script>' . PHP_EOL;
 
 		return $css;
