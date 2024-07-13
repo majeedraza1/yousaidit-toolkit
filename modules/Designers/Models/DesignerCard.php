@@ -982,10 +982,13 @@ class DesignerCard extends DatabaseModel {
     		INDEX `status` (`status`)
 		) $collate;";
 
-		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-		dbDelta( $tables );
-
 		$option = get_option( $table_name . '-version', '1.0.0' );
+		if ( version_compare( $option, '1.0.0', '<' ) ) {
+			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+			dbDelta( $tables );
+
+			update_option( $table_name . '-version', '1.0.0' );
+		}
 		if ( version_compare( $option, '1.0.4', '<' ) ) {
 			$sql = "ALTER TABLE {$table_name} ADD `market_places` TEXT NULL DEFAULT NULL AFTER `suggest_tags`;";
 			$wpdb->query( $sql );

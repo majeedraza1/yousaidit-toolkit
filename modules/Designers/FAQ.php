@@ -31,7 +31,7 @@ class FAQ implements JsonSerializable {
 	/**
 	 * SpecialAnnouncement constructor.
 	 *
-	 * @param null|WP_Post $post
+	 * @param  null|WP_Post  $post
 	 */
 	public function __construct( $post = null ) {
 		$post = get_post( $post );
@@ -43,7 +43,7 @@ class FAQ implements JsonSerializable {
 	/**
 	 * @return array
 	 */
-	public function to_array() {
+	public function to_array(): array {
 		return [
 			'id'      => $this->get_id(),
 			'title'   => $this->get_title(),
@@ -52,28 +52,28 @@ class FAQ implements JsonSerializable {
 	}
 
 	/**
-	 * @return string
+	 * @return int
 	 */
-	public function get_id() {
+	public function get_id(): int {
 		return intval( $this->post->ID );
 	}
 
 	/**
 	 * @return string
 	 */
-	public function get_title() {
+	public function get_title(): string {
 		return get_the_title( $this->post->ID );
 	}
 
 	/**
 	 * @return string
 	 */
-	public function get_content() {
+	public function get_content(): string {
 		return apply_filters( 'the_content', $this->post->post_content );
 	}
 
 	/**
-	 * @param array $args
+	 * @param  array  $args
 	 *
 	 * @return WP_Query
 	 */
@@ -93,7 +93,7 @@ class FAQ implements JsonSerializable {
 	/**
 	 * Find by id
 	 *
-	 * @param int $id
+	 * @param  int  $id
 	 *
 	 * @return bool|static
 	 */
@@ -163,7 +163,7 @@ class FAQ implements JsonSerializable {
 	/**
 	 * @inheritDoc
 	 */
-	public function jsonSerialize() {
+	public function jsonSerialize(): array {
 		return $this->to_array();
 	}
 }
