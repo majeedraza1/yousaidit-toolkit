@@ -15,6 +15,7 @@ use YouSaidItCards\Modules\Designers\Models\CardComment;
 use YouSaidItCards\Modules\Designers\Models\CardDesigner;
 use YouSaidItCards\Modules\Designers\Models\CardToProduct;
 use YouSaidItCards\Modules\Designers\Models\DesignerCard;
+use YouSaidItCards\Modules\Designers\Models\DesignerCommission;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -72,6 +73,14 @@ class DesignerCardAdminController extends ApiController {
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => [ $this, 'create_product' ],
 				'permission_callback' => '__return_true',
+			],
+		] );
+		register_rest_route( $this->namespace, '/designers-cards/(?P<id>\d+)/commissions', [
+			[
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'get_card_commissions' ],
+				'permission_callback' => '__return_true',
+				'args'                => $this->get_collection_params(),
 			],
 		] );
 		register_rest_route( $this->namespace, '/designers-cards/(?P<id>\d+)/commission', [
@@ -234,6 +243,47 @@ class DesignerCardAdminController extends ApiController {
 		}
 
 		return $this->respondInternalServerError();
+	}
+
+	public function get_card_commissions( WP_REST_Request $request ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return $this->respondUnauthorized();
+		}
+		$id       = (int) $request->get_param( 'id' );
+		$page     = (int) $request->get_param( 'page' );
+		$per_page = (int) $request->get_param( 'per_page' );
+
+		$item = ( new DesignerCard() )->find_by_id( $id );
+
+		if ( ! $item instanceof DesignerCard ) {
+			return $this->respondNotFound();
+		}
+
+		$commissionClass = new DesignerCommission();
+
+		$commissions = $commissionClass->find( [
+			'per_page' => $per_page,
+			'page'     => $page,
+			'card_id'  => $id,
+		] );
+
+		$count      = $commissionClass->count_records( [ 'card_id' => $id ] );
+		$pagination = static::get_pagination_data( $count, $per_page, $page );
+
+		$items = [];
+		foreach ( $commissions as $commission ) {
+			$commissionObject = new DesignerCommission( $commission );
+			$items[]          = array_merge(
+				$commissionObject->to_array(),
+				[ 'order_edit_url' => $commissionObject->get_admin_order_url() ]
+			);
+		}
+
+		return $this->respondOK( [
+			'items'      => $items,
+			'pagination' => $pagination,
+		] );
+
 	}
 
 	public function update_commission( WP_REST_Request $request ) {

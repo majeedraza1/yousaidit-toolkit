@@ -40,21 +40,34 @@ class DesignerCommission extends DatabaseModel {
 	public function to_array(): array {
 		$data = $this->data;
 
-		$data['commission_id']    = intval( $this->get( 'commission_id' ) );
-		$data['card_id']          = intval( $this->get( 'card_id' ) );
-		$data['designer_id']      = intval( $this->get( 'designer_id' ) );
-		$data['customer_id']      = intval( $this->get( 'customer_id' ) );
-		$data['order_id']         = intval( $this->get( 'order_id' ) );
-		$data['order_item_id']    = intval( $this->get( 'order_item_id' ) );
-		$data['order_quantity']   = intval( $this->get( 'order_quantity' ) );
-		$data['item_commission']  = floatval( $this->get( 'item_commission' ) );
-		$data['total_commission'] = floatval( $this->get( 'total_commission' ) );
-		$data['created_at']       = mysql_to_rfc3339( $this->get( 'created_at' ) );
-		$data['updated_at']       = mysql_to_rfc3339( $this->get( 'updated_at' ) );
+		$data['commission_id']    = intval( $this->get_prop( 'commission_id' ) );
+		$data['card_id']          = intval( $this->get_prop( 'card_id' ) );
+		$data['designer_id']      = intval( $this->get_prop( 'designer_id' ) );
+		$data['customer_id']      = intval( $this->get_prop( 'customer_id' ) );
+		$data['order_id']         = intval( $this->get_prop( 'order_id' ) );
+		$data['order_item_id']    = intval( $this->get_prop( 'order_item_id' ) );
+		$data['order_quantity']   = intval( $this->get_prop( 'order_quantity' ) );
+		$data['item_commission']  = floatval( $this->get_prop( 'item_commission' ) );
+		$data['total_commission'] = floatval( $this->get_prop( 'total_commission' ) );
+		$data['created_at']       = mysql_to_rfc3339( $this->get_prop( 'created_at' ) );
+		$data['updated_at']       = mysql_to_rfc3339( $this->get_prop( 'updated_at' ) );
 
 		unset( $data['deleted_at'] );
 
 		return $data;
+	}
+
+	/**
+	 * Get commission id
+	 *
+	 * @return int
+	 */
+	public function get_id(): int {
+		return intval( $this->get_prop( 'commission_id' ) );
+	}
+
+	public function get_order_id(): int {
+		return intval( $this->get_prop( 'order_id' ) );
 	}
 
 	/**
@@ -66,15 +79,24 @@ class DesignerCommission extends DatabaseModel {
 		return static::$report_types;
 	}
 
+	public function get_admin_order_url(): string {
+		return add_query_arg( [ 'post' => $this->get_order_id(), 'action' => 'edit' ], admin_url( 'post.php' ) );
+	}
+
 	/**
-	 * @param string $report_type
-	 * @param string $from
-	 * @param string $to
+	 * @param  string  $report_type
+	 * @param  string  $from
+	 * @param  string  $to
 	 *
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function get_start_and_end_date( string $report_type, string $from = '', string $to = '' ): array {
+	public
+	static function get_start_and_end_date(
+		string $report_type,
+		string $from = '',
+		string $to = ''
+	): array {
 		$startTime = new \DateTime();
 		$startTime->setTimezone( wp_timezone() );
 
@@ -115,11 +137,14 @@ class DesignerCommission extends DatabaseModel {
 	}
 
 	/**
-	 * @param array $args
+	 * @param  array  $args
 	 *
 	 * @return array
 	 */
-	public function find( $args = [] ) {
+	public
+	function find(
+		$args = []
+	) {
 		list( $per_page, $offset, $orderby, $order ) = $this->get_pagination_and_order_data( $args );
 
 		global $wpdb;
@@ -140,11 +165,14 @@ class DesignerCommission extends DatabaseModel {
 	/**
 	 * Create if not already exists
 	 *
-	 * @param array $data
+	 * @param  array  $data
 	 *
 	 * @return WP_Error|int
 	 */
-	public static function createIfNotExists( array $data ) {
+	public
+	static function createIfNotExists(
+		array $data
+	) {
 		if ( ! isset( $data['order_id'], $data['order_item_id'] ) ) {
 			return new WP_Error( 'incomplete_data', 'Required data not found.' );
 		}
@@ -159,12 +187,16 @@ class DesignerCommission extends DatabaseModel {
 	/**
 	 * Find commission data based on order and order item
 	 *
-	 * @param int $order_id
-	 * @param int $order_item_id
+	 * @param  int  $order_id
+	 * @param  int  $order_item_id
 	 *
 	 * @return ArrayObject|self
 	 */
-	public static function find_for_order( $order_id, $order_item_id ) {
+	public
+	static function find_for_order(
+		$order_id,
+		$order_item_id
+	) {
 		global $wpdb;
 		$self  = new static();
 		$table = $self->get_table_name( $self->table );
@@ -186,7 +218,8 @@ class DesignerCommission extends DatabaseModel {
 	 *
 	 * @return array
 	 */
-	public static function get_commission_by_designers(): array {
+	public
+	static function get_commission_by_designers(): array {
 		$self = new static;
 		global $wpdb;
 		$table = $self->get_table_name();
@@ -220,11 +253,14 @@ class DesignerCommission extends DatabaseModel {
 	}
 
 	/**
-	 * @param int $designer_id
+	 * @param  int  $designer_id
 	 *
 	 * @return false|float|int
 	 */
-	public function get_total_commission_earned( $designer_id ) {
+	public
+	function get_total_commission_earned(
+		$designer_id
+	) {
 		global $wpdb;
 		$table = $this->get_table_name( $this->table );
 
@@ -236,11 +272,14 @@ class DesignerCommission extends DatabaseModel {
 	}
 
 	/**
-	 * @param int $designer_id
+	 * @param  int  $designer_id
 	 *
 	 * @return false|float|int
 	 */
-	public function get_total_commission_earned_unpaid( $designer_id ) {
+	public
+	function get_total_commission_earned_unpaid(
+		$designer_id
+	) {
 		global $wpdb;
 		$table = $this->get_table_name( $this->table );
 
@@ -255,11 +294,14 @@ class DesignerCommission extends DatabaseModel {
 	/**
 	 * Count total unique orders for a designer
 	 *
-	 * @param int $designer_id
+	 * @param  int  $designer_id
 	 *
 	 * @return int
 	 */
-	public function count_total_orders( $designer_id = 0 ) {
+	public
+	function count_total_orders(
+		$designer_id = 0
+	) {
 		global $wpdb;
 		$table   = $this->get_table_name( $this->table );
 		$query   = "SELECT count( DISTINCT(order_id) ) as total_orders FROM {$table} WHERE {$this->deleted_at} IS NULL";
@@ -272,11 +314,14 @@ class DesignerCommission extends DatabaseModel {
 	/**
 	 * Get unique customer
 	 *
-	 * @param int $designer_id
+	 * @param  int  $designer_id
 	 *
 	 * @return array
 	 */
-	public function count_unique_customers( $designer_id = 0 ) {
+	public
+	function count_unique_customers(
+		$designer_id = 0
+	) {
 		global $wpdb;
 		$table = $this->get_table_name( $this->table );
 		$query = "SELECT customer_id, SUM( order_quantity ) AS number_of_buy FROM {$table} WHERE {$this->deleted_at} IS NULL";
@@ -298,7 +343,10 @@ class DesignerCommission extends DatabaseModel {
 		return $statuses;
 	}
 
-	public function get_unpaid_commission( $args = [] ) {
+	public
+	function get_unpaid_commission(
+		$args = []
+	) {
 		global $wpdb;
 		$table = $this->get_table_name( $this->table );
 
@@ -334,10 +382,14 @@ class DesignerCommission extends DatabaseModel {
 	}
 
 	/**
-	 * @param string|int $payment_id
-	 * @param array $commission_ids
+	 * @param  string|int  $payment_id
+	 * @param  array  $commission_ids
 	 */
-	public function mark_commissions_paid( $payment_id, $commission_ids ) {
+	public
+	function mark_commissions_paid(
+		$payment_id,
+		$commission_ids
+	) {
 		global $wpdb;
 		$table = $this->get_table_name( $this->table );
 		$query = $wpdb->prepare( "UPDATE {$table} SET payment_status = 'paid', payment_id = %s", $payment_id );
@@ -348,7 +400,10 @@ class DesignerCommission extends DatabaseModel {
 	/**
 	 * @inheritDoc
 	 */
-	public function count_records( array $args = [] ) {
+	public
+	function count_records(
+		array $args = []
+	) {
 		global $wpdb;
 		$query   = "SELECT COUNT(*) AS total_items";
 		$query   .= $this->get_query_sql( $args );
@@ -362,7 +417,8 @@ class DesignerCommission extends DatabaseModel {
 	 *
 	 * @return array
 	 */
-	public static function count_card_for_payout() {
+	public
+	static function count_card_for_payout() {
 		$self = new static;
 		global $wpdb;
 		$table = $self->get_table_name( $self->table );
@@ -432,7 +488,8 @@ class DesignerCommission extends DatabaseModel {
 		return $cards;
 	}
 
-	public static function remove_commission_without_marketplace() {
+	public
+	static function remove_commission_without_marketplace() {
 		global $wpdb;
 		$self  = new self();
 		$table = $self->get_table_name();
@@ -442,7 +499,8 @@ class DesignerCommission extends DatabaseModel {
 	/**
 	 * @inheritDoc
 	 */
-	public function create_table() {
+	public
+	function create_table() {
 		global $wpdb;
 		$table_name = $this->get_table_name( $this->table );
 		$collate    = $wpdb->get_charset_collate();
@@ -473,7 +531,8 @@ class DesignerCommission extends DatabaseModel {
 		$this->add_foreign_key();
 	}
 
-	public function add_foreign_key() {
+	public
+	function add_foreign_key() {
 		global $wpdb;
 		$table_name = $this->get_table_name( $this->table );
 		$card_table = $this->get_table_name( $this->card_table );
@@ -530,11 +589,14 @@ class DesignerCommission extends DatabaseModel {
 	}
 
 	/**
-	 * @param array $args
+	 * @param  array  $args
 	 *
 	 * @return string
 	 */
-	public function get_query_sql( array $args ): string {
+	public
+	function get_query_sql(
+		array $args
+	): string {
 		global $wpdb;
 		$table      = $this->get_table_name( $this->table );
 		$card_table = $this->get_table_name( $this->card_table );
@@ -546,6 +608,10 @@ class DesignerCommission extends DatabaseModel {
 
 		if ( isset( $args['designer_id'] ) && is_numeric( $args['designer_id'] ) ) {
 			$query .= $wpdb->prepare( " AND designer_id = %d", intval( $args['designer_id'] ) );
+		}
+
+		if ( isset( $args['card_id'] ) && is_numeric( $args['card_id'] ) ) {
+			$query .= $wpdb->prepare( " AND card_id = %d", intval( $args['card_id'] ) );
 		}
 
 		if ( isset( $args['order_id__in'] ) && is_array( $args['order_id__in'] ) ) {

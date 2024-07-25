@@ -3,6 +3,8 @@ import {reactive, toRefs} from "vue";
 import {Dialog, Notify, Spinner} from "@shapla/vanilla-components";
 import axios from "../../utils/axios.ts";
 import {DesignerCardInterface, TYPE_CARD_SIZE} from "../../interfaces/designer.ts";
+import {PaginationDataInterface, ServerCollectionResponseDataInterface} from "../../utils/CrudOperation.ts";
+import {DesignerCommission} from "../../interfaces/designer-commission.ts";
 
 interface SingleCardServerResponseInterface extends DesignerCardInterface {
   default_commissions: { 'yousaidit': number; 'yousaidit-trade': number; };
@@ -14,6 +16,8 @@ const useAdminDesignerCardStore = defineStore('admin-designer-card', () => {
   const state = reactive<{
     card: DesignerCardInterface | null;
     commission: Record<string, string>
+    commissions: DesignerCommission[];
+    commissionsPagination: PaginationDataInterface;
     product_sku?: Record<TYPE_CARD_SIZE, string>;
     product_price?: Record<TYPE_CARD_SIZE, '' | number>;
     commission_type: 'fix' | 'percentage',
@@ -23,6 +27,8 @@ const useAdminDesignerCardStore = defineStore('admin-designer-card', () => {
   }>({
     card: null,
     commission: null,
+    commissions: [],
+    commissionsPagination: {total_items: 0, per_page: 20, current_page: 1},
     product_sku: null,
     product_price: null,
     commission_type: 'fix',
@@ -54,6 +60,33 @@ const useAdminDesignerCardStore = defineStore('admin-designer-card', () => {
         .then(response => {
           const data = response.data.data as SingleCardServerResponseInterface;
           _updateCard(data)
+          resolve(data);
+        })
+        .catch(error => {
+          const responseData = error.response.data;
+          if (responseData.message) {
+            Notify.error(responseData.message, 'Error!');
+          }
+        })
+        .finally(() => {
+          Spinner.hide();
+        })
+    })
+  }
+
+  const getCardCommissions = (card_id: number) => {
+    return new Promise(resolve => {
+      Spinner.show();
+      axios.get('designers-cards/' + card_id + '/commissions', {
+        params: {
+          per_page: state.commissionsPagination.per_page,
+          page: state.commissionsPagination.current_page
+        }
+      })
+        .then(response => {
+          const data = response.data.data as ServerCollectionResponseDataInterface;
+          state.commissions = data.items as DesignerCommission[];
+          state.commissionsPagination = data.pagination;
           resolve(data);
         })
         .catch(error => {
@@ -269,6 +302,7 @@ const useAdminDesignerCardStore = defineStore('admin-designer-card', () => {
     handleCommissionUpdate,
     previewDynamicCardPDF,
     generateCardImage,
+    getCardCommissions
   }
 });
 

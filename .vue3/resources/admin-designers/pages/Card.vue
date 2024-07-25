@@ -10,8 +10,7 @@
         </ShaplaColumn>
         <ShaplaColumn :tablet="6">
           <div class="yousaiditcard_designer_card__actions-top">
-            <ShaplaButton theme="success" size="small" outline @click="()=>store.getCardById(card_id)">Refresh
-            </ShaplaButton>
+            <ShaplaButton theme="success" size="small" outline @click="refresh">Refresh</ShaplaButton>
             <template v-if="'trash' !== store.card.status">
               <template v-if="'processing' === store.card.status">
                 <ShaplaButton theme="success" size="small" @click="state.showAcceptConfirmModal = true">Accept
@@ -173,6 +172,26 @@
             <template v-else>
               No commission information yet
             </template>
+          </div>
+          <div class="bg-white mt-4 p-2">
+            <div v-for="commission in store.commissions" :key="commission.commission_id" class="flex space-x-2">
+              <div class="flex space-x-2 shadow p-2 rounded flex-grow mb-2">
+                <div class="flex flex-col">
+                  <div>Order ID: {{ commission.order_id }}</div>
+                  <div>Order Item ID: {{ commission.order_item_id }}</div>
+                </div>
+                <div class="flex-grow"></div>
+                <div>
+                  <a :href="commission.order_edit_url" target="_blank" class="button">View Order</a>
+                </div>
+              </div>
+            </div>
+
+            <ShaplaTablePagination
+                :total-items="store.commissionsPagination.total_items"
+                :per-page="store.commissionsPagination.per_page"
+                :current-page="store.commissionsPagination.current_page"
+            />
           </div>
         </ShaplaTab>
         <ShaplaTab name="Dynamic Card Data" v-if="store.card.card_type === 'dynamic'">
@@ -444,6 +463,7 @@ import {
   ShaplaModal,
   ShaplaRadio,
   ShaplaTab,
+  ShaplaTablePagination,
   ShaplaTabs
 } from '@shapla/vue-components';
 import {Notify} from '@shapla/vanilla-components'
@@ -584,11 +604,17 @@ const goToDesignerPage = (designer_id: number | string) => {
   router.push({name: 'Designer', params: {id: designer_id}});
 }
 
+const refresh = () => {
+  store.getCardById(card_id);
+  store.getCardCommissions(card_id);
+}
+
 
 onMounted(() => {
   card_id.value = parseInt(route.params.id);
   store.getCardById(card_id.value).then(() => {
     setTimeout(() => calculateWidthAndHeight(), 100);
+    store.getCardCommissions(card_id.value);
   });
 
   if (document.body.offsetWidth >= 1024) {
