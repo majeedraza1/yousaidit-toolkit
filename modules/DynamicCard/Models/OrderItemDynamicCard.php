@@ -329,8 +329,7 @@ class OrderItemDynamicCard {
 		$fpd->SetFont( $font->get_font_family_for_dompdf(), '', $section->get_text_option( 'size' ) );
 
 		$text_width = $fpd->GetStringWidth( $section->get_text() );
-		$y_pos      = $section->get_position_from_top_mm() + FreePdfBase::points_to_mm( $section->get_text_option( 'size' ) );
-
+		$y_pos      = $section->get_position_from_top_mm() + FreePdfBase::points_to_mm( $section->get_text_option( 'size' ) * 0.75  );
 
 		$back_width = $fpd->GetPageWidth() - Utils::SQUARE_CARD_WIDTH_MM;
 

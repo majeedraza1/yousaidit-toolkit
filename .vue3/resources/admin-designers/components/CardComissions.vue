@@ -98,7 +98,7 @@ const onActionClick = (action: 'view_order' | 'view_pdf' | 'view_design', item: 
     </div>
     <template v-slot:foot>
       <a :href="state.activeCommission.commission.order_edit_url" target="_blank" class="shapla-button is-primary is-outline is-small">Open Order</a>
-      <a :href="state.activeCommission.commission.pdf_url" target="_blank" class="shapla-button is-secondary is-outline is-small">Open PDf</a>
+      <a :href="state.activeCommission.commission.pdf_url" target="_blank" class="shapla-button is-secondary is-outline is-small">Debug PDf</a>
     </template>
   </ShaplaModal>
 </template>
