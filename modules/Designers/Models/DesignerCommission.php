@@ -6,6 +6,8 @@ use ArrayObject;
 use Stackonet\WP\Framework\Abstracts\DatabaseModel;
 use Stackonet\WP\Framework\Supports\Validate;
 use WP_Error;
+use YouSaidItCards\ShipStation\Order;
+use YouSaidItCards\ShipStation\ShipStationApi;
 use YouSaidItCards\Utilities\MarketPlace;
 
 class DesignerCommission extends DatabaseModel {
@@ -40,11 +42,12 @@ class DesignerCommission extends DatabaseModel {
 	public function to_array(): array {
 		$data = $this->data;
 
-		$data['commission_id']    = intval( $this->get_prop( 'commission_id' ) );
+		$data['commission_id']    = $this->get_id();
 		$data['card_id']          = intval( $this->get_prop( 'card_id' ) );
 		$data['designer_id']      = intval( $this->get_prop( 'designer_id' ) );
 		$data['customer_id']      = intval( $this->get_prop( 'customer_id' ) );
-		$data['order_id']         = intval( $this->get_prop( 'order_id' ) );
+		$data['order_id']         = $this->get_order_id();
+		$data['wc_order_exists']  = $this->wc_order_exists();
 		$data['order_item_id']    = intval( $this->get_prop( 'order_item_id' ) );
 		$data['order_quantity']   = intval( $this->get_prop( 'order_quantity' ) );
 		$data['item_commission']  = floatval( $this->get_prop( 'item_commission' ) );
@@ -70,6 +73,59 @@ class DesignerCommission extends DatabaseModel {
 		return intval( $this->get_prop( 'order_id' ) );
 	}
 
+	public function get_order_item_id(): int {
+		return intval( $this->get_prop( 'order_item_id' ) );
+	}
+
+	public function get_wc_order_id(): int {
+		return intval( $this->get_prop( 'wc_order_id' ) );
+	}
+
+	public function get_wc_order_item_id(): int {
+		return intval( $this->get_prop( 'wc_order_item_id' ) );
+	}
+
+	public function wc_order_exists(): int {
+		return Validate::checked( $this->get_prop( 'wc_order_exists' ) );
+	}
+
+	public function has_wc_order(): bool {
+		return (
+			$this->get_wc_order_id() &&
+			$this->get_wc_order_item_id()
+		);
+	}
+
+	public function recalculate_wc_order_if_not_exists() {
+		if ( $this->has_wc_order() ) {
+			return;
+		}
+		$need_to_update = false;
+		$order_data     = ShipStationApi::init()->get_order( $this->get_order_id() );
+		if ( is_array( $order_data ) ) {
+			$order       = new Order( $order_data );
+			$wc_order_id = $order->get_unverified_wc_order_id();
+			if ( $wc_order_id ) {
+				$this->set_prop( 'wc_order_id', $wc_order_id );
+				$need_to_update = true;
+				$this->set_prop( 'wc_order_exists', $order->get_wc_order_id() ? 1 : 0 );
+			}
+			foreach ( $order->get_order_items() as $order_item ) {
+				if ( $order_item->get_order_item_id() === $this->get_order_item_id() ) {
+					$wc_order_item_id = $order_item->get_unverified_wc_order_item_id();
+					if ( $wc_order_item_id ) {
+						$this->set_prop( 'wc_order_item_id', $wc_order_item_id );
+						$need_to_update = true;
+					}
+				}
+			}
+
+			if ( $need_to_update ) {
+				$this->update();
+			}
+		}
+	}
+
 	/**
 	 * Get report type
 	 *
@@ -80,7 +136,18 @@ class DesignerCommission extends DatabaseModel {
 	}
 
 	public function get_admin_order_url(): string {
-		return add_query_arg( [ 'post' => $this->get_order_id(), 'action' => 'edit' ], admin_url( 'post.php' ) );
+		return add_query_arg( [ 'post' => $this->get_wc_order_id(), 'action' => 'edit' ], admin_url( 'post.php' ) );
+	}
+
+	public function get_pdf_url(): string {
+		$args = [
+			'action'   => 'yousaidit_single_pdf_card',
+			'order_id' => $this->get_wc_order_id(),
+			'item_id'  => $this->get_wc_order_item_id(),
+			'mode'     => 'pdf',
+		];
+
+		return add_query_arg( $args, admin_url( 'admin-ajax.php' ) );
 	}
 
 	/**
@@ -499,10 +566,9 @@ class DesignerCommission extends DatabaseModel {
 	/**
 	 * @inheritDoc
 	 */
-	public
-	function create_table() {
+	public static function create_table() {
 		global $wpdb;
-		$table_name = $this->get_table_name( $this->table );
+		$table_name = static::get_table_name();
 		$collate    = $wpdb->get_charset_collate();
 
 		$tables = "CREATE TABLE IF NOT EXISTS {$table_name} (
@@ -525,27 +591,38 @@ class DesignerCommission extends DatabaseModel {
 			PRIMARY KEY  (commission_id)
 		) $collate;";
 
-		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-		dbDelta( $tables );
+		$option = get_option( 'designer_commissions_table_version', '1.0.0' );
+		if ( false === $option ) {
+			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+			dbDelta( $tables );
+		}
 
-		$this->add_foreign_key();
+		static::add_foreign_key();
+
+		if ( version_compare( $option, '1.1.0', '<' ) ) {
+			$sql = "ALTER TABLE `{$table_name}` ADD `wc_order_exists` tinyint(1) UNSIGNED NOT NULL DEFAULT 0 AFTER `order_item_id`";
+			$wpdb->query( $sql );
+			$sql = "ALTER TABLE `{$table_name}` ADD `wc_order_item_id` bigint(20) UNSIGNED NOT NULL DEFAULT 0 AFTER `order_item_id`";
+			$wpdb->query( $sql );
+			$sql = "ALTER TABLE `{$table_name}` ADD `wc_order_id` bigint(20) UNSIGNED NOT NULL DEFAULT 0 AFTER `order_item_id`";
+			$wpdb->query( $sql );
+
+			update_option( 'designer_commissions_table_version', '1.1.0' );
+		}
 	}
 
-	public
-	function add_foreign_key() {
+	public static function add_foreign_key() {
 		global $wpdb;
-		$table_name = $this->get_table_name( $this->table );
-		$card_table = $this->get_table_name( $this->card_table );
+		$self       = new static;
+		$table_name = $self->get_table_name( $self->table );
+		$card_table = $self->get_table_name( $self->card_table );
 
 		$option = get_option( 'designer_commissions_table_version', '1.0.0' );
 		if ( version_compare( $option, '1.0.1', '<' ) ) {
-			$constant_name = $this->get_foreign_key_constant_name( $table_name, $card_table );
+			$constant_name = $self->get_foreign_key_constant_name( $table_name, $card_table );
 			$sql           = "ALTER TABLE `{$table_name}`";
-			$sql           .= " ADD CONSTRAINT `{$constant_name}`";
-			$sql           .= " FOREIGN KEY (`card_id`)";
-			$sql           .= " REFERENCES `{$card_table}`(`id`)";
-			$sql           .= " ON DELETE NO ACTION";
-			$sql           .= " ON UPDATE CASCADE;";
+			$sql           .= " ADD CONSTRAINT `{$constant_name}` FOREIGN KEY (`card_id`) REFERENCES `{$card_table}`(`id`)";
+			$sql           .= " ON DELETE NO ACTION ON UPDATE CASCADE;";
 			$wpdb->query( $sql );
 
 			$sql = "ALTER TABLE `{$table_name}` ADD INDEX `designer_id` (`designer_id`);";

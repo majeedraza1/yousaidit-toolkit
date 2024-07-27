@@ -97,7 +97,6 @@ class CardPopupManager {
 
 				if ( isset( $_POST['_dynamic_card_payload'] ) ) {
 					$payload = json_decode( stripslashes( $_POST['_dynamic_card_payload'] ), true );
-					Logger::log( [ 'raw' => $_POST['_dynamic_card_payload'], 'parse' => $payload ] );
 					if ( is_array( $payload ) ) {
 						$sanitized_payload                       = DynamicCard::sanitize_card_payload( $payload );
 						$cart_item_data['_dynamic_card_payload'] = wp_json_encode( $sanitized_payload );

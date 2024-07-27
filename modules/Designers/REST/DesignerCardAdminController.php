@@ -273,9 +273,13 @@ class DesignerCardAdminController extends ApiController {
 		$items = [];
 		foreach ( $commissions as $commission ) {
 			$commissionObject = new DesignerCommission( $commission );
-			$items[]          = array_merge(
+			$commissionObject->recalculate_wc_order_if_not_exists();
+			$items[] = array_merge(
 				$commissionObject->to_array(),
-				[ 'order_edit_url' => $commissionObject->get_admin_order_url() ]
+				[
+					'order_edit_url' => $commissionObject->get_admin_order_url(),
+					'pdf_url'        => $commissionObject->get_pdf_url()
+				]
 			);
 		}
 

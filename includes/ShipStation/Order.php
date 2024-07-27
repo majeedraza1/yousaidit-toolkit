@@ -136,6 +136,19 @@ class Order implements JsonSerializable {
 	}
 
 	/**
+	 * Get order number
+	 *
+	 * @return int
+	 */
+	public function get_unverified_wc_order_id(): int {
+		if ( isset( $this->data['orderNumber'] ) && is_numeric( $this->data['orderNumber'] ) ) {
+			return $this->data['orderNumber'];
+		}
+
+		return 0;
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function has_product(): bool {
@@ -172,7 +185,7 @@ class Order implements JsonSerializable {
 	 *
 	 * @return string
 	 */
-	public function get_order_key() {
+	public function get_order_key(): string {
 		return $this->data['orderKey'];
 	}
 
@@ -426,7 +439,7 @@ class Order implements JsonSerializable {
 
 					$items[ $key ]['items'][] = [
 						'shipStation_order_id' => $order->get_id(),
-						'order_item_id'        => $order_item->get_order_item_id(),
+						'order_item_id'        => $order_item->get_unverified_wc_order_item_id(),
 						'sku'                  => $order_item->get_sku(),
 						'wc_order_id'          => $order->get_wc_order_id(),
 						'wc_order_item_id'     => $order_item->get_wc_order_item_id(),
@@ -624,8 +637,10 @@ class Order implements JsonSerializable {
 		if ( isset( $this->data['orderNumber'] ) && is_numeric( $this->data['orderNumber'] ) ) {
 			$order = wc_get_order( intval( $this->data['orderNumber'] ) );
 
-			if ( $order instanceof WC_Abstract_Order &&
-			     ( $order->get_total() == floatval( $this->data['orderTotal'] ) ) ) {
+			if (
+				$order instanceof WC_Abstract_Order &&
+				( $order->get_total() == floatval( $this->data['orderTotal'] ) )
+			) {
 				$this->is_ordered_from_website = true;
 				$this->wc_order_id             = intval( $this->data['orderNumber'] );
 			}

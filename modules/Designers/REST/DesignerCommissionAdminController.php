@@ -2,6 +2,8 @@
 
 namespace YouSaidItCards\Modules\Designers\REST;
 
+use Stackonet\WP\Framework\Supports\Validate;
+use WC_Order;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -50,6 +52,11 @@ class DesignerCommissionAdminController extends ApiController {
 				],
 			],
 			[
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'get_item' ],
+				'permission_callback' => [ $this, 'delete_item_permissions_check' ],
+			],
+			[
 				'methods'             => WP_REST_Server::DELETABLE,
 				'callback'            => [ $this, 'delete_item' ],
 				'permission_callback' => [ $this, 'delete_item_permissions_check' ],
@@ -60,7 +67,7 @@ class DesignerCommissionAdminController extends ApiController {
 	/**
 	 * Retrieves one item from the collection.
 	 *
-	 * @param WP_REST_Request $request Full data about the request.
+	 * @param  WP_REST_Request  $request  Full data about the request.
 	 *
 	 * @return WP_REST_Response Response object on success, or WP_Error object on failure.
 	 * @throws \Exception
@@ -113,9 +120,51 @@ class DesignerCommissionAdminController extends ApiController {
 	}
 
 	/**
+	 * Retrieves one item from the collection.
+	 *
+	 * @param  WP_REST_Request  $request  Full details about the request.
+	 *
+	 * @return WP_REST_Response Response object on success, or WP_Error object on failure.
+	 */
+	public function get_item( $request ) {
+		$id    = (int) $request->get_param( 'id' );
+		$model = new DesignerCommission();
+		$item  = $model->find_single( $id );
+		if ( ! $item ) {
+			return $this->respondNotFound();
+		}
+
+		$order   = wc_get_order( $item->get_wc_order_id() );
+		$payload = [];
+		if ( $order instanceof WC_Order ) {
+			try {
+				$payload = wc_get_order_item_meta( $item->get_wc_order_item_id(), '_dynamic_card_payload', true );
+				if ( Validate::json( $payload ) ) {
+					$payload = json_decode( $payload, true );
+				}
+			} catch ( \Exception $e ) {
+			}
+		}
+
+		$commission = array_merge(
+			$item->to_array(),
+			[
+				'order_edit_url' => $item->get_admin_order_url(),
+				'pdf_url'        => $item->get_pdf_url()
+			]
+		);
+
+		return $this->respondOK( [
+			'commission'           => $commission,
+			'dynamic_card_payload' => $payload,
+			'wc_order_exists'      => $order instanceof WC_Order,
+		] );
+	}
+
+	/**
 	 * Deletes one item from the collection.
 	 *
-	 * @param WP_REST_Request $request Full details about the request.
+	 * @param  WP_REST_Request  $request  Full details about the request.
 	 *
 	 * @return WP_REST_Response Response object on success, or WP_Error object on failure.
 	 */
@@ -135,13 +184,14 @@ class DesignerCommissionAdminController extends ApiController {
 	/**
 	 * Checks if a given request has access to delete a specific item.
 	 *
-	 * @param WP_REST_Request $request Full details about the request.
+	 * @param  WP_REST_Request  $request  Full details about the request.
 	 *
 	 * @return true|WP_Error True if the request has access to delete the item, WP_Error object otherwise.
 	 */
 	public function delete_item_permissions_check( $request ) {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			return new WP_Error( 'rest_forbidden_context', __( 'Sorry, you are not allowed to access this resource.' ) );
+			return new WP_Error( 'rest_forbidden_context',
+				__( 'Sorry, you are not allowed to access this resource.' ) );
 		}
 
 		return true;

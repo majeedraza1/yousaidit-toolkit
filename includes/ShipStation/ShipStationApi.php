@@ -4,6 +4,7 @@ namespace YouSaidItCards\ShipStation;
 
 use Stackonet\WP\Framework\Supports\RestClient;
 use Stackonet\WP\Framework\Traits\Cacheable;
+use WP_Error;
 use YouSaidItCards\Admin\SettingPage;
 use YouSaidItCards\Modules\TreePlanting\ShipStationOrder;
 
@@ -65,12 +66,12 @@ class ShipStationApi extends RestClient {
 	 * @param  int  $wc_order_id
 	 * @param  bool  $force
 	 *
-	 * @return array|\WP_Error|Order
+	 * @return array|WP_Error|Order
 	 */
 	public function get_order_by_wc_order( int $wc_order_id, bool $force = false ) {
 		$store_id = SettingPage::get_shipstation_yousaidit_store_id();
 		if ( empty( $store_id ) ) {
-			return new \WP_Error( 'store_not_set', 'Store id is not set properly.' );
+			return new WP_Error( 'store_not_set', 'Store id is not set properly.' );
 		}
 		$transient_name = 'ship_station_order_for_' . $wc_order_id;
 		$order          = get_transient( $transient_name );
@@ -85,7 +86,7 @@ class ShipStationApi extends RestClient {
 			}
 			$orders = $orders['orders'] ?? [];
 			if ( empty( $orders ) ) {
-				return new \WP_Error( 'not_found', sprintf( 'No ShipStation order found for id #%s', $wc_order_id ) );
+				return new WP_Error( 'not_found', sprintf( 'No ShipStation order found for id #%s', $wc_order_id ) );
 			}
 			$order = $orders[0];
 			set_transient( $transient_name, $order, HOUR_IN_SECONDS );
@@ -167,12 +168,12 @@ class ShipStationApi extends RestClient {
 	 *
 	 * @param  int  $order_id  ShipStation order id.
 	 *
-	 * @return array|object
+	 * @return array|WP_Error
 	 */
 	public function get_order( $order_id ) {
 		$cache_key = $this->get_cache_key_for_single_item( $order_id );
 		$order     = $this->get_cache( $cache_key );
-		if ( false == $order ) {
+		if ( false === $order ) {
 			$order = $this->get( 'orders/' . $order_id );
 			$this->set_cache( $cache_key, $order );
 		}
@@ -185,7 +186,7 @@ class ShipStationApi extends RestClient {
 	 *
 	 * @param  array  $data
 	 *
-	 * @return array|\WP_Error
+	 * @return array|WP_Error
 	 */
 	public function mark_as_shipped( array $data ) {
 		$data = wp_parse_args( $data, [
@@ -218,7 +219,7 @@ class ShipStationApi extends RestClient {
 
 	/**
 	 * Get stores
-	 * @return array|\WP_Error
+	 * @return array|WP_Error
 	 */
 	public function get_stores() {
 		$stores = get_transient( 'get_shipstation_stores' );

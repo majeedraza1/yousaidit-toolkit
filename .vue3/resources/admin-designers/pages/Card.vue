@@ -173,25 +173,8 @@
               No commission information yet
             </template>
           </div>
-          <div class="bg-white mt-4 p-2">
-            <div v-for="commission in store.commissions" :key="commission.commission_id" class="flex space-x-2">
-              <div class="flex space-x-2 shadow p-2 rounded flex-grow mb-2">
-                <div class="flex flex-col">
-                  <div>Order ID: {{ commission.order_id }}</div>
-                  <div>Order Item ID: {{ commission.order_item_id }}</div>
-                </div>
-                <div class="flex-grow"></div>
-                <div>
-                  <a :href="commission.order_edit_url" target="_blank" class="button">View Order</a>
-                </div>
-              </div>
-            </div>
-
-            <ShaplaTablePagination
-                :total-items="store.commissionsPagination.total_items"
-                :per-page="store.commissionsPagination.per_page"
-                :current-page="store.commissionsPagination.current_page"
-            />
+          <div class="mt-4 p-2">
+            <CardComissions/>
           </div>
         </ShaplaTab>
         <ShaplaTab name="Dynamic Card Data" v-if="store.card.card_type === 'dynamic'">
@@ -463,7 +446,6 @@ import {
   ShaplaModal,
   ShaplaRadio,
   ShaplaTab,
-  ShaplaTablePagination,
   ShaplaTabs
 } from '@shapla/vue-components';
 import {Notify} from '@shapla/vanilla-components'
@@ -475,6 +457,7 @@ import useAdminDesignerCardStore from "../stores/card-store.ts";
 import {computed, onMounted, reactive, ref} from "vue";
 import ImageInfo from "../components/ImageInfo.vue";
 import {convertPXtoMM} from "../../utils/helper.ts";
+import CardComissions from "../components/CardComissions.vue";
 
 const canvasContainer = ref(null);
 const showPreview = ref(false);
@@ -605,8 +588,8 @@ const goToDesignerPage = (designer_id: number | string) => {
 }
 
 const refresh = () => {
-  store.getCardById(card_id);
-  store.getCardCommissions(card_id);
+  store.getCardById(card_id.value);
+  store.getCardCommissions(card_id.value);
 }
 
 

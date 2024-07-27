@@ -5,6 +5,7 @@ namespace YouSaidItCards\Modules\Designers\Admin;
 use WP_Post;
 use YouSaidItCards\Modules\Designers\Frontend\DesignerProfile;
 use YouSaidItCards\Modules\Designers\Models\DesignerCard;
+use YouSaidItCards\Modules\FontManager\Font;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -41,13 +42,13 @@ class Admin {
 		$capability = 'manage_options';
 		$slug       = 'designers';
 		$hook       = add_menu_page( 'Designers', 'Designers',
-				$capability, $slug, [ self::$instance, 'designer_menu_page_callback' ], 'dashicons-admin-post', 6 );
+			$capability, $slug, [ self::$instance, 'designer_menu_page_callback' ], 'dashicons-admin-post', 6 );
 		$menus      = [
-				[ 'title' => __( 'Designers', 'vue-wp-starter' ), 'slug' => '#/' ],
-				[ 'title' => __( 'Cards', 'vue-wp-starter' ), 'slug' => '#/cards' ],
-				[ 'title' => __( 'Commissions', 'vue-wp-starter' ), 'slug' => '#/commissions' ],
-				[ 'title' => __( 'PayPal Payouts', 'vue-wp-starter' ), 'slug' => '#/payouts' ],
-				[ 'title' => __( 'Settings', 'vue-wp-starter' ), 'slug' => '#/settings' ],
+			[ 'title' => __( 'Designers', 'vue-wp-starter' ), 'slug' => '#/' ],
+			[ 'title' => __( 'Cards', 'vue-wp-starter' ), 'slug' => '#/cards' ],
+			[ 'title' => __( 'Commissions', 'vue-wp-starter' ), 'slug' => '#/commissions' ],
+			[ 'title' => __( 'PayPal Payouts', 'vue-wp-starter' ), 'slug' => '#/payouts' ],
+			[ 'title' => __( 'Settings', 'vue-wp-starter' ), 'slug' => '#/settings' ],
 		];
 		if ( current_user_can( $capability ) ) {
 			foreach ( $menus as $menu ) {
@@ -72,14 +73,15 @@ class Admin {
 	public function init_hooks() {
 		wp_enqueue_style( 'yousaidit-toolkit-admin' );
 		wp_enqueue_script( 'yousaidit-toolkit-admin' );
+		add_action( 'admin_footer', [ Font::class, 'print_font_face_rules' ] );
 	}
 
 	/**
 	 * Add shop order metabox
 	 *
 	 *
-	 * @param string $post_type Post type.
-	 * @param WP_Post $post Post object.
+	 * @param  string  $post_type  Post type.
+	 * @param  WP_Post  $post  Post object.
 	 */
 	public function add_meta_boxes( $post_type, $post ) {
 		if ( 'product' == $post_type ) {
@@ -88,7 +90,7 @@ class Admin {
 
 			if ( $card_id && $designer_id ) {
 				add_meta_box( 'product_card_info', 'Product Card Info', [ $this, 'product_card_info_callback' ],
-						$post_type, 'side', 'low' );
+					$post_type, 'side', 'low' );
 			}
 		}
 	}
@@ -104,10 +106,10 @@ class Admin {
 		$designer_profile = admin_url( "admin.php?page=designers#/designers/" . $designer_id );
 		$card_url         = admin_url( "admin.php?page=designers#/cards/" . $card_id );
 		?>
-		<p>
-			<a class="button" href="<?php echo $designer_profile ?>" target="_blank">View Designer Profile</a>
-			<a class="button" href="<?php echo $card_url ?>" target="_blank">View Card</a>
-		</p>
+        <p>
+            <a class="button" href="<?php echo $designer_profile ?>" target="_blank">View Designer Profile</a>
+            <a class="button" href="<?php echo $card_url ?>" target="_blank">View Card</a>
+        </p>
 		<?php
 	}
 

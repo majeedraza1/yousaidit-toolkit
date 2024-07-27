@@ -171,7 +171,7 @@ class OrderItem implements JsonSerializable {
 			$this->card_id     = (int) $this->product->get_meta( '_card_id', true );
 		}
 
-		$this->order_item_id = $this->get_order_item_id();
+		$this->order_item_id = $this->get_unverified_wc_order_item_id();
 
 		// Check if item contains inner message
 		$this->read_inner_message();
@@ -182,7 +182,7 @@ class OrderItem implements JsonSerializable {
 		$this->read_card_size();
 
 		if ( ! $this->pdf_id ) {
-			$info = OrderItemPdf::find_by_sku( $this->get_sku(), $this->get_order_item_id() );
+			$info = OrderItemPdf::find_by_sku( $this->get_sku(), $this->get_unverified_wc_order_item_id() );
 			if ( $info instanceof OrderItemPdf ) {
 				$this->pdf_id     = $info->get_pdf_id();
 				$this->pdf_width  = $info->get_pdf_width();
@@ -238,7 +238,7 @@ class OrderItem implements JsonSerializable {
 			'has_inner_message'   => $this->has_inner_message(),
 			'inner_message'       => $this->get_inner_message(),
 			'card_size'           => $this->get_card_size(),
-			'shipstation_item_id' => $this->get_order_item_id(),
+			'shipstation_item_id' => $this->get_unverified_wc_order_item_id(),
 		] );
 	}
 
@@ -440,11 +440,20 @@ class OrderItem implements JsonSerializable {
 	}
 
 	/**
-	 * Get order item id
+	 * Get WooCommerce order item id
 	 *
 	 * @return int
 	 */
 	public function get_order_item_id(): int {
+		return isset( $this->data['orderItemId'] ) ? intval( $this->data['orderItemId'] ) : 0;
+	}
+
+	/**
+	 * Get WooCommerce order item id
+	 *
+	 * @return int
+	 */
+	public function get_unverified_wc_order_item_id(): int {
 		return isset( $this->data['lineItemKey'] ) ? intval( $this->data['lineItemKey'] ) : 0;
 	}
 
@@ -455,7 +464,7 @@ class OrderItem implements JsonSerializable {
 	 */
 	public function get_wc_order_item() {
 		if ( ! $this->order_item_product instanceof WC_Order_Item_Product ) {
-			$id = $this->get_order_item_id();
+			$id = $this->get_unverified_wc_order_item_id();
 			if ( $id ) {
 				try {
 					$order_item_product       = new WC_Order_Item_Product( $id );

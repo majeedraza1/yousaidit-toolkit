@@ -50,6 +50,7 @@ class DesignersManager {
 
 			add_action( 'init', [ self::$instance, 'register_post_type' ] );
 			add_action( 'wp', [ self::$instance, 'schedule_cron_event' ] );
+			add_action( 'admin_init', [ DesignerCommission::class, 'create_table' ] );
 			add_action( 'sync_commissions_from_shipstation', [ self::$instance, 'sync_commission' ] );
 			add_action( 'wp_ajax_sync_orders_commissions', [ self::$instance, 'sync_commission' ] );
 			add_action( 'wp_ajax_remove_orders_commissions', [ self::$instance, 'remove_commissions' ] );
@@ -101,7 +102,7 @@ class DesignersManager {
 	 */
 	public static function activation() {
 		DesignerCard::create_table();
-		( new DesignerCommission() )->create_table();
+		DesignerCommission::create_table();
 		( new Payment() )->create_table();
 		( new PaymentItem() )->create_table();
 		DesignerCustomerProfile::custom_rewrite_rule();

@@ -4,7 +4,8 @@ import {Dialog, Notify, Spinner} from "@shapla/vanilla-components";
 import axios from "../../utils/axios.ts";
 import {DesignerCardInterface, TYPE_CARD_SIZE} from "../../interfaces/designer.ts";
 import {PaginationDataInterface, ServerCollectionResponseDataInterface} from "../../utils/CrudOperation.ts";
-import {DesignerCommission} from "../../interfaces/designer-commission.ts";
+import {DesignerCommissionInterface} from "../../interfaces/designer-commission.ts";
+import {DynamicCardPayloadInterface} from "../../interfaces/designer-card.ts";
 
 interface SingleCardServerResponseInterface extends DesignerCardInterface {
   default_commissions: { 'yousaidit': number; 'yousaidit-trade': number; };
@@ -12,11 +13,17 @@ interface SingleCardServerResponseInterface extends DesignerCardInterface {
   default_price: Record<TYPE_CARD_SIZE, '' | number>;
 }
 
+interface SingleCommissionServerResponseInterface {
+  commission: DesignerCommissionInterface;
+  dynamic_card_payload: DynamicCardPayloadInterface;
+  wc_order_exists: boolean;
+}
+
 const useAdminDesignerCardStore = defineStore('admin-designer-card', () => {
   const state = reactive<{
     card: DesignerCardInterface | null;
     commission: Record<string, string>
-    commissions: DesignerCommission[];
+    commissions: DesignerCommissionInterface[];
     commissionsPagination: PaginationDataInterface;
     product_sku?: Record<TYPE_CARD_SIZE, string>;
     product_price?: Record<TYPE_CARD_SIZE, '' | number>;
@@ -28,7 +35,7 @@ const useAdminDesignerCardStore = defineStore('admin-designer-card', () => {
     card: null,
     commission: null,
     commissions: [],
-    commissionsPagination: {total_items: 0, per_page: 20, current_page: 1},
+    commissionsPagination: {total_items: 0, per_page: 10, current_page: 1},
     product_sku: null,
     product_price: null,
     commission_type: 'fix',
@@ -74,18 +81,18 @@ const useAdminDesignerCardStore = defineStore('admin-designer-card', () => {
     })
   }
 
-  const getCardCommissions = (card_id: number) => {
+  const getCardCommissions = (card_id: number, page: number = 1) => {
     return new Promise(resolve => {
       Spinner.show();
       axios.get('designers-cards/' + card_id + '/commissions', {
         params: {
           per_page: state.commissionsPagination.per_page,
-          page: state.commissionsPagination.current_page
+          page: page ? page : state.commissionsPagination.current_page
         }
       })
         .then(response => {
           const data = response.data.data as ServerCollectionResponseDataInterface;
-          state.commissions = data.items as DesignerCommission[];
+          state.commissions = data.items as DesignerCommissionInterface[];
           state.commissionsPagination = data.pagination;
           resolve(data);
         })
@@ -100,6 +107,31 @@ const useAdminDesignerCardStore = defineStore('admin-designer-card', () => {
         })
     })
   }
+
+  const getCardCommission = (commission_id: number): Promise<SingleCommissionServerResponseInterface> => {
+    return new Promise(resolve => {
+      Spinner.show();
+      axios.get('designers-commissions/' + commission_id)
+        .then(response => {
+          const data = response.data.data as SingleCommissionServerResponseInterface;
+          if (!data.wc_order_exists) {
+            Notify.error('Order not found. Perhaps it was deleted?', 'Error!');
+          } else {
+            resolve(data);
+          }
+        })
+        .catch(error => {
+          const responseData = error.response.data;
+          if (responseData.message) {
+            Notify.error(responseData.message, 'Error!');
+          }
+        })
+        .finally(() => {
+          Spinner.hide();
+        })
+    })
+  }
+
   const createProductOnTradeSite = (card_id: number) => {
     Dialog.confirm('Are you sure?').then(confirmed => {
       if (confirmed) {
@@ -302,8 +334,12 @@ const useAdminDesignerCardStore = defineStore('admin-designer-card', () => {
     handleCommissionUpdate,
     previewDynamicCardPDF,
     generateCardImage,
-    getCardCommissions
+    getCardCommissions,
+    getCardCommission
   }
 });
 
+export type {
+  SingleCommissionServerResponseInterface
+}
 export default useAdminDesignerCardStore;
