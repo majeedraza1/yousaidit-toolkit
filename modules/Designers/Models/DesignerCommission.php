@@ -145,6 +145,7 @@ class DesignerCommission extends DatabaseModel {
 			'order_id' => $this->get_wc_order_id(),
 			'item_id'  => $this->get_wc_order_item_id(),
 			'mode'     => 'pdf',
+			'debug'    => 1,
 		];
 
 		return add_query_arg( $args, admin_url( 'admin-ajax.php' ) );

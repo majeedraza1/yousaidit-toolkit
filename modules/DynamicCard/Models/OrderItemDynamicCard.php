@@ -2,6 +2,7 @@
 
 namespace YouSaidItCards\Modules\DynamicCard\Models;
 
+use Stackonet\WP\Framework\Supports\Validate;
 use tFPDF;
 use WC_Order;
 use WC_Order_Item_Product;
@@ -167,6 +168,8 @@ class OrderItemDynamicCard {
 	}
 
 	public function pdf( string $filename = '', string $dest = 'I', array $args = [] ) {
+		$is_debugging = isset( $args['debug'] ) && Validate::checked( $args['debug'] );
+
 		$fpd = new FreePdfExtended( 'L', 'mm', [ $this->card_width, $this->card_height ] );
 
 		// Add custom fonts
@@ -196,9 +199,7 @@ class OrderItemDynamicCard {
 		// Add sections
 		$this->addSections( $fpd );
 
-		if ( 'production' === wp_get_environment_type() ) {
-			$fpd->Output( $dest, $filename );
-		} else {
+		if ( 'production' !== wp_get_environment_type() || $is_debugging ) {
 			// Draw rect on back side
 			$fpd->SetAlpha( .05 );
 			$fpd->SetLineWidth( 0 );
@@ -209,6 +210,8 @@ class OrderItemDynamicCard {
 			// Output to browser
 			$fpd->Output();
 			die;
+		} else {
+			$fpd->Output( $dest, $filename );
 		}
 	}
 

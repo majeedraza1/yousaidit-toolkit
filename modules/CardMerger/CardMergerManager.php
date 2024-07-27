@@ -7,6 +7,7 @@ use WC_Order;
 use YouSaidItCards\Modules\CardMerger\PDFMergers\DynamicSizePdfMerger;
 use YouSaidItCards\Modules\CardMerger\PDFMergers\MugMerger;
 use YouSaidItCards\Modules\DynamicCard\BackgroundDynamicPdfGenerator;
+use YouSaidItCards\Modules\DynamicCard\Models\OrderItemDynamicCard;
 use YouSaidItCards\Modules\InnerMessage\PdfGenerator;
 use YouSaidItCards\Modules\OrderDispatcher\QtyCode;
 use YouSaidItCards\ShipStation\Order;
@@ -145,13 +146,17 @@ class CardMergerManager {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			die( 'Only admin can perform this action.' );
 		}
+		$debug            = isset( $_GET['debug'] ) && Validate::checked( $_GET['debug'] );
 		$wc_order_id      = isset( $_GET['order_id'] ) ? intval( $_GET['order_id'] ) : 0;
 		$wc_order_item_id = isset( $_GET['item_id'] ) ? intval( $_GET['item_id'] ) : 0;
 		$wc_order         = wc_get_order( $wc_order_id );
 		if ( ! $wc_order instanceof WC_Order ) {
 			die( 'No order found for this is.' );
 		}
-		$order_item      = new \WC_Order_Item_Product( $wc_order_item_id );
+		$order_item = $wc_order->get_item( $wc_order_item_id );
+		if ( ! $order_item instanceof \WC_Order_Item_Product ) {
+			die( 'Order item not found for item #' . $wc_order_item_id );
+		}
 		$product_id      = $order_item->get_product_id();
 		$product         = wc_get_product( $product_id );
 		$postcard_pdf_id = (int) $order_item->get_meta( '_postcard_pdf_id', true );
@@ -159,6 +164,11 @@ class CardMergerManager {
 		if ( $postcard_pdf_id ) {
 			$url = wp_get_attachment_url( $postcard_pdf_id );
 		} elseif ( $dynamic_card_id ) {
+			if ( $debug ) {
+				$item = new OrderItemDynamicCard( $wc_order, $order_item );
+				$item->pdf( '', 'F', [ 'debug' => true ] );
+				die;
+			}
 			$url = BackgroundDynamicPdfGenerator::get_pdf_url( $wc_order_id, $wc_order_item_id );
 			if ( ! Validate::url( $url ) ) {
 				die;
