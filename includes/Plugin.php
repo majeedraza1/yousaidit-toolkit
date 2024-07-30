@@ -30,6 +30,7 @@ use YouSaidItCards\Modules\OrderDispatcher\OrderDispatcherManager;
 use YouSaidItCards\Modules\PackingSlip\PackingSlipManager;
 use YouSaidItCards\Modules\Reminders\RemindersManager;
 use YouSaidItCards\Modules\RudeProduct\RudeProductManager;
+use YouSaidItCards\Modules\SocialAuth\SocialAuthManager;
 use YouSaidItCards\Modules\StabilityAi\StabilityAiManager;
 use YouSaidItCards\Modules\TradeSite\TradeSiteManager;
 use YouSaidItCards\Modules\TreePlanting\TreePlantingManager;
@@ -140,6 +141,7 @@ class Plugin {
 	 */
 	public function modules_includes() {
 		$this->container['module_auth']        = AuthManager::init();
+		$this->container['module_social_auth'] = SocialAuthManager::init();
 		$this->container['module_customer']    = CustomerManager::init();
 		$this->container['module_wc']          = WooCommerceManager::init();
 		$this->container['module_faq']         = FaqManager::init();
