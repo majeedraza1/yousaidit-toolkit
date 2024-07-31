@@ -370,16 +370,18 @@ class DesignerProfile {
 		}
 
 		$data = [
-			'restRoot'         => esc_url_raw( rest_url( 'yousaidit/v1' ) ),
-			'restNonce'        => false,
-			'siteTitle'        => get_option( 'blogname' ),
-			'logoUrl'          => '',
-			'categories'       => [],
-			'mug_categories'   => [],
-			'tags'             => [],
-			'card_sizes'       => [],
-			'attributes'       => [],
-			'privacyPolicyUrl' => get_privacy_policy_url(),
+			'restRoot'           => esc_url_raw( rest_url( 'yousaidit/v1' ) ),
+			'restNonce'          => false,
+			'siteTitle'          => get_option( 'blogname' ),
+			'logoUrl'            => '',
+			'categories'         => [],
+			'mug_categories'     => [],
+			'tags'               => [],
+			'card_sizes'         => [],
+			'attributes'         => [],
+			'privacyPolicyUrl'   => get_privacy_policy_url(),
+			'cardLogoMinWidth'   => Utils::millimeter_to_pixels( 42 ),
+			'cardLogoMinWidthMM' => Utils::pixels_to_millimeter( 500 )
 		];
 
 		$options = (array) get_option( 'yousaiditcard_designers_settings' );

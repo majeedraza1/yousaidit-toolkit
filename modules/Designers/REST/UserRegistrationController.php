@@ -2,6 +2,8 @@
 
 namespace YouSaidItCards\Modules\Designers\REST;
 
+use Imagick;
+use ImagickException;
 use Stackonet\WP\Framework\Media\UploadedFile;
 use Stackonet\WP\Framework\Supports\Attachment;
 use Stackonet\WP\Framework\Supports\Validate;
@@ -122,8 +124,13 @@ class UserRegistrationController extends ApiController {
 			return $this->respondWithWpError( $validation );
 		}
 
+		$accept_terms = Validate::checked( $request->get_param( 'accept_terms' ) );
+		if ( ! $accept_terms ) {
+			return $this->respondUnprocessableEntity( [
+				'accept_terms' => 'You must accept Terms and Conditions to create designer account.'
+			] );
+		}
 		$newsletter_signup = Validate::checked( $request->get_param( 'newsletter_signup' ) );
-		$accept_terms      = Validate::checked( $request->get_param( 'accept_terms' ) );
 
 		$name       = $request->get_param( 'name' );
 		$name       = ! empty( $name ) ? $name : $username;
@@ -173,30 +180,78 @@ class UserRegistrationController extends ApiController {
 
 		$uploaded_files = UploadedFile::parse_uploaded_files( $request->get_file_params() );
 
+		$image_errors = array();
 		foreach ( $uploaded_files as $name => $uploaded_file ) {
 			if ( $uploaded_file instanceof UploadedFile ) {
 				if ( ! in_array( $uploaded_file->get_mime_type(), [ 'image/jpeg', 'image/png', ], true ) ) {
 					continue;
 				}
+
+				try {
+					$imagick      = new Imagick( $uploaded_file->get_file() );
+					$image_width  = $imagick->getImageWidth();
+					$image_height = $imagick->getImageHeight();
+				} catch ( ImagickException $e ) {
+					$image_errors[ $name ] = 'Sorry, we could not read image size.';
+					continue;
+				}
+
 				if ( 'profile_logo' === $name ) {
-					$image_id = Attachment::upload_single_file( $uploaded_file );
-					if ( is_numeric( $image_id ) ) {
-						$user_data['meta_input']['_avatar_id'] = $image_id;
+					$min_width       = 250;
+					$min_height      = 250;
+					$expected_height = intval( $image_width * ( $min_height / $min_width ) );
+					if ( $image_width < $min_width || $image_height < $min_height ) {
+						$image_errors[ $name ] = sprintf(
+							'Minimum image size is %sx%s px. Your uploaded image size is %sx%s px.',
+							$min_width, $min_height, $image_width, $image_height
+						);
+					} elseif ( $image_height !== $expected_height ) {
+						$image_errors[ $name ] = 'Profile logo aspect ration must be 1:1';
+					} else {
+						$image_id = Attachment::upload_single_file( $uploaded_file );
+						if ( is_numeric( $image_id ) ) {
+							$user_data['meta_input']['_avatar_id'] = $image_id;
+						}
 					}
 				}
 				if ( 'profile_banner' === $name ) {
-					$image_id = Attachment::upload_single_file( $uploaded_file );
-					if ( is_numeric( $image_id ) ) {
-						$user_data['meta_input']['_cover_photo_id'] = $image_id;
+					$min_width  = 1397;
+					$min_height = 256;
+					if ( $image_width < $min_width || $image_height < $min_height ) {
+						$image_errors[ $name ] = sprintf(
+							'Minimum image size is %sx%s px. Your uploaded image size is %sx%s px.',
+							$min_width, $min_height, $image_width, $image_height
+						);
+					} else {
+						$image_id = Attachment::upload_single_file( $uploaded_file );
+						if ( is_numeric( $image_id ) ) {
+							$user_data['meta_input']['_cover_photo_id'] = $image_id;
+						}
 					}
 				}
 				if ( 'card_logo' === $name ) {
-					$image_id = Attachment::upload_single_file( $uploaded_file );
-					if ( is_numeric( $image_id ) ) {
-						$user_data['meta_input']['_card_logo_id'] = $image_id;
+					$min_width  = 512;
+					$min_height = 512;
+					if ( $image_width < $min_width ) {
+						$image_errors[ $name ] = sprintf(
+							'Minimum card logo image size is %sx%s px. Your uploaded image size is %sx%s px.',
+							$min_width, $min_height, $image_width, $image_height
+						);
+					} elseif ( $image_height > $image_width ) {
+						$image_errors[ $name ] = 'Card logo image height cannot be larger than image width.';
+					} else {
+						$image_id = Attachment::upload_single_file( $uploaded_file );
+						if ( is_numeric( $image_id ) ) {
+							$user_data['meta_input']['_card_logo_id'] = $image_id;
+						}
 					}
 				}
 			}
+		}
+
+		if ( count( $image_errors ) ) {
+			return $this->respondUnprocessableEntity( 'image_error', 'Something went wrong. Please try again.',
+				$image_errors );
 		}
 
 		$user_id = wp_insert_user( $user_data );

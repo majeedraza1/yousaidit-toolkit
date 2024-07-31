@@ -41,12 +41,14 @@ const onSubmit = () => {
           <ShaplaColumn :tablet="12">
             <label for="name">Profile Banner</label>
             <input type="file" name="profile_banner" class="yousaidit-login-modal__input" accept=".png,.jpg,.jpeg">
-            <p class="text-sm mt-1">This File Needs A JPG Or PNG And Needs To Be 1397 X 256px</p>
+            <p class="text-sm mt-1">This file needs a JPG Or PNG, and needs to be <span class="text-primary">1397 X 256px</span>
+            </p>
           </ShaplaColumn>
           <ShaplaColumn :tablet="12">
             <label for="name">Back Of Card Logo</label>
             <input type="file" name="card_logo" class="yousaidit-login-modal__input" accept=".png,.jpg,.jpeg">
-            <p class="text-sm mt-1">This File Needs A JPG Or PNG And Needs To Be 250px X 250px And Set To 300dpi.</p>
+            <p class="text-sm mt-1">This file needs a JPG Or PNG, and minimum width should be 512px. The image should be
+              square or it's height must not be larger than it's width.</p>
           </ShaplaColumn>
         </ShaplaColumns>
         <ShaplaColumns multiline>
@@ -60,7 +62,8 @@ const onSubmit = () => {
             </label>
             <label for="accept_terms">
               <input type="checkbox" name="accept_terms" id="accept_terms" v-model="state.accept_terms">
-              <span>I agree to the <a :href="termsUrl" target="_blank" class="text-primary">Terms and Conditions</a></span>
+              <span>I agree to the <a :href="termsUrl" target="_blank"
+                                      class="text-primary">Terms and Conditions</a></span>
             </label>
           </ShaplaColumn>
         </ShaplaColumns>
