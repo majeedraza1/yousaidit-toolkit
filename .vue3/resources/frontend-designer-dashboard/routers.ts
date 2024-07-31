@@ -11,6 +11,7 @@ import AddStandardCard from './pages/AddStandardCard.vue';
 import AddPhotoCard from './pages/AddPhotoCard.vue';
 import AddTextCard from './pages/AddTextCard.vue';
 import AddMug from './pages/AddMug.vue';
+import CustomFonts from './pages/CustomFonts.vue';
 
 const routeEndpoints = [
   {path: '/', name: 'Report', component: Report, title: 'Dashboard'},
@@ -20,6 +21,7 @@ const routeEndpoints = [
   {path: '/add-new-card/photo', name: 'AddPhotoCard', component: AddPhotoCard, hideSidenav: true},
   {path: '/add-new-card/text', name: 'AddTextCard', component: AddTextCard, hideSidenav: true},
   {path: '/add-new-card/mug', name: 'AddMug', component: AddMug, hideSidenav: true},
+  {path: '/fonts', name: 'CustomFonts', component: CustomFonts, title: 'Fonts'},
   {path: '/revenue', name: 'Revenue', component: Revenue, title: 'Revenue'},
   {path: '/payment', name: 'Payments', component: Payments, title: 'Payment Details'},
   {path: '/profile', name: 'Profile', component: Profile, title: 'Profile'},

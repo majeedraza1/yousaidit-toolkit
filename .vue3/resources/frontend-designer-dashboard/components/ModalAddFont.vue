@@ -18,11 +18,22 @@ const emit = defineEmits<{
 const emitClose = () => emit('close');
 const formEl = ref(null);
 
+const addFontFaceStyle = (font: FontInfoInterface) => {
+  const styleEl = document.createElement('style');
+  styleEl.setAttribute('type', 'text/css');
+  styleEl.setAttribute('id', `yousaidit-inline-font-face-css-${font.slug}`);
+
+  styleEl.innerHTML = `@font-face {font-family: '${font.font_family}'; font-style: normal; font-weight: 400;font-display: swap;src: url(${font.url}) format('truetype');}`
+
+  document.body.append(styleEl);
+}
+
 const onSubmitForm = () => {
   if (formEl.value) {
     const formData = new FormData(formEl.value);
     store.createNewFont(formData).then((data) => {
-      emit('font:added', data);
+      emit('font:added', data.fontInfo as FontInfoInterface);
+      addFontFaceStyle(data.fontInfo);
     })
   }
 }

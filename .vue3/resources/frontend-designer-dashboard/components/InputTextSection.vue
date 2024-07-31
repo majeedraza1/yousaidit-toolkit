@@ -117,7 +117,7 @@ onMounted(() => {
                 <ShaplaInput label="Placeholder" type="textarea" v-model="state.options.placeholder" rows="2"/>
               </div>
             </ShaplaColumn>
-            <ShaplaColumn :tablet="12">
+            <ShaplaColumn :tablet="12" class="hidden">
               <h4 class="text-base">Custom font</h4>
               <p class="text-xs">If font is not listed, you can add your font.</p>
               <ShaplaButton theme="primary" size="small" outline fullwidth @click="addFont">

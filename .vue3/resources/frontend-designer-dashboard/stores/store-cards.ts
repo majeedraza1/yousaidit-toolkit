@@ -209,7 +209,9 @@ const useDesignerCardStore = defineStore('designer-cards', () => {
     })
   }
 
-  const createNewFont = (data: FormData | Record<string, string>): Promise<FontInfoInterface> => {
+  const createNewFont = (data: FormData | Record<string, string>): Promise<{
+    fontInfo: FontInfoInterface
+  }> => {
     return new Promise(resolve => {
       Spinner.show();
       axios.post('designers/fonts', data, {
@@ -218,7 +220,7 @@ const useDesignerCardStore = defineStore('designer-cards', () => {
         }
       })
         .then(response => {
-          resolve(response.data.data as FontInfoInterface);
+          resolve(response.data.data as { fontInfo: FontInfoInterface });
           Notify.success('Font setting has been updated.', 'Success!');
         })
         .catch(error => {

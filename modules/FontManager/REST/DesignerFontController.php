@@ -8,7 +8,6 @@ use WP_REST_Response;
 use WP_REST_Server;
 use YouSaidItCards\Modules\FontManager\Font;
 use YouSaidItCards\Modules\FontManager\Models\DesignerFont;
-use YouSaidItCards\Modules\FontManager\Models\FontInfo;
 use YouSaidItCards\REST\ApiController;
 
 class DesignerFontController extends ApiController {
@@ -36,6 +35,7 @@ class DesignerFontController extends ApiController {
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => [ $this, 'get_items' ],
 				'permission_callback' => [ $this, 'auth_user_permissions_check' ],
+				'args'                => $this->get_collection_params(),
 			],
 			[
 				'methods'             => WP_REST_Server::CREATABLE,
@@ -53,8 +53,18 @@ class DesignerFontController extends ApiController {
 	 * @return WP_REST_Response Response object.
 	 */
 	public function get_items( $request ) {
+		$page     = (int) $request->get_param( 'page' );
+		$per_page = (int) $request->get_param( 'per_page' );
+
+		$user_id     = get_current_user_id();
+		$fonts       = DesignerFont::get_fonts( $user_id, $per_page, $page );
+		$total_items = DesignerFont::get_total_fonts_count( $user_id );
+		$pagination  = static::get_pagination_data( $total_items, $per_page, $page );
+
 		return $this->respondOK( [
-			'items' => [],
+			'items'               => $fonts,
+			'pagination'          => $pagination,
+			'pre_installed_fonts' => Font::get_pre_installed_fonts_with_permissions(),
 		] );
 	}
 
@@ -112,10 +122,11 @@ class DesignerFontController extends ApiController {
 
 		$font_id = DesignerFont::create( $data );
 		if ( $font_id ) {
-			$font      = DesignerFont::find_single( $font_id );
-			$font_info = ( new FontInfo( $font->to_array() ) )->to_array();
+			$font = DesignerFont::find_single( $font_id );
 
-			return $this->respondCreated( $font_info );
+			return $this->respondCreated( [
+				'fontInfo' => $font->to_array(),
+			] );
 		}
 
 		return $this->respondInternalServerError();

@@ -47,20 +47,31 @@ class DesignerFont extends DatabaseModel {
 	 *
 	 * @return FontInfo[]
 	 */
-	public static function get_fonts( int $designer_id ): array {
+	public static function get_fonts( int $designer_id, int $per_page = 20, int $page = 1 ): array {
 		global $wpdb;
 		$table   = static::get_table_name();
 		$sql     = $wpdb->prepare( "SELECT * FROM $table WHERE designer_id = %d", $designer_id );
 		$results = $wpdb->get_results( $sql, ARRAY_A );
 		$fonts   = [];
 		foreach ( $results as $result ) {
-			$fonts[] = new FontInfo( array_merge( $result, [
-				'for_public'   => true,
-				'for_designer' => true,
-			] ) );
+			$fonts[] = new static( $result );
 		}
 
 		return $fonts;
+	}
+
+	public static function get_total_fonts_count( int $designer_id ): int {
+		global $wpdb;
+		$table = static::get_table_name();
+		$row   = $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT COUNT(*) AS total_records FROM {$table} WHERE designer_id = %d",
+				$designer_id
+			),
+			ARRAY_A
+		);
+
+		return isset( $row['total_records'] ) ? intval( $row['total_records'] ) : 0;
 	}
 
 	/**
