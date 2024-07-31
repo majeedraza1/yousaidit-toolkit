@@ -123,9 +123,14 @@ onMounted(() => {
       </div>
       <div class="w-full md:w-1/2 p-2">
         <div>
-          <h2 class="text-2xl leading-none mb-4">Mug Size</h2>
-          <p>The size we're printing is square (21cm x 9.9cm), please upload the image in JPEG format with a minimum
-            resolution of <strong>2480 x 1169 px</strong>.</p>
+          <h2 class="text-2xl leading-none mb-4">Card Artwork Size</h2>
+          <p>To ensure print quality we need the artwork uploaded to be the correct size.</p>
+          <p>
+            <strong>Size (width x height):</strong> 21 x 9.9 cm <span class="hidden color-text-secondary"> or (2480 x 1169 px)</span><br>
+            <strong>Resolution:</strong> 300ppi<br>
+            <strong>Colour mode:</strong> CMYK<br>
+            <strong>Format:</strong> JPEG or PNG
+          </p>
         </div>
         <div>
           <h2 class="text-2xl leading-none mb-4">Templates</h2>

@@ -191,15 +191,14 @@ onMounted(() => {
       </div>
       <div class="w-full md:w-1/2 p-2">
         <div>
-          <h2 class="text-2xl leading-none mb-4">Card Size</h2>
-          <p>The size we're printing is square (15cm x 15cm), please upload the image in JPEG or PNG format with a
-            minimum resolution of <strong>1819 x 1843 px</strong>.</p>
-        </div>
-        <div>
-          <h2 class="text-2xl leading-none mb-4">Bleed Needed</h2>
-          <p>For the best results, please ensure your design as a 3mm bleed on the top, right and bottom and 1mm
-            on the left of your design. These parts will get cut off when printed, anything you would like on
-            the printed design must be kept within the cropping masks.</p>
+          <h2 class="text-2xl leading-none mb-4">Card Artwork Size</h2>
+          <p>To ensure print quality we need the artwork uploaded to be the correct size.</p>
+          <p>
+            <strong>Size (width x height):</strong> 15.4 x 15.6 cm <span class="hidden color-text-secondary"> or (1819 x 1843 px)</span><br>
+            <strong>Resolution:</strong> 300ppi<br>
+            <strong>Colour mode:</strong> CMYK<br>
+            <strong>Format:</strong> JPEG or PNG
+          </p>
         </div>
         <div class="mb-4 lg:flex space-x-4">
           <div class="w-full lg:w-1/2 mb-4">
