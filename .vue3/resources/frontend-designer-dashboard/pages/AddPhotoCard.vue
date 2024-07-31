@@ -202,7 +202,7 @@ onMounted(() => {
         </div>
         <div class="mb-4 lg:flex space-x-4">
           <div class="w-full lg:w-1/2 mb-4">
-            <h2 class="text-2xl leading-none mb-0">Upload Main Image</h2>
+            <h2 class="text-2xl leading-none mb-0">Upload PNG Main Image</h2>
             <p class="mb-4">Please use royalty free image for commercial use.</p>
             <div class="w-full lg:max-w-[600px]">
               <template v-if="hasMainImage">
