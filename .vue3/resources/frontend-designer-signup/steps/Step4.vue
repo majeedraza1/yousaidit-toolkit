@@ -11,7 +11,8 @@ const state = reactive({
 })
 const form = ref<HTMLFormElement>(null)
 
-const canSubmit = computed(() => state.accept_terms === true)
+const termsUrl = computed<string>(() => window.DesignerProfile.termsUrl)
+const canSubmit = computed<boolean>(() => state.accept_terms === true)
 const onSubmit = () => {
   if (form.value) {
     emit('submit', new FormData(form.value))
@@ -59,7 +60,7 @@ const onSubmit = () => {
             </label>
             <label for="accept_terms">
               <input type="checkbox" name="accept_terms" id="accept_terms" v-model="state.accept_terms">
-              <span>I agree to the <a href="" class="text-primary">Terms and Conditions</a></span>
+              <span>I agree to the <a :href="termsUrl" target="_blank" class="text-primary">Terms and Conditions</a></span>
             </label>
           </ShaplaColumn>
         </ShaplaColumns>
