@@ -235,7 +235,7 @@ const useDesignerCardStore = defineStore('designer-cards', () => {
     })
   }
 
-  const deleteImage = (id: number) => {
+  const deleteImage = (id: number):Promise<boolean> => {
     return new Promise((resolve, reject) => {
       Spinner.show();
       axios

@@ -12,6 +12,9 @@ import CardOptionsPreview from "../components/CardOptionsPreview.vue";
 import CardOptions from "../components/CardOptions.vue";
 import {useRouter} from "vue-router";
 import {convertPXtoMM} from "../../utils/helper.ts";
+import {Dialog} from "@shapla/vanilla-components";
+
+import cardTestData from '../sample-data/photo-card-sample.ts';
 
 const store = useDesignerCardStore();
 const router = useRouter();
@@ -133,6 +136,27 @@ const handleDemoImageUploadFail = (fileObject, serverResponse) => {
   }
 }
 
+const onRemoveMainImage = () => {
+  Dialog.confirm('Are you sure to remove main image?').then(confirmed => {
+    if (confirmed) {
+      store.deleteImage(state.card.main_image_id).finally(() => {
+        state.card.main_image_id = 0;
+        state.card.main_image = null;
+      })
+    }
+  })
+}
+const onRemoveDemoImage = () => {
+  Dialog.confirm('Are you sure to remove demo image?').then(confirmed => {
+    if (confirmed) {
+      store.deleteImage(state.card.main_image_id).finally(() => {
+        state.card.demo_image_id = 0;
+        state.card.demo_image = null;
+      })
+    }
+  })
+}
+
 const canGoOnStepTwo = computed(() => (state.card.main_image_id > 0 && state.card.demo_image_id > 0))
 const canGoOnStepThree = computed(() => {
   return (
@@ -164,7 +188,7 @@ const onSubmit = () => {
 
 onMounted(() => {
   // @TODO remove it after testing.
-  // state.card = cardTestData;
+  state.card = cardTestData;
 
   setTimeout(() => calculateWidthAndHeight(), 1000)
 })
@@ -206,10 +230,15 @@ onMounted(() => {
             <p class="mb-4">Please use royalty free image for commercial use.</p>
             <div class="w-full lg:max-w-[600px]">
               <template v-if="hasMainImage">
-                <ShaplaImage class="border border-solid border-gray-200" container-width="150px"
-                             container-height="150px">
-                  <img :src="state.card.main_image.thumbnail.src" alt="Main image">
-                </ShaplaImage>
+                <div class="flex flex-col items-center">
+                  <ShaplaImage class="border border-solid border-gray-200" container-width="150px"
+                               container-height="150px">
+                    <img :src="state.card.main_image.thumbnail.src" alt="Main image">
+                  </ShaplaImage>
+                  <div class="mt-2">
+                    <ShaplaButton size="small" @click="onRemoveMainImage">Remove Main Image</ShaplaButton>
+                  </div>
+                </div>
               </template>
               <template v-else>
                 <ShaplaFileUploader
@@ -233,10 +262,16 @@ onMounted(() => {
             <p class="mb-4">Please use royalty free image for commercial use.</p>
             <div class="w-full lg:max-w-[600px]">
               <template v-if="hasDemoImage">
-                <ShaplaImage class="border border-solid border-gray-200" container-width="150px"
-                             container-height="150px">
-                  <img :src="state.card.demo_image.thumbnail.src" alt="Main image">
-                </ShaplaImage>
+                <div class="flex flex-col items-center">
+                  <ShaplaImage class="border border-solid border-gray-200" container-width="150px"
+                               container-height="150px">
+                    <img :src="state.card.demo_image.thumbnail.src" alt="Main image">
+                  </ShaplaImage>
+                  <div class="mt-2">
+                    <ShaplaButton theme="default" size="small" @click="onRemoveDemoImage">Remove Demo Image
+                    </ShaplaButton>
+                  </div>
+                </div>
               </template>
               <template v-else>
                 <ShaplaFileUploader

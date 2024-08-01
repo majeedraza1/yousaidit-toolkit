@@ -224,7 +224,7 @@ class DesignerCardAttachmentController extends ApiController {
 			return $this->respondNotFound();
 		}
 
-		if ( $attachment->post_author !== get_current_user_id() ) {
+		if ( $attachment->post_author !== get_current_user_id() || ! current_user_can( 'manage_options' ) ) {
 			return $this->respondUnauthorized();
 		}
 

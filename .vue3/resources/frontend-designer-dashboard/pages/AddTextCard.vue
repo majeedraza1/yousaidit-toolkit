@@ -21,6 +21,7 @@ import {FontInfoInterface} from "../../interfaces/custom-font.ts";
 import {DesignerProfileFontInterface} from "../../interfaces/designer.ts";
 import {useRouter} from "vue-router";
 import {convertPXtoMM} from "../../utils/helper.ts";
+// import cardTestData from '../sample-data/text-card-sample.ts'
 
 const store = useDesignerCardStore();
 const router = useRouter();
@@ -94,6 +95,17 @@ const handleMainImageUploadFail = (fileObject, serverResponse) => {
   if (serverResponse.message) {
     state.upload_error_message = serverResponse.message;
   }
+}
+
+const removeMainImage = () => {
+  Dialog.confirm('Are you sure to remove it?').then(confirmed => {
+    if (confirmed) {
+      store.deleteImage(state.card.main_image_id).finally(() => {
+        state.card.main_image_id = 0;
+        state.card.main_image = null;
+      })
+    }
+  })
 }
 
 const addCardSection = (type: TYPE_SECTION_TYPE) => {
@@ -241,6 +253,9 @@ onMounted(() => {
                            container-height="150px">
                 <img :src="state.card.main_image.thumbnail.src" alt="Main image">
               </ShaplaImage>
+              <div class="mt-2">
+                <ShaplaButton theme="primary" size="small" @click="removeMainImage">Remove Image</ShaplaButton>
+              </div>
             </template>
             <template v-else>
               <ShaplaFileUploader
