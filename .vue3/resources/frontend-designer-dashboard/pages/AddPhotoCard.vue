@@ -14,7 +14,7 @@ import {useRouter} from "vue-router";
 import {convertPXtoMM} from "../../utils/helper.ts";
 import {Dialog} from "@shapla/vanilla-components";
 
-import cardTestData from '../sample-data/photo-card-sample.ts';
+// import cardTestData from '../sample-data/photo-card-sample.ts';
 
 const store = useDesignerCardStore();
 const router = useRouter();
@@ -188,7 +188,7 @@ const onSubmit = () => {
 
 onMounted(() => {
   // @TODO remove it after testing.
-  state.card = cardTestData;
+  // state.card = cardTestData;
 
   setTimeout(() => calculateWidthAndHeight(), 1000)
 })

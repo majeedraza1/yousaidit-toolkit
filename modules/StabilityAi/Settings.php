@@ -99,19 +99,6 @@ class Settings {
 	}
 
 	/**
-	 * Is module enabled
-	 *
-	 * @return bool
-	 */
-	public static function is_module_enabled(): bool {
-		if ( wp_get_environment_type() !== 'production' ) {
-			return true;
-		}
-
-		return defined( 'STABILITY_AI_ENABLED' ) && STABILITY_AI_ENABLED;
-	}
-
-	/**
 	 * Get settings
 	 *
 	 * @return array The settings.

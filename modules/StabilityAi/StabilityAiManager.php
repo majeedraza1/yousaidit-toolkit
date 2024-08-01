@@ -26,13 +26,11 @@ class StabilityAiManager {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self();
 
-			if ( Settings::is_module_enabled() ) {
-				add_action( 'wp_ajax_stability_ai_api_test', [ self::$instance, 'api_test' ] );
-				add_action( 'wp_ajax_yousaidit_ai_image_generator', [ self::$instance, 'image_generator' ] );
-				add_action( 'wp_ajax_nopriv_yousaidit_ai_image_generator', [ self::$instance, 'image_generator' ] );
-				Admin::init();
-				AdminLogController::init();
-			}
+			add_action( 'wp_ajax_stability_ai_api_test', [ self::$instance, 'api_test' ] );
+			add_action( 'wp_ajax_yousaidit_ai_image_generator', [ self::$instance, 'image_generator' ] );
+			add_action( 'wp_ajax_nopriv_yousaidit_ai_image_generator', [ self::$instance, 'image_generator' ] );
+			Admin::init();
+			AdminLogController::init();
 		}
 
 		return self::$instance;

@@ -292,17 +292,13 @@ class Assets {
 		$data['common_holidays']  = Settings::get_common_public_holidays();
 		$data['special_holidays'] = Settings::get_special_holidays();
 
-		if ( StabilityAiSettings::is_module_enabled() ) {
-			$data['stability_ai_enabled'] = true;
-			$data['stability_ai']         = [
-				'occasions'     => StabilityAiSettings::get_occasions(),
-				'recipients'    => StabilityAiSettings::get_recipients(),
-				'moods'         => StabilityAiSettings::get_moods(),
-				'style_presets' => StabilityAiSettings::get_style_presets(),
-			];
-		} else {
-			$data['stability_ai_enabled'] = false;
-		}
+		$data['stability_ai_enabled'] = true;
+		$data['stability_ai']         = [
+			'occasions'     => StabilityAiSettings::get_occasions(),
+			'recipients'    => StabilityAiSettings::get_recipients(),
+			'moods'         => StabilityAiSettings::get_moods(),
+			'style_presets' => StabilityAiSettings::get_style_presets(),
+		];
 
 		echo '<script>window.StackonetToolkit = ' . wp_json_encode( $data ) . '</script>' . PHP_EOL;
 	}
