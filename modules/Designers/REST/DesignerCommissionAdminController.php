@@ -2,13 +2,17 @@
 
 namespace YouSaidItCards\Modules\Designers\REST;
 
+use Stackonet\WP\Framework\Supports\Sanitize;
 use Stackonet\WP\Framework\Supports\Validate;
 use WC_Order;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
+use YouSaidItCards\Modules\Designers\BackgroundCommissionSync;
 use YouSaidItCards\Modules\Designers\Models\DesignerCommission;
+use YouSaidItCards\ShipStation\Order;
+use YouSaidItCards\ShipStation\ShipStationApi;
 use YouSaidItCards\Utilities\MarketPlace;
 
 defined( 'ABSPATH' ) || exit;
@@ -41,6 +45,42 @@ class DesignerCommissionAdminController extends ApiController {
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => [ $this, 'get_items' ],
 				'args'                => $this->get_collection_params(),
+				'permission_callback' => '__return_true',
+			],
+		] );
+		register_rest_route( $this->namespace, '/designers-commissions/sync', [
+			[
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => [ $this, 'sync_items' ],
+				'args'                => [
+					'order_date_start' => [
+						'description'       => 'Orders greater than the specified date.',
+						'type'              => 'string',
+						'sanitize_callback' => [ Sanitize::class, 'date' ],
+						'validate_callback' => 'rest_validate_request_arg',
+					],
+					'order_date_end'   => [
+						'description'       => 'Orders less than or equal to the specified date.',
+						'type'              => 'string',
+						'sanitize_callback' => [ Sanitize::class, 'date' ],
+						'validate_callback' => 'rest_validate_request_arg',
+					],
+					'order_status'     => [
+						'description'       => 'Orders status.',
+						'type'              => 'string',
+						'enum'              => [
+							'',
+							'awaiting_payment',
+							'awaiting_shipment',
+							'pending_fulfillment',
+							'shipped',
+							'on_hold',
+							'cancelled',
+							'rejected_fulfillment'
+						],
+						'validate_callback' => 'rest_validate_request_arg',
+					],
+				],
 				'permission_callback' => '__return_true',
 			],
 		] );
@@ -117,6 +157,61 @@ class DesignerCommissionAdminController extends ApiController {
 			'pagination'   => $pagination,
 			'marketplaces' => MarketPlace::all(),
 		] );
+	}
+
+	/**
+	 * Sync order from ShipStation api.
+	 *
+	 * @param  WP_REST_Request  $request  Full details about the request.
+	 *
+	 * @return WP_REST_Response Response object on success, or WP_Error object on failure.
+	 */
+	public function sync_items( $request ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return $this->respondUnauthorized();
+		}
+		$date_from    = $request->get_param( 'order_date_start' );
+		$date_to      = $request->get_param( 'order_date_end' );
+		$order_status = $request->get_param( 'order_status' );
+
+		$args = [
+			'orderStatus' => '',
+			'force'       => true,
+			'pageSize'    => 100,
+			'page'        => 1,
+		];
+		if ( Validate::date( $date_from ) ) {
+			$args['orderDateStart'] = $date_from;
+		}
+		if ( Validate::date( $date_to ) ) {
+			$args['orderDateEnd'] = $date_to;
+		}
+		if ( ! empty( $order_status ) ) {
+			$args['orderStatus'] = $order_status;
+		}
+		$items = ShipStationApi::init()->get_orders( $args );
+		if ( ! isset( $items['orders'] ) ) {
+			return $this->respondAccepted();
+		}
+
+		foreach ( $items['orders'] as $order ) {
+			$_order = new Order( $order );
+			BackgroundCommissionSync::add_to_queue( $_order );
+		}
+		if ( isset( $items['pages'] ) && intval( $items['pages'] ) > 1 ) {
+			foreach ( range( 2, intval( $items['pages'] ) ) as $page ) {
+				$args['page'] = $page;
+				$_items       = ShipStationApi::init()->get_orders( $args );
+				if ( isset( $_items['orders'] ) ) {
+					foreach ( $_items['orders'] as $order ) {
+						$_order = new Order( $order );
+						BackgroundCommissionSync::add_to_queue( $_order );
+					}
+				}
+			}
+		}
+
+		return $this->respondAccepted();
 	}
 
 	/**

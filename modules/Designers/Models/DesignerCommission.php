@@ -131,7 +131,7 @@ class DesignerCommission extends DatabaseModel {
 	 *
 	 * @return array
 	 */
-	public static function get_report_types() {
+	public static function get_report_types(): array {
 		return static::$report_types;
 	}
 
@@ -209,10 +209,7 @@ class DesignerCommission extends DatabaseModel {
 	 *
 	 * @return array
 	 */
-	public
-	function find(
-		$args = []
-	) {
+	public function find( array $args = [] ) {
 		list( $per_page, $offset, $orderby, $order ) = $this->get_pagination_and_order_data( $args );
 
 		global $wpdb;
@@ -237,10 +234,7 @@ class DesignerCommission extends DatabaseModel {
 	 *
 	 * @return WP_Error|int
 	 */
-	public
-	static function createIfNotExists(
-		array $data
-	) {
+	public static function createIfNotExists( array $data ) {
 		if ( ! isset( $data['order_id'], $data['order_item_id'] ) ) {
 			return new WP_Error( 'incomplete_data', 'Required data not found.' );
 		}
@@ -260,11 +254,7 @@ class DesignerCommission extends DatabaseModel {
 	 *
 	 * @return ArrayObject|self
 	 */
-	public
-	static function find_for_order(
-		$order_id,
-		$order_item_id
-	) {
+	public static function find_for_order( $order_id, $order_item_id ) {
 		global $wpdb;
 		$self  = new static();
 		$table = $self->get_table_name( $self->table );

@@ -3,6 +3,13 @@
     <h1 class="wp-heading-inline">Commissions</h1>
     <hr class="wp-header-end">
     <ShaplaColumns multiline>
+      <ShaplaColumn :tablet="12" class="flex">
+        <div class="flex-grow"></div>
+        <ShaplaButton theme="primary" size="small" @click="state.show_sync_commission_modal = true">Sync Commission
+        </ShaplaButton>
+      </ShaplaColumn>
+    </ShaplaColumns>
+    <ShaplaColumns multiline>
       <ShaplaColumn :tablet="12">
         <div class="mb-4 flex items-center">
           <a href="#" @click.prevent="state.show_filter_sidenav = true">Show Filter</a>
@@ -105,6 +112,40 @@
       </div>
     </ShaplaSidenav>
   </div>
+  <ShaplaModal :active="state.show_sync_commission_modal" title="Sync Commission from ShipStation"
+               @close="state.show_sync_commission_modal = false">
+    <ShaplaColumns multiline>
+      <ShaplaColumn :tablet="12">
+        <ShaplaInput
+            label="Start Date"
+            type="date"
+            v-model="state.sync_commission_start_data"
+            help-text="Required. Orders date greater than the specified date."
+        />
+      </ShaplaColumn>
+      <ShaplaColumn :tablet="12">
+        <ShaplaInput
+            label="End Date"
+            type="date"
+            v-model="state.sync_commission_end_data"
+            help-text="Orders less than or equal to the specified date."
+        />
+      </ShaplaColumn>
+      <ShaplaColumn :tablet="12">
+        <ShaplaSelect
+            label="ShipStation Order Status"
+            v-model="state.sync_commission_order_status"
+            help-text="Filter by order status."
+            :options="shipstation_order_statuses"
+            :clearable="false"
+        />
+        <div class="min-h-[200px]"></div>
+      </ShaplaColumn>
+    </ShaplaColumns>
+    <template v-slot:foot>
+      <ShaplaButton theme="primary" @click="syncCommission" :disabled="!canSyncCommission">Sync Now</ShaplaButton>
+    </template>
+  </ShaplaModal>
 </template>
 
 <script lang="ts" setup>
@@ -115,6 +156,7 @@ import {
   ShaplaColumns,
   ShaplaIcon,
   ShaplaInput,
+  ShaplaModal,
   ShaplaRadio,
   ShaplaSelect,
   ShaplaSidenav,
@@ -141,6 +183,10 @@ const state = reactive({
   page: 1,
   total_items: 0,
   per_page: 50,
+  show_sync_commission_modal: false,
+  sync_commission_start_data: '',
+  sync_commission_end_data: '',
+  sync_commission_order_status: '',
 });
 const columns = [
   {key: 'order_id', label: 'Order'},
@@ -167,6 +213,17 @@ const payment_statuses = [
   {key: 'unpaid', label: 'Unpaid'},
   {key: 'paid', label: 'Paid'},
 ]
+
+const shipstation_order_statuses = [
+  {value: '', label: 'Any Status'},
+  {value: 'awaiting_payment', label: 'awaiting_payment'},
+  {value: 'awaiting_shipment', label: 'awaiting_shipment'},
+  {value: 'pending_fulfillment', label: 'pending_fulfillment'},
+  {value: 'shipped', label: 'shipped'},
+  {value: 'on_hold', label: 'on_hold'},
+  {value: 'cancelled', label: 'cancelled'},
+  {value: 'rejected_fulfillment', label: 'rejected_fulfillment'},
+];
 
 const order_statuses = computed(() => Object.assign({all: 'All'}, window.DesignerProfile.order_statuses));
 
@@ -241,6 +298,29 @@ const deleteCommission = (data) => {
       });
     }
   })
+}
+
+const canSyncCommission = computed<boolean>(() => !!state.sync_commission_start_data)
+
+const syncCommission = () => {
+  Spinner.show();
+  axios
+      .get('designers-commissions/sync', {
+        params: {
+          order_date_start: state.sync_commission_start_data,
+          order_date_end: state.sync_commission_end_data,
+          order_status: state.sync_commission_order_status,
+        }
+      })
+      .then(() => {
+        Notify.success('A background task is running to sync commissions from ShipStation API.')
+        state.show_sync_commission_modal = false;
+        state.sync_commission_start_data = '';
+        state.sync_commission_end_data = '';
+      })
+      .finally(() => {
+        Spinner.hide();
+      });
 }
 
 const goToDesignerPage = (designer_id: number | string) => {

@@ -56,7 +56,7 @@ class ShipStationApi extends RestClient {
 	 * @param  null  $api_key
 	 * @param  null  $api_secret
 	 */
-	public function __construct( $api_key = null, $api_secret = null ) {
+	protected function __construct( $api_key = null, $api_secret = null ) {
 		$this->add_auth_header( base64_encode( $api_key . ':' . $api_secret ) );
 
 		parent::__construct();
@@ -143,7 +143,10 @@ class ShipStationApi extends RestClient {
 			'orderStatus' => 'awaiting_shipment',
 		];
 		$args       = wp_parse_args( $args, $default );
-		$valid_args = array_merge( array_keys( $default ), [ 'storeId', 'orderNumber' ] );
+		$valid_args = array_merge(
+			array_keys( $default ),
+			[ 'storeId', 'orderNumber', 'orderDateStart', 'orderDateEnd' ]
+		);
 		$parameters = [];
 		foreach ( $args as $key => $value ) {
 			if ( in_array( $key, $valid_args, true ) ) {
