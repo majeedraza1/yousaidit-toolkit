@@ -183,6 +183,9 @@ class UserRegistrationController extends ApiController {
 		$image_errors = array();
 		foreach ( $uploaded_files as $name => $uploaded_file ) {
 			if ( $uploaded_file instanceof UploadedFile ) {
+				if ( $uploaded_file->get_error() !== UPLOAD_ERR_OK ) {
+					continue;
+				}
 				if ( ! in_array( $uploaded_file->get_mime_type(), [ 'image/jpeg', 'image/png', ], true ) ) {
 					continue;
 				}
