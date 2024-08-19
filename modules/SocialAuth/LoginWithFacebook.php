@@ -2,6 +2,7 @@
 
 namespace YouSaidItCards\Modules\SocialAuth;
 
+use YouSaidItCards\Modules\SocialAuth\Interfaces\UserInfoInterface;
 use YouSaidItCards\Modules\SocialAuth\Providers\FacebookServiceProvider;
 
 /**
@@ -31,6 +32,7 @@ class LoginWithFacebook {
 
 			add_filter( 'yousaidit_toolkit/settings/sections', [ self::$instance, 'add_setting_sections' ] );
 			add_filter( 'yousaidit_toolkit/settings/fields', [ self::$instance, 'add_setting_fields' ] );
+			add_action( 'yousaidit_toolkit/social_auth/validate_auth_code', [ self::$instance, 'validate_auth_code' ] );
 		}
 
 		return self::$instance;
@@ -119,5 +121,34 @@ class LoginWithFacebook {
             <span class="screen-reader-text"><?php esc_html_e( 'Login with Facebook', 'yousaidit-toolkit' ); ?></span>
         </a>
 		<?php
+	}
+
+	public function validate_auth_code( string $provider ) {
+		if ( FacebookServiceProvider::PROVIDER !== $provider ) {
+			return;
+		}
+		$code = $_GET['code'] ?? '';
+
+		if ( ! ( ! empty( $code ) && FacebookServiceProvider::validate_nonce() ) ) {
+			return;
+		}
+		$response = FacebookServiceProvider::exchange_code_for_token( rawurldecode( $code ) );
+		if ( is_wp_error( $response ) ) {
+			add_filter(
+				'wp_login_errors',
+				function () use ( $response ) {
+					return $response;
+				}
+			);
+
+			return;
+		}
+
+		if ( is_array( $response ) && isset( $response['access_token'] ) ) {
+			$user_info = FacebookServiceProvider::get_userinfo( $response['access_token'] );
+			if ( $user_info instanceof UserInfoInterface ) {
+				do_action( 'yousaidit_toolkit/social_auth/validate_user_info', $user_info );
+			}
+		}
 	}
 }

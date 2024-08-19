@@ -47,7 +47,7 @@ interface ServiceProviderInterface {
 	 *
 	 * @param  string  $access_token  User access token.
 	 *
-	 * @return array|WP_Error
+	 * @return UserInfoInterface|WP_Error
 	 */
 	public static function get_userinfo( string $access_token );
 }

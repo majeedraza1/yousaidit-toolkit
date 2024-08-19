@@ -2,7 +2,6 @@
 
 namespace YouSaidItCards\Modules\Auth\Models;
 
-use ArrayObject;
 use Stackonet\WP\Framework\Abstracts\DatabaseModel;
 use Stackonet\WP\Framework\Supports\Validate;
 use WP_Error;
@@ -18,7 +17,7 @@ class SocialAuthProvider extends DatabaseModel {
 	/**
 	 * @var string[]
 	 */
-	protected static $providers = [ 'apple', 'google', 'facebook', 'twitter' ];
+	protected static array $providers = [ 'apple', 'google', 'facebook', 'twitter' ];
 
 	/**
 	 * @return string[]
@@ -32,11 +31,20 @@ class SocialAuthProvider extends DatabaseModel {
 	 */
 	public function to_array(): array {
 		return [
-			'email_address' => $this->get( 'email_address', '' ),
-			'phone_number'  => $this->get( 'phone_number', '' ),
+			'email_address' => $this->get_prop( 'email_address', '' ),
+			'phone_number'  => $this->get_prop( 'phone_number', '' ),
 			'display_name'  => $this->get_display_name(),
 			'is_active'     => $this->is_active(),
 		];
+	}
+
+	/**
+	 * Get user id
+	 *
+	 * @return int
+	 */
+	public function get_user_id(): int {
+		return absint( $this->get_prop( 'user_id' ) );
 	}
 
 	/**
@@ -45,7 +53,7 @@ class SocialAuthProvider extends DatabaseModel {
 	 * @return bool
 	 */
 	public function is_active(): bool {
-		return Validate::checked( $this->get( 'is_active' ) );
+		return Validate::checked( $this->get_prop( 'is_active' ) );
 	}
 
 	/**
@@ -54,8 +62,8 @@ class SocialAuthProvider extends DatabaseModel {
 	 * @return string
 	 */
 	public function get_display_name(): string {
-		$first_name = $this->get( 'first_name', '' );
-		$last_name  = $this->get( 'last_name', '' );
+		$first_name = $this->get_prop( 'first_name', '' );
+		$last_name  = $this->get_prop( 'last_name', '' );
 
 		if ( ! empty( $first_name ) ) {
 			return "{$first_name} {$last_name}";
@@ -65,11 +73,11 @@ class SocialAuthProvider extends DatabaseModel {
 	}
 
 	/**
-	 * @param string $provider
-	 * @param string $provider_id
-	 * @param int $user_id
+	 * @param  string  $provider
+	 * @param  string  $provider_id
+	 * @param  int  $user_id
 	 *
-	 * @return ArrayObject|static
+	 * @return false|static
 	 */
 	public static function find_for( string $provider, string $provider_id, $user_id = 0 ) {
 		global $wpdb;
@@ -83,12 +91,12 @@ class SocialAuthProvider extends DatabaseModel {
 
 		$result = $wpdb->get_row( $sql, ARRAY_A );
 
-		return $result ? new static( $result ) : new ArrayObject();
+		return $result ? new static( $result ) : false;
 	}
 
 	/**
-	 * @param int $user_id
-	 * @param string|null $provider
+	 * @param  int  $user_id
+	 * @param  string|null  $provider
 	 *
 	 * @return static[]|array
 	 */
@@ -111,7 +119,7 @@ class SocialAuthProvider extends DatabaseModel {
 	}
 
 	/**
-	 * @param array $data
+	 * @param  array  $data
 	 *
 	 * @return int
 	 */
@@ -119,10 +127,10 @@ class SocialAuthProvider extends DatabaseModel {
 		$item                = static::find_for( $data['provider'], $data['provider_id'] );
 		$data['provider_id'] = sha1( $data['provider_id'] );
 		if ( $item instanceof static ) {
-			$data['id'] = (int) $item->get( 'id' );
+			$data['id'] = (int) $item->get_id();
 			( new static )->update( $data );
 
-			return (int) $item->get( 'id' );
+			return (int) $item->get_id();
 		}
 
 		return ( new static )->create( $data );
@@ -131,15 +139,15 @@ class SocialAuthProvider extends DatabaseModel {
 	public static function unlink( array $data ) {
 		$item = static::find_for( $data['provider'], $data['provider_id'] );
 		if ( $item instanceof self ) {
-			return $item->delete( (int) $item->get( 'id' ) );
+			return $item->delete( (int) $item->get_prop( 'id' ) );
 		}
 
 		return false;
 	}
 
 	/**
-	 * @param string|mixed $provider
-	 * @param string|mixed $provider_unique_id
+	 * @param  string|mixed  $provider
+	 * @param  string|mixed  $provider_unique_id
 	 *
 	 * @return WP_Error|WP_User
 	 */
@@ -154,7 +162,7 @@ class SocialAuthProvider extends DatabaseModel {
 
 		$social_auth_provider = static::find_for( $provider, $provider_unique_id );
 		if ( $social_auth_provider instanceof self ) {
-			$user = get_user_by( 'id', $social_auth_provider->get( 'user_id' ) );
+			$user = get_user_by( 'id', $social_auth_provider->get_prop( 'user_id' ) );
 		}
 
 		if ( ! ( isset( $user ) && $user instanceof WP_User ) ) {
@@ -164,8 +172,21 @@ class SocialAuthProvider extends DatabaseModel {
 		return $user;
 	}
 
+	public static function find_by_email( string $email ) {
+		global $wpdb;
+		$table = ( new static )->get_table_name();
+		$sql   = $wpdb->prepare( "SELECT * FROM {$table} WHERE email_address = %s", $email );
+
+		$result = $wpdb->get_row( $sql, ARRAY_A );
+		if ( $result ) {
+			return new static( $result );
+		}
+
+		return false;
+	}
+
 	/**
-	 * @param string|mixed $email
+	 * @param  string|mixed  $email
 	 *
 	 * @return bool
 	 */

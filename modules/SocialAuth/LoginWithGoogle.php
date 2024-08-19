@@ -125,7 +125,10 @@ class LoginWithGoogle {
 		<?php
 	}
 
-	public function validate_auth_code() {
+	public function validate_auth_code( $provider ) {
+		if ( GoogleServiceProvider::PROVIDER !== $provider ) {
+			return;
+		}
 		$code = $_GET['code'] ?? '';
 		if ( ! empty( $code ) && GoogleServiceProvider::validate_nonce() ) {
 			$response = GoogleServiceProvider::exchange_code_for_token( rawurldecode( $code ) );

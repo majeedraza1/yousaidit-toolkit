@@ -2,6 +2,12 @@
 
 namespace YouSaidItCards\Modules\SocialAuth;
 
+use WP_Error;
+use WP_User;
+use YouSaidItCards\Modules\Auth\CopyAvatarFromSocialProvider;
+use YouSaidItCards\Modules\Auth\Models\SocialAuthProvider;
+use YouSaidItCards\Modules\SocialAuth\Interfaces\UserInfoInterface;
+
 class SocialAuthManager {
 	/**
 	 * The instance of the class
@@ -24,6 +30,7 @@ class SocialAuthManager {
 			add_action( 'login_enqueue_scripts', [ self::$instance, 'login_scripts' ] );
 			add_action( 'login_init', [ self::$instance, 'validate_auth_code' ] );
 			add_filter( 'yousaidit_toolkit/settings/panels', [ self::$instance, 'add_setting_panels' ] );
+			add_action( 'yousaidit_toolkit/social_auth/validate_user_info', [ self::$instance, 'validate_user_info' ] );
 
 			LoginWithGoogle::init();
 			LoginWithFacebook::init();
@@ -39,8 +46,106 @@ class SocialAuthManager {
 	 */
 	public function validate_auth_code() {
 		if ( isset( $_GET['action'], $_GET['provider'] ) && $_GET['action'] == 'social-login' ) {
-			do_action( 'yousaidit_toolkit/social_auth/validate_auth_code' );
+			do_action( 'yousaidit_toolkit/social_auth/validate_auth_code', $_GET['provider'] );
 		}
+	}
+
+	/**
+	 * Handle login and registration
+	 *
+	 * @param  UserInfoInterface  $user_info
+	 *
+	 * @return void
+	 */
+	public function validate_user_info( UserInfoInterface $user_info ) {
+		$provider    = str_replace( '.com', '', $user_info->get_provider() );
+		$social_auth = SocialAuthProvider::find_for( $provider, $user_info->get_provider_uuid() );
+		if ( $social_auth instanceof SocialAuthProvider ) {
+			$user = get_user_by( 'id', $social_auth->get_user_id() );
+			if ( $user instanceof WP_User ) {
+				static::set_auth_cookie_and_redirect( $user, $user_info, false );
+			} else {
+				// Create wp user
+			}
+		}
+
+		// Check if user already registered
+		$email = $user_info->get_email();
+		$user  = get_user_by( 'email', $email );
+		if ( $user instanceof WP_User ) {
+			static::set_auth_cookie_and_redirect( $user, $user_info );
+		}
+		$user = get_user_by( 'login', $email );
+		if ( $user instanceof WP_User ) {
+			static::set_auth_cookie_and_redirect( $user, $user_info );
+		}
+		$social_auth = SocialAuthProvider::find_by_email( $user_info->get_email() );
+		if ( $social_auth instanceof SocialAuthProvider ) {
+			$user = get_user_by( 'id', $social_auth->get_user_id() );
+			static::set_auth_cookie_and_redirect( $user, $user_info, false );
+		}
+
+		// Handle new user
+		if ( get_option( 'users_can_register' ) ) {
+			$user_id = static::create_wp_user( $user_info );
+			if ( is_numeric( $user_id ) ) {
+				$user = get_user_by( 'id', $user_id );
+				static::set_auth_cookie_and_redirect( $user, $user_info );
+			}
+		}
+	}
+
+	/**
+	 * Create WordPress user
+	 *
+	 * @param  UserInfoInterface  $user_info
+	 *
+	 * @return int|WP_Error
+	 */
+	private static function create_wp_user( UserInfoInterface $user_info ) {
+		$user_id = wp_insert_user( [
+			'user_email' => $user_info->get_email(),
+			'user_login' => $user_info->get_email(),
+			'user_pass'  => wp_generate_password( 20, true, true ),
+			'first_name' => $user_info->get_first_name(),
+			'last_name'  => $user_info->get_last_name(),
+		] );
+		if ( is_numeric( $user_id ) ) {
+			new CopyAvatarFromSocialProvider( $user_id, $user_info->get_picture_url() );
+		}
+
+		return $user_id;
+	}
+
+	private static function set_auth_cookie_and_redirect(
+		WP_User $user,
+		UserInfoInterface $user_info,
+		bool $update = true
+	) {
+		wp_set_current_user( $user->ID, $user->user_login );
+		wp_set_auth_cookie( $user->ID, false );
+
+		if ( $update ) {
+			$provider = str_replace( '.com', '', $user_info->get_provider() );
+			SocialAuthProvider::create_or_update( [
+				'user_id'       => $user->ID,
+				'provider'      => $provider,
+				'provider_id'   => $user_info->get_provider_uuid(),
+				'email_address' => $user_info->get_email(),
+				'first_name'    => $user_info->get_first_name(),
+				'last_name'     => $user_info->get_last_name(),
+			] );
+		}
+		if ( $user->has_cap( 'manage_options' ) ) {
+			wp_safe_redirect( admin_url() );
+		} else {
+			if ( function_exists( 'wc_get_page_permalink' ) ) {
+				wp_safe_redirect( wc_get_page_permalink( 'myaccount' ) );
+			} else {
+				wp_safe_redirect( home_url() );
+			}
+		}
+		exit();
 	}
 
 

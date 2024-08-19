@@ -3,6 +3,7 @@
 namespace YouSaidItCards\Modules\SocialAuth\Providers;
 
 use YouSaidItCards\Modules\SocialAuth\Interfaces\ServiceProviderInterface;
+use YouSaidItCards\Modules\SocialAuth\Model\UserInfo;
 
 /**
  * FacebookServiceProvider class
@@ -57,7 +58,7 @@ class FacebookServiceProvider extends BaseServiceProvider implements ServiceProv
 		$params   = [
 			'client_id'     => static::get_client_id(),
 			'client_secret' => static::get_client_secret(),
-			'redirect_uri'  => rawurlencode( static::get_redirect_uri() ),
+			'redirect_uri'  => static::get_redirect_uri(),
 			'code'          => $code
 		];
 		$api_url  = 'https://graph.facebook.com/v20.0/oauth/access_token?' . http_build_query( $params );
@@ -70,6 +71,24 @@ class FacebookServiceProvider extends BaseServiceProvider implements ServiceProv
 	 * @inheritDoc
 	 */
 	public static function get_userinfo( string $access_token ) {
-		$api_url = 'https://graph.facebook.com/v20.0/me?fields=name,email,picture';
+		$api_url  = 'https://graph.facebook.com/v20.0/me?fields=name,email,picture';
+		$response = wp_remote_get( $api_url, [
+			'headers' => [
+				'Authorization' => 'Bearer ' . $access_token,
+			]
+		] );
+
+		$info = static::filter_remote_response( $api_url, [], $response );
+		if ( is_array( $info ) && isset( $info['email'] ) ) {
+			return new UserInfo( [
+				'provider'    => static::PROVIDER,
+				'uuid'        => $info['id'],
+				'name'        => $info['name'],
+				'email'       => $info['email'],
+				'picture_url' => $info['picture']['data']['url'] ?? '',
+			] );
+		}
+
+		return $info;
 	}
 }
