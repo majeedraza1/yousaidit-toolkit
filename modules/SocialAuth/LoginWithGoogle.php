@@ -30,7 +30,8 @@ class LoginWithGoogle {
 			}
 			add_filter( 'yousaidit_toolkit/settings/sections', [ self::$instance, 'add_setting_sections' ] );
 			add_filter( 'yousaidit_toolkit/settings/fields', [ self::$instance, 'add_setting_fields' ] );
-			add_action( 'yousaidit_toolkit/social_auth/validate_auth_code', [ self::$instance, 'validate_auth_code' ] );
+			add_action( 'yousaidit_toolkit/social_auth/validate_auth_code', [ self::$instance, 'validate_auth_code' ],
+				10, 2 );
 		}
 
 		return self::$instance;
@@ -125,29 +126,31 @@ class LoginWithGoogle {
 		<?php
 	}
 
-	public function validate_auth_code( $provider ) {
+	public function validate_auth_code( $provider, string $code ) {
 		if ( GoogleServiceProvider::PROVIDER !== $provider ) {
 			return;
 		}
-		$code = $_GET['code'] ?? '';
-		if ( ! empty( $code ) && GoogleServiceProvider::validate_nonce() ) {
-			$response = GoogleServiceProvider::exchange_code_for_token( rawurldecode( $code ) );
-			if ( is_wp_error( $response ) ) {
-				add_filter(
-					'wp_login_errors',
-					function () use ( $response ) {
-						return $response;
-					}
-				);
 
-				var_dump( $response );
-				die();
+		if ( ! GoogleServiceProvider::validate_nonce() ) {
+			return;
+		}
 
-				return;
-			}
+		$response = GoogleServiceProvider::exchange_code_for_token( $code );
+		if ( is_wp_error( $response ) ) {
+			add_filter(
+				'wp_login_errors',
+				function () use ( $response ) {
+					return $response;
+				}
+			);
 
 			var_dump( $response );
 			die();
+
+			return;
 		}
+
+		var_dump( $response );
+		die();
 	}
 }

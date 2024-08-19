@@ -32,7 +32,8 @@ class LoginWithFacebook {
 
 			add_filter( 'yousaidit_toolkit/settings/sections', [ self::$instance, 'add_setting_sections' ] );
 			add_filter( 'yousaidit_toolkit/settings/fields', [ self::$instance, 'add_setting_fields' ] );
-			add_action( 'yousaidit_toolkit/social_auth/validate_auth_code', [ self::$instance, 'validate_auth_code' ] );
+			add_action( 'yousaidit_toolkit/social_auth/validate_auth_code', [ self::$instance, 'validate_auth_code' ],
+				10, 2 );
 		}
 
 		return self::$instance;
@@ -123,16 +124,15 @@ class LoginWithFacebook {
 		<?php
 	}
 
-	public function validate_auth_code( string $provider ) {
+	public function validate_auth_code( string $provider, string $code ) {
 		if ( FacebookServiceProvider::PROVIDER !== $provider ) {
 			return;
 		}
-		$code = $_GET['code'] ?? '';
 
-		if ( ! ( ! empty( $code ) && FacebookServiceProvider::validate_nonce() ) ) {
+		if ( ! FacebookServiceProvider::validate_nonce() ) {
 			return;
 		}
-		$response = FacebookServiceProvider::exchange_code_for_token( rawurldecode( $code ) );
+		$response = FacebookServiceProvider::exchange_code_for_token( $code );
 		if ( is_wp_error( $response ) ) {
 			add_filter(
 				'wp_login_errors',

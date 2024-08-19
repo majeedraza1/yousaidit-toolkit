@@ -30,10 +30,16 @@ class SocialAuthManager {
 			add_action( 'login_enqueue_scripts', [ self::$instance, 'login_scripts' ] );
 			add_action( 'login_init', [ self::$instance, 'validate_auth_code' ] );
 			add_filter( 'yousaidit_toolkit/settings/panels', [ self::$instance, 'add_setting_panels' ] );
+			add_filter( 'yousaidit_toolkit/settings/sections', [ self::$instance, 'add_setting_sections' ] );
+			add_filter( 'yousaidit_toolkit/settings/fields', [ self::$instance, 'add_setting_fields' ] );
 			add_action( 'yousaidit_toolkit/social_auth/validate_user_info', [ self::$instance, 'validate_user_info' ] );
 
-			LoginWithGoogle::init();
-			LoginWithFacebook::init();
+			if ( Setting::is_provider_enabled( 'google' ) ) {
+				LoginWithGoogle::init();
+			}
+			if ( Setting::is_provider_enabled( 'facebook' ) ) {
+				LoginWithFacebook::init();
+			}
 		}
 
 		return self::$instance;
@@ -46,7 +52,10 @@ class SocialAuthManager {
 	 */
 	public function validate_auth_code() {
 		if ( isset( $_GET['action'], $_GET['provider'] ) && $_GET['action'] == 'social-login' ) {
-			do_action( 'yousaidit_toolkit/social_auth/validate_auth_code', $_GET['provider'] );
+			$code = $_GET['code'] ? rawurldecode( $_GET['code'] ) : '';
+			if ( ! empty( $code ) ) {
+				do_action( 'yousaidit_toolkit/social_auth/validate_auth_code', $_GET['provider'], $code );
+			}
 		}
 	}
 
@@ -164,6 +173,53 @@ class SocialAuthManager {
 		];
 
 		return $panels;
+	}
+
+	/**
+	 * Add setting sections
+	 *
+	 * @param  array  $sections  List of setting sections.
+	 *
+	 * @return array
+	 */
+	public function add_setting_sections( array $sections ): array {
+		$sections[] =
+			[
+				'id'       => 'section_social_auth',
+				'title'    => __( 'Social Auth Settings', 'yousaidit-toolkit' ),
+				'priority' => 5,
+				'panel'    => 'panel_social_auth',
+			];
+
+		return $sections;
+	}
+
+	/**
+	 * Add setting fields
+	 *
+	 * @param  array  $fields  List  of setting fields.
+	 *
+	 * @return array
+	 */
+	public function add_setting_fields( array $fields ): array {
+		$fields[] = [
+			'id'                => 'social_auth_providers',
+			'type'              => 'multi_checkbox',
+			'title'             => __( 'Social Auth Providers', 'yousaidit-toolkit' ),
+			'description'       => __( 'Check to enable social auth providers', 'yousaidit-toolkit' ),
+			'priority'          => 5,
+			'section'           => 'section_social_auth',
+			'multiple'          => true,
+			'options'           => [
+				'facebook' => __( 'Facebook Auth', 'yousaidit-toolkit' ),
+				'google'   => __( 'Google Auth', 'yousaidit-toolkit' ),
+			],
+			'sanitize_callback' => function ( $value ) {
+				return $value ? array_map( 'sanitize_text_field', $value ) : '';
+			},
+		];
+
+		return $fields;
 	}
 
 	/**
