@@ -34,11 +34,14 @@ class SocialAuthManager {
 			add_filter( 'yousaidit_toolkit/settings/fields', [ self::$instance, 'add_setting_fields' ] );
 			add_action( 'yousaidit_toolkit/social_auth/validate_user_info', [ self::$instance, 'validate_user_info' ] );
 
-			if ( Setting::is_provider_enabled( 'google' ) ) {
-				LoginWithGoogle::init();
-			}
-			if ( Setting::is_provider_enabled( 'facebook' ) ) {
-				LoginWithFacebook::init();
+			$providers = [
+				'google'   => LoginWithGoogle::class,
+				'facebook' => LoginWithFacebook::class,
+			];
+			foreach ( $providers as $provider => $classname ) {
+				if ( Setting::is_provider_enabled( $provider ) ) {
+					call_user_func( [ $classname, 'init' ] );
+				}
 			}
 		}
 
@@ -228,6 +231,10 @@ class SocialAuthManager {
 	 * @return void
 	 */
 	public function social_auth_wrap() {
+		$enabled_providers = Setting::get_social_auth_providers();
+		if ( count( $enabled_providers ) < 1 ) {
+			return;
+		}
 		?>
         <div class="social-auth-wrap">
             <div class="social-auth-wrap__heading">

@@ -26,10 +26,7 @@ class LoginWithFacebook {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self();
 
-			if ( FacebookServiceProvider::init()->has_required_settings() ) {
-				add_action( 'yousaidit_toolkit/social_auth_buttons', [ self::$instance, 'social_auth_wrap' ] );
-			}
-
+			add_action( 'yousaidit_toolkit/social_auth_buttons', [ self::$instance, 'social_auth_wrap' ] );
 			add_filter( 'yousaidit_toolkit/settings/sections', [ self::$instance, 'add_setting_sections' ] );
 			add_filter( 'yousaidit_toolkit/settings/fields', [ self::$instance, 'add_setting_fields' ] );
 			add_action( 'yousaidit_toolkit/social_auth/validate_auth_code', [ self::$instance, 'validate_auth_code' ],

@@ -21,17 +21,19 @@ class GoogleServiceProvider extends BaseServiceProvider implements ServiceProvid
 	public static function init() {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self();
-
-			$options = (array) get_option( '_stackonet_toolkit', [] );
-			if ( ! empty( $options['google_auth_client_id'] ) ) {
-				static::set_setting( 'clientId', $options['google_auth_client_id'] );
-			}
-			if ( ! empty( $options['google_auth_client_secret'] ) ) {
-				static::set_setting( 'clientSecret', $options['google_auth_client_secret'] );
-			}
 		}
 
 		return self::$instance;
+	}
+
+	protected function __construct() {
+		$options = (array) get_option( '_stackonet_toolkit', [] );
+		if ( ! empty( $options['google_auth_client_id'] ) ) {
+			$this->set_setting( 'clientId', $options['google_auth_client_id'] );
+		}
+		if ( ! empty( $options['google_auth_client_secret'] ) ) {
+			$this->set_setting( 'clientSecret', $options['google_auth_client_secret'] );
+		}
 	}
 
 	/**
@@ -45,10 +47,10 @@ class GoogleServiceProvider extends BaseServiceProvider implements ServiceProvid
 		return add_query_arg(
 			[
 				// Required parameters
-				'client_id'     => static::get_client_id(),
+				'client_id'     => ( new static() )->get_client_id(),
 				'redirect_uri'  => rawurlencode( static::get_redirect_uri() ),
 				'response_type' => 'code',
-				'scope'         => 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',
+				'scope'         => rawurlencode( 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile' ),
 				// Recommended parameters
 				'access_type'   => 'offline',
 				'state'         => static::create_nonce(),
@@ -68,13 +70,14 @@ class GoogleServiceProvider extends BaseServiceProvider implements ServiceProvid
 	 * @link https://developers.google.com/identity/protocols/oauth2/web-server#httprest_3
 	 */
 	public static function exchange_code_for_token( string $code ) {
+		$self     = new static();
 		$api_url  = 'https://oauth2.googleapis.com/token';
 		$params   = [
-			'grant_type'    => 'authorization_code',
 			'code'          => $code,
+			'client_id'     => $self->get_client_id(),
+			'client_secret' => $self->get_client_secret(),
 			'redirect_uri'  => rawurlencode( static::get_redirect_uri() ),
-			'client_id'     => static::get_client_id(),
-			'client_secret' => static::get_client_secret(),
+			'grant_type'    => 'authorization_code',
 		];
 		$response = wp_remote_request( $api_url, [
 			'method' => 'POST',

@@ -23,17 +23,19 @@ class FacebookServiceProvider extends BaseServiceProvider implements ServiceProv
 	public static function init() {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self();
-
-			$options = (array) get_option( '_stackonet_toolkit', [] );
-			if ( ! empty( $options['facebook_app_id'] ) ) {
-				static::set_setting( 'clientId', $options['facebook_app_id'] );
-			}
-			if ( ! empty( $options['facebook_auth_client_secret'] ) ) {
-				static::set_setting( 'clientSecret', $options['facebook_auth_client_secret'] );
-			}
 		}
 
 		return self::$instance;
+	}
+
+	protected function __construct() {
+		$options = (array) get_option( '_stackonet_toolkit', [] );
+		if ( ! empty( $options['facebook_app_id'] ) ) {
+			$this->set_setting( 'clientId', $options['facebook_app_id'] );
+		}
+		if ( ! empty( $options['facebook_auth_client_secret'] ) ) {
+			$this->set_setting( 'clientSecret', $options['facebook_auth_client_secret'] );
+		}
 	}
 
 	/**
@@ -41,7 +43,7 @@ class FacebookServiceProvider extends BaseServiceProvider implements ServiceProv
 	 */
 	public static function get_consent_url(): string {
 		$params = [
-			'client_id'     => static::get_client_id(),
+			'client_id'     => ( new static() )->get_client_id(),
 			'redirect_uri'  => rawurlencode( static::get_redirect_uri() ),
 			'state'         => static::create_nonce(),
 			'response_type' => 'code',
@@ -55,9 +57,10 @@ class FacebookServiceProvider extends BaseServiceProvider implements ServiceProv
 	 * @inheritDoc
 	 */
 	public static function exchange_code_for_token( string $code ) {
+		$self     = new static();
 		$params   = [
-			'client_id'     => static::get_client_id(),
-			'client_secret' => static::get_client_secret(),
+			'client_id'     => $self->get_client_id(),
+			'client_secret' => $self->get_client_secret(),
 			'redirect_uri'  => static::get_redirect_uri(),
 			'code'          => $code
 		];

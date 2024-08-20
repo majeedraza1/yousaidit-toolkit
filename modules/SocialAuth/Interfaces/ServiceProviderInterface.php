@@ -6,13 +6,6 @@ use WP_Error;
 
 interface ServiceProviderInterface {
 	/**
-	 * If provider has required settings
-	 *
-	 * @return bool
-	 */
-	public static function has_required_settings(): bool;
-
-	/**
 	 * Get default redirect uri
 	 *
 	 * @return string

@@ -12,7 +12,7 @@ class BaseServiceProvider {
 	 *
 	 * @var array
 	 */
-	protected static array $settings = [
+	protected array $settings = [
 		'clientId'     => '',
 		'clientSecret' => '',
 		'redirectUri'  => '',
@@ -26,9 +26,9 @@ class BaseServiceProvider {
 	 *
 	 * @return false|mixed
 	 */
-	public static function get_setting( string $key, $default = false ) {
-		if ( array_key_exists( $key, static::$settings ) ) {
-			return static::$settings[ $key ];
+	public function get_setting( string $key, $default = false ) {
+		if ( array_key_exists( $key, $this->settings ) ) {
+			return $this->settings[ $key ];
 		}
 
 		return $default;
@@ -42,20 +42,8 @@ class BaseServiceProvider {
 	 *
 	 * @return void
 	 */
-	public static function set_setting( string $key, $value ): void {
-		self::$settings[ $key ] = $value;
-	}
-
-	/**
-	 * If provider has required settings
-	 *
-	 * @return bool
-	 */
-	public static function has_required_settings(): bool {
-		return (
-			! empty( static::get_client_id() ) &&
-			! empty( static::get_client_secret() )
-		);
+	public function set_setting( string $key, $value ): void {
+		$this->settings[ $key ] = $value;
 	}
 
 	/**
@@ -63,8 +51,8 @@ class BaseServiceProvider {
 	 *
 	 * @return string
 	 */
-	public static function get_client_id(): string {
-		return (string) static::get_setting( 'clientId' );
+	public function get_client_id(): string {
+		return (string) $this->get_setting( 'clientId' );
 	}
 
 	/**
@@ -72,8 +60,17 @@ class BaseServiceProvider {
 	 *
 	 * @return string
 	 */
-	public static function get_client_secret(): string {
-		return (string) static::get_setting( 'clientSecret' );
+	public function get_client_secret(): string {
+		return (string) $this->get_setting( 'clientSecret' );
+	}
+
+	/**
+	 * If provider has required settings
+	 *
+	 * @return bool
+	 */
+	public function has_required_settings(): bool {
+		return ! ! ( $this->get_client_id() && $this->get_client_secret() );
 	}
 
 	/**
@@ -82,21 +79,7 @@ class BaseServiceProvider {
 	 * @return string
 	 */
 	public static function get_redirect_uri(): string {
-		$url = static::get_setting( 'redirectUri' );
-		if ( ! empty( $url ) ) {
-			return $url;
-		}
-
 		return static::get_default_redirect_uri();
-	}
-
-	/**
-	 * Get default redirect uri
-	 *
-	 * @return string
-	 */
-	public static function get_default_redirect_uri(): string {
-		return static::build_redirect_url( site_url( 'wp-login.php', 'login' ) );
 	}
 
 	/**
@@ -112,6 +95,15 @@ class BaseServiceProvider {
 		}
 
 		return $urls;
+	}
+
+	/**
+	 * Get default redirect uri
+	 *
+	 * @return string
+	 */
+	public static function get_default_redirect_uri(): string {
+		return static::build_redirect_url( site_url( 'wp-login.php', 'login' ) );
 	}
 
 	/**
