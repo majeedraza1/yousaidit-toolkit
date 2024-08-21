@@ -121,12 +121,8 @@ class LoginWithFacebook {
 		<?php
 	}
 
-	public function validate_auth_code( string $provider, string $code ) {
+	public function validate_auth_code( string $code, string $provider ) {
 		if ( FacebookServiceProvider::PROVIDER !== $provider ) {
-			return;
-		}
-
-		if ( ! FacebookServiceProvider::validate_nonce() ) {
 			return;
 		}
 		$response = FacebookServiceProvider::exchange_code_for_token( $code );

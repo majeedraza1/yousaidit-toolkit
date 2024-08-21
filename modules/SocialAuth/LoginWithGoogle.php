@@ -2,6 +2,7 @@
 
 namespace YouSaidItCards\Modules\SocialAuth;
 
+use YouSaidItCards\Modules\SocialAuth\Interfaces\UserInfoInterface;
 use YouSaidItCards\Modules\SocialAuth\Providers\GoogleServiceProvider;
 
 /**
@@ -124,12 +125,8 @@ class LoginWithGoogle {
 		<?php
 	}
 
-	public function validate_auth_code( $provider, string $code ) {
+	public function validate_auth_code( string $code, string $provider ) {
 		if ( GoogleServiceProvider::PROVIDER !== $provider ) {
-			return;
-		}
-
-		if ( ! GoogleServiceProvider::validate_nonce() ) {
 			return;
 		}
 
@@ -142,13 +139,14 @@ class LoginWithGoogle {
 				}
 			);
 
-			var_dump( $response );
-			die();
-
 			return;
 		}
 
-		var_dump( $response );
-		die();
+		if ( is_array( $response ) && isset( $response['access_token'] ) ) {
+			$user_info = GoogleServiceProvider::get_userinfo( $response['access_token'] );
+			if ( $user_info instanceof UserInfoInterface ) {
+				do_action( 'yousaidit_toolkit/social_auth/validate_user_info', $user_info );
+			}
+		}
 	}
 }

@@ -171,7 +171,7 @@ class BaseServiceProvider {
 	 * @return string
 	 */
 	public static function get_nonce_action(): string {
-		return static::PROVIDER . '_oauth_nonce';
+		return 'login_oauth_nonce';
 	}
 
 	/**

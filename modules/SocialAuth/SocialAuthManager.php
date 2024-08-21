@@ -7,7 +7,11 @@ use WP_User;
 use YouSaidItCards\Modules\Auth\CopyAvatarFromSocialProvider;
 use YouSaidItCards\Modules\Auth\Models\SocialAuthProvider;
 use YouSaidItCards\Modules\SocialAuth\Interfaces\UserInfoInterface;
+use YouSaidItCards\Modules\SocialAuth\Providers\BaseServiceProvider;
 
+/**
+ * SocialAuthManager class
+ */
 class SocialAuthManager {
 	/**
 	 * The instance of the class
@@ -54,12 +58,33 @@ class SocialAuthManager {
 	 * @return void
 	 */
 	public function validate_auth_code() {
-		if ( isset( $_GET['action'], $_GET['provider'] ) && $_GET['action'] == 'social-login' ) {
-			$code = $_GET['code'] ? rawurldecode( $_GET['code'] ) : '';
-			if ( ! empty( $code ) ) {
-				do_action( 'yousaidit_toolkit/social_auth/validate_auth_code', $_GET['provider'], $code );
-			}
+		if ( ! isset( $_GET['action'], $_GET['provider'], $_GET['state'], $_GET['code'] ) ) {
+			return;
 		}
+		if ( ! ( $_GET['action'] == 'social-login' && BaseServiceProvider::validate_nonce() ) ) {
+			return;
+		}
+		$code = rawurldecode( $_GET['code'] );
+		if ( empty( $code ) ) {
+			return;
+		}
+		$provider = sanitize_text_field( rawurldecode( $_GET['provider'] ) );
+		/**
+		 * Fires once receive token response.
+		 *
+		 *
+		 * @param  string  $code  oAuth Code from provider.
+		 */
+		do_action( "yousaidit_toolkit/social_auth/validate_auth_code/{$provider}", $code );
+
+		/**
+		 * Fires once receive token response.
+		 *
+		 *
+		 * @param  string  $code  oAuth Code from provider.
+		 * @param  string  $provider  Provider name.
+		 */
+		do_action( 'yousaidit_toolkit/social_auth/validate_auth_code', $code, $provider );
 	}
 
 	/**
@@ -76,25 +101,26 @@ class SocialAuthManager {
 			$user = get_user_by( 'id', $social_auth->get_user_id() );
 			if ( $user instanceof WP_User ) {
 				static::set_auth_cookie_and_redirect( $user, $user_info, false );
-			} else {
-				// Create wp user
 			}
 		}
 
-		// Check if user already registered
 		$email = $user_info->get_email();
-		$user  = get_user_by( 'email', $email );
-		if ( $user instanceof WP_User ) {
-			static::set_auth_cookie_and_redirect( $user, $user_info );
+
+		// Check if user already registered
+		$user_by_email = get_user_by( 'email', $email );
+		if ( $user_by_email instanceof WP_User ) {
+			static::set_auth_cookie_and_redirect( $user_by_email, $user_info );
 		}
-		$user = get_user_by( 'login', $email );
-		if ( $user instanceof WP_User ) {
-			static::set_auth_cookie_and_redirect( $user, $user_info );
+		$user_by_login = get_user_by( 'login', $email );
+		if ( $user_by_login instanceof WP_User ) {
+			static::set_auth_cookie_and_redirect( $user_by_login, $user_info );
 		}
 		$social_auth = SocialAuthProvider::find_by_email( $user_info->get_email() );
 		if ( $social_auth instanceof SocialAuthProvider ) {
 			$user = get_user_by( 'id', $social_auth->get_user_id() );
-			static::set_auth_cookie_and_redirect( $user, $user_info, false );
+			if ( $user instanceof WP_User ) {
+				static::set_auth_cookie_and_redirect( $user, $user_info );
+			}
 		}
 
 		// Handle new user
@@ -129,25 +155,28 @@ class SocialAuthManager {
 		return $user_id;
 	}
 
-	private static function set_auth_cookie_and_redirect(
-		WP_User $user,
-		UserInfoInterface $user_info,
-		bool $update = true
-	) {
-		wp_set_current_user( $user->ID, $user->user_login );
-		wp_set_auth_cookie( $user->ID, false );
+	/**
+	 * Create oAuth user
+	 *
+	 * @param  UserInfoInterface  $user_info
+	 * @param  int  $wp_user_id
+	 *
+	 * @return void
+	 */
+	private static function update_user_oauth_info( UserInfoInterface $user_info, int $wp_user_id ): void {
+		$provider = str_replace( '.com', '', $user_info->get_provider() );
 
-		if ( $update ) {
-			$provider = str_replace( '.com', '', $user_info->get_provider() );
-			SocialAuthProvider::create_or_update( [
-				'user_id'       => $user->ID,
-				'provider'      => $provider,
-				'provider_id'   => $user_info->get_provider_uuid(),
-				'email_address' => $user_info->get_email(),
-				'first_name'    => $user_info->get_first_name(),
-				'last_name'     => $user_info->get_last_name(),
-			] );
-		}
+		SocialAuthProvider::create_or_update( [
+			'user_id'       => $wp_user_id,
+			'provider'      => $provider,
+			'provider_id'   => $user_info->get_provider_uuid(),
+			'email_address' => $user_info->get_email(),
+			'first_name'    => $user_info->get_first_name(),
+			'last_name'     => $user_info->get_last_name(),
+		] );
+	}
+
+	private static function redirect_after_login( WP_User $user ) {
 		if ( $user->has_cap( 'manage_options' ) ) {
 			wp_safe_redirect( admin_url() );
 		} else {
@@ -158,6 +187,20 @@ class SocialAuthManager {
 			}
 		}
 		exit();
+	}
+
+	private static function set_auth_cookie_and_redirect(
+		WP_User $user,
+		UserInfoInterface $user_info,
+		bool $update = true
+	) {
+		wp_set_current_user( $user->ID, $user->user_login );
+		wp_set_auth_cookie( $user->ID, false );
+
+		if ( $update ) {
+			static::update_user_oauth_info( $user_info, $user->ID );
+		}
+		static::redirect_after_login( $user );
 	}
 
 

@@ -127,10 +127,10 @@ class SocialAuthProvider extends DatabaseModel {
 		$item                = static::find_for( $data['provider'], $data['provider_id'] );
 		$data['provider_id'] = sha1( $data['provider_id'] );
 		if ( $item instanceof static ) {
-			$data['id'] = (int) $item->get_id();
+			$data['id'] = $item->get_id();
 			( new static )->update( $data );
 
-			return (int) $item->get_id();
+			return $item->get_id();
 		}
 
 		return ( new static )->create( $data );

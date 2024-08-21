@@ -4,6 +4,7 @@ namespace YouSaidItCards\Modules\SocialAuth\Providers;
 
 use WP_Error;
 use YouSaidItCards\Modules\SocialAuth\Interfaces\ServiceProviderInterface;
+use YouSaidItCards\Modules\SocialAuth\Model\UserInfo;
 
 /**
  * GoogleService provider class
@@ -92,7 +93,7 @@ class GoogleServiceProvider extends BaseServiceProvider implements ServiceProvid
 	 *
 	 * @param  string  $access_token  User access token.
 	 *
-	 * @return array|WP_Error
+	 * @return UserInfo|WP_Error
 	 */
 	public static function get_userinfo( string $access_token ) {
 		$api_url = 'https://www.googleapis.com/oauth2/v3/userinfo';
@@ -107,7 +108,18 @@ class GoogleServiceProvider extends BaseServiceProvider implements ServiceProvid
 			]
 		);
 
-		return static::filter_remote_response( $api_url, [], $response );
+		$info = static::filter_remote_response( $api_url, [], $response );
+		if ( is_array( $info ) && isset( $info['email'] ) ) {
+			return new UserInfo( [
+				'provider'    => static::PROVIDER,
+				'uuid'        => $info['sub'],
+				'name'        => $info['name'],
+				'email'       => $info['email'],
+				'picture_url' => $info['picture'] ?? '',
+			] );
+		}
+
+		return $info;
 	}
 
 	/**
