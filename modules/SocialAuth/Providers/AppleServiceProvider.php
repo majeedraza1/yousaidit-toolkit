@@ -17,7 +17,7 @@ class AppleServiceProvider extends BaseServiceProvider implements ServiceProvide
 	 */
 	public static function get_consent_url(): string {
 		$params = [
-			'client_id'     => static::get_client_id(),
+			'client_id'     => ( new static() )->get_client_id(),
 			'redirect_uri'  => rawurlencode( static::get_redirect_uri() ),
 			'state'         => static::create_nonce(),
 			'response_type' => 'code',
@@ -32,9 +32,10 @@ class AppleServiceProvider extends BaseServiceProvider implements ServiceProvide
 	 * @inheritDoc
 	 */
 	public static function exchange_code_for_token( string $code ) {
+		$self   = new static();
 		$params = [
-			'client_id'     => static::get_client_id(),
-			'client_secret' => static::get_client_secret(),
+			'client_id'     => $self->get_client_id(),
+			'client_secret' => $self->get_client_secret(),
 			'redirect_uri'  => rawurlencode( static::get_redirect_uri() ),
 			'code'          => $code,
 			'grant_type'    => 'authorization_code',

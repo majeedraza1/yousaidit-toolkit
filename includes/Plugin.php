@@ -209,7 +209,6 @@ class Plugin {
 	 * @return void
 	 */
 	public function activation_includes() {
-		AuthManager::activation();
 		CustomerManager::activation();
 		ShipStationOrder::create_table();
 		ShipStationOrderAddress::create_table();

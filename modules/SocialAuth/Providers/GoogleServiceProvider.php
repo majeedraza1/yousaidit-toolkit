@@ -27,6 +27,9 @@ class GoogleServiceProvider extends BaseServiceProvider implements ServiceProvid
 		return self::$instance;
 	}
 
+	/**
+	 * Class constructor
+	 */
 	protected function __construct() {
 		$options = (array) get_option( '_stackonet_toolkit', [] );
 		if ( ! empty( $options['google_auth_client_id'] ) ) {
@@ -120,31 +123,5 @@ class GoogleServiceProvider extends BaseServiceProvider implements ServiceProvid
 		}
 
 		return $info;
-	}
-
-	/**
-	 * Get user email
-	 *
-	 * @param  string  $code  Code from Google prompt consent.
-	 *
-	 * @return array|WP_Error
-	 */
-	public static function get_userinfo_by_consent_code( string $code ) {
-		$response = static::exchange_code_for_token( $code );
-		if ( is_wp_error( $response ) ) {
-			return $response;
-		}
-		if ( empty( $response['access_token'] ) ) {
-			return new WP_Error( 'invalid_access_token', 'Invalid access token! Please try again later!' );
-		}
-		$userinfo = static::get_userinfo( $response['access_token'] );
-		if ( is_wp_error( $response ) ) {
-			return $response;
-		}
-		if ( empty( $userinfo['email'] ) ) {
-			return new WP_Error( 'internal_error', 'Could not retrieve profile information! Please try again later!' );
-		}
-
-		return $userinfo;
 	}
 }

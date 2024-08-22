@@ -28,6 +28,9 @@ class FacebookServiceProvider extends BaseServiceProvider implements ServiceProv
 		return self::$instance;
 	}
 
+	/**
+	 * Class constructor
+	 */
 	protected function __construct() {
 		$options = (array) get_option( '_stackonet_toolkit', [] );
 		if ( ! empty( $options['facebook_app_id'] ) ) {

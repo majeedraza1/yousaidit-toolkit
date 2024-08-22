@@ -2,6 +2,7 @@
 
 namespace YouSaidItCards\Modules\Auth;
 
+use YouSaidItCards\Modules\Auth\Models\SocialAuthProvider;
 use YouSaidItCards\Modules\Auth\REST\AuthController;
 use YouSaidItCards\Modules\Auth\REST\UserRegistrationController;
 
@@ -25,12 +26,9 @@ class AuthManager {
 			Auth::init();
 			AuthController::init();
 			UserRegistrationController::init();
+			add_action( 'admin_init', [ SocialAuthProvider::class, 'create_table' ] );
 		}
 
 		return self::$instance;
-	}
-
-	public static function activation() {
-		Migration::create_table();
 	}
 }

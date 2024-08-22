@@ -448,6 +448,7 @@ class DesignerCardController extends ApiController {
 				$im = EnvelopeColours::image_to_envelope( $item->get_image_id() );
 				Helper::generate_product_image( $im, $item );
 			} catch ( ImagickException $e ) {
+				Logger::log( $e );
 			}
 
 			return $this->respondCreated( $item );

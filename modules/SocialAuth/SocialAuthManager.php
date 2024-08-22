@@ -58,17 +58,17 @@ class SocialAuthManager {
 	 * @return void
 	 */
 	public function validate_auth_code() {
-		if ( ! isset( $_GET['action'], $_GET['provider'], $_GET['state'], $_GET['code'] ) ) {
+		if ( ! isset( $_REQUEST['action'], $_REQUEST['provider'], $_REQUEST['state'], $_REQUEST['code'] ) ) {
 			return;
 		}
-		if ( ! ( $_GET['action'] == 'social-login' && BaseServiceProvider::validate_nonce() ) ) {
+		if ( ! ( $_REQUEST['action'] == 'social-login' && BaseServiceProvider::validate_nonce() ) ) {
 			return;
 		}
-		$code = rawurldecode( $_GET['code'] );
+		$code = rawurldecode( $_REQUEST['code'] );
 		if ( empty( $code ) ) {
 			return;
 		}
-		$provider = sanitize_text_field( rawurldecode( $_GET['provider'] ) );
+		$provider = sanitize_text_field( rawurldecode( $_REQUEST['provider'] ) );
 		/**
 		 * Fires once receive token response.
 		 *
