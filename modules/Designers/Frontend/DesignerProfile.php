@@ -426,7 +426,7 @@ class DesignerProfile {
 				'standardCardUrl' => Assets::get_assets_url( 'static-images/sample-standard-card.webp' ),
 				'photoCardUrl'    => Assets::get_assets_url( 'static-images/sample-personalized-photo-card.webp' ),
 				'textCardUrl'     => Assets::get_assets_url( 'static-images/sample-personalised-text-card.webp' ),
-				'mugUrl'          => Assets::get_assets_url( 'static-images/sample-mug.webp' ),
+				'mugUrl'          => Assets::get_assets_url( 'static-images/sample-mug-2.webp' ),
 			];
 
 			self::add_card_sizes( $data );
