@@ -3,6 +3,7 @@
 namespace YouSaidItCards\Modules\FontManager\Models;
 
 use Stackonet\WP\Framework\Abstracts\DatabaseModel;
+use Stackonet\WP\Framework\Supports\Validate;
 
 class DesignerFont extends DatabaseModel {
 	protected $table = 'designer_fonts';
@@ -26,9 +27,18 @@ class DesignerFont extends DatabaseModel {
 			'font_family'  => $this->get_prop( 'font_family' ),
 			'font_file'    => $this->get_prop( 'font_file' ),
 			'group'        => $this->get_prop( 'group' ),
-			'for_public'   => true,
-			'for_designer' => true,
+			'for_public'   => $this->for_public(),
+			'for_designer' => $this->for_designer(),
 		] );
+	}
+
+	/**
+	 * Get font file
+	 *
+	 * @return string
+	 */
+	public function get_font_file(): string {
+		return (string) $this->get_prop( 'font_file' );
 	}
 
 	/**
@@ -38,6 +48,24 @@ class DesignerFont extends DatabaseModel {
 	 */
 	public function get_designer_id(): int {
 		return (int) $this->get_prop( 'designer_id' );
+	}
+
+	/**
+	 * Is this for public
+	 *
+	 * @return bool
+	 */
+	public function for_public(): bool {
+		return Validate::checked( $this->get_prop( 'for_public', 0 ) );
+	}
+
+	/**
+	 * Is this for designer
+	 *
+	 * @return bool
+	 */
+	public function for_designer(): bool {
+		return Validate::checked( $this->get_prop( 'for_designer', 1 ) );
 	}
 
 	/**
@@ -102,6 +130,16 @@ class DesignerFont extends DatabaseModel {
 			dbDelta( $table_schema );
 
 			update_option( $table_name . '-version', '1.0.0', false );
+		}
+
+		if ( version_compare( $version, '1.0.1', '<' ) ) {
+			$sql = "ALTER TABLE {$table_name} ADD `for_public` TINYINT NOT NULL DEFAULT 0 AFTER `group`;";
+			$wpdb->query( $sql );
+
+			$sql = "ALTER TABLE {$table_name} ADD `for_designer` TINYINT NOT NULL DEFAULT 1 AFTER `group`;";
+			$wpdb->query( $sql );
+
+			update_option( $table_name . '-version', '1.0.1' );
 		}
 	}
 }

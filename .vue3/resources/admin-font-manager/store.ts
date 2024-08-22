@@ -1,6 +1,7 @@
 import axios from "../utils/axios";
 import {Dialog, Notify, Spinner} from "@shapla/vanilla-components";
 import {ServerCollectionResponseDataInterface} from "../utils/CrudOperation.ts";
+import {DesignerFontInfoInterface} from "../interfaces/custom-font.ts";
 
 const getItems = () => {
   return new Promise(resolve => {
@@ -77,6 +78,26 @@ const updatePreInstalledFont = (data) => {
   })
 }
 
+const updateDesignerFont = (data: DesignerFontInfoInterface) => {
+  return new Promise(resolve => {
+    Spinner.show();
+    axios.post(`fonts/designers/${data.id}`, data)
+      .then(response => {
+        resolve(response.data.data);
+        Notify.success('Font setting has been updated.', 'Success!');
+      })
+      .catch(error => {
+        const responseData = error.response.data;
+        if (responseData.message) {
+          Notify.error(responseData.message, 'Error!');
+        }
+      })
+      .finally(() => {
+        Spinner.hide();
+      })
+  })
+}
+
 const createNewFont = (data: Record<string, string>) => {
   return new Promise(resolve => {
     Spinner.show();
@@ -125,11 +146,35 @@ const deleteExtraFont = (slug: string) => {
   })
 }
 
+const deleteDesignerFont = (id: number) => {
+  return new Promise(resolve => {
+    Dialog.confirm('Are you sure to delete designer font?').then(() => {
+      Spinner.show();
+      axios.delete(`fonts/designers/${id}`)
+        .then(response => {
+          resolve(response.data.data);
+          Notify.success('Font has been deleted.', 'Success!');
+        })
+        .catch(error => {
+          const responseData = error.response.data;
+          if (responseData.message) {
+            Notify.error(responseData.message, 'Error!');
+          }
+        })
+        .finally(() => {
+          Spinner.hide();
+        })
+    })
+  })
+}
+
 export {
   getItems,
   updatePreInstalledFont,
   getExtraFonts,
   createNewFont,
   deleteExtraFont,
-  getDesignerFonts
+  getDesignerFonts,
+  updateDesignerFont,
+  deleteDesignerFont
 }

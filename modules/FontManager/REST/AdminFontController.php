@@ -73,6 +73,8 @@ class AdminFontController extends ApiController {
 				'callback'            => [ $this, 'get_designers_fonts' ],
 				'permission_callback' => [ $this, 'create_item_permissions_check' ],
 			],
+		] );
+		register_rest_route( $this->namespace, '/fonts/designers/(?P<id>\d+)', [
 			[
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => [ $this, 'update_designers_font' ],
@@ -213,5 +215,50 @@ class AdminFontController extends ApiController {
 				'pagination' => $pagination,
 			]
 		);
+	}
+
+	public function update_designers_font( WP_REST_Request $request ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return $this->respondUnauthorized();
+		}
+
+		$id   = (int) $request->get_param( 'id' );
+		$item = DesignerFont::find_single( $id );
+
+		if ( ! $item instanceof DesignerFont ) {
+			return $this->respondNotFound();
+		}
+
+		$for_public   = Validate::checked( $request->get_param( 'for_public' ) );
+		$for_designer = Validate::checked( $request->get_param( 'for_designer' ) );
+
+		$item->set_prop( 'for_public', $for_public ? 1 : 0 );
+		$item->set_prop( 'for_designer', $for_designer ? 1 : 0 );
+		$item->update();
+
+		return $this->respondOK( $item );
+	}
+
+	public function delete_designers_font( WP_REST_Request $request ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return $this->respondUnauthorized();
+		}
+
+		$id   = (int) $request->get_param( 'id' );
+		$item = DesignerFont::find_single( $id );
+
+		if ( ! $item instanceof DesignerFont ) {
+			return $this->respondNotFound();
+		}
+
+		// Remove font file
+		if ( file_exists( $item->get_font_file() ) ) {
+			unlink( $item->get_font_file() );
+		}
+
+		// Delete record from database
+		$item->delete();
+
+		return $this->respondOK();
 	}
 }

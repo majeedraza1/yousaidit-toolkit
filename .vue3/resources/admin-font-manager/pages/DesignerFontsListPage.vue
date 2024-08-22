@@ -1,16 +1,21 @@
 <script setup lang="ts">
-import {ShaplaButton, ShaplaTable, ShaplaTablePagination} from "@shapla/vue-components";
+import {ShaplaButton, ShaplaCheckbox, ShaplaModal, ShaplaTable, ShaplaTablePagination} from "@shapla/vue-components";
 import {onMounted, reactive} from "vue";
 import {DesignerFontInfoInterface} from "../../interfaces/custom-font.ts";
-import {getDesignerFonts as _getDesignerFonts} from '../store.ts'
+import {deleteDesignerFont, getDesignerFonts as _getDesignerFonts, updateDesignerFont} from '../store.ts'
 import {PaginationDataInterface} from "../../utils/CrudOperation.ts";
+import ListItem from "../components/ListItem.vue";
 
 const state = reactive<{
   items: DesignerFontInfoInterface[];
   pagination: PaginationDataInterface;
+  activeFont: null | DesignerFontInfoInterface,
+  showEditModal: boolean,
 }>({
   items: [],
-  pagination: {current_page: 1, per_page: 20, total_items: 0}
+  pagination: {current_page: 1, per_page: 20, total_items: 0},
+  activeFont: null,
+  showEditModal: false,
 })
 
 const getDesignerFonts = (page: number = 1) => {
@@ -21,6 +26,21 @@ const getDesignerFonts = (page: number = 1) => {
 }
 
 const onActionClick = (action: 'edit' | 'delete', item: DesignerFontInfoInterface) => {
+  if ('edit' === action) {
+    state.activeFont = item;
+    state.showEditModal = true;
+  }
+  if ('delete' === action) {
+    deleteDesignerFont(item.id).then(() => {
+      getDesignerFonts();
+    })
+  }
+}
+
+const updateFont = () => {
+  updateDesignerFont(state.activeFont).then(data => {
+    window.console.log(data);
+  })
 }
 
 onMounted(() => {
@@ -43,6 +63,7 @@ onMounted(() => {
             :per-page="state.pagination.per_page"
             :total-items="state.pagination.total_items"
             @paginate="getDesignerFonts"
+            @click:action="onActionClick"
         />
       </div>
       <ShaplaTable
@@ -75,4 +96,33 @@ onMounted(() => {
       </div>
     </div>
   </div>
+  <ShaplaModal v-if="state.activeFont" :active="state.showEditModal" @close="state.showEditModal = false"
+               title="Edit Font" content-size="large">
+    <ListItem label="Slug" :value="state.activeFont.slug"/>
+    <ListItem label="Font Family" :value="state.activeFont.font_family"/>
+    <ListItem label="Font File" :value="state.activeFont.font_file"/>
+    <ListItem label="Group" :value="state.activeFont.group"/>
+    <ListItem label="Path" :value="state.activeFont.path"/>
+    <ListItem label="Url" :value="state.activeFont.url"/>
+    <ListItem label="For Public">
+      <div class="flex space-x-2 items-center">
+        <div class="inline-flex">
+          <shapla-checkbox :value="state.activeFont.for_public" v-model="state.activeFont.for_public"/>
+        </div>
+        <p class="text-xs">If enabled, font can be used for inner message.</p>
+      </div>
+    </ListItem>
+    <ListItem label="For Designer">
+      <div class="flex space-x-2 items-center">
+        <div class="inline-flex">
+          <ShaplaCheckbox :value="state.activeFont.for_designer" v-model="state.activeFont.for_designer"/>
+        </div>
+        <p class="text-xs">If enabled, designer can use this font for static text. Designer can use font for dynamic
+          text when it is also set for public use.</p>
+      </div>
+    </ListItem>
+    <template v-slot:foot>
+      <ShaplaButton theme="primary" @click="updateFont">Update</ShaplaButton>
+    </template>
+  </ShaplaModal>
 </template>

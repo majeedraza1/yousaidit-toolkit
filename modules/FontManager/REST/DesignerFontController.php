@@ -117,7 +117,7 @@ class DesignerFontController extends ApiController {
 			'font_file'   => $filename,
 			'group'       => $font_group,
 			'designer_id' => get_current_user_id(),
-			'for_public'  => true,
+			'for_public'  => false,
 		];
 
 		$font_id = DesignerFont::create( $data );
