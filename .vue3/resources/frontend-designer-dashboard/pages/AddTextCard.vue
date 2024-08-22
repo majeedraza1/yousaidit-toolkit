@@ -204,7 +204,7 @@ const onSubmit = () => {
 }
 
 onMounted(() => {
-  state.fonts = window.DesignerProfile.fonts.filter(font => font.for_public);
+  state.fonts = window.DesignerProfile.fonts;
 
   // @TODO remove it after testing.
   // state.card = cardTestData.card;

@@ -416,7 +416,7 @@ class DesignerProfile {
 			$data['user_card_categories'] = ( new DesignerCard() )->get_user_cards_categories_ids( $current_user->ID );
 			$data['order_statuses']       = wc_get_order_statuses();
 			$data['marketPlaces']         = MarketPlace::all();
-			$data['fonts']                = Font::get_fonts_for_designer();
+			$data['fonts']                = Font::get_fonts_for_designer( $current_user->ID );
 			$data['enabled_card_types']   = Settings::get_enabled_card_types();
 			$data['templates']            = [
 				'ps' => Assets::get_assets_url( 'static-images/Square Template - You Said It Cards.psd' ),

@@ -72,6 +72,7 @@ onMounted(() => {
               {label:'Group',key:'group'},
               {label:'For Public',key:'for_public'},
               {label:'For Designer',key:'for_designer'},
+              {label:'Designer ID',key:'designer_id'},
           ]"
           :items="state.items"
           :actions="[{label:'Edit',key:'edit'},{label:'Delete',key:'delete'}]"

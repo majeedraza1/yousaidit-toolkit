@@ -7,6 +7,7 @@ use Stackonet\WP\Framework\Supports\Validate;
 
 class DesignerFont extends DatabaseModel {
 	protected $table = 'designer_fonts';
+	protected $created_by = 'designer_id';
 
 	public function to_array(): array {
 		$data                = $this->get_font_info()->to_array();

@@ -55,7 +55,7 @@ class LocalDevelopment {
 		$script = '<!-- Development Scripts Start -->' . PHP_EOL;
 		$script .= static::get_common_script();
 		// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
-		$script .= '<script type="module" src="' . static::get_local_dev_url() . '/resources/admin.ts"></script>' . PHP_EOL;
+		// $script .= '<script type="module" src="' . static::get_local_dev_url() . '/resources/admin.ts"></script>' . PHP_EOL;
 		$script .= '<!-- Development Scripts End -->' . PHP_EOL;
 
 		echo $script; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -69,7 +69,7 @@ class LocalDevelopment {
 		$script .= static::get_common_script();
 		// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
 		// $script .= '<script type="module" src="' . static::get_local_dev_url() . '/resources/designer-dashboard.ts"></script>' . PHP_EOL;
-		// $script .= '<script type="module" src="' . static::get_local_dev_url() . '/resources/frontend.ts"></script>' . PHP_EOL;
+		$script .= '<script type="module" src="' . static::get_local_dev_url() . '/resources/frontend.ts"></script>' . PHP_EOL;
 		$script .= '<!-- Development Scripts End -->' . PHP_EOL;
 
 		echo $script; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped

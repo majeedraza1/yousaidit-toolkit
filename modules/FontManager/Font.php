@@ -264,12 +264,16 @@ class Font {
 		return $fonts;
 	}
 
-	public static function get_fonts_with_permissions(): array {
+	public static function get_fonts_with_permissions( int $user_id = 0 ): array {
 		$pre_installed  = static::get_pre_installed_fonts_with_permissions();
 		$extra_fonts    = static::get_extra_fonts_with_path_and_url();
 		$designer_fonts = [];
 
-		$designer_font_objects = DesignerFont::find_multiple( [ 'per_page' => - 1 ] );
+		if ( $user_id ) {
+			$designer_font_objects = DesignerFont::get_fonts( $user_id );
+		} else {
+			$designer_font_objects = DesignerFont::find_multiple( [ 'per_page' => - 1 ] );
+		}
 		foreach ( $designer_font_objects as $font ) {
 			$designer_fonts[] = $font->to_array();
 		}
@@ -277,8 +281,8 @@ class Font {
 		return array_merge( $pre_installed, $extra_fonts, $designer_fonts );
 	}
 
-	public static function get_fonts_for_designer(): array {
-		$_fonts = static::get_fonts_with_permissions();
+	public static function get_fonts_for_designer( int $user_id = 0 ): array {
+		$_fonts = static::get_fonts_with_permissions( $user_id );
 		$fonts  = [];
 		foreach ( $_fonts as $font ) {
 			$_font = [
