@@ -59,7 +59,7 @@ class EvaThemeManager {
             <div class="innerbar">
                 <ul>
                     <li>BUY ANY 5 CARDS FOR <strong>£9.99</strong></li>
-                    <li>
+                    <li style="display: none">
                         <Strong>
                             <i class="fa fa-star"></i>
                             <i class="fa fa-star"></i>
@@ -69,6 +69,7 @@ class EvaThemeManager {
                         </Strong>
                         5 STAR RATING
                     </li>
+                    <li><i class="fa fa-tree"></i><strong> 1 TREE </Strong>PLANTED FOR EVERY 30 SALES</li>
                     <li><strong>FREE DELIVERY</strong> OVER £30</li>
                 </ul>
             </div>
