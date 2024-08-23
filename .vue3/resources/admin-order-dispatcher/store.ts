@@ -2,6 +2,7 @@ import axios from "../utils/axios";
 import {Notify, Spinner} from "@shapla/vanilla-components";
 import {defineStore} from "pinia";
 import {reactive, toRefs} from "vue";
+import printPage from "./print.ts";
 
 const useAdminOrderDispatcherStore = defineStore('order-dispatcher-admin', () => {
   const state = reactive({
@@ -84,7 +85,7 @@ const useAdminOrderDispatcherStore = defineStore('order-dispatcher-admin', () =>
 
   function printAddress(orderId: number) {
     let url = window.StackonetToolkit.ajaxUrl + '?action=print_order_address&id=' + orderId;
-    window.open(url, '_blank');
+    printPage.printPage(url);
   }
 
   function dispatch(data) {
