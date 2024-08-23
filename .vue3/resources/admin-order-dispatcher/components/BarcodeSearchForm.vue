@@ -14,30 +14,33 @@
 
 <script lang="ts" setup>
 import {ShaplaButton} from '@shapla/vue-components';
-import {onMounted, ref} from "vue";
+import {onMounted, ref, watch} from "vue";
 
 const search = ref('');
-const inputEl = ref(null)
+const inputEl = ref<HTMLInputElement>(null)
 const emit = defineEmits<{
-  input: [value: string];
+  'update:modelValue': [value: string];
   submit: [value: string];
 }>()
 
 const props = defineProps({
-  value: {type: String, default: ''},
+  modelValue: {type: String, default: ''},
+})
+
+watch(() => search.value, newValue => {
+  emit('update:modelValue', newValue);
+})
+
+watch(() => props.modelValue, newValue => {
+  search.value = newValue;
 })
 
 const submit = () => {
-  triggerInputEvent();
   emit('submit', search.value);
 }
 const clear = () => {
   search.value = '';
-  triggerInputEvent();
   focusInput();
-}
-const triggerInputEvent = () => {
-  emit('input', search.value);
 }
 const focusInput = () => {
   if (inputEl.value) {
@@ -46,7 +49,7 @@ const focusInput = () => {
 }
 
 onMounted(() => {
-  search.value = props.value;
+  search.value = props.modelValue;
   setTimeout(() => focusInput(), 10)
 })
 </script>

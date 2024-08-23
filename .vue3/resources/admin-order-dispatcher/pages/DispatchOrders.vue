@@ -9,17 +9,10 @@
     </Orders>
     <ShaplaModal :active="true" v-if="state.showModal" @close="state.showModal = false" type="box" content-size="large">
       <div class="shapla-modal-box-content">
-        <form action="#" @submit.prevent="scanBarcode" autocomplete="off">
-          <div class="field--input-container">
-            <label class="screen-reader-text" for="input--search">Scan code or enter ShipStation ID</label>
-            <input id="input--search" class="input--search" type="text" v-model="state.search"
-                   placeholder="Scan code or enter ShipStation ID">
-            <ShaplaButton theme="primary">Search</ShaplaButton>
-            <ShaplaButton theme="default" @click="state.search = ''" class="button--clear"
-                          :class="{'is-active':state.search.length}">Clear
-            </ShaplaButton>
-          </div>
-        </form>
+        <BarcodeSearchForm
+            v-model="state.search"
+            @submit="scanBarcode"
+        />
         <p class="search-results-error" v-if="state.errorText" v-html="state.errorText"></p>
         <template v-if="hasActiveOrder">
           <OrderInfo :order="state.activeOrder" @shipped="state.showModal = false"/>
@@ -35,6 +28,7 @@ import Orders from "../components/Orders.vue";
 import OrderInfo from "../components/OrderInfo.vue";
 import {computed, onMounted, reactive, watch} from "vue";
 import useAdminOrderDispatcherStore from "../store.ts";
+import BarcodeSearchForm from "../components/BarcodeSearchForm.vue";
 
 const store = useAdminOrderDispatcherStore();
 
