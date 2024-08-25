@@ -4,6 +4,7 @@ namespace YouSaidItCards\Modules\Designers\Models;
 
 use Stackonet\WP\Framework\Supports\Validate;
 use tFPDF;
+use WP_Error;
 use YouSaidItCards\Assets;
 
 class StaticCardGenerator {
@@ -103,7 +104,7 @@ class StaticCardGenerator {
 	 * @param tFPDF $fpd
 	 */
 	private function addCompanyLogo( tFPDF &$fpd ) {
-		$logo_path  = Assets::get_asset_path( 'static-images/logo-yousaidit@300ppi.jpg' );
+		$logo_path  = Assets::get_static_asset_url( 'logo-yousaidit@300ppi.jpg' );
 		$image_info = [ 660, 292 ];
 		$width      = ( $fpd->GetPageWidth() / 2 ) / 3;
 		$height     = $image_info[1] / $image_info[0] * $width;

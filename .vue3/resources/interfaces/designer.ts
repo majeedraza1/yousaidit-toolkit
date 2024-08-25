@@ -171,6 +171,7 @@ interface DesignerProfileInlineDataInterface extends DesignerProfileInlineGenera
   marketPlaces: { key: string; label: string; logo: string; storeId: number }[];
   fonts: DesignerProfileFontInterface[];
   templates: { ps: string; ai: string };
+  mugTemplates: { ps: string; ai: string };
   sampleCards: { standardCardUrl: string; textCardUrl: string; photoCardUrl: string; mugUrl: string; }
 }
 

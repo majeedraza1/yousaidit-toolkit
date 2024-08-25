@@ -338,7 +338,10 @@ class DesignerProfile {
 		add_action( 'wp_footer', [ $this, 'add_inline_scripts' ], 5 );
 
 		if ( ! $current_user->exists() ) {
-			return '<div id="yousaidit-designer-signup"></div>';
+			$html = '<style>h1.page-title{display:none}</style>';
+			$html .= '<div id="yousaidit-designer-signup"></div>';
+
+			return $html;
 		}
 
 
@@ -419,14 +422,18 @@ class DesignerProfile {
 			$data['fonts']                = Font::get_fonts_for_designer( $current_user->ID );
 			$data['enabled_card_types']   = Settings::get_enabled_card_types();
 			$data['templates']            = [
-				'ps' => Assets::get_assets_url( 'static-images/Square Template - You Said It Cards.psd' ),
-				'ai' => Assets::get_assets_url( 'static-images/Square Template - You Said It Cards.ai' ),
+				'ps' => Assets::get_static_asset_url( 'Square Template - You Said It Cards.psd' ),
+				'ai' => Assets::get_static_asset_url( 'Square Template - You Said It Cards.ai' ),
+			];
+			$data['mugTemplates']         = [
+				'ps' => Assets::get_static_asset_url( 'You Said It - Mug template.psd' ),
+				'ai' => Assets::get_static_asset_url( 'You Said It - Mug template.ai' ),
 			];
 			$data['sampleCards']          = [
-				'standardCardUrl' => Assets::get_assets_url( 'static-images/sample-standard-card.webp' ),
-				'photoCardUrl'    => Assets::get_assets_url( 'static-images/sample-personalized-photo-card.webp' ),
-				'textCardUrl'     => Assets::get_assets_url( 'static-images/sample-personalised-text-card.webp' ),
-				'mugUrl'          => Assets::get_assets_url( 'static-images/sample-mug-2.webp' ),
+				'standardCardUrl' => Assets::get_static_asset_url( 'sample-standard-card.webp' ),
+				'photoCardUrl'    => Assets::get_static_asset_url( 'sample-personalized-photo-card.webp' ),
+				'textCardUrl'     => Assets::get_static_asset_url( 'sample-personalised-text-card.webp' ),
+				'mugUrl'          => Assets::get_static_asset_url( 'sample-mug-2.webp' ),
 			];
 
 			self::add_card_sizes( $data );

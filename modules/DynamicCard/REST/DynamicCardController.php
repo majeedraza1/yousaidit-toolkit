@@ -58,7 +58,7 @@ class DynamicCardController extends ApiController {
 		$data  = [
 			'payload'        => DynamicCard::sanitize_card_payload( $payload ),
 			'product_thumb'  => is_array( $image ) ? $image[0] : '',
-			'placeholder_im' => Assets::get_assets_url( 'static-images/placeholder--inner-message.jpg' ),
+			'placeholder_im' => Assets::get_static_asset_url( 'placeholder--inner-message.jpg' ),
 		];
 
 		return $this->respondOK( $data );

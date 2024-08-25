@@ -7,7 +7,7 @@ use YouSaidItCards\Assets;
 
 class MarketPlace {
 	/**
-	 * Get market places list
+	 * Get marketplaces list
 	 *
 	 * @return array[]
 	 */
@@ -16,38 +16,38 @@ class MarketPlace {
 			[
 				'key'     => 'yousaidit',
 				'label'   => 'You Said It Cards',
-				'logo'    => Assets::get_assets_url( '/static-images/logo-yousaidit.png' ),
+				'logo'    => Assets::get_static_asset_url( 'logo-yousaidit.png' ),
 				'storeId' => (int) SettingPage::get_option( 'shipstation_yousaidit_store_id' ),
 			],
 			[
 				'key'     => 'yousaidit-trade',
 				'label'   => 'You Said It Cards - Trade',
-				'logo'    => Assets::get_assets_url( '/static-images/logo-yousaidit-trade.png' ),
+				'logo'    => Assets::get_static_asset_url( 'logo-yousaidit-trade.png' ),
 				'storeId' => (int) SettingPage::get_option( 'shipstation_yousaidit_trade_store_id' ),
 			],
 //			[
 //				'key'     => 'etsy',
 //				'label'   => 'Etsy',
-//				'logo'    => Assets::get_assets_url( '/static-images/logo-etsy.svg' ),
+//				'logo'    => Assets::get_static_asset_url( 'logo-etsy.svg' ),
 //				'storeId' => (int) SettingPage::get_option( 'shipstation_etsy_store_id' ),
 //			],
 			[
 				'key'     => 'amazon',
 				'label'   => 'Amazon',
-				'logo'    => Assets::get_assets_url( '/static-images/logo-amazon.png' ),
+				'logo'    => Assets::get_static_asset_url( 'logo-amazon.png' ),
 				'storeId' => (int) SettingPage::get_option( 'shipstation_amazon_store_id' ),
 			],
 			[
 				'key'     => 'ebay',
 				'label'   => 'eBay',
-				'logo'    => Assets::get_assets_url( '/static-images/logo-ebay.png' ),
+				'logo'    => Assets::get_static_asset_url( 'logo-ebay.png' ),
 				'storeId' => (int) SettingPage::get_option( 'shipstation_ebay_store_id' ),
 			],
 		];
 	}
 
 	/**
-	 * @param int $store_id
+	 * @param  int  $store_id
 	 *
 	 * @return array|false
 	 */
@@ -63,7 +63,7 @@ class MarketPlace {
 	}
 
 	/**
-	 * @param int $store_id
+	 * @param  int  $store_id
 	 *
 	 * @return string|null
 	 */

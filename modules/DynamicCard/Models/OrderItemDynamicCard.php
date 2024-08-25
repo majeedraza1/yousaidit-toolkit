@@ -221,7 +221,7 @@ class OrderItemDynamicCard {
 	 * @return void
 	 */
 	private function addCompanyLogo( tFPDF &$fpd ) {
-		$logo_path  = Assets::get_asset_path( 'static-images/logo-yousaidit@300ppi.jpg' );
+		$logo_path  = Assets::get_static_asset_url( 'logo-yousaidit@300ppi.jpg' );
 		$image_info = [ 660, 292 ];
 		$width      = ( $fpd->GetPageWidth() / 2 ) / 3;
 		$height     = $image_info[1] / $image_info[0] * $width;
@@ -329,7 +329,7 @@ class OrderItemDynamicCard {
 		$fpd->SetFont( $font->get_font_family_for_dompdf(), '', $section->get_text_option( 'size' ) );
 
 		$text_width = $fpd->GetStringWidth( $section->get_text() );
-		$y_pos      = $section->get_position_from_top_mm() + FreePdfBase::points_to_mm( $section->get_text_option( 'size' ) * 0.75  );
+		$y_pos      = $section->get_position_from_top_mm() + FreePdfBase::points_to_mm( $section->get_text_option( 'size' ) * 0.75 );
 
 		$back_width = $fpd->GetPageWidth() - Utils::SQUARE_CARD_WIDTH_MM;
 

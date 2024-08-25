@@ -3,6 +3,7 @@
 namespace YouSaidItCards\Modules\StabilityAi;
 
 use Stackonet\WP\Framework\Supports\Sanitize;
+use YouSaidItCards\Assets;
 
 /**
  * Settings class
@@ -475,13 +476,12 @@ class Settings {
 	 */
 	public static function get_style_presets(): array {
 		$presets_slugs = StabilityAiClient::get_style_presets_slug();
-		$url_base      = YOUSAIDIT_TOOLKIT_ASSETS . '/static-images/ai-image-style-presets';
 		$presets       = [];
 		foreach ( $presets_slugs as $slug ) {
 			$presets[] = [
 				'slug'  => $slug,
 				'label' => ucwords( str_replace( '-', ' ', $slug ) ),
-				'icon'  => $url_base . '/' . sprintf( '%s.webp', $slug )
+				'icon'  => Assets::get_static_asset_url( sprintf( 'ai-image-style-presets/%s.webp', $slug ) )
 			];
 		}
 

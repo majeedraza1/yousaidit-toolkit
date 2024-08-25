@@ -118,6 +118,25 @@ class Assets {
 	}
 
 	/**
+	 * Get static assets url
+	 *
+	 * @param  string  $path  Static asset path.
+	 *
+	 * @return string
+	 */
+	public static function get_static_asset_url( string $path ): string {
+		$path          = ltrim( $path, '/' );
+		$absolute_path = join( '/', [ WP_CONTENT_DIR, 'uploads', 'yousaidit-static-assets', $path ] );
+		if ( file_exists( $absolute_path ) ) {
+			return str_replace( WP_CONTENT_DIR, WP_CONTENT_URL, $absolute_path );
+		}
+
+		$path = 'static-images/' . $path;
+
+		return static::get_assets_url( $path );
+	}
+
+	/**
 	 * Get version
 	 *
 	 * @param  array  $script  Script data.
@@ -251,9 +270,9 @@ class Assets {
 			'lostPasswordUrl'        => wp_lostpassword_url(),
 			'signupUrl'              => wp_registration_url(),
 			'logOutUrl'              => wp_logout_url( get_permalink() ),
-			'placeholderUrlIM'       => self::get_assets_url( 'static-images/placeholder--inner-message.jpg' ),
-			'placeholderUrlIML'      => self::get_assets_url( 'static-images/inside-left.svg' ),
-			'placeholderUrlIMR'      => self::get_assets_url( 'static-images/inside-right.svg' ),
+			'placeholderUrlIM'       => self::get_static_asset_url( 'placeholder--inner-message.jpg' ),
+			'placeholderUrlIML'      => self::get_static_asset_url( 'inside-left.svg' ),
+			'placeholderUrlIMR'      => self::get_static_asset_url( 'inside-right.svg' ),
 			'videoMessagePrice'      => (float) SettingPage::get_option( 'video_inner_message_price' ),
 			'videoMessagePriceHTML'  => wc_price( (float) SettingPage::get_option( 'video_inner_message_price' ) ),
 			'maxUploadLimitText'     => SettingPage::get_option( 'max_upload_limit_text' ),

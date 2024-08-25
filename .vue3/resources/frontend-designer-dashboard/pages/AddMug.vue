@@ -43,7 +43,7 @@ const state = reactive<{
 const downloadTemplate = (fileType: 'ps' | 'ai') => {
   const a = document.createElement('a')
   a.target = '_blank'
-  a.href = window.DesignerProfile.templates[fileType];
+  a.href = window.DesignerProfile.mugTemplates[fileType];
   a.click();
 }
 
@@ -123,7 +123,7 @@ onMounted(() => {
       </div>
       <div class="w-full md:w-1/2 p-2">
         <div>
-          <h2 class="text-2xl leading-none mb-4">Card Artwork Size</h2>
+          <h2 class="text-2xl leading-none mb-4">Mug Artwork Size</h2>
           <p>To ensure print quality we need the artwork uploaded to be the correct size.</p>
           <p>
             <strong>Size (width x height):</strong> 21 x 9.9 cm <span class="hidden color-text-secondary"> or (2480 x 1169 px)</span><br>

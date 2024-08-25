@@ -43,9 +43,10 @@ class Admin {
 		$web_fonts_dir = join( '/', [ WP_CONTENT_DIR, 'uploads', 'yousaidit-web-fonts' ] );
 		$envelop_dir   = join( '/', [ WP_CONTENT_DIR, 'uploads', 'envelope-colours' ] );
 		$emoji_dir     = join( '/', [ WP_CONTENT_DIR, 'uploads', 'emoji-assets-6.0.0' ] );
+		$assets_dir    = join( '/', [ WP_CONTENT_DIR, 'uploads', 'yousaidit-static-assets' ] );
 
 		$message = '';
-		foreach ( [ $web_fonts_dir, $envelop_dir, $emoji_dir ] as $item ) {
+		foreach ( [ $web_fonts_dir, $envelop_dir, $emoji_dir, $assets_dir ] as $item ) {
 			if ( ! file_exists( $item ) ) {
 				$message .= sprintf( "<li>%s</li>", $item );
 			}
@@ -69,8 +70,9 @@ class Admin {
 		if ( count( $missing_extensions ) ) {
 			echo '<div class="notice notice-error is-dismissible">';
 			echo '<p>';
-			echo 'The PHP extensions <strong>('.implode(', ',$required_extensions).')</strong> are required to work Yousaidit Toolkit properly.';
-			echo 'But extensions <strong>('.implode(', ',$missing_extensions).')</strong> are missing.';
+			echo 'The PHP extensions <strong>(' . implode( ', ',
+					$required_extensions ) . ')</strong> are required to work Yousaidit Toolkit properly.';
+			echo 'But extensions <strong>(' . implode( ', ', $missing_extensions ) . ')</strong> are missing.';
 			echo '</p>';
 			echo '</div>';
 		}
