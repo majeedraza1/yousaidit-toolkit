@@ -4,6 +4,7 @@ $author     = get_queried_object();
 $designer   = new YouSaidItCards\Modules\Designers\Models\CardDesigner( $author );
 $avatar_url = $designer->get_avatar_url();
 $location   = $designer->get_location();
+$ig_logo = \YouSaidItCards\Assets::get_static_asset_url('instagram-logo.png');
 ?>
 
 <?php get_header(); ?>
@@ -38,7 +39,7 @@ $location   = $designer->get_location();
 								?>
 								<a href="<?php echo $instagram_logo ?>" target="_blank" class="shapla-icon">
 									<img
-										src="<?php echo YOUSAIDIT_TOOLKIT_ASSETS . '/static-images/instagram-logo.png' ?>"
+										src="<?php echo esc_url($ig_logo) ?>"
 										width="24" height="24" alt="Instagram" style="width: 1rem;height: 1rem;">
 								</a>
 								<?php
