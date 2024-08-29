@@ -27,10 +27,16 @@
     </div>
     <div :class="`yousaidit-designer-card__status status-${item.status}`">{{ item.status }}</div>
     <div class="yousaidit-designer-card__image">
-      <ShaplaImage :width-ratio="item.product_thumbnail.width" :height-ratio="item.product_thumbnail.height">
+      <ShaplaImage v-if="item.product_thumbnail_id" :width-ratio="item.product_thumbnail.width"
+                   :height-ratio="item.product_thumbnail.height">
         <img class="yousaidit-designer-profile-card__image" :src="item.product_thumbnail.url"
              :alt="item.product_thumbnail.title">
       </ShaplaImage>
+      <template v-if="!item.product_thumbnail_id && item.card_type === 'mug'">
+        <ShaplaImage :width-ratio="item.image.width" :height-ratio="item.image.height">
+          <img class="yousaidit-designer-profile-card__image" :src="item.image.url" :alt="item.image.title">
+        </ShaplaImage>
+      </template>
     </div>
     <div class=" hidden yousaidit-designer-card__info px-2">
       <div class="font-bold text-lg mb-2">{{ item.card_title }}</div>

@@ -145,7 +145,7 @@ interface DesignerCardAttributeInterface {
 
 interface DesignerCardModelInterface {
   id: number;
-  card_type: 'dynamic' | 'static';
+  card_type: 'dynamic' | 'static' | 'mug';
   card_title: string;
   description: string;
   card_sizes: string[];
